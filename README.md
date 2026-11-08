@@ -18,7 +18,7 @@ upstream Git source and test corpus, so the entire repository is not all Rust.
   into the standard Git LFS cache.
 - Large-asset inventory and candidate Unreal/Unity `.gitattributes` rules.
 - redb snapshots keyed by exact Git commits, factual Git graph queries, and
-  automatically generated lexical vectors for local search.
+  automatically generated lexical vectors with exact token matching for local search.
 - Builds and tests through a pinned version of [Lustr](https://github.com/glopyglerky/lustr).
 
 Learned semantic embeddings, resolved call graphs, distributed HA, native
@@ -94,6 +94,7 @@ wired into a complete native push workflow.
 - [Git, Lore and asset upstream catalog](Documentation/gitr/upstreams.md)
 - [Rust database and retrieval comparison](Documentation/gitr/database-research.md)
 - [Closest similar projects: Libra, Git-vdb, GitQL and Codebase Memory](Documentation/gitr/similar-projects.md)
+- [Libra component review and native push integration plan](Documentation/gitr/libra-integration.md)
 - [Next implementation work and acceptance gates](Documentation/gitr/roadmap.md)
 
 The authored Rust package is GPL-2.0-only, following this fork's Git license.

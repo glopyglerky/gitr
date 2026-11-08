@@ -120,6 +120,9 @@ pub struct Store {
 }
 
 impl Store {
+    /// Use a trusted cache whose pre-existing external ancestors are stable and
+    /// already durable. Missing directory suffixes are created and synced by
+    /// ingestion on Unix; cache entries must not be concurrently replaced.
     pub fn new(root: PathBuf) -> Self {
         Self { root }
     }
@@ -137,8 +140,11 @@ impl Store {
             .join(&pointer.oid))
     }
 
-    /// Publish only after hash, length, file flush and atomic no-clobber install.
+    /// Verify and flush the file before atomic no-clobber installation. On Unix,
+    /// return its pointer only after the directory entries are synced as well.
     /// An existing object is verified, never replaced, including under races.
+    /// Directory syncing is unavailable on other platforms, so this does not
+    /// promise power-loss durability there.
     pub fn ingest(&self, mut reader: impl Read, expected: Option<&Pointer>) -> Result<Pointer> {
         if let Some(expected) = expected {
             expected.validate()?;
@@ -189,18 +195,39 @@ impl Store {
         ensure_directory(&first)?;
         ensure_directory(&second)?;
         match temp.persist_noclobber(&path) {
-            Ok(_) => sync_directory(&second)?,
+            Ok(_) => {}
             Err(e) if e.error.kind() == io::ErrorKind::AlreadyExists => {
-                self.verify(&pointer)
+                let existing = self
+                    .open_verified(&pointer)
                     .context("existing LFS cache object is corrupt; it was not overwritten")?;
+                sync_verified_file(&existing)?;
             }
             Err(e) => return Err(e.error).context("cannot publish LFS object"),
         }
+        // A competing publisher may have installed the file and stopped before
+        // syncing its directory. A verified existing object needs this barrier
+        // too, before a pointer or chunk manifest can acknowledge it.
+        sync_directory(&second)?;
         Ok(pointer)
     }
 
     pub fn verify(&self, pointer: &Pointer) -> Result<()> {
         self.open_verified(pointer).map(|_| ())
+    }
+
+    /// Verify a reused object and, on Unix, sync its file and directory entries
+    /// before another durable object (such as a chunk manifest) references it.
+    /// Ordinary verification and reads deliberately do not perform these syncs.
+    pub(crate) fn verify_durable(&self, pointer: &Pointer) -> Result<()> {
+        let file = self.open_verified(pointer)?;
+        sync_verified_file(&file)?;
+        let first = self.root.join(&pointer.oid[..2]);
+        let second = first.join(&pointer.oid[2..4]);
+        sync_directory_entry(&self.root)?;
+        sync_directory_entry(&first)?;
+        sync_directory_entry(&second)?;
+        sync_directory(&second)?;
+        Ok(())
     }
 
     /// Return the same verified file handle, positioned at zero. Gitr never
@@ -225,35 +252,89 @@ impl Store {
     }
 }
 
-fn ensure_real_directory(path: &Path) -> Result<()> {
+pub(crate) fn ensure_real_directory(path: &Path) -> Result<()> {
     let meta = fs::symlink_metadata(path)?;
     ensure!(
         meta.file_type().is_dir(),
-        "LFS cache directory must not be a symlink: {}",
+        "cache directory must not be a symlink: {}",
         path.display()
     );
     Ok(())
 }
 
-fn ensure_directory(path: &Path) -> Result<()> {
+/// Create a missing suffix one directory at a time. Make the parent's directory
+/// entry durable before creating a child, then sync the new child's entry in
+/// that parent. Even an existing directory needs its parent synced: a cooperating
+/// writer may have just created it and not reached that barrier.
+///
+/// The cache and its external ancestors must be trusted and stable. Pre-existing
+/// ancestors above the first existing directory are assumed already durable;
+/// this does not walk and fsync the whole filesystem ancestry on every object.
+/// Cache directories created through this helper satisfy that assumption for
+/// subsequent callers because their parents are durable before they appear.
+pub(crate) fn ensure_directory(path: &Path) -> Result<()> {
     match fs::symlink_metadata(path) {
-        Ok(_) => ensure_real_directory(path),
+        Ok(_) => {}
         Err(e) if e.kind() == io::ErrorKind::NotFound => {
-            fs::create_dir_all(path)?;
-            ensure_real_directory(path)
+            let parent = directory_parent(path).context("cache directory has no parent")?;
+            ensure_directory(parent)?;
+            match fs::create_dir(path) {
+                Ok(()) => {}
+                // Another creator may win after our initial inspection. The
+                // real-directory check and parent sync below still apply.
+                Err(e) if e.kind() == io::ErrorKind::AlreadyExists => {}
+                Err(e) => return Err(e).context("cannot create cache directory"),
+            }
         }
-        Err(e) => Err(e.into()),
+        Err(e) => return Err(e.into()),
     }
+    sync_directory_entry(path)
 }
 
-#[cfg(unix)]
-fn sync_directory(path: &Path) -> Result<()> {
-    File::open(path)?.sync_all()?;
+fn directory_parent(path: &Path) -> Option<&Path> {
+    path.parent().map(|parent| {
+        if parent.as_os_str().is_empty() {
+            Path::new(".")
+        } else {
+            parent
+        }
+    })
+}
+
+fn sync_directory_entry(path: &Path) -> Result<()> {
+    ensure_real_directory(path)?;
+    if let Some(parent) = directory_parent(path) {
+        sync_directory(parent)?;
+    }
     Ok(())
 }
 
+#[cfg(unix)]
+pub(crate) fn sync_verified_file(file: &File) -> Result<()> {
+    file.sync_all().context("cannot sync verified cache file")
+}
+
+// Read-only Windows file handles cannot generally be flushed with
+// FlushFileBuffers. New files are flushed through their writable temporary
+// handles before installation; no cross-platform directory-durability claim is
+// made for either new or reused entries.
 #[cfg(not(unix))]
-fn sync_directory(_path: &Path) -> Result<()> {
+pub(crate) fn sync_verified_file(_file: &File) -> Result<()> {
+    Ok(())
+}
+
+#[cfg(unix)]
+pub(crate) fn sync_directory(path: &Path) -> Result<()> {
+    File::open(path)?
+        .sync_all()
+        .with_context(|| format!("cannot sync cache directory {}", path.display()))?;
+    Ok(())
+}
+
+// A successful call on non-Unix platforms is not a power-loss durability
+// guarantee: portable std APIs do not provide directory fsync there.
+#[cfg(not(unix))]
+pub(crate) fn sync_directory(_path: &Path) -> Result<()> {
     Ok(())
 }
 

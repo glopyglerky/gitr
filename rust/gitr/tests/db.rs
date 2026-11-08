@@ -22,6 +22,8 @@ fn reference(repo: &Path, args: &[&str], input: Option<&[u8]>) -> String {
             "user.name=Gitr Database Tests",
             "-c",
             "user.email=gitr-tests@example.invalid",
+            "-c",
+            "core.autocrlf=false",
         ])
         .args(args);
     command.env("GIT_TERMINAL_PROMPT", "0");
@@ -126,6 +128,83 @@ fn named_snapshots_never_fall_back_to_the_last_indexed_commit() {
 }
 
 #[test]
+fn exact_query_terms_reject_hash_collisions_and_rank_complete_matches_first() {
+    let directory = repository();
+    // `gitk` collides with `atomic` in the 512-bin FNV vector. This came from
+    // gitk-git/.gitignore outranking relevant files in a real repository search.
+    fs::write(directory.path().join("collision.txt"), "gitk").unwrap();
+    fs::write(directory.path().join("one-term.txt"), "atomic").unwrap();
+    fs::write(
+        directory.path().join("both-terms.rs"),
+        "ATOMIC_publication cobalt copper tangerine violet silver azure amber bronze",
+    )
+    .unwrap();
+    let revision = commit(directory.path(), "lexical collision regression");
+    let repo = git::discover_at(directory.path()).unwrap();
+    db::index(&repo, &revision, db::DEFAULT_MAX_BLOB_BYTES).unwrap();
+
+    let result = db::search(&repo, "atomic publication", &revision, 10).unwrap();
+    assert_eq!(result.query_term_count, 2);
+    assert_eq!(result.hits.len(), 2);
+    assert_eq!(result.hits[0].path.utf8.as_deref(), Some("both-terms.rs"));
+    assert_eq!(result.hits[0].matched_query_terms, 2);
+    assert_eq!(result.hits[1].path.utf8.as_deref(), Some("one-term.txt"));
+    assert_eq!(result.hits[1].matched_query_terms, 1);
+    // Exact overlap has priority even when the shorter, incomplete match has
+    // a larger cosine. Hash-only matches must not consume even the last slot.
+    assert!(result.hits[0].lexical_cosine < result.hits[1].lexical_cosine);
+    let bounded = db::search(&repo, "atomic publication", &revision, 1).unwrap();
+    assert_eq!(bounded.hits[0].path.utf8.as_deref(), Some("both-terms.rs"));
+
+    let folded = db::search(&repo, "ATOMIC__PUBLICATION! atomic", &revision, 10).unwrap();
+    assert_eq!(folded.query_term_count, 2);
+    assert_eq!(folded.hits.len(), 2);
+    assert_eq!(folded.hits[0].matched_query_terms, 2);
+    assert_eq!(folded.hits[0].path.utf8.as_deref(), Some("both-terms.rs"));
+    let collider = db::search(&repo, "GITK", &revision, 10).unwrap();
+    assert_eq!(collider.hits.len(), 1);
+    assert_eq!(collider.hits[0].path.utf8.as_deref(), Some("collision.txt"));
+}
+
+#[test]
+fn reused_blob_features_preserve_exact_terms_across_renames_and_snapshots() {
+    let directory = repository();
+    fs::write(
+        directory.path().join("before.rs"),
+        "fn Atomic_Publication() { /* copper */ }",
+    )
+    .unwrap();
+    let first = commit(directory.path(), "original blob");
+    let repo = git::discover_at(directory.path()).unwrap();
+    db::index(&repo, &first, db::DEFAULT_MAX_BLOB_BYTES).unwrap();
+    let original = db::search(&repo, "atomic publication", &first, 10).unwrap();
+    assert_eq!(original.hits.len(), 1);
+    assert_eq!(original.hits[0].matched_query_terms, 2);
+
+    fs::rename(
+        directory.path().join("before.rs"),
+        directory.path().join("after.rs"),
+    )
+    .unwrap();
+    fs::write(directory.path().join("unrelated.txt"), "gitk").unwrap();
+    let second = commit(directory.path(), "reuse same blob under a new path");
+    db::index(&repo, &second, db::DEFAULT_MAX_BLOB_BYTES).unwrap();
+    let renamed = db::search(&repo, "ATOMIC PUBLICATION", &second, 10).unwrap();
+    assert_eq!(renamed.hits.len(), 1);
+    assert_eq!(renamed.hits[0].path.utf8.as_deref(), Some("after.rs"));
+    assert_eq!(renamed.hits[0].blob_oid, original.hits[0].blob_oid);
+    assert_eq!(renamed.hits[0].matched_query_terms, 2);
+    assert_eq!(
+        renamed.hits[0].lexical_cosine,
+        original.hits[0].lexical_cosine
+    );
+    let previous = db::search(&repo, "atomic publication", &first, 10).unwrap();
+    assert_eq!(previous.hits.len(), 1);
+    assert_eq!(previous.hits[0].path.utf8.as_deref(), Some("before.rs"));
+    assert_eq!(previous.hits[0].matched_query_terms, 2);
+}
+
+#[test]
 fn coverage_explains_binary_lfs_symlink_and_size_exclusions() {
     let directory = repository();
     fs::write(directory.path().join("source.rs"), "copper source").unwrap();
@@ -140,6 +219,32 @@ fn coverage_explains_binary_lfs_symlink_and_size_exclusions() {
         ),
     )
     .unwrap();
+    for (name, version, newline) in [
+        (
+            "pointer-crlf.bin",
+            "https://git-lfs.github.com/spec/v1",
+            "\r\n",
+        ),
+        (
+            "pointer-hawser.bin",
+            "https://hawser.github.com/spec/v1",
+            "\n",
+        ),
+        (
+            "pointer-hawser-crlf.bin",
+            "https://hawser.github.com/spec/v1",
+            "\r\n",
+        ),
+    ] {
+        fs::write(
+            directory.path().join(name),
+            format!(
+                "version {version}{newline}oid sha256:{}{newline}size 500{newline}",
+                "1".repeat(64)
+            ),
+        )
+        .unwrap();
+    }
     #[cfg(unix)]
     std::os::unix::fs::symlink("source.rs", directory.path().join("link")).unwrap();
     let revision = commit(directory.path(), "coverage");
@@ -160,6 +265,13 @@ fn coverage_explains_binary_lfs_symlink_and_size_exclusions() {
     assert_eq!(state("empty.txt"), "no-ascii-tokens");
     assert_eq!(state("large.txt"), "too-large");
     assert_eq!(state("pointer.bin"), "lfs-pointer-not-asset-content");
+    for path in [
+        "pointer-crlf.bin",
+        "pointer-hawser.bin",
+        "pointer-hawser-crlf.bin",
+    ] {
+        assert_eq!(state(path), "lfs-pointer-not-asset-content");
+    }
     #[cfg(unix)]
     assert_eq!(state("link"), "symlink-not-followed");
     assert_eq!(relations[0]["graph_kind"], "git-tree-membership");

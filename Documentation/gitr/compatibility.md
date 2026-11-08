@@ -59,6 +59,14 @@ plus the current chunk. Manifest metadata is capped at 1,000,000 chunks and
 they are safe to reuse. No incomplete manifest is published. The bounded first
 format is not yet a recursive manifest format for unlimited asset sizes.
 
+On Unix, cache publication syncs the file, created directory entries and the
+containing directory before acknowledging an object or manifest. Reusing an
+existing object completes those barriers too. External ancestors are assumed
+trusted, stable and already durable. Non-Unix platforms retain verification and
+atomic publication, but portable directory syncing is unavailable here; full
+power-loss durability is not claimed there. Process-kill tests are not simulated
+power-loss tests on any platform.
+
 ## Repository database
 
 `gitr db index [revision]` atomically builds a catalog of a committed snapshot in
@@ -71,8 +79,12 @@ The initial graph records factual commit/tree/path/object membership. Raw paths
 retain a lossless hexadecimal representation. It does not claim resolved symbols
 or call edges. Vectors use 512-dimensional normalized ASCII token feature hashing
 with an explicit model identity. They are lexical vectors, not trained semantic
-embeddings. Search performs exact scoring and retains a bounded top-k list; it is
-not an ANN index. It needs no model downloads or network inference.
+embeddings. Each indexed blob also retains its sorted, unique lowercase ASCII
+tokens. Search excludes files with no exact query-token overlap and ranks the
+number of matched query tokens before vector cosine, then path order. Results
+report that overlap, so a vector hash collision alone cannot produce a match.
+Search scans the selected snapshot and retains a bounded top-k list; it is not
+an ANN or inverted index. It needs no model downloads or network inference.
 
 Source blobs default to a 1 MiB indexing cap with an 8 MiB maximum. Binary,
 oversized, symlink and LFS-pointer content has explicit excluded coverage. Git
@@ -92,6 +104,8 @@ Lustr's coordinator is pinned in
 uses its explicit `rustc` engine. Native Lust does not currently compile arbitrary
 gix/redb dependencies. A separate recorded Cranelift run must use the matching
 reviewed backend and compiler; merely selecting a route is not a speed result.
+The pinned Cranelift backend currently aborts in a dependency's SIMD float
+formatting code; see the [recorded failure](qualification.md#experimental-cranelift-result).
 
 The Gitr package authors Rust code and forbids `unsafe` in that code. It uses
 Gitoxide and Rust `zlib-rs`, not libgit2 or the inherited C Git library. Its TLS

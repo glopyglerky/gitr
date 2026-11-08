@@ -15,6 +15,7 @@
 
 use std::{
     cmp::Ordering,
+    collections::BTreeSet,
     fs,
     io::{self, Write},
     path::PathBuf,
@@ -26,14 +27,14 @@ use gix::bstr::ByteSlice;
 use redb::{ConcurrencyMode, Database, ReadableDatabase, ReadableTable, TableDefinition};
 use serde::{Deserialize, Serialize};
 
-pub const VECTOR_MODEL: &str = "gitr-ascii-fnv1a-tf-l2-v1";
+pub const VECTOR_MODEL: &str = "gitr-ascii-fnv1a-tf-l2-exact-v2";
 pub const VECTOR_DIMENSIONS: usize = 512;
 pub const DEFAULT_MAX_BLOB_BYTES: u64 = 1024 * 1024;
 pub const MAX_BLOB_BYTES: u64 = 8 * 1024 * 1024;
 const MAX_METADATA_BYTES: u64 = 8 * 1024 * 1024;
 const MAX_PATH_BYTES: usize = 64 * 1024;
 const CACHE_BYTES: usize = 16 * 1024 * 1024;
-const SCHEMA_VERSION: u64 = 1;
+const SCHEMA_VERSION: u64 = 2;
 const SNAPSHOTS: TableDefinition<&str, &[u8]> = TableDefinition::new("snapshots.v1");
 const MEMBERS: TableDefinition<&[u8], &[u8]> = TableDefinition::new("members.v1");
 const FEATURES: TableDefinition<&str, &[u8]> = TableDefinition::new("features.v1");
@@ -50,7 +51,7 @@ pub enum Command {
         #[arg(long, default_value_t = DEFAULT_MAX_BLOB_BYTES)]
         max_blob_bytes: u64,
     },
-    /// Rank indexed files by hashed lexical cosine; no model or network calls.
+    /// Rank by exact query-term overlap, then lexical cosine; no network calls.
     Search {
         query: String,
         #[arg(long, default_value = "HEAD")]
@@ -107,6 +108,7 @@ pub struct SearchHit {
     pub path: RawPath,
     pub blob_oid: String,
     pub bytes: u64,
+    pub matched_query_terms: usize,
     pub lexical_cosine: f64,
 }
 
@@ -117,6 +119,7 @@ pub struct SearchReport {
     pub learned_semantic_embeddings: bool,
     pub indexed_files: u64,
     pub skipped_files: u64,
+    pub query_term_count: usize,
     pub hits: Vec<SearchHit>,
 }
 
@@ -137,6 +140,8 @@ struct Feature {
     dimensions: usize,
     state: String,
     vector: Vec<f32>,
+    /// Sorted, distinct lowercase ASCII tokens prevent hash-only matches.
+    terms: Vec<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -562,10 +567,26 @@ fn validate_feature(feature: &Feature) -> Result<()> {
                     .all(|x| x.is_finite() && *x >= 0.0 && *x <= 1.0),
             "invalid stored lexical vector"
         );
+        ensure!(
+            !feature.terms.is_empty()
+                && feature.terms.windows(2).all(|pair| pair[0] < pair[1])
+                && feature.terms.iter().all(|term| {
+                    !term.is_empty()
+                        && term
+                            .bytes()
+                            .all(|byte| byte.is_ascii_lowercase() || byte.is_ascii_digit())
+                })
+                && feature
+                    .terms
+                    .iter()
+                    .try_fold(0u64, |total, term| total.checked_add(term.len() as u64))
+                    .is_some_and(|bytes| bytes <= MAX_BLOB_BYTES),
+            "invalid stored exact lexical terms"
+        );
     } else {
         ensure!(
-            feature.vector.is_empty(),
-            "unexpected vector for skipped content"
+            feature.vector.is_empty() && feature.terms.is_empty(),
+            "unexpected lexical features for skipped content"
         );
     }
     Ok(())
@@ -583,9 +604,10 @@ pub fn search(
         "--limit must be between 1 and 1000"
     );
     ensure!(query.len() <= 16 * 1024, "query exceeds 16 KiB");
+    let query_terms = unique_terms(query.as_bytes());
     let query_vector = lexical_vector(query.as_bytes());
     ensure!(
-        query_vector.iter().any(|x| *x != 0.0),
+        !query_terms.is_empty(),
         "query must contain ASCII letters or digits"
     );
     let resolved = resolve(repo, revision)?;
@@ -614,6 +636,13 @@ pub fn search(
             feature.state == "indexed",
             "completed snapshot references a skipped lexical vector"
         );
+        let matched_query_terms = query_terms
+            .iter()
+            .filter(|term| feature.terms.binary_search(term).is_ok())
+            .count();
+        if matched_query_terms == 0 {
+            continue;
+        }
         let score: f64 = query_vector
             .iter()
             .zip(&feature.vector)
@@ -626,6 +655,7 @@ pub fn search(
             path: member.path,
             blob_oid: member.object_oid,
             bytes: member.bytes.context("indexed blob lacks size")?,
+            matched_query_terms,
             lexical_cosine: score.min(1.0),
         };
         let position = hits
@@ -644,13 +674,15 @@ pub fn search(
         learned_semantic_embeddings: false,
         indexed_files: snapshot.indexed_files,
         skipped_files: snapshot.skipped_files,
+        query_term_count: query_terms.len(),
         hits,
     })
 }
 
 fn compare_hits(a: &SearchHit, b: &SearchHit) -> Ordering {
-    b.lexical_cosine
-        .total_cmp(&a.lexical_cosine)
+    b.matched_query_terms
+        .cmp(&a.matched_query_terms)
+        .then_with(|| b.lexical_cosine.total_cmp(&a.lexical_cosine))
         .then_with(|| a.path.hex.cmp(&b.path.hex))
 }
 
@@ -714,21 +746,20 @@ fn extract(bytes: &[u8]) -> Result<Feature> {
         ("binary", Vec::new())
     } else if std::str::from_utf8(bytes).is_err() {
         ("non-utf8", Vec::new())
-    } else if !bytes.is_empty()
-        && bytes.len() <= 1024
-        && (bytes.starts_with(b"version https://git-lfs.github.com/spec/v1\n")
-            || bytes.starts_with(b"version https://hawser.github.com/spec/v1\n"))
-    {
-        match crate::lfs::Pointer::decode(bytes) {
-            Ok(Some(_)) => ("lfs-pointer-not-asset-content", Vec::new()),
-            _ => ("unparsed-lfs-pointer", Vec::new()),
-        }
     } else {
-        let vector = lexical_vector(bytes);
-        if vector.iter().all(|x| *x == 0.0) {
-            ("no-ascii-tokens", Vec::new())
-        } else {
-            ("indexed", vector)
+        // Use the filter's decoder so CRLF and legacy pointer spelling have
+        // exactly the same coverage policy as their LF v1 equivalents.
+        match crate::lfs::Pointer::decode(bytes) {
+            Ok(Some(_)) if !bytes.is_empty() => ("lfs-pointer-not-asset-content", Vec::new()),
+            Err(_) => ("unparsed-lfs-pointer", Vec::new()),
+            _ => {
+                let vector = lexical_vector(bytes);
+                if vector.iter().all(|x| *x == 0.0) {
+                    ("no-ascii-tokens", Vec::new())
+                } else {
+                    ("indexed", vector)
+                }
+            }
         }
     };
     Ok(Feature {
@@ -736,27 +767,47 @@ fn extract(bytes: &[u8]) -> Result<Feature> {
         dimensions: VECTOR_DIMENSIONS,
         state: state.into(),
         vector,
+        terms: if state == "indexed" {
+            unique_terms(bytes)
+        } else {
+            Vec::new()
+        },
     })
+}
+
+fn ascii_tokens(bytes: &[u8]) -> impl Iterator<Item = &[u8]> {
+    bytes
+        .split(|byte| !byte.is_ascii_alphanumeric())
+        .filter(|token| !token.is_empty())
+}
+
+/// Retain only distinct terms from one bounded source blob, never a whole repo.
+fn unique_terms(bytes: &[u8]) -> Vec<String> {
+    ascii_tokens(bytes)
+        .map(|token| {
+            token
+                .iter()
+                .map(|byte| char::from(byte.to_ascii_lowercase()))
+                .collect::<String>()
+        })
+        .collect::<BTreeSet<_>>()
+        .into_iter()
+        .collect()
 }
 
 /// Stable FNV-1a over case-folded ASCII alphanumeric tokens. Punctuation,
 /// underscores and non-ASCII bytes delimit tokens. Counts use log TF then L2
-/// normalization. Hash collisions are possible and scores are lexical signals.
+/// normalization. Exact term overlap gates and precedes this collision-prone score.
 fn lexical_vector(bytes: &[u8]) -> Vec<f32> {
     let mut counts = [0u32; VECTOR_DIMENSIONS];
-    let mut hash = 0xcbf29ce484222325u64;
-    let mut active = false;
-    for byte in bytes.iter().copied().chain(std::iter::once(0)) {
-        if byte.is_ascii_alphanumeric() {
+    for token in ascii_tokens(bytes) {
+        let mut hash = 0xcbf29ce484222325u64;
+        for byte in token {
             hash ^= u64::from(byte.to_ascii_lowercase());
             hash = hash.wrapping_mul(0x100000001b3);
-            active = true;
-        } else if active {
-            let count = &mut counts[(hash % VECTOR_DIMENSIONS as u64) as usize];
-            *count = count.saturating_add(1);
-            hash = 0xcbf29ce484222325;
-            active = false;
         }
+        let count = &mut counts[(hash % VECTOR_DIMENSIONS as u64) as usize];
+        *count = count.saturating_add(1);
     }
     let mut values: Vec<f32> = counts
         .into_iter()

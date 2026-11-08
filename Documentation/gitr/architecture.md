@@ -67,9 +67,11 @@ snapshots remain usable while another revision is being indexed.
 
 This first vector representation is a deterministic lexical feature embedding.
 It is automatic, local, reproducible and needs no model download or paid service.
-It measures token overlap through feature hashing. It does not understand meaning
-like a trained code model and does not establish parity with Codebase Memory's
-resolved symbol graph. Exact and approximate search algorithms also have different
+It uses exact token overlap as the first ranking criterion and a hashed vector
+cosine score to order equal-coverage candidates. Exact token matching prevents
+hash collisions alone from returning unrelated files. It does not understand
+meaning like a trained code model and does not establish parity with Codebase
+Memory's resolved symbol graph. Exact and approximate search algorithms also have different
 memory and latency costs. Do not label a linear scan as HNSW or claim constant-time
 semantic search.
 

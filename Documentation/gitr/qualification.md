@@ -19,9 +19,11 @@ compiler version and is a compatibility check, not a controlled speed comparison
 
 ## Executed tests
 
-The individual suites passed during implementation. The full gates are being
-repeated after removing generated build artifacts from a full local filesystem.
-Final results will be recorded before publication.
+The final complete suite passed through `lustr --engine rustc`: **67 passed, zero
+failed**, plus one controlled child-process helper described below. Formatting,
+Clippy with `-D warnings`, and the optimized release build also passed after
+review corrections. [Machine-readable evidence](qualification-evidence.json)
+records the tested input hashes, compiler provenance and repository smoke results.
 
 | Suite | Tests | Coverage |
 |---|---:|---|
@@ -31,10 +33,50 @@ Final results will be recorded before publication.
 | Asset chunks | 12 | Exact hydration, insertion reuse, concurrent import, interrupted input, malformed manifests and corrupt chunks |
 | Asset inventory | 3 | Ignore rules, largest-file limits, profiles and symlink handling |
 | Git filter interoperability | 1 | Reference Git clean/smudge, commit/checkout, binary and empty files, linked worktrees and `git fsck --strict` |
-| Repository database | 7 | Exact commit snapshots, incremental reuse, rollback, SHA-256, byte paths, two writer processes, a killed writer and concurrent readers |
+| Repository database | 9 | Exact commit snapshots, incremental reuse, rollback, SHA-256, byte paths, concurrent processes, killed-writer recovery, pointer coverage, exact token ranking and the observed hash-collision regression |
 
 One ignored database test is a child-process entry point explicitly invoked by
 the process tests; it is not an unimplemented feature test.
+
+The real-repository smoke check indexed local snapshot
+`93f5c19673fd699fb25311f3f36e983707338218`: 4,893 files, 230 directories and one
+submodule. Of those files, 4,842 were eligible for lexical indexing and 51 had
+explicit exclusion coverage. The query `atomic publication` returned relevant
+Gitr contracts and design documents after the exact-token ranking correction.
+The release and debug binaries returned the same search report. A selected-path
+graph query produced the commit/tree record and the requested file relation.
+These are correctness observations, not a retrieval benchmark or general speedup.
+The same indexed tree is preserved in
+[`2a0c5ee`](https://github.com/glopyglerky/gitr/commit/2a0c5ee3bbd710f55d512e1168bf85c5bd7006b8);
+publication through the GitHub connection gives it different commit metadata.
+
+The [independent review record](review.md) distinguishes corrected implementation
+findings from the substantial requirements still on the roadmap.
+
+## Experimental Cranelift result
+
+**Not qualified for this dependency set.** The pinned backend compiled the package,
+but the database test process aborted while serializing vector components:
+
+```text
+llvm.x86.sse2.pmulhu.w is not yet supported.
+core::core_arch::x86::sse2::_mm_mulhi_epu16
+zmij::to_bcd_4x4
+zmij::Buffer::format_finite::<f32>
+serde_json::ser::CompactFormatter::write_f32
+gitr::db::index
+```
+
+The failing dependency is `zmij 1.0.23`, used by `serde_json 1.0.154`. A focused
+rerun of `sha256_repositories_keep_their_native_object_identity` reproduced the
+abort. This is a runtime backend-intrinsic limitation, not a Git SHA-256 identity
+mismatch. No compiler flags were used to pretend to run under Miri, disable the
+platform ABI, or hide the failing test. The supported route remains Lustr's
+explicit `rustc` engine. Native Lust compilation is also not qualified.
+
+The backend points to its [SIMD intrinsic tracking issue](https://github.com/rust-lang/rustc_codegen_cranelift/issues/171).
+Requalify the full suite before adopting a backend revision or a dependency
+implementation that addresses this instruction.
 
 ## Reproduction
 

@@ -6,7 +6,7 @@
 use std::fmt;
 use std::fs::{self, File};
 use std::io::{self, BufReader, BufWriter, Read, Write};
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use anyhow::{Context, Result, ensure};
 use fastcdc::v2020::{Normalization, StreamCDC};
@@ -14,7 +14,10 @@ use serde::de::{self, SeqAccess, Visitor};
 use serde::{Deserialize, Deserializer, Serialize};
 use sha2::{Digest, Sha256};
 
-use crate::lfs::{self, Pointer, Store};
+use crate::lfs::{
+    self, Pointer, Store, ensure_directory, ensure_real_directory, sync_directory,
+    sync_verified_file,
+};
 
 const MIN_SIZE: usize = 64 * 1024;
 const AVERAGE_SIZE: usize = 256 * 1024;
@@ -207,7 +210,7 @@ impl ChunkStore {
             match fs::symlink_metadata(objects.path(&pointer)?) {
                 Ok(_) => {
                     objects
-                        .verify(&pointer)
+                        .verify_durable(&pointer)
                         .context("existing chunk is corrupt; it was not overwritten")?;
                     reused_chunks += 1;
                     reused_bytes = reused_bytes
@@ -269,7 +272,7 @@ impl ChunkStore {
         match fs::symlink_metadata(destination.path(pointer)?) {
             Ok(_) => {
                 return destination
-                    .verify(pointer)
+                    .verify_durable(pointer)
                     .context("existing destination object is corrupt; it was not overwritten");
             }
             Err(error) if error.kind() == io::ErrorKind::NotFound => {}
@@ -332,16 +335,20 @@ impl ChunkStore {
         }
         temp.as_file().sync_all()?;
         match temp.persist_noclobber(&path) {
-            Ok(_) => sync_directory(parent)?,
+            Ok(_) => {}
             Err(error) if error.error.kind() == io::ErrorKind::AlreadyExists => {
                 let existing = self.load_manifest(&manifest.pointer)?;
                 ensure!(
                     &existing == manifest,
                     "an incompatible manifest already exists; it was not overwritten"
                 );
+                sync_verified_file(&File::open(&path)?)?;
             }
             Err(error) => return Err(error.error).context("cannot publish chunk manifest"),
         }
+        // Complete the winner's publication barrier as well when a concurrent
+        // import installed this same manifest before reaching its own sync.
+        sync_directory(parent)?;
         Ok(())
     }
 }
@@ -450,35 +457,4 @@ impl<R: Read> Read for RetryInterrupted<R> {
             }
         }
     }
-}
-
-fn ensure_real_directory(path: &Path) -> Result<()> {
-    let metadata = fs::symlink_metadata(path)?;
-    ensure!(
-        metadata.file_type().is_dir(),
-        "chunk cache directory must be a real directory, not a symlink"
-    );
-    Ok(())
-}
-
-fn ensure_directory(path: &Path) -> Result<()> {
-    match fs::symlink_metadata(path) {
-        Ok(_) => ensure_real_directory(path),
-        Err(error) if error.kind() == io::ErrorKind::NotFound => {
-            fs::create_dir_all(path)?;
-            ensure_real_directory(path)
-        }
-        Err(error) => Err(error.into()),
-    }
-}
-
-#[cfg(unix)]
-fn sync_directory(path: &Path) -> Result<()> {
-    File::open(path)?.sync_all()?;
-    Ok(())
-}
-
-#[cfg(not(unix))]
-fn sync_directory(_path: &Path) -> Result<()> {
-    Ok(())
 }
