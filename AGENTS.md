@@ -13,6 +13,33 @@ vector search, automatic local embeddings, lightweight operation, and high
 availability. Preserve this requirement. Treat the checked-in database design
 and compatibility matrix as contracts, not evidence that unfinished features work.
 
+## Preferred database target
+
+Use SurrealDB 4.0.0 with SurrealKV for local/embedded storage; evaluate SurrealDS
+as a separate, optional licensed distributed backend, not a replication layer
+added to the same SurrealKV directory. See `Documentation/gitr/surrealdb-decision.md`.
+The current working redb catalog/action implementation is transition evidence,
+not a decision to reject the user's preferred stack. Never destroy or silently
+convert existing data. Qualify storage contracts, migration and rollback first.
+
+SurrealKV has one datastore owner with many concurrent transactions/client clones.
+Multiple CLI/worker/API/MCP processes must use the owner service rather than each
+opening the same directory. Preserve durable compare-and-swap, fencing and
+idempotency, including cross-record invariants under snapshot isolation. Enforce
+explicit durability and do not advertise SurrealKV as multi-host HA.
+
+Surrealism is the upstream Rust/Wasm extension candidate for trusted bounded
+in-database functions. Long or untrusted CI execution stays outside write
+transactions. Keep large streaming Git/LFS/chunk payloads out of ordinary rows
+unless workload measurements justify a different physical layout. Preserve exact
+Git identities, source-grounded search and local/offline operation.
+
+Core BSL licensing and inherited GPL-2.0-only distribution require review; SDK
+licensing does not relicense the engine. Do not silently relicense inherited code.
+SurrealDS needs a vendor-issued Enterprise license. Offline license files exist
+when offline use is included; online key validation is not universal. Do not
+purchase/configure licenses or claim DS deployment/HA qualification without evidence.
+
 ## Integrated forge, actions and control
 
 The required product is one self-contained Rust Git implementation, repository
