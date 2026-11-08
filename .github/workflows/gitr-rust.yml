@@ -2,7 +2,7 @@ name: gitr Rust
 
 on:
   push:
-    branches: [main]
+    branches: [master]
     paths:
       - 'rust/gitr/**'
       - '.github/workflows/gitr-rust.yml'
