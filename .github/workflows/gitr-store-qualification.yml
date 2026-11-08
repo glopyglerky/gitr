@@ -1,0 +1,92 @@
+name: gitr SurrealDB action store candidate
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'rust/gitr-store/**'
+      - 'rust/gitr/src/actions*.rs'
+      - 'ci/gitr-store-*.py'
+      - '.github/workflows/gitr-store-qualification.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: gitr-store-candidate-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  qualify:
+    if: github.repository == 'glopyglerky/gitr' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      RUSTUP_TOOLCHAIN: 1.99.1
+      CARGO_BUILD_JOBS: '2'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: glopyglerky/lustr
+          ref: 62494e27717a64c8612b538409de27048fa6adc2
+          path: .gitr-ci/lustr-src
+          persist-credentials: false
+      - uses: actions/cache/restore@caa296126883cff596d87d8935842f9db880ef25
+        id: cache
+        with:
+          path: |
+            ~/.cargo/registry
+            rust/gitr-store/target
+            rust/gitr/target
+            rust/gitr-action-example/target
+          key: gitr-store-candidate-linux-rust199-${{ hashFiles('rust/gitr-store/Cargo.toml', 'rust/gitr/Cargo.lock') }}-${{ github.run_id }}
+          restore-keys: |
+            gitr-store-candidate-linux-rust199-${{ hashFiles('rust/gitr-store/Cargo.toml', 'rust/gitr/Cargo.lock') }}-
+      - name: Bootstrap pinned Lustr and candidate wiring
+        run: |
+          rustup toolchain install 1.99.1 --profile minimal --component rustfmt --component clippy --target wasm32-unknown-unknown
+          cargo install --path .gitr-ci/lustr-src/tools/cargo-lust --root .gitr-ci/lustr --locked --offline
+          echo "$GITHUB_WORKSPACE/.gitr-ci/lustr/bin" >> "$GITHUB_PATH"
+          python3 ci/gitr-store-prepare.py
+      - name: Compile exact candidate with Lustr
+        id: build
+        run: |
+          lustr --engine rustc fmt --manifest-path rust/gitr-store/Cargo.toml
+          lustr --engine rustc fmt --manifest-path rust/gitr/Cargo.toml
+          lustr --engine rustc build --manifest-path rust/gitr-store/Cargo.toml
+          lustr --engine rustc build --manifest-path rust/gitr/Cargo.toml --locked
+          lustr --engine rustc build --manifest-path rust/gitr-action-example/Cargo.toml --locked --release --target wasm32-unknown-unknown
+      - name: Tests, strict diagnostics and real process qualification
+        run: |
+          lustr --engine rustc test --manifest-path rust/gitr/Cargo.toml --locked --all-targets
+          lustr --engine rustc clippy --manifest-path rust/gitr/Cargo.toml --locked --all-targets -- -D warnings
+          lustr --engine rustc clippy --manifest-path rust/gitr-store/Cargo.toml --locked -- -D warnings
+          python3 ci/gitr-store-smoke.py
+      - name: Save compilation cache even when a later qualification fails
+        if: always() && steps.build.outcome == 'success'
+        uses: actions/cache/save@caa296126883cff596d87d8935842f9db880ef25
+        with:
+          path: |
+            ~/.cargo/registry
+            rust/gitr-store/target
+            rust/gitr/target
+            rust/gitr-action-example/target
+          key: ${{ steps.cache.outputs.cache-primary-key }}
+      - name: Preserve exact tested source and dependency lock for explicit activation
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import base64, hashlib, json, os, urllib.request
+          from pathlib import Path
+          print('TESTED_BASE_COMMIT=' + os.environ['GITHUB_SHA'])
+          for path in ['rust/gitr-store/Cargo.lock', 'rust/gitr-store/src/main.rs', 'rust/gitr/src/actions.rs', 'rust/gitr/src/actions_remote.rs']:
+              data = Path(path).read_bytes()
+              request = urllib.request.Request('https://api.github.com/repos/glopyglerky/gitr/git/blobs', data=json.dumps({'encoding':'base64','content':base64.b64encode(data).decode()}).encode(), headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json','Content-Type':'application/json'}, method='POST')
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  blob = json.load(response)
+              print('TESTED_BLOB=' + json.dumps({'path':path,'sha':blob['sha'],'sha256':hashlib.sha256(data).hexdigest()}))
+          PY
+# Bootstrap qualification only: no step changes a branch or commit. After explicit
+# activation the preparation step and write permission must be removed.
