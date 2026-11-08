@@ -23,6 +23,7 @@ if "Actions {" not in text:
     main.write_text(text)
 source = root / "src/actions.rs"
 text = source.read_text().replace("ReadableDatabase, TableDefinition", "ReadableDatabase, ReadableTable, TableDefinition")
+text = text.replace('format!("{:x}", Sha256::digest(bytes))', 'Sha256::digest(bytes).iter().map(|byte| format!("{byte:02x}")).collect()')
 source.write_text(text)
 tests = root / "src/actions_tests.rs"
 text = tests.read_text().replace("filter_map(|t| t.join().ok())", "map(|t| t.join().unwrap())")
