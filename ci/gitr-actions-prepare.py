@@ -12,7 +12,8 @@ if "wasmi =" not in text:
 lib = root / "src/lib.rs"
 text = lib.read_text()
 if "pub mod actions;" not in text:
-    lib.write_text("pub mod actions;\n" + text)
+    assert "pub mod assets;" in text
+    lib.write_text(text.replace("pub mod assets;", "pub mod actions;\npub mod assets;"))
 main = root / "src/main.rs"
 text = main.read_text()
 if "Actions {" not in text:
@@ -20,3 +21,9 @@ if "Actions {" not in text:
     text = text.replace('    Doctor,', '    Doctor,\n    /// Database-resident bounded Wasm actions and local JSON control.\n    Actions {\n        #[command(subcommand)]\n        command: actions::Command,\n    },')
     text = text.replace('        Command::Git(command) =>', '        Command::Actions { command } => actions::run(command),\n        Command::Git(command) =>')
     main.write_text(text)
+source = root / "src/actions.rs"
+text = source.read_text().replace("ReadableDatabase, TableDefinition", "ReadableDatabase, ReadableTable, TableDefinition")
+source.write_text(text)
+tests = root / "src/actions_tests.rs"
+text = tests.read_text().replace("filter_map(|t| t.join().ok())", "map(|t| t.join().unwrap())")
+tests.write_text(text)
