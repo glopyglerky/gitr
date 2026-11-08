@@ -8,7 +8,7 @@ on:
       - '.github/workflows/gitr-surreal-qualification.yml'
   workflow_dispatch:
 permissions:
-  contents: write
+  contents: read
 concurrency:
   group: gitr-surreal-qualification-${{ github.ref }}
   cancel-in-progress: true
@@ -37,34 +37,9 @@ jobs:
           echo "$GITHUB_WORKSPACE/.gitr-ci/lustr/bin" >> "$GITHUB_PATH"
       - name: Build and qualify actual SurrealDB 4.0.0 with SurrealKV
         run: |
-          lustr --engine rustc fmt --manifest-path rust/gitr-surreal-probe/Cargo.toml
-          # First integration generates a lockfile for the exact SurrealDB 4.0.0 dependency graph.
-          cargo generate-lockfile --manifest-path rust/gitr-surreal-probe/Cargo.toml
+          lustr --engine rustc fmt --manifest-path rust/gitr-surreal-probe/Cargo.toml -- --check
           lustr --engine rustc build --manifest-path rust/gitr-surreal-probe/Cargo.toml --locked
           lustr --engine rustc clippy --manifest-path rust/gitr-surreal-probe/Cargo.toml --locked -- -D warnings
           python3 ci/gitr-surreal-smoke.py
           lustr --engine rustc tree --manifest-path rust/gitr-surreal-probe/Cargo.toml --locked -i surrealkv
-      - name: Preserve successful qualification lockfile as immutable Git blob for reviewed commit
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          python3 - <<'PY'
-          import base64, hashlib, json, os, urllib.request
-          from pathlib import Path
-          print('TESTED_BASE_COMMIT=' + os.environ['GITHUB_SHA'])
-          for path in ('rust/gitr-surreal-probe/Cargo.lock', 'rust/gitr-surreal-probe/src/main.rs'):
-              data = Path(path).read_bytes()
-              body = json.dumps({'encoding': 'base64', 'content': base64.b64encode(data).decode()}).encode()
-              request = urllib.request.Request('https://api.github.com/repos/glopyglerky/gitr/git/blobs',
-                  data=body,
-                  headers={'Authorization': 'Bearer ' + os.environ['GH_TOKEN'],
-                           'Accept': 'application/vnd.github+json',
-                           'Content-Type': 'application/json'},
-                  method='POST')
-              with urllib.request.urlopen(request, timeout=30) as response:
-                  blob = json.load(response)
-              print('TESTED_BLOB=' + json.dumps({'path':path,'sha':blob['sha'],
-                  'sha256':hashlib.sha256(data).hexdigest()}))
-          PY
-# CI never updates refs, branches or source paths. Only successful qualifications
-# publish an immutable lockfile blob; the reviewed exact bytes are committed separately.
+# Pinned dependencies are committed and builds run --locked with no write token.
