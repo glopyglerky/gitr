@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+"""Prepare a candidate integration without updating any branch or remote ref."""
+from pathlib import Path
+
+root = Path("rust/gitr")
+manifest = root / "Cargo.toml"
+text = manifest.read_text()
+if "wasmi =" not in text:
+    text = text.replace('[lints.rust]', '[dev-dependencies]\nwat = "=1.228.0"\n\n[lints.rust]')
+    text = text.replace('url = "2.5"', 'url = "2.5"\nwasmi = { version = "=2.0.0", default-features = false, features = ["stable", "std", "validate", "portable-dispatch", "extra-checks"] }')
+    manifest.write_text(text)
+lib = root / "src/lib.rs"
+text = lib.read_text()
+if "pub mod actions;" not in text:
+    lib.write_text("pub mod actions;\n" + text)
+main = root / "src/main.rs"
+text = main.read_text()
+if "Actions {" not in text:
+    text = text.replace('use gitr::{assets,', 'use gitr::{actions, assets,')
+    text = text.replace('    Doctor,', '    Doctor,\n    /// Database-resident bounded Wasm actions and local JSON control.\n    Actions {\n        #[command(subcommand)]\n        command: actions::Command,\n    },')
+    text = text.replace('        Command::Git(command) =>', '        Command::Actions { command } => actions::run(command),\n        Command::Git(command) =>')
+    main.write_text(text)

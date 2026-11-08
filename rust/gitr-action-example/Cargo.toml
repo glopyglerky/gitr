@@ -1,0 +1,17 @@
+[package]
+name = "gitr-action-example"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.99.1"
+license = "GPL-2.0-only"
+publish = false
+
+[workspace]
+
+[lib]
+crate-type = ["cdylib"]
+
+[profile.release]
+opt-level = "s"
+panic = "abort"
+strip = true
