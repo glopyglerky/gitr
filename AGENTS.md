@@ -13,6 +13,39 @@ vector search, automatic local embeddings, lightweight operation, and high
 availability. Preserve this requirement. Treat the checked-in database design
 and compatibility matrix as contracts, not evidence that unfinished features work.
 
+## Integrated forge, actions and control
+
+The required product is one self-contained Rust Git implementation, repository
+service, coding forge, CI/CD/action worker and code-intelligence system. It must
+eventually replace the useful Git/Gitea/Forgejo capabilities and match or exceed
+Codebase Memory against reproducible source-grounded qualification. A lexical
+vector catalog is not resolved code intelligence or evidence of that parity.
+See `Documentation/gitr/forge-runtime-plan.md` for the complete acceptance gates.
+
+Use suitable upstream Rust/Wasm workflow and forge components. Study Anthropic
+Scion, Meta Sapling/Mononoke/EdenFS and other established alternatives, while
+preserving local/offline Git compatibility rather than importing their unique
+infrastructure assumptions. Learn from OmnidiaDB but keep Gitr independently
+installable, licensed, optimized and free of mandatory Omnidia services. Do not
+copy private/proprietary source into this public repository without an explicit
+publication and license decision.
+
+Durable code, action inputs, claims, results and forge entities belong in the
+repository database. Compile and execute untrusted Wasm outside database write
+transactions. Keep guest capabilities explicit and deny ambient host authority.
+Publish artifacts and their receipt atomically; fence expired/cancelled workers.
+Execution retries are not an exactly-once guarantee for external deployment
+side effects. A local writer lock is not distributed consensus or HA.
+
+Stateless Rust API and official MCP adapters must share typed, repository-scoped
+authorization and operation services. Sessions and workers must not own durable
+state or write authority. A local JSON control command is not an authenticated
+HTTP API or a standards-compliant MCP transport. GitHub workflow syntax support
+is not automatically compatibility with JavaScript, Docker or shell actions.
+
+Native everyday Git completion remains a delivery track alongside the forge;
+do not replace implementation with an indefinitely growing research catalog.
+
 ## Repository layout
 
 - `rust/gitr` is the standalone Rust implementation. Its manifest does not link
