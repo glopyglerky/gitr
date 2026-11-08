@@ -2,7 +2,7 @@
 
 ## Product
 
-Gitr is Matt Mayhugh's Rust fork and rewrite of Git. Keep active work on `main`.
+Gitr is Matt Mayhugh's Rust fork and rewrite of Git. Keep active work on the GitHub default branch, `master`. Commit implemented, tested changes directly to `master` when safe; never leave validated work stranded on `main`.
 Use current upstream Rust implementations where they provide correct, maintainable
 behavior. Priorities are Git and GitHub interoperability, ordinary development
 friction, large binary assets, game development, and safe concurrent writers.
