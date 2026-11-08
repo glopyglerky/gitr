@@ -1,10 +1,10 @@
 # Gitr
 
-[![Gitr Rust qualification](https://github.com/glopyglerky/gitr/actions/workflows/gitr-rust.yml/badge.svg?branch=main)](https://github.com/glopyglerky/gitr/actions/workflows/gitr-rust.yml)
+[![Gitr Rust qualification](https://github.com/glopyglerky/gitr/actions/workflows/gitr-rust.yml/badge.svg?branch=master)](https://github.com/glopyglerky/gitr/actions/workflows/gitr-rust.yml)
 
 A Rust Git implementation with verified large-file storage, game-asset chunk
 reuse, and a transactional repository graph and vector catalog. Active development
-lives on [`main`](https://github.com/glopyglerky/gitr/tree/main).
+lives on the default branch, [`master`](https://github.com/glopyglerky/gitr/tree/master).
 
 **Status: initial implementation. Gitr is not yet a complete Git replacement.**
 The new implementation is in [`rust/gitr`](rust/gitr). This fork also retains the
