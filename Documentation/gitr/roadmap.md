@@ -1,6 +1,6 @@
 # Implementation map
 
-Keep work on `main`. Each entry needs executable evidence before being marked
+Keep work on GitHub's default branch, `master`. Commit incremental validated improvements there; record incomplete requirements honestly. Each entry needs executable evidence before being marked
 complete. The user's goal is the full Git-compatible Rust system, including game
 assets and the repository database, not an indefinitely growing research catalog.
 
