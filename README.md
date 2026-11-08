@@ -109,7 +109,8 @@ Build the [example Rust action](rust/gitr-action-example) for
 ```sh
 rustup target add --toolchain 1.99.1 wasm32-unknown-unknown
 rustup run 1.99.1 lustr --engine rustc build --manifest-path rust/gitr-action-example/Cargo.toml --locked --release --target wasm32-unknown-unknown
-gitr -C /path/to/repo actions install rust/gitr-action-example/target/wasm32-unknown-unknown/release/gitr_action_example.wasm
+WASM_PATH="$(pwd)/rust/gitr-action-example/target/wasm32-unknown-unknown/release/gitr_action_example.wasm"
+gitr -C /path/to/repo actions install "$WASM_PATH"
 # The install response prints module_sha256:
 gitr -C /path/to/repo actions submit whitespace-policy MODULE_SHA256 --revision HEAD --path src/main.rs
 gitr -C /path/to/repo actions run whitespace-policy
