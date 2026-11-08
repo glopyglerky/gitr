@@ -92,8 +92,19 @@ async fn verify(db: &Surreal<Any>, acknowledged: bool) -> Result<()> {
     Ok(())
 }
 
-#[tokio::main]
-async fn main() -> Result<()> {
+fn main() -> Result<()> {
+    // SurrealDB 4.0.0's embedded query planner uses deep worker stacks.
+    // Use the documented multi-thread Tokio runtime with explicit 10 MiB stacks,
+    // rather than relying on #[tokio::main]'s platform-default stack size.
+    tokio::runtime::Builder::new_multi_thread()
+        .enable_all()
+        .worker_threads(4)
+        .thread_stack_size(10 * 1024 * 1024)
+        .build()?
+        .block_on(run())
+}
+
+async fn run() -> Result<()> {
     let args: Vec<String> = std::env::args().collect();
     ensure!(args.len() == 3, "usage: gitr-surreal-probe seed|verify|ack-and-wait|recover|locked DISPOSABLE_DIRECTORY");
     let path = Path::new(&args[2]);
