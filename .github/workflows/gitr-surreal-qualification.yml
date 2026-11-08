@@ -1,0 +1,61 @@
+name: gitr SurrealDB qualification
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'rust/gitr-surreal-probe/**'
+      - 'ci/gitr-surreal-smoke.py'
+      - '.github/workflows/gitr-surreal-qualification.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: gitr-surreal-qualification-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  qualify:
+    if: github.repository == 'glopyglerky/gitr' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      RUSTUP_TOOLCHAIN: 1.99.1
+      CARGO_BUILD_JOBS: '2'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: glopyglerky/lustr
+          ref: 62494e27717a64c8612b538409de27048fa6adc2
+          path: .gitr-ci/lustr-src
+          persist-credentials: false
+      - name: Bootstrap pinned Lustr
+        run: |
+          rustup toolchain install 1.99.1 --profile minimal --component rustfmt --component clippy
+          cargo install --path .gitr-ci/lustr-src/tools/cargo-lust --root .gitr-ci/lustr --locked --offline
+          echo "$GITHUB_WORKSPACE/.gitr-ci/lustr/bin" >> "$GITHUB_PATH"
+      - name: Build and qualify actual SurrealDB 4.0.0 with SurrealKV
+        run: |
+          lustr --engine rustc fmt --manifest-path rust/gitr-surreal-probe/Cargo.toml
+          lustr --engine rustc build --manifest-path rust/gitr-surreal-probe/Cargo.toml
+          lustr --engine rustc clippy --manifest-path rust/gitr-surreal-probe/Cargo.toml --locked -- -D warnings
+          python3 ci/gitr-surreal-smoke.py
+          lustr --engine rustc tree --manifest-path rust/gitr-surreal-probe/Cargo.toml --locked -i surrealkv
+      - name: Retain exact tested lockfile and source as immutable blobs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import base64, hashlib, json, os, urllib.request
+          from pathlib import Path
+          print('TESTED_BASE_COMMIT=' + os.environ['GITHUB_SHA'])
+          for path in ['rust/gitr-surreal-probe/Cargo.lock', 'rust/gitr-surreal-probe/src/main.rs']:
+              data = Path(path).read_bytes()
+              request = urllib.request.Request('https://api.github.com/repos/glopyglerky/gitr/git/blobs', data=json.dumps({'encoding':'base64','content':base64.b64encode(data).decode()}).encode(), headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json','Content-Type':'application/json'}, method='POST')
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  blob = json.load(response)
+              print('TESTED_BLOB=' + json.dumps({'path':path,'sha':blob['sha'],'sha256':hashlib.sha256(data).hexdigest()}))
+          PY
+# No secrets, Enterprise license, cloud account, commit or branch write is used.
+# Only the final step gets GH_TOKEN, and it writes immutable blobs for review.
