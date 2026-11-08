@@ -8,7 +8,7 @@ Existing Git objects, redb catalogs and action state are not converted or delete
 ## The correct composition
 
 - **Local/embedded:** SurrealDB `4.0.0` over SurrealKV. The v4.0.0 source manifest
-  currently specifies SurrealKV `1.2.0`; documentation's “1.0” wording describes
+  specifies SurrealKV `1.2.0`; documentation's “1.0” wording describes
   its stable-format generation, not an instruction to downgrade that dependency.
 - **Optional multi-node:** SurrealDB Enterprise over **SurrealDS**, a different
   distributed backend. It is not replication switched on inside SurrealKV and
@@ -17,7 +17,7 @@ Existing Git objects, redb catalogs and action state are not converted or delete
   trusted short database functions. Keep untrusted or long CI/build/deployment
   tasks outside database transactions, with durable jobs and fenced publication.
 
-Primary sources: [4.0 releases](https://surrealdb.com/releases/4.0),
+Primary sources: [4.0 release](https://surrealdb.com/blog/surrealdb-4-the-database-and-memory-for-every-agent),
 [v4.0.0 source manifest](https://github.com/surrealdb/surrealdb/blob/v4.0.0/Cargo.toml),
 [storage architecture](https://surrealdb.com/docs/learn/data-models/architecture),
 [SurrealDS announcement](https://surrealdb.com/blog/introducing-surrealds-fault-tolerant-distributed-storage).
@@ -94,10 +94,11 @@ transaction-scoped database handles and resource/capability policies. The featur
 still requires the experimental `surrealism` capability. Evaluate pinned, signed,
 digest-verified extensions for small trusted transformations and queries. Do not
 load arbitrary PR-supplied components into a privileged database transaction.
-The existing narrow Wasmi action candidate remains an isolated execution reference
-while its state store is abstracted; it is not Surrealism-compatible by assertion.
-Neither extension runtime supplies GitHub Actions JS/Docker/shell compatibility,
-a complete workflow scheduler, secret broker or safe deployment side effects.
+The [qualified narrow Wasmi action primitive](actions-qualification.md) is an
+isolated execution reference while its state store is abstracted; it is not
+Surrealism-compatible by assertion. Neither extension runtime supplies GitHub
+Actions JS/Docker/shell compatibility, a complete workflow scheduler, a secret
+broker or safe deployment side effects.
 
 Sources: [extension architecture](https://surrealdb.com/docs/learn/extensions/guides/extension-architecture),
 [DEFINE EXTENSION](https://surrealdb.com/docs/reference/query-language/statements/define/extension).
@@ -113,16 +114,23 @@ process with a narrow protocol is an engineering option, not a legal conclusion.
 New standalone qualification code is separately MIT-licensed and links no Gitr or
 inherited Git code. This is not permission to relicense existing source.
 
-SurrealDS requires a SurrealDB-issued Enterprise license. The current documentation
-requires online startup validation and periodic checks at api.keygen.sh; new
-nodes cannot start fully offline, and prolonged license-service unavailability
-can take running nodes out of service. Keep this an explicitly opted-in licensed
-HA profile, never a required dependency for offline/local Gitr. No license has
-been purchased or configured. Do not claim SurrealDS HA has been executed.
+SurrealDS requires a SurrealDB-issued Enterprise license. Current documentation
+distinguishes two modes: license keys use online startup/periodic validation at
+api.keygen.sh; signed license files validate locally without contacting that
+service when the license includes offline use. Offline entitlement is a separate
+vendor-issued option, not something Gitr can enable by changing a setting.
+Do not describe every SurrealDS deployment as requiring internet access. For
+key-based deployments, qualify cached-attestation expiry and outage behavior;
+for offline deployments, qualify expiry, restart and renewal before claiming
+indefinite disconnected availability. Keep SurrealDS explicitly opted in, never
+a prerequisite for local Gitr. No Enterprise license was purchased/configured,
+and neither licensing mode nor SurrealDS HA has been executed by this project.
 
 Sources: [licensing FAQ](https://surrealdb.com/license),
 [v4.0.0 license](https://github.com/surrealdb/surrealdb/blob/v4.0.0/LICENSE),
 [Enterprise license lifecycle](https://surrealdb.com/docs/manage/enterprise/product/licensing).
+The directly opened lifecycle page documents offline files; older indexed
+snippets may describe only online keys. The current page takes precedence.
 
 ## Executable qualification and migration gates
 

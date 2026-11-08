@@ -1,6 +1,6 @@
 use anyhow::{Context, Result, ensure};
 use clap::{Args, Parser, Subcommand};
-use gitr::{assets, chunks, db, git, lfs, remote};
+use gitr::{actions, assets, chunks, db, git, lfs, remote};
 use std::fs::{self, File};
 use std::io::{self, Write};
 use std::path::PathBuf;
@@ -42,6 +42,11 @@ enum Command {
     },
     /// Report repository storage and compatibility information without changing it.
     Doctor,
+    /// Database-resident bounded Wasm actions and local JSON control.
+    Actions {
+        #[command(subcommand)]
+        command: actions::Command,
+    },
 }
 
 #[derive(Subcommand)]
@@ -189,6 +194,7 @@ fn run(cli: Cli) -> Result<()> {
         std::env::set_current_dir(path).context("cannot change directory")?;
     }
     match cli.command {
+        Command::Actions { command } => actions::run(command),
         Command::Git(command) => git::run(command),
         Command::Db { command } => db::run(command),
         Command::Lfs { storage, command } => run_lfs(storage, command),

@@ -2,9 +2,12 @@ use super::*;
 use std::sync::{Arc, Barrier};
 use std::thread;
 
-fn wasm(body: &str) -> Vec<u8> { wat::parse_str(body).unwrap() }
+fn wasm(body: &str) -> Vec<u8> {
+    wat::parse_str(body).unwrap()
+}
 fn success_module() -> Vec<u8> {
-    wasm(r#"(module
+    wasm(
+        r#"(module
         (import "gitr_actions_v1" "input_len" (func $len (result i32)))
         (import "gitr_actions_v1" "input_read" (func $read (param i32 i32 i32) (result i32)))
         (import "gitr_actions_v1" "output_write" (func $write (param i32 i32) (result i32)))
@@ -12,10 +15,16 @@ fn success_module() -> Vec<u8> {
         (func (export "run") (result i32)
             (drop (call $read (i32.const 0) (i32.const 0) (call $len)))
             (drop (call $write (i32.const 0) (call $len)))
-            (i32.const 0)))"#)
+            (i32.const 0)))"#,
+    )
 }
 fn input(bytes: &[u8]) -> SnapshotInput {
-    SnapshotInput { commit: "1".repeat(40), blob: "2".repeat(40), path: "source.rs".into(), bytes: bytes.to_vec() }
+    SnapshotInput {
+        commit: "1".repeat(40),
+        blob: "2".repeat(40),
+        path: "source.rs".into(),
+        bytes: bytes.to_vec(),
+    }
 }
 fn database() -> (tempfile::TempDir, ActionDb, String) {
     let temp = tempfile::tempdir().unwrap();
@@ -27,14 +36,19 @@ fn database() -> (tempfile::TempDir, ActionDb, String) {
 #[test]
 fn stored_wasm_and_inputs_survive_reopen_and_repeat_returns_original_receipt() {
     let (temp, db, module) = database();
-    db.submit("build", &module, input(b"source bytes\0\xff")).unwrap();
+    db.submit("build", &module, input(b"source bytes\0\xff"))
+        .unwrap();
     drop(db);
     let db = ActionDb::open_path(&temp.path().join("state.redb"), false).unwrap();
     let receipt = db.run_once("build").unwrap();
     assert_eq!(receipt.status, Status::Passed);
     assert_eq!(db.artifact("build").unwrap(), b"source bytes\0\xff");
     assert_eq!(db.run_once("build").unwrap(), receipt);
-    assert_eq!(db.submit("build", &module, input(b"source bytes\0\xff")).unwrap(), receipt);
+    assert_eq!(
+        db.submit("build", &module, input(b"source bytes\0\xff"))
+            .unwrap(),
+        receipt
+    );
     assert_eq!(receipt.attempt, 1);
 }
 
@@ -59,12 +73,20 @@ fn live_claims_are_exclusive_and_expired_workers_are_fenced() {
     assert!(db.claim("job", || Ok(101)).unwrap().is_none());
     let new = db.claim("job", || Ok(100 + LEASE_MS)).unwrap().unwrap();
     assert_eq!(new.attempt, old.attempt + 1);
-    assert!(db.finish(&old, Ok((0, b"stale".to_vec())), || Ok(101 + LEASE_MS)).is_err());
+    assert!(
+        db.finish(&old, Ok((0, b"stale".to_vec())), || Ok(101 + LEASE_MS))
+            .is_err()
+    );
     assert!(db.artifact("job").is_err());
-    let result = db.finish(&new, Ok((0, b"winner".to_vec())), || Ok(101 + LEASE_MS)).unwrap();
+    let result = db
+        .finish(&new, Ok((0, b"winner".to_vec())), || Ok(101 + LEASE_MS))
+        .unwrap();
     assert_eq!(result.status, Status::Passed);
     assert_eq!(db.artifact("job").unwrap(), b"winner");
-    assert!(db.finish(&old, Ok((0, b"stale".to_vec())), || Ok(102 + LEASE_MS)).is_err());
+    assert!(
+        db.finish(&old, Ok((0, b"stale".to_vec())), || Ok(102 + LEASE_MS))
+            .is_err()
+    );
 }
 
 #[test]
@@ -86,13 +108,28 @@ fn only_one_of_concurrent_local_handles_can_claim() {
     let (temp, db, module) = database();
     db.submit("race", &module, input(b"data")).unwrap();
     let path = temp.path().join("state.redb");
-    let handles: Vec<_> = (0..4).map(|_| ActionDb::open_path(&path, false).unwrap()).collect();
+    let handles: Vec<_> = (0..4)
+        .map(|_| ActionDb::open_path(&path, false).unwrap())
+        .collect();
     let barrier = Arc::new(Barrier::new(handles.len()));
-    let threads: Vec<_> = handles.into_iter().map(|db| {
-        let barrier = barrier.clone();
-        thread::spawn(move || { barrier.wait(); db.claim("race", || Ok(0)).unwrap().is_some() })
-    }).collect();
-    assert_eq!(threads.into_iter().filter_map(|t| t.join().ok()).filter(|v| *v).count(), 1);
+    let threads: Vec<_> = handles
+        .into_iter()
+        .map(|db| {
+            let barrier = barrier.clone();
+            thread::spawn(move || {
+                barrier.wait();
+                db.claim("race", || Ok(0)).unwrap().is_some()
+            })
+        })
+        .collect();
+    assert_eq!(
+        threads
+            .into_iter()
+            .map(|t| t.join().unwrap())
+            .filter(|v| *v)
+            .count(),
+        1
+    );
 }
 
 #[test]
@@ -105,7 +142,11 @@ fn abandoned_claim_recovers_after_reopen_and_another_job_can_write() {
     assert_eq!(db.run_once("independent").unwrap().status, Status::Passed);
     drop(db);
     let db = ActionDb::open_path(&temp.path().join("state.redb"), false).unwrap();
-    assert!(db.claim("abandoned", || Ok(LEASE_MS - 1)).unwrap().is_none());
+    assert!(
+        db.claim("abandoned", || Ok(LEASE_MS - 1))
+            .unwrap()
+            .is_none()
+    );
     let new = db.claim("abandoned", || Ok(LEASE_MS)).unwrap().unwrap();
     assert!(new.attempt > old.attempt);
 }
@@ -113,11 +154,13 @@ fn abandoned_claim_recovers_after_reopen_and_another_job_can_write() {
 #[test]
 fn failure_and_trap_discard_partial_outputs() {
     for suffix in ["i32.const 7", "unreachable"] {
-        let code = wasm(&format!(r#"(module
+        let code = wasm(&format!(
+            r#"(module
             (import "gitr_actions_v1" "output_write" (func $write (param i32 i32) (result i32)))
             (memory (export "memory") 1) (data (i32.const 0) "partial")
             (func (export "run") (result i32)
-                (drop (call $write (i32.const 0) (i32.const 7))) {suffix}))"#));
+                (drop (call $write (i32.const 0) (i32.const 7))) {suffix}))"#
+        ));
         let (_temp, db, _) = database();
         let module = db.install(&code).unwrap();
         db.submit("fail", &module, input(b"")).unwrap();
@@ -126,27 +169,39 @@ fn failure_and_trap_discard_partial_outputs() {
         assert!(receipt.artifact_sha256.is_none());
         assert!(db.artifact("fail").is_err());
         let tx = db.db.begin_read().unwrap();
-        assert!(tx.open_table(OBJECTS).unwrap().get(digest(b"partial").as_str()).unwrap().is_none());
+        assert!(
+            tx.open_table(OBJECTS)
+                .unwrap()
+                .get(digest(b"partial").as_str())
+                .unwrap()
+                .is_none()
+        );
     }
 }
 
 #[test]
 fn fuel_limits_infinite_guest_loops() {
-    let code = wasm(r#"(module (memory (export "memory") 1)
-        (func (export "run") (result i32) (loop $spin (br $spin)) i32.const 0))"#);
+    let code = wasm(
+        r#"(module (memory (export "memory") 1)
+        (func (export "run") (result i32) (loop $spin (br $spin)) i32.const 0))"#,
+    );
     assert!(execute(&code, vec![]).is_err());
 }
 
 #[test]
 fn memory_growth_and_guest_host_buffers_are_bounded() {
-    let grow = wasm(r#"(module (memory (export "memory") 1)
-        (func (export "run") (result i32) (drop (memory.grow (i32.const 10000))) i32.const 0))"#);
+    let grow = wasm(
+        r#"(module (memory (export "memory") 1)
+        (func (export "run") (result i32) (drop (memory.grow (i32.const 10000))) i32.const 0))"#,
+    );
     assert!(execute(&grow, vec![]).is_err());
     for (pointer, length) in [(-1, 1), (0, -1), (65536, 1), (0, MAX_BYTES as i32 + 1)] {
-        let code = wasm(&format!(r#"(module
+        let code = wasm(&format!(
+            r#"(module
             (import "gitr_actions_v1" "output_write" (func $write (param i32 i32) (result i32)))
             (memory (export "memory") 1)
-            (func (export "run") (result i32) (drop (call $write (i32.const {pointer}) (i32.const {length}))) i32.const 0))"#));
+            (func (export "run") (result i32) (drop (call $write (i32.const {pointer}) (i32.const {length}))) i32.const 0))"#
+        ));
         assert!(execute(&code, vec![]).is_err());
     }
 }
@@ -160,27 +215,33 @@ fn capability_imports_start_functions_and_wrong_exports_are_rejected() {
         r#"(module (func $start) (start $start) (memory (export "memory") 1) (func (export "run") (result i32) i32.const 0))"#,
         r#"(module (memory (export "memory") 1) (func (export "run") (param i32) (result i32) i32.const 0))"#,
         r#"(module (memory (export "memory") 257) (func (export "run") (result i32) i32.const 0))"#,
-    ] { assert!(prepare(&wasm(code)).is_err(), "accepted {code}"); }
+    ] {
+        assert!(prepare(&wasm(code)).is_err(), "accepted {code}");
+    }
     assert!(prepare(b"not wasm").is_err());
     assert!(prepare(&vec![0; MAX_BYTES + 1]).is_err());
 }
 
 #[test]
 fn host_call_and_output_budgets_are_enforced() {
-    let calls = wasm(r#"(module
+    let calls = wasm(
+        r#"(module
         (import "gitr_actions_v1" "input_len" (func $len (result i32)))
         (memory (export "memory") 1)
         (func (export "run") (result i32) (local $n i32)
             (loop $again (drop (call $len))
                 (local.set $n (i32.add (local.get $n) (i32.const 1)))
-                (br_if $again (i32.lt_u (local.get $n) (i32.const 5000)))) i32.const 0))"#);
+                (br_if $again (i32.lt_u (local.get $n) (i32.const 5000)))) i32.const 0))"#,
+    );
     assert!(execute(&calls, vec![]).is_err());
-    let output = wasm(r#"(module
+    let output = wasm(
+        r#"(module
         (import "gitr_actions_v1" "output_write" (func $write (param i32 i32) (result i32)))
         (memory (export "memory") 16)
         (func (export "run") (result i32)
             (drop (call $write (i32.const 0) (i32.const 1048576)))
-            (drop (call $write (i32.const 0) (i32.const 1))) i32.const 0))"#);
+            (drop (call $write (i32.const 0) (i32.const 1))) i32.const 0))"#,
+    );
     assert!(execute(&output, vec![]).is_err());
 }
 
@@ -191,10 +252,20 @@ fn artifact_integrity_and_invalid_control_inputs_fail_closed() {
     db.run_once("job").unwrap();
     let id = db.get("job").unwrap().artifact_sha256.unwrap();
     let tx = db.db.begin_write().unwrap();
-    tx.open_table(OBJECTS).unwrap().insert(id.as_str(), b"corrupt".as_slice()).unwrap();
+    tx.open_table(OBJECTS)
+        .unwrap()
+        .insert(id.as_str(), b"corrupt".as_slice())
+        .unwrap();
     tx.commit().unwrap();
     assert!(db.artifact("job").is_err());
-    for invalid in ["", "../job", "a/b", "a\n"] { assert!(db.get(invalid).is_err()); }
-    assert!(serde_json::from_str::<Request>(r#"{"operation":"status","job":"job","database":"/etc/passwd"}"#).is_err());
+    for invalid in ["", "../job", "a/b", "a\n"] {
+        assert!(db.get(invalid).is_err());
+    }
+    assert!(
+        serde_json::from_str::<Request>(
+            r#"{"operation":"status","job":"job","database":"/etc/passwd"}"#
+        )
+        .is_err()
+    );
     assert!(bounded_read(&vec![0; 33 * 1024][..], 32 * 1024).is_err());
 }
