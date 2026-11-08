@@ -98,6 +98,10 @@ impl Server {
             while !thread_stop.load(Ordering::SeqCst) {
                 match listener.accept() {
                     Ok((mut stream, _)) => {
+                        // Listener nonblocking mode may be inherited by accepted
+                        // sockets on some platforms. Fixture requests use blocking
+                        // reads so partial headers and bodies can arrive normally.
+                        stream.set_nonblocking(false).unwrap();
                         stream
                             .set_read_timeout(Some(Duration::from_secs(5)))
                             .unwrap();
