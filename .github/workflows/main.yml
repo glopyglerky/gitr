@@ -1,6 +1,22 @@
 name: CI
 
-on: [push, pull_request]
+# The standalone Rust port has its own Lustr qualification workflow. Keep the
+# reference C Git matrix for changes that can affect the inherited Git tree.
+on:
+  push:
+    paths-ignore:
+      - 'rust/**'
+      - 'Documentation/gitr/**'
+      - 'AGENTS.md'
+      - 'README.md'
+      - '.github/workflows/gitr-rust.yml'
+  pull_request:
+    paths-ignore:
+      - 'rust/**'
+      - 'Documentation/gitr/**'
+      - 'AGENTS.md'
+      - 'README.md'
+      - '.github/workflows/gitr-rust.yml'
 
 env:
   DEVELOPER: 1

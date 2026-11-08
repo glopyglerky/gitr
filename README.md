@@ -1,3 +1,115 @@
+# Gitr
+
+A Rust Git implementation with verified large-file storage, game-asset chunk
+reuse, and a transactional repository graph and vector catalog. Active development
+lives on [`main`](https://github.com/glopyglerky/gitr/tree/main).
+
+**Status: initial implementation. Gitr is not yet a complete Git replacement.**
+The new implementation is in [`rust/gitr`](rust/gitr). This fork also retains the
+upstream Git source and test corpus, so the entire repository is not all Rust.
+
+## What runs today
+
+- Native Gitoxide commands for repositories, objects, refs, history, index and
+  status. Guarded `update-ref` uses expected-old-value compare-and-swap.
+- Standard Git LFS clean/smudge filters, verified immutable cache, explicit HTTPS
+  basic transfers and the file-lock API.
+- FastCDC local chunk reuse across large asset revisions, with verified hydration
+  into the standard Git LFS cache.
+- Large-asset inventory and candidate Unreal/Unity `.gitattributes` rules.
+- redb snapshots keyed by exact Git commits, factual Git graph queries, and
+  automatically generated lexical vectors for local search.
+- Builds and tests through a pinned version of [Lustr](https://github.com/glopyglerky/lustr).
+
+Learned semantic embeddings, resolved call graphs, distributed HA, native
+clone/fetch/push, add/commit/checkout and complete merge/rebase support remain work.
+Local redb multi-process writers serialize transactions; that is not distributed
+consensus. The first search model uses lexical feature hashing, not a trained code
+model. Unsupported Git commands fail explicitly.
+
+## Build with Lustr
+
+Use Rust 1.99.1 and the compiler revision in
+[`lustr-toolchain.json`](rust/gitr/lustr-toolchain.json). From this repository root:
+
+```sh
+git clone https://github.com/glopyglerky/lustr .gitr-ci/lustr-src
+git -C .gitr-ci/lustr-src checkout 62494e27717a64c8612b538409de27048fa6adc2
+rustup toolchain install 1.99.1 --profile minimal
+cargo +1.99.1 install --path .gitr-ci/lustr-src/tools/cargo-lust --locked
+rustup run 1.99.1 lustr --engine rustc build --manifest-path rust/gitr/Cargo.toml --locked --release
+rustup run 1.99.1 lustr --engine rustc test --manifest-path rust/gitr/Cargo.toml --locked
+```
+
+The executable is `rust/gitr/target/release/gitr`, or `gitr.exe` on Windows.
+The explicit `rustc` route uses Lustr's full-Rust Cargo coordinator. Native Lust
+does not currently compile arbitrary Gitoxide/redb dependencies. Cranelift needs
+Lustr's matching backend and compiler; see [qualification](Documentation/gitr/qualification.md).
+
+## Try it
+
+With the built executable on `PATH`:
+
+```sh
+gitr -C /path/to/repo doctor
+gitr -C /path/to/repo log --oneline -n 10
+gitr -C /path/to/repo status --porcelain
+gitr -C /path/to/repo assets scan --threshold-bytes 52428800
+gitr assets attributes unreal
+
+gitr -C /path/to/repo db index HEAD
+gitr -C /path/to/repo db search "asset upload" --revision HEAD --limit 10
+gitr -C /path/to/repo db graph --revision HEAD --path src/main.rs
+
+gitr -C /path/to/repo assets import Content/World.uasset
+# Use the returned full-file OID and size to materialize the standard LFS cache:
+gitr -C /path/to/repo assets hydrate OID SIZE
+```
+
+`db index` reads committed objects, not uncommitted worktree files. Search requires
+that exact indexed commit and reports excluded content. The graph currently
+describes repository membership, not language-resolved calls. Commands emit JSON
+or JSON Lines where a structured report is useful.
+
+The large-file layer preserves whole-file SHA-256 Git LFS pointers. GitHub still
+receives whole LFS objects. Chunk transfer requires a separately negotiated server
+protocol. To use explicit standard LFS transfers:
+
+```sh
+gitr -C /path/to/repo lfs import Content/World.uasset
+gitr -C /path/to/repo lfs upload OID SIZE --endpoint https://github.com/OWNER/REPO.git/info/lfs
+gitr -C /path/to/repo lfs fetch OID SIZE --endpoint https://github.com/OWNER/REPO.git/info/lfs
+```
+
+Authenticated requests read `GITR_LFS_AUTHORIZATION` from the environment. Do not
+put a token in source files or command arguments. Endpoint discovery, credential
+helpers, automatic pre-push traversal and enforcement of asset locks are not yet
+wired into a complete native push workflow.
+
+## Design and evidence
+
+- [Compatibility matrix and exact limits](Documentation/gitr/compatibility.md)
+- [Executed qualification](Documentation/gitr/qualification.md)
+- [Repository database, multi-writer and HA design](Documentation/gitr/architecture.md)
+- [Git, Lore and asset upstream catalog](Documentation/gitr/upstreams.md)
+- [Rust database and retrieval comparison](Documentation/gitr/database-research.md)
+- [Closest similar projects: Libra, Git-vdb, GitQL and Codebase Memory](Documentation/gitr/similar-projects.md)
+- [Next implementation work and acceptance gates](Documentation/gitr/roadmap.md)
+
+The authored Rust package is GPL-2.0-only, following this fork's Git license.
+Upstream licenses remain intact. Gitoxide uses its MIT alternative; no libgit2 or
+inherited C Git library is linked into this package. TLS currently uses rustls
+with ring, whose cryptographic implementation includes native code. See the
+catalog before incorporating differently licensed upstream source.
+
+## Upstream Git reference
+
+The original upstream README follows. Its installation commands build the
+reference Git implementation, not the standalone Rust port above.
+
+<details>
+<summary>Original Git README</summary>
+
 [![GitHub build status](https://github.com/git/git/workflows/CI/badge.svg)](https://github.com/git/git/actions?query=branch%3Amaster+event%3Apush)
 [![GitLab build status](https://gitlab.com/git-scm/git/badges/master/pipeline.svg)](https://gitlab.com/git-scm/git/-/pipelines?ref=master)
 
@@ -73,3 +185,5 @@ and the name as (depending on your mood):
 [Documentation/SubmittingPatches]: Documentation/SubmittingPatches
 [Documentation/CodingGuidelines]: Documentation/CodingGuidelines
 [po/README.md]: po/README.md
+
+</details>

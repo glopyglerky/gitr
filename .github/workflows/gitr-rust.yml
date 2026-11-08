@@ -1,0 +1,83 @@
+name: gitr Rust
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'rust/gitr/**'
+      - '.github/workflows/gitr-rust.yml'
+  pull_request:
+    paths:
+      - 'rust/gitr/**'
+      - '.github/workflows/gitr-rust.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gitr-rust-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  compatibility:
+    name: Lustr / Rust (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-15, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Read the reviewed compiler pin
+        id: compiler
+        run: |
+          python - <<'PY'
+          import json, os, re
+          from pathlib import Path
+          pin = json.loads(Path("rust/gitr/lustr-toolchain.json").read_text())
+          assert pin["schema_version"] == 1
+          assert pin["repository"] == "glopyglerky/lustr"
+          assert re.fullmatch(r"[0-9a-f]{40}", pin["revision"])
+          assert re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", pin["rust_toolchain"])
+          assert pin["manifest"] == "tools/cargo-lust/Cargo.toml"
+          assert pin["engine"] == "rustc"
+          with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+              print("repository=" + pin["repository"], file=output)
+              print("revision=" + pin["revision"], file=output)
+          with open(os.environ["GITHUB_ENV"], "a") as output:
+              print("RUSTUP_TOOLCHAIN=" + pin["rust_toolchain"], file=output)
+          PY
+      - name: Check out the exact Lustr revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ steps.compiler.outputs.repository }}
+          ref: ${{ steps.compiler.outputs.revision }}
+          path: .gitr-ci/lustr-src
+          persist-credentials: false
+      - name: Install the pinned Rust toolchain
+        run: rustup toolchain install "$RUSTUP_TOOLCHAIN" --profile minimal --component rustfmt --component clippy
+      - name: Bootstrap the independent Lustr coordinator
+        run: |
+          cargo install --path .gitr-ci/lustr-src/tools/cargo-lust --root .gitr-ci/lustr --locked --offline
+          printf '%s/.gitr-ci/lustr/bin\n' "$GITHUB_WORKSPACE" >> "$GITHUB_PATH"
+      - name: Record the selected compiler route
+        run: |
+          rustc --version --verbose
+          lustr --engine rustc plan build --manifest-path rust/gitr/Cargo.toml --locked
+      - name: Check formatting
+        if: runner.os == 'Linux'
+        run: lustr --engine rustc fmt --manifest-path rust/gitr/Cargo.toml -- --check
+      - name: Build gitr through Lustr
+        run: lustr --engine rustc build --manifest-path rust/gitr/Cargo.toml --locked
+      - name: Execute native Git and LFS qualification
+        run: lustr --engine rustc test --manifest-path rust/gitr/Cargo.toml --locked --all-targets
+      - name: Check Rust diagnostics
+        if: runner.os == 'Linux'
+        run: lustr --engine rustc clippy --manifest-path rust/gitr/Cargo.toml --locked --all-targets -- -D warnings
