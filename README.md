@@ -1,5 +1,7 @@
 # Gitr
 
+[![Gitr Rust qualification](https://github.com/glopyglerky/gitr/actions/workflows/gitr-rust.yml/badge.svg?branch=main)](https://github.com/glopyglerky/gitr/actions/workflows/gitr-rust.yml)
+
 A Rust Git implementation with verified large-file storage, game-asset chunk
 reuse, and a transactional repository graph and vector catalog. Active development
 lives on [`main`](https://github.com/glopyglerky/gitr/tree/main).

@@ -1,7 +1,7 @@
 //! Differential tests use C Git only as an independent fixture/oracle.
 //! The production Git module must not invoke it.
 use std::{
-    ffi::{OsStr, OsString},
+    ffi::OsStr,
     fs,
     io::Write,
     path::Path,
@@ -90,6 +90,36 @@ fn commit(cwd: &Path, message: &str) -> String {
     git(cwd, &["add", "-A"]);
     git(cwd, &["commit", "-qm", message]);
     text(git(cwd, &["rev-parse", "HEAD"]))
+}
+fn index_blob(cwd: &Path, name: &[u8], contents: &[u8]) {
+    let oid = text(success(execute(
+        command("git", cwd, &["hash-object", "-w", "--stdin"]),
+        Some(contents),
+    )));
+    let mut entry = format!("100644 {oid}\t").into_bytes();
+    entry.extend_from_slice(name);
+    entry.push(0);
+    // Exercise Git path bytes without requiring the host filesystem to accept them.
+    success(execute(
+        command(
+            "git",
+            cwd,
+            &[
+                "-c",
+                "core.protectNTFS=false",
+                "update-index",
+                "--add",
+                "-z",
+                "--index-info",
+            ],
+        ),
+        Some(&entry),
+    ));
+}
+fn commit_index(cwd: &Path, message: &str) {
+    let tree = text(git(cwd, &["write-tree"]));
+    let commit = text(git(cwd, &["commit-tree", &tree, "-m", message]));
+    git(cwd, &["update-ref", "HEAD", &commit]);
 }
 fn compare(cwd: &Path, args: &[&str]) {
     assert_eq!(gitr(cwd, args), git(cwd, args), "arguments {args:?}");
@@ -197,10 +227,9 @@ fn reads_loose_and_packed_blob_tree_commit_and_tag_objects() {
     for format in ["sha1", "sha256"] {
         let dir = fixture(format);
         let cwd = dir.path();
-        fs::create_dir(cwd.join("nested")).unwrap();
-        fs::write(cwd.join("nested/asset.bin"), b"binary\0contents\xff\n").unwrap();
-        fs::write(cwd.join("quoted\tfile"), b"tabbed\n").unwrap();
-        commit(cwd, "first subject\n\nbody");
+        index_blob(cwd, b"nested/asset.bin", b"binary\0contents\xff\n");
+        index_blob(cwd, b"quoted\tfile\n", b"tabbed\n");
+        commit_index(cwd, "first subject\n\nbody");
         git(cwd, &["tag", "-a", "release", "-m", "annotated release"]);
         for packed in [false, true] {
             if packed {
@@ -421,20 +450,32 @@ fn status_refuses_configured_filters_and_disables_fsmonitor() {
     assert!(!cwd.join("executed").exists());
 }
 
-#[cfg(unix)]
 #[test]
 fn preserves_non_utf8_index_tree_and_status_path_bytes() {
-    use std::os::unix::ffi::OsStringExt;
     let dir = fixture("sha256");
-    let name = OsString::from_vec(b"asset-\xff\t.bin".to_vec());
-    fs::write(dir.path().join(&name), b"old\n").unwrap();
-    commit(dir.path(), "byte path");
+    let name = b"asset-\xff\t.bin";
+    index_blob(dir.path(), name, b"old\n");
+    commit_index(dir.path(), "byte path");
     compare(dir.path(), &["ls-files"]);
     compare(dir.path(), &["ls-files", "-z"]);
+    compare(dir.path(), &["ls-files", "-s", "-z"]);
     compare(dir.path(), &["cat-file", "-p", "HEAD^{tree}"]);
-    fs::write(dir.path().join(&name), b"new\n").unwrap();
-    compare(dir.path(), &["status", "--porcelain", "--no-renames"]);
-    compare(dir.path(), &["status", "--porcelain", "--no-renames", "-z"]);
+    #[cfg(unix)]
+    {
+        use std::os::unix::ffi::OsStrExt;
+        if let Err(error) = fs::write(dir.path().join(OsStr::from_bytes(name)), b"new\n") {
+            // APFS rejects invalid UTF-8 with EILSEQ (92), even on Unix.
+            if error.kind() == std::io::ErrorKind::InvalidInput
+                || (cfg!(target_os = "macos") && error.raw_os_error() == Some(92))
+            {
+                eprintln!("filesystem rejects this byte path: {error}");
+                return;
+            }
+            panic!("create byte-path worktree fixture: {error}");
+        }
+        compare(dir.path(), &["status", "--porcelain", "--no-renames"]);
+        compare(dir.path(), &["status", "--porcelain", "--no-renames", "-z"]);
+    }
 }
 
 #[test]

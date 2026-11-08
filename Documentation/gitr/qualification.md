@@ -53,6 +53,21 @@ publication through the GitHub connection gives it different commit metadata.
 The [independent review record](review.md) distinguishes corrected implementation
 findings from the substantial requirements still on the roadmap.
 
+## Hosted platform checks
+
+The [Rust workflow](https://github.com/glopyglerky/gitr/actions/workflows/gitr-rust.yml)
+runs through the same pinned Lustr coordinator on Linux, macOS and Windows.
+The first hosted run passed on Linux and exposed two portability assumptions:
+Windows needs Git-style path separators without Rust's verbatim-path prefix, and
+host filesystems do not all accept arbitrary Git filename bytes. The implementation
+now normalizes Windows display paths, while the fixtures construct raw Git objects
+and indexes without requiring those filenames to exist on disk. Object/index and
+catalog byte-path assertions run on all platforms. The physical non-UTF-8 worktree
+portion runs only where the filesystem can represent that name.
+
+Hosted results are recorded separately from the local Linux evidence above; see
+the linked workflow for the result associated with each published revision.
+
 ## Experimental Cranelift result
 
 **Not qualified for this dependency set.** The pinned backend compiled the package,

@@ -394,7 +394,24 @@ fn cat_file(args: CatFile, out: &mut impl Write) -> Result<()> {
 }
 
 fn print_path(out: &mut impl Write, path: &Path) -> Result<()> {
-    out.write_all(gix::path::os_str_into_bstr(path.as_os_str())?.as_bytes())?;
+    let bytes =
+        gix::path::to_unix_separators_on_windows(gix::path::os_str_into_bstr(path.as_os_str())?);
+    #[cfg(windows)]
+    let bytes = match path.components().next() {
+        Some(std::path::Component::Prefix(prefix)) => match prefix.kind() {
+            // canonicalize() adds verbatim prefixes, which Git does not print.
+            std::path::Prefix::VerbatimDisk(_) => &bytes.as_bytes()[4..],
+            std::path::Prefix::VerbatimUNC(..) => {
+                out.write_all(b"//")?;
+                &bytes.as_bytes()[8..]
+            }
+            _ => bytes.as_bytes(),
+        },
+        _ => bytes.as_bytes(),
+    };
+    #[cfg(not(windows))]
+    let bytes = bytes.as_bytes();
+    out.write_all(bytes)?;
     out.write_all(b"\n")?;
     Ok(())
 }

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "recorded_at_utc": "2026-11-08T21:59:26.008429+00:00",
+  "recorded_at_utc": "2026-11-08T22:18:00.619156+00:00",
   "platform": "x86_64-unknown-linux-gnu",
   "lustr_revision": "62494e27717a64c8612b538409de27048fa6adc2",
   "qualified_engine": "rustc",
@@ -152,8 +152,8 @@
     "scope": "Observed before final review corrections; dependency pins unchanged. Final candidate was qualified only through rustc."
   },
   "release_binary": {
-    "bytes": 13416688,
-    "sha256": "57ac13cf6993a5d528118679e7ff47ceb55f8c041ff90886be2eed159bf5d70d",
+    "bytes": 13416608,
+    "sha256": "b90c22dce06920d038f4a0970937a5ba5f203841c3f1a96febf226727b9e7820",
     "note": "Local Linux build, not a published release artifact or reproducible-build claim."
   },
   "input_sha256": {
@@ -164,15 +164,15 @@
     "rust/gitr/src/assets.rs": "4a79e74a7e2a3b56c589504f62bc25c9207af6b7a37ec639a42821b9861047cc",
     "rust/gitr/src/chunks.rs": "8398740c35b6c8bdb41a6339610e2ee79211b903e84c2c6d5a54525de1ad2e3c",
     "rust/gitr/src/db.rs": "fd281f1a20d39a53f7dc560f77f37a34095252e6c1c6af2a7aadf1f375cc5a1b",
-    "rust/gitr/src/git.rs": "ad91eaee1cc7b6db9538a73a7615693e751321405a5eb4f2fac05c5f987e4de4",
+    "rust/gitr/src/git.rs": "14cf90aa4e6efa0ffcbbc25daeff206e97430f1476af14ea5548e8dd8e2de05e",
     "rust/gitr/src/lfs.rs": "d590e5bf67c82c6d0b2145a7be522f4321ba38279eb6cda72a8b86b0df833cb9",
     "rust/gitr/src/lib.rs": "f9f32fb9379d6afb5f1e28e06a941b001c770651b4b1a4736a03bc5f7235565c",
     "rust/gitr/src/main.rs": "dcb8533f10d94a297b8f288c0f2abaa8ca77538a31d43db66277a916b75fc443",
     "rust/gitr/src/remote.rs": "1dfc786effa4b4e7338f79487f5ae69e73811a51e80aaa0cbbb61b199d608f48",
     "rust/gitr/tests/assets.rs": "e50c98b19fee59459257463f2f92f23839c521bcc9bc9978993b675be189484e",
     "rust/gitr/tests/chunks.rs": "ce6efbbbfa028bf2077795de7a18836b6c30b6274e4b29928735c95da56db113",
-    "rust/gitr/tests/db.rs": "3c3e915e607241b832c3db1085dafd9a82b6416d984b77485b5fccada2cd2c1e",
-    "rust/gitr/tests/git_compat.rs": "2783506484945812e9680cc44a923c5658676697bd8127e90358180874ad59f3",
+    "rust/gitr/tests/db.rs": "f282d0cbde8697b83a7c1176bb6fcd867706d98c68cf2d5d0d48bd8dafd4d828",
+    "rust/gitr/tests/git_compat.rs": "d79a64577cbaac8bedd1aae412e0e948024c909402e3226ca925890784cd9dda",
     "rust/gitr/tests/lfs_cache.rs": "539df5e5d96e97209e53ee8a429289a498c9b1c647dfcff63a08e5ef99fa2686",
     "rust/gitr/tests/lfs_git_filter.rs": "d616907d872b1b84098b6981100f39154e56a83d79aae01232c860ad490a9d14",
     "rust/gitr/tests/lfs_remote.rs": "361a32f82ef209ceb0a72d744666ee7a4c2e5b07f7d13287848256091d66d6dd"
@@ -184,6 +184,14 @@
       "macos-15",
       "windows-latest"
     ],
-    "note": "This evidence records local Linux execution. Hosted workflow outcomes are separate."
+    "note": "This evidence records local Linux execution. Hosted workflow outcomes are separate.",
+    "initial_run": {
+      "url": "https://github.com/glopyglerky/gitr/actions/runs/42528239551",
+      "head": "7716058e2b39ee87284d9d073af0a3aaf3ebc7a8",
+      "linux": "passed",
+      "macos": "host rejected non-UTF-8 worktree fixture",
+      "windows": "Git path formatting mismatch and host rejected tabbed filename fixture",
+      "correction": "Normalize Windows path output; build unusual Git filenames through raw objects and indexes. Physical worktree checks depend on host filesystem support."
+    }
   }
 }

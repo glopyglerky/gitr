@@ -346,19 +346,34 @@ fn a_failure_after_partial_traversal_keeps_the_old_snapshot_and_publishes_nothin
     );
 }
 
-#[cfg(unix)]
 #[test]
 fn non_utf8_git_paths_are_distinct_and_round_trip_in_graph_queries() {
-    use std::{ffi::OsString, os::unix::ffi::OsStringExt};
     let directory = repository();
-    for name in [b"code-\xff.rs".as_slice(), b"code-\xfe.rs".as_slice()] {
-        fs::write(
-            directory.path().join(OsString::from_vec(name.to_vec())),
-            "path identity",
-        )
-        .unwrap();
+    let blob = reference(
+        directory.path(),
+        &["hash-object", "-w", "--stdin"],
+        Some(b"path identity"),
+    );
+    let blob_oid = gix::ObjectId::from_hex(blob.as_bytes()).unwrap();
+    // Build the tree directly so host filesystems need not support non-UTF-8
+    // names. Tree entries are ordered by raw filename bytes.
+    let mut tree = Vec::new();
+    for name in [b"code-\xfe.rs", b"code-\xff.rs"] {
+        tree.extend_from_slice(b"100644 ");
+        tree.extend_from_slice(name);
+        tree.push(0);
+        tree.extend_from_slice(blob_oid.as_bytes());
     }
-    let revision = commit(directory.path(), "raw paths");
+    let tree_oid = reference(
+        directory.path(),
+        &["hash-object", "-w", "-t", "tree", "--stdin"],
+        Some(&tree),
+    );
+    let revision = reference(
+        directory.path(),
+        &["commit-tree", &tree_oid],
+        Some(b"raw paths\n"),
+    );
     let repo = git::discover_at(directory.path()).unwrap();
     db::index(&repo, &revision, db::DEFAULT_MAX_BLOB_BYTES).unwrap();
     let hits = db::search(&repo, "path identity", &revision, 10)
@@ -367,9 +382,14 @@ fn non_utf8_git_paths_are_distinct_and_round_trip_in_graph_queries() {
     assert_eq!(hits.len(), 2);
     assert!(hits.iter().all(|hit| hit.path.utf8.is_none()));
     assert_ne!(hits[0].path.hex, hits[1].path.hex);
-    let selected = graph(&repo, &revision, Some(b"code-\xff.rs"));
-    assert_eq!(selected.len(), 2);
-    assert_eq!(selected[1]["entry"]["path"]["hex"], "636f64652dff2e7273");
+    for (path, hex) in [
+        (b"code-\xff.rs".as_slice(), "636f64652dff2e7273"),
+        (b"code-\xfe.rs".as_slice(), "636f64652dfe2e7273"),
+    ] {
+        let selected = graph(&repo, &revision, Some(path));
+        assert_eq!(selected.len(), 2);
+        assert_eq!(selected[1]["entry"]["path"]["hex"], hex);
+    }
 }
 
 #[test]
