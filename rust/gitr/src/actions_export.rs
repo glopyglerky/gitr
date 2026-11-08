@@ -51,9 +51,18 @@ impl ActionDb {
             key(id.value())?;
             ensure!(value.value().len() <= 64 * 1024, "oversized action receipt");
             let job: Job = serde_json::from_slice(value.value())?;
-            ensure!(job.id == id.value(), "action job identifier does not match its key");
-            ensure!(job.spec.profile == PROFILE, "unknown action execution profile");
-            ensure!(job.status != Status::Running, "cannot export a snapshot with running workers");
+            ensure!(
+                job.id == id.value(),
+                "action job identifier does not match its key"
+            );
+            ensure!(
+                job.spec.profile == PROFILE,
+                "unknown action execution profile"
+            );
+            ensure!(
+                job.status != Status::Running,
+                "cannot export a snapshot with running workers"
+            );
             ensure!(
                 (job.status == Status::Passed) == job.artifact_sha256.is_some(),
                 "action receipt has inconsistent successful artifact state"
@@ -67,24 +76,37 @@ impl ActionDb {
             .flatten()
             {
                 oid(reference)?;
-                let bytes = objects.get(reference)?.context("receipt references missing action object")?;
+                let bytes = objects
+                    .get(reference)?
+                    .context("receipt references missing action object")?;
                 ensure!(
                     bytes.value().len() <= MAX_BYTES && digest(bytes.value()) == reference,
                     "receipt references corrupt action object"
                 );
             }
         }
-        line(out, &json!({"kind":"header","format":"gitr-action-export-v1","schema":1}))?;
+        line(
+            out,
+            &json!({"kind":"header","format":"gitr-action-export-v1","schema":1}),
+        )?;
 
         for row in objects.iter()? {
             let (id, value) = row?;
             let id = id.value();
             let bytes = value.value();
             oid(id)?;
-            ensure!(bytes.len() <= MAX_BYTES && digest(bytes) == id, "action object integrity failure");
+            ensure!(
+                bytes.len() <= MAX_BYTES && digest(bytes) == id,
+                "action object integrity failure"
+            );
             mix_record(&mut hash, b"object\0", id.as_bytes(), bytes);
-            line(out, &json!({"kind":"object","sha256":id,"data_hex":encode_hex(bytes)}))?;
-            object_count = object_count.checked_add(1).context("export object counter overflow")?;
+            line(
+                out,
+                &json!({"kind":"object","sha256":id,"data_hex":encode_hex(bytes)}),
+            )?;
+            object_count = object_count
+                .checked_add(1)
+                .context("export object counter overflow")?;
         }
         for row in jobs.iter()? {
             let (id, value) = row?;
@@ -92,13 +114,21 @@ impl ActionDb {
             let bytes = value.value();
             let job: Job = serde_json::from_slice(bytes)?;
             mix_record(&mut hash, b"job\0", id.as_bytes(), bytes);
-            line(out, &json!({"kind":"job","id":id,"json_hex":encode_hex(bytes),"record":job}))?;
-            job_count = job_count.checked_add(1).context("export job counter overflow")?;
+            line(
+                out,
+                &json!({"kind":"job","id":id,"json_hex":encode_hex(bytes),"record":job}),
+            )?;
+            job_count = job_count
+                .checked_add(1)
+                .context("export job counter overflow")?;
         }
-        line(out, &json!({
-            "kind":"end", "objects":object_count, "jobs":job_count,
-            "sha256":encode_hex(&hash.finalize())
-        }))?;
+        line(
+            out,
+            &json!({
+                "kind":"end", "objects":object_count, "jobs":job_count,
+                "sha256":encode_hex(&hash.finalize())
+            }),
+        )?;
         Ok(())
     }
 }
@@ -130,7 +160,8 @@ mod tests {
     #[test]
     fn deterministic_snapshot_export_survives_reopen_and_does_not_modify_jobs() {
         let (dir, db, module) = state();
-        db.submit("policy", &module, input(b"immutable input")).unwrap();
+        db.submit("policy", &module, input(b"immutable input"))
+            .unwrap();
         let before = db.get("policy").unwrap();
         let mut first = Vec::new();
         db.export(&mut first).unwrap();
@@ -144,7 +175,11 @@ mod tests {
         assert_eq!(lines.last().unwrap()["kind"], "end");
         assert_eq!(lines.last().unwrap()["objects"], 2);
         assert_eq!(lines.last().unwrap()["jobs"], 1);
-        assert!(lines.iter().any(|v| v["kind"] == "job" && v["id"] == "policy"));
+        assert!(
+            lines
+                .iter()
+                .any(|v| v["kind"] == "job" && v["id"] == "policy")
+        );
         drop(db);
         let db = ActionDb::open_path(&dir.path().join("state.redb"), false).unwrap();
         let mut second = Vec::new();
