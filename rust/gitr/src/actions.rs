@@ -56,6 +56,9 @@ pub enum Command {
     Cancel { job: String },
     /// Write a successful job's verified artifact bytes to stdout.
     Artifact { job: String },
+    /// Export a verified read-only snapshot of durable action objects and jobs as JSON Lines.
+    /// This is a migration rehearsal, not an authority cutover.
+    Export,
     /// Execute one bounded JSON control request from stdin. Local process only.
     Control,
 }
@@ -747,9 +750,13 @@ pub fn run(command: Command) -> Result<()> {
             io::stdout().lock().write_all(&db.artifact(&job)?)?;
             Ok(())
         }
+        Command::Export => db.export(&mut io::stdout().lock()),
         Command::Control => unreachable!("handled above"),
     }
 }
+
+#[path = "actions_export.rs"]
+mod export;
 
 #[cfg(test)]
 #[path = "actions_tests.rs"]
