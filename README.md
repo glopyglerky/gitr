@@ -116,9 +116,11 @@ gitr -C /path/to/repo actions submit whitespace-policy MODULE_SHA256 --revision 
 gitr -C /path/to/repo actions run whitespace-policy
 gitr -C /path/to/repo actions status whitespace-policy
 gitr -C /path/to/repo actions artifact whitespace-policy
+# Read-only JSONL snapshot of durable redb action records for migration rehearsal:
+gitr -C /path/to/repo actions export > actions-backup.jsonl
 ```
 
-Action inputs are the bytes in the named **committed Git revision**, not dirty
+The export verifies action object hashes and their receipts; it refuses snapshots\nwith running workers. The export is not a SurrealKV import or an atomic\nauthority cutover, and does not change any stored records.\n\nAction inputs are the bytes in the named **committed Git revision**, not dirty
 worktree contents. A failed policy test has no downloadable successful artifact.
 The local `actions control` JSON command is not a standards-compliant MCP/HTTP
 transport and assumes OS-level authorization. In-process Wasm fuel and guest
