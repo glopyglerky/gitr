@@ -37,6 +37,7 @@ path.write_text(text)
 
 path = Path('rust/gitr-store/src/main.rs')
 text = path.read_text().replace('Context, Result, bail, ensure', 'Context, Result, ensure')
+text = text.replace('RecordId::from((table, id.to_owned()))', 'RecordId::new(table, id.to_owned())')
 if 'deadline: Option<u64>' not in text:
     needle = 'async fn publish(&self, job: &Job, previous: Option<i64>, object: Option<(&str, &str)>)'
     assert needle in text
@@ -60,4 +61,14 @@ if 'PermissionsExt' not in text:
         ensure!(fs::symlink_metadata(root)?.permissions().mode() & 0o077 == 0,
             "storage directory must not be accessible to group or other users");
     }''')
+if 'mod transactions;' not in text:
+    start = text.index('fn retryable(error: &anyhow::Error) -> bool {')
+    end = text.index('\nimpl Request {', start)
+    text = text[:start] + '''fn retryable(error: &anyhow::Error) -> bool {
+    error.downcast_ref::<surrealdb::Error>().is_some_and(transactions::retryable)
+}
+''' + text[end:]
+    text = text.replace('types::{QueryError, RecordId, SurrealValue}', 'types::{RecordId, SurrealValue}')
+    text = text.replace('.await?.check()?', '.await.and_then(transactions::check)?')
+    text += '\nmod transactions;\n'
 path.write_text(text)

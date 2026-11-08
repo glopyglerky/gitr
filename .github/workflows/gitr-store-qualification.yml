@@ -53,7 +53,9 @@ jobs:
         run: |
           lustr --engine rustc fmt --manifest-path rust/gitr-store/Cargo.toml
           lustr --engine rustc fmt --manifest-path rust/gitr/Cargo.toml
-          lustr --engine rustc build --manifest-path rust/gitr-store/Cargo.toml
+          lustr --engine rustc check --manifest-path rust/gitr-store/Cargo.toml
+          lustr --engine rustc check --manifest-path rust/gitr/Cargo.toml --locked
+          lustr --engine rustc build --manifest-path rust/gitr-store/Cargo.toml --locked
           lustr --engine rustc build --manifest-path rust/gitr/Cargo.toml --locked
           lustr --engine rustc build --manifest-path rust/gitr-action-example/Cargo.toml --locked --release --target wasm32-unknown-unknown
       - name: Tests, strict diagnostics and real process qualification
@@ -62,8 +64,8 @@ jobs:
           lustr --engine rustc clippy --manifest-path rust/gitr/Cargo.toml --locked --all-targets -- -D warnings
           lustr --engine rustc clippy --manifest-path rust/gitr-store/Cargo.toml --locked -- -D warnings
           python3 ci/gitr-store-smoke.py
-      - name: Save compilation cache even when a later qualification fails
-        if: always() && steps.build.outcome == 'success'
+      - name: Save completed compilation work even when qualification fails
+        if: always() && !cancelled()
         uses: actions/cache/save@caa296126883cff596d87d8935842f9db880ef25
         with:
           path: |
@@ -81,7 +83,7 @@ jobs:
           import base64, hashlib, json, os, urllib.request
           from pathlib import Path
           print('TESTED_BASE_COMMIT=' + os.environ['GITHUB_SHA'])
-          for path in ['rust/gitr-store/Cargo.lock', 'rust/gitr-store/src/main.rs', 'rust/gitr/src/actions.rs', 'rust/gitr/src/actions_remote.rs']:
+          for path in ['rust/gitr-store/Cargo.lock', 'rust/gitr-store/src/main.rs', 'rust/gitr-store/src/transactions.rs', 'rust/gitr/src/actions.rs', 'rust/gitr/src/actions_remote.rs', 'rust/gitr/src/actions_export.rs']:
               data = Path(path).read_bytes()
               request = urllib.request.Request('https://api.github.com/repos/glopyglerky/gitr/git/blobs', data=json.dumps({'encoding':'base64','content':base64.b64encode(data).decode()}).encode(), headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json','Content-Type':'application/json'}, method='POST')
               with urllib.request.urlopen(request, timeout=30) as response:
