@@ -1,0 +1,35 @@
+name: gitr upstream review
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'Documentation/gitr/research/2026-11-08-upstream-survey/**'
+      - 'ci/gitr-upstream-review.py'
+      - '.github/workflows/gitr-upstream-review.yml'
+  pull_request:
+    paths:
+      - 'Documentation/gitr/research/2026-11-08-upstream-survey/**'
+      - 'ci/gitr-upstream-review.py'
+      - '.github/workflows/gitr-upstream-review.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  catalog:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Test catalog merge invariants
+        run: python3 ci/gitr-upstream-review.py --self-test
+      - name: Verify immutable baseline and build deduplicated expanded catalogs
+        run: python3 ci/gitr-upstream-review.py --output "$RUNNER_TEMP/gitr-expanded-survey"
+      - name: Retain CSV, JSON and coverage together
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: gitr-expanded-upstream-survey
+          path: ${{ runner.temp }}/gitr-expanded-survey
+          if-no-files-found: error
+# This job does not build or execute donor code, approve licenses, or update refs.
