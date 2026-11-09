@@ -1,22 +1,10 @@
+use gitr_test_support::{guest, Guest};
 use super::*;
 use std::sync::{Arc, Barrier};
 use std::thread;
 
-fn wasm(body: &str) -> Vec<u8> {
-    wat::parse_str(body).unwrap()
-}
 fn success_module() -> Vec<u8> {
-    wasm(
-        r#"(module
-        (import "gitr_actions_v1" "input_len" (func $len (result i32)))
-        (import "gitr_actions_v1" "input_read" (func $read (param i32 i32 i32) (result i32)))
-        (import "gitr_actions_v1" "output_write" (func $write (param i32 i32) (result i32)))
-        (memory (export "memory") 16)
-        (func (export "run") (result i32)
-            (drop (call $read (i32.const 0) (i32.const 0) (call $len)))
-            (drop (call $write (i32.const 0) (call $len)))
-            (i32.const 0)))"#,
-    )
+    guest(Guest::Echo)
 }
 fn input(bytes: &[u8]) -> SnapshotInput {
     SnapshotInput {
@@ -60,7 +48,7 @@ fn idempotency_rejects_changed_inputs_modules_and_snapshot_identity() {
     let mut other_commit = input(b"one");
     other_commit.commit = "3".repeat(40);
     assert!(db.submit("key", &module, other_commit).is_err());
-    let other_module = db.install(&wasm(r#"(module (memory (export "memory") 1) (func (export "run") (result i32) i32.const 0))"#)).unwrap();
+    let other_module = db.install(&guest(Guest::Empty)).unwrap();
     assert!(db.submit("key", &other_module, input(b"one")).is_err());
     assert_eq!(db.get("key").unwrap().status, Status::Queued);
 }
@@ -153,14 +141,8 @@ fn abandoned_claim_recovers_after_reopen_and_another_job_can_write() {
 
 #[test]
 fn failure_and_trap_discard_partial_outputs() {
-    for suffix in ["i32.const 7", "unreachable"] {
-        let code = wasm(&format!(
-            r#"(module
-            (import "gitr_actions_v1" "output_write" (func $write (param i32 i32) (result i32)))
-            (memory (export "memory") 1) (data (i32.const 0) "partial")
-            (func (export "run") (result i32)
-                (drop (call $write (i32.const 0) (i32.const 7))) {suffix}))"#
-        ));
+    for kind in [Guest::Failure(7), Guest::Trap] {
+        let code = guest(kind);
         let (_temp, db, _) = database();
         let module = db.install(&code).unwrap();
         db.submit("fail", &module, input(b"")).unwrap();
@@ -181,42 +163,24 @@ fn failure_and_trap_discard_partial_outputs() {
 
 #[test]
 fn fuel_limits_infinite_guest_loops() {
-    let code = wasm(
-        r#"(module (memory (export "memory") 1)
-        (func (export "run") (result i32) (loop $spin (br $spin)) i32.const 0))"#,
-    );
+    let code = guest(Guest::Spin);
     assert!(execute(&code, vec![]).is_err());
 }
 
 #[test]
 fn memory_growth_and_guest_host_buffers_are_bounded() {
-    let grow = wasm(
-        r#"(module (memory (export "memory") 1)
-        (func (export "run") (result i32) (drop (memory.grow (i32.const 10000))) i32.const 0))"#,
-    );
+    let grow = guest(Guest::Grow);
     assert!(execute(&grow, vec![]).is_err());
     for (pointer, length) in [(-1, 1), (0, -1), (65536, 1), (0, MAX_BYTES as i32 + 1)] {
-        let code = wasm(&format!(
-            r#"(module
-            (import "gitr_actions_v1" "output_write" (func $write (param i32 i32) (result i32)))
-            (memory (export "memory") 1)
-            (func (export "run") (result i32) (drop (call $write (i32.const {pointer}) (i32.const {length}))) i32.const 0))"#
-        ));
+        let code = guest(Guest::Buffer(pointer,length));
         assert!(execute(&code, vec![]).is_err());
     }
 }
 
 #[test]
 fn capability_imports_start_functions_and_wrong_exports_are_rejected() {
-    for code in [
-        r#"(module (import "wasi_snapshot_preview1" "fd_write" (func)) (memory (export "memory") 1) (func (export "run") (result i32) i32.const 0))"#,
-        r#"(module (import "gitr_actions_v1" "network" (func)) (memory (export "memory") 1) (func (export "run") (result i32) i32.const 0))"#,
-        r#"(module (import "gitr_actions_v1" "input_len" (func (param i64))) (memory (export "memory") 1) (func (export "run") (result i32) i32.const 0))"#,
-        r#"(module (func $start) (start $start) (memory (export "memory") 1) (func (export "run") (result i32) i32.const 0))"#,
-        r#"(module (memory (export "memory") 1) (func (export "run") (param i32) (result i32) i32.const 0))"#,
-        r#"(module (memory (export "memory") 257) (func (export "run") (result i32) i32.const 0))"#,
-    ] {
-        assert!(prepare(&wasm(code)).is_err(), "accepted {code}");
+    for kind in [Guest::Wasi,Guest::Network,Guest::WrongImport,Guest::Start,Guest::WrongExport,Guest::Huge] {
+        assert!(prepare(&guest(kind)).is_err(), "accepted {kind:?}");
     }
     assert!(prepare(b"not wasm").is_err());
     assert!(prepare(&vec![0; MAX_BYTES + 1]).is_err());
@@ -224,24 +188,9 @@ fn capability_imports_start_functions_and_wrong_exports_are_rejected() {
 
 #[test]
 fn host_call_and_output_budgets_are_enforced() {
-    let calls = wasm(
-        r#"(module
-        (import "gitr_actions_v1" "input_len" (func $len (result i32)))
-        (memory (export "memory") 1)
-        (func (export "run") (result i32) (local $n i32)
-            (loop $again (drop (call $len))
-                (local.set $n (i32.add (local.get $n) (i32.const 1)))
-                (br_if $again (i32.lt_u (local.get $n) (i32.const 5000)))) i32.const 0))"#,
-    );
+    let calls = guest(Guest::Calls);
     assert!(execute(&calls, vec![]).is_err());
-    let output = wasm(
-        r#"(module
-        (import "gitr_actions_v1" "output_write" (func $write (param i32 i32) (result i32)))
-        (memory (export "memory") 16)
-        (func (export "run") (result i32)
-            (drop (call $write (i32.const 0) (i32.const 1048576)))
-            (drop (call $write (i32.const 0) (i32.const 1))) i32.const 0))"#,
-    );
+    let output = guest(Guest::Output);
     assert!(execute(&output, vec![]).is_err());
 }
 

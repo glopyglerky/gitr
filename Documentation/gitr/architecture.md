@@ -178,3 +178,7 @@ authority requires a stronger sandbox and is outside the current cache contract.
 No performance or reliability claim is inferred from the word Rust. The
 [qualification record](qualification.md) and [compatibility matrix](compatibility.md)
 describe what the checked-in code actually demonstrated.
+
+Repository source/qualification ownership is mapped in
+[rust-only-source.md](rust-only-source.md). Non-Rust helper retirement does not
+change redb, action authority or Git object identity contracts.

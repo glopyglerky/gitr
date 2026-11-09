@@ -15,8 +15,8 @@ copy was retained. An audit of the standalone manifests, includes, runtime
 process launches and fixture constructors found no Gitr production/test consumer
 of that tree. Tests synthesize their own repositories with installed Git. Git's
 former Makefile enumerating its own source was not a reason to keep it active.
-Owned Python qualification scripts and passive historical research/archive files
-remain. This is not a claim that every repository file or dependency is Rust.
+Superseded by `rust-only-source.md`: Python helpers and executable archived
+foreign programs were subsequently removed. Static historical evidence remains.
 
 ## Adopted native capability
 
@@ -73,7 +73,7 @@ Then set `BLUEFE_ROOT` to that bundle's absolute location:
 "$BLUEFE_ROOT/bin/lustr" --bluefe-root "$BLUEFE_ROOT" test --locked --no-default-features --all-targets
 "$BLUEFE_ROOT/bin/lustr" --bluefe-root "$BLUEFE_ROOT" test --locked --doc --all-features
 "$BLUEFE_ROOT/bin/lustr" --bluefe-root "$BLUEFE_ROOT" build --manifest-path crates/action-example/Cargo.toml --locked --release --target wasm32-unknown-unknown
-python3 ci/gitr-redb-policy.py
+"$BLUEFE_ROOT/bin/lustr" --bluefe-root "$BLUEFE_ROOT" run --manifest-path xtask/Cargo.toml --locked -- policy
 ```
 
 Lustr's `--bluefe-root` selects that bundle's Cargo/rustc/rustdoc without a
@@ -115,8 +115,7 @@ to rule out statically linked native crypto. No crypto swap was attempted withou
 equivalent compatibility evidence. Gitr-owned production modules forbid unsafe;
 that does not establish whole-stack memory safety.
 
-`ci/gitr-root-benchmark.py` records a fixed tree, binary hashes, commands, 24
-balanced trials (first three excluded), stdout hashes, medians and seeded paired
+The retired Python benchmark recorded 24 balanced trials (first three excluded), stdout hashes, medians and seeded paired
 bootstrap bounds. The baseline is the pre-move binary built with the same
 produced compiler, default features and dev profile. The after binary also uses
 default/dev. Stock Git is optimized. These startup-heavy warm-cache measurements

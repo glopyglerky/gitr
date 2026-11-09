@@ -1,4 +1,5 @@
 //! Exercises the real Gitr worker executable, not an in-process VM mock.
+use gitr_test_support::{guest, Guest};
 use gitr::actions::runner::{EphemeralRunner, WORKER_ARGUMENT};
 use sha2::{Digest, Sha256};
 use std::{
@@ -13,17 +14,7 @@ fn runner() -> EphemeralRunner {
     EphemeralRunner::new(Path::new(env!("CARGO_BIN_EXE_gitr"))).unwrap()
 }
 fn module() -> Vec<u8> {
-    wat::parse_str(
-        r#"(module
-        (import "gitr_actions_v1" "input_len" (func $len (result i32)))
-        (import "gitr_actions_v1" "input_read" (func $read (param i32 i32 i32) (result i32)))
-        (import "gitr_actions_v1" "output_write" (func $write (param i32 i32) (result i32)))
-        (memory (export "memory") 16)
-        (func (export "run") (result i32)
-            (drop (call $read (i32.const 0) (i32.const 0) (call $len)))
-            (drop (call $write (i32.const 0) (call $len))) i32.const 0))"#,
-    )
-    .unwrap()
+    guest(Guest::Echo)
 }
 
 #[test]
@@ -43,39 +34,19 @@ fn actual_ephemeral_worker_validates_and_roundtrips_binary_without_a_repository(
 
 #[test]
 fn each_real_worker_starts_fresh_and_failed_guests_return_no_partial_output() {
-    let fresh = wat::parse_str(
-        r#"(module
-        (import "gitr_actions_v1" "output_write" (func $write (param i32 i32) (result i32)))
-        (memory (export "memory") 1) (global $counter (mut i32) (i32.const 0))
-        (func (export "run") (result i32)
-            (global.set $counter (i32.add (global.get $counter) (i32.const 1)))
-            (i32.store8 (i32.const 0) (global.get $counter))
-            (drop (call $write (i32.const 0) (i32.const 1))) i32.const 0))"#,
-    )
-    .unwrap();
+    let fresh = guest(Guest::Fresh);
     let runner = runner();
     assert_eq!(runner.execute(&fresh, &[]).unwrap(), (0, vec![1]));
     assert_eq!(runner.execute(&fresh, &[]).unwrap(), (0, vec![1]));
-    let failed = wat::parse_str(
-        r#"(module
-        (import "gitr_actions_v1" "output_write" (func $write (param i32 i32) (result i32)))
-        (memory (export "memory") 1) (data (i32.const 0) "partial")
-        (func (export "run") (result i32)
-            (drop (call $write (i32.const 0) (i32.const 7))) i32.const 9))"#,
-    )
-    .unwrap();
+    let failed = guest(Guest::Failure(9));
     assert_eq!(runner.execute(&failed, &[]).unwrap(), (9, vec![]));
 }
 
 #[test]
 fn real_worker_retains_capability_denial_fuel_and_memory_limits() {
     let runner = runner();
-    for text in [
-        r#"(module (import "wasi_snapshot_preview1" "fd_write" (func)) (memory (export "memory") 1) (func (export "run") (result i32) i32.const 0))"#,
-        r#"(module (memory (export "memory") 1) (func (export "run") (result i32) (drop (memory.grow (i32.const 10000))) i32.const 0))"#,
-        r#"(module (memory (export "memory") 1) (func (export "run") (result i32) (loop $again (br $again)) i32.const 0))"#,
-    ] {
-        assert!(runner.execute(&wat::parse_str(text).unwrap(), &[]).is_err());
+    for kind in [Guest::Wasi, Guest::Grow, Guest::Spin] {
+        assert!(runner.execute(&guest(kind), &[]).is_err());
     }
 }
 
@@ -103,11 +74,7 @@ fn worker_rejects_unframed_or_oversized_requests_without_creating_state() {
 #[test]
 fn closing_the_parent_channel_cannot_leave_a_live_guest_behind() {
     let directory = tempfile::tempdir().unwrap();
-    let wasm = wat::parse_str(
-        r#"(module (memory (export "memory") 1)
-        (func (export "run") (result i32) (loop $again (br $again)) i32.const 0))"#,
-    )
-    .unwrap();
+    let wasm = guest(Guest::Spin);
     let mut identity = Sha256::new();
     identity.update(b"GITRWK1\0");
     identity.update([1]);

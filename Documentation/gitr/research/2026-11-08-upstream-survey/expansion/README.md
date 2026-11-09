@@ -20,12 +20,12 @@ validator's tests are not donor qualification.
 
 From the Gitr root:
 
-```sh
-python3 ci/gitr-upstream-review.py --self-test
-python3 ci/gitr-upstream-review.py --output /tmp/gitr-expanded-survey
-```
+The Python catalog generator and its CI job were retired by the strict
+Rust-only directive. The descriptions below record its historical behavior;
+regeneration and its validation tests are currently unavailable. Static catalogs
+and review ledgers remain source-inspection evidence only.
 
-This produces `catalog.csv`, `catalog.json` and `coverage.json`. CSV retains all
+The retired generator produced `catalog.csv`, `catalog.json` and `coverage.json`. CSV retains all
 baseline columns and adds `review_*` evidence; JSON retains complete baseline
 rows and detailed follow-up records. The original catalog files are immutable
 inputs, verified against their Git blob hash. The [read-only workflow](../../../../../.github/workflows/gitr-upstream-review.yml)

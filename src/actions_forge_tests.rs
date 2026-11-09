@@ -1,3 +1,4 @@
+use gitr_test_support::{guest, Guest};
 use super::*;
 use std::{sync::{Arc, Barrier}, thread};
 
@@ -149,7 +150,7 @@ fn forged_identity_extra_fields_and_invalid_domain_values_fail_closed() {
 #[test]
 fn forge_records_share_action_database_without_changing_existing_receipts() {
     let (_dir,db,repo) = database();
-    let module = wat::parse_str(r#"(module (memory (export "memory") 1) (func (export "run") (result i32) i32.const 0))"#).unwrap();
+    let module = guest(Guest::Empty);
     let module = db.install(&module).unwrap();
     db.submit("job",&module,SnapshotInput { commit:"1".repeat(40),blob:"2".repeat(40),path:"file".into(),bytes:b"input".to_vec() }).unwrap();
     let receipt = db.run_once("job").unwrap();

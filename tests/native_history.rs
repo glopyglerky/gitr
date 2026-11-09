@@ -1,5 +1,6 @@
 //! Reference Git is a fixture/oracle only. Native authoring runs with an empty
 //! PATH in end-to-end tests to catch accidental subprocess fallback.
+use gitr_test_support::{guest, Guest};
 use std::{
     ffi::OsStr,
     fs,
@@ -446,17 +447,7 @@ fn native_authored_history_indexes_and_executes_from_redb_without_checkout_or_gi
             ],
             b"",
         );
-        let module = wat::parse_str(
-            r#"(module
-            (import "gitr_actions_v1" "input_len" (func $len (result i32)))
-            (import "gitr_actions_v1" "input_read" (func $read (param i32 i32 i32) (result i32)))
-            (import "gitr_actions_v1" "output_write" (func $write (param i32 i32) (result i32)))
-            (memory (export "memory") 1)
-            (func (export "run") (result i32)
-                (drop (call $read (i32.const 0) (i32.const 0) (call $len)))
-                (drop (call $write (i32.const 0) (call $len))) i32.const 0))"#,
-        )
-        .unwrap();
+        let module = guest(Guest::Echo);
         fs::write(tmp.path().join("echo.wasm"), module).unwrap();
         let installed: serde_json::Value =
             serde_json::from_slice(&run(&["actions", "install", "echo.wasm"], b"")).unwrap();

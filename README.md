@@ -232,7 +232,7 @@ submission endpoint or MCP transport is claimed.
 
 ```sh
 "$BLUEFE_ROOT/bin/lustr" --bluefe-root "$BLUEFE_ROOT" build --manifest-path Cargo.toml --locked --features action-api
-export GITR_API_TOKEN="$(python3 -c 'import secrets; print(secrets.token_hex(32))')"
+# Set GITR_API_TOKEN to a securely generated secret supplied by your secret manager.
 target/debug/gitr -C /path/to/repo actions serve --repository my-repository
 ```
 
@@ -280,3 +280,7 @@ code. The retained Git reference includes C, shell, Perl, Python and Tcl/Tk.
 The current Lustr `rustc` engine coordinates Cargo/rustc; it does not establish
 that native Lustr/BlueFe builds those non-Rust components. Working Git behavior
 and compatibility remain the basis for any later replacement.
+
+The [Rust-only source contract](Documentation/gitr/rust-only-source.md) covers
+implementation, tests and qualification helpers, including archived programs.
+It records retired helper gaps and external native dependencies separately.

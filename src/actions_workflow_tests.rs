@@ -1,10 +1,11 @@
+use gitr_test_support::{guest, Guest};
 use super::*;
 use std::sync::{Arc, Barrier};
 
 fn database() -> (tempfile::TempDir, ActionDb, String) {
     let dir = tempfile::tempdir().unwrap();
     let db = ActionDb::open_path(&dir.path().join("state.redb"), true).unwrap();
-    let module = db.install(&wat::parse_str(r#"(module (memory (export "memory") 1) (func (export "run") (result i32) i32.const 0))"#).unwrap()).unwrap();
+    let module = db.install(&guest(Guest::Empty)).unwrap();
     (dir, db, module)
 }
 fn prepared(id: &str, module: &str, count: usize) -> Prepared {

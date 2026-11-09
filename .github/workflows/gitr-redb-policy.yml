@@ -1,45 +1,19 @@
-name: gitr redb policy
-
+name: Gitr redb policy
 on:
-  push:
-    branches: [master]
-    paths:
-      - 'Cargo.*'
-      - 'src/**'
-      - 'crates/**'
-      - 'vendor/**'
-      - 'ci/gitr-*.py'
-      - '.github/workflows/gitr-*.yml'
-      - 'AGENTS.md'
-      - 'Documentation/gitr/redb-decision.md'
-  pull_request:
-    paths:
-      - 'Cargo.*'
-      - 'src/**'
-      - 'crates/**'
-      - 'vendor/**'
-      - 'ci/gitr-*.py'
-      - '.github/workflows/gitr-*.yml'
-      - 'AGENTS.md'
-      - 'Documentation/gitr/redb-decision.md'
   workflow_dispatch:
-
 permissions:
   contents: read
-
-concurrency:
-  group: gitr-redb-policy-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
-
 jobs:
   storage-policy:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    runs-on: [self-hosted, linux, gitr-bluefe]
+    env:
+      CARGO_BUILD_JOBS: 2
+      CARGO_TARGET_DIR: ${{ runner.temp }}/gitr-policy-target
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
-      - name: Test the storage policy guard
-        run: python3 ci/gitr-redb-policy.py --self-test
-      - name: Check the actual selected backend and retired entry points
-        run: python3 ci/gitr-redb-policy.py
+      - name: Test Rust storage guard
+        run: '"${{ vars.GITR_BLUEFE_ROOT }}/bin/lustr" --bluefe-root "${{ vars.GITR_BLUEFE_ROOT }}" test --manifest-path xtask/Cargo.toml --locked'
+      - name: Check active storage manifests and lockfiles
+        run: '"${{ vars.GITR_BLUEFE_ROOT }}/bin/lustr" --bluefe-root "${{ vars.GITR_BLUEFE_ROOT }}" run --manifest-path xtask/Cargo.toml --locked -- policy'

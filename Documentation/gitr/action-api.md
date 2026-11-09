@@ -60,7 +60,7 @@ From the Gitr source root, with the pinned Lustr coordinator installed:
 
 ```sh
 "$BLUEFE_ROOT/bin/lustr" --bluefe-root "$BLUEFE_ROOT" build --manifest-path Cargo.toml --locked --features action-api
-export GITR_API_TOKEN="$(python3 -c 'import secrets; print(secrets.token_hex(32))')"
+# Set GITR_API_TOKEN to a securely generated secret supplied by your secret manager.
 target/debug/gitr -C /path/to/repository actions serve --repository my-repository
 ```
 

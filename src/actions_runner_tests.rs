@@ -1,3 +1,4 @@
+use gitr_test_support::{guest, Guest};
 use super::*;
 use crate::actions::{ActionDb, SnapshotInput, Status};
 
@@ -148,10 +149,7 @@ fn worker_command_does_not_inherit_credentials_or_repository_working_directory()
 fn malformed_worker_response_becomes_failed_receipt_without_artifact() {
     let temp = tempfile::tempdir().unwrap();
     let db = ActionDb::open_path(&temp.path().join("state.redb"), true).unwrap();
-    let module = wat::parse_str(
-        r#"(module (memory (export "memory") 1) (func (export "run") (result i32) i32.const 0))"#,
-    )
-    .unwrap();
+    let module = guest(Guest::Empty);
     let module = db.install(&module).unwrap();
     db.submit(
         "job",

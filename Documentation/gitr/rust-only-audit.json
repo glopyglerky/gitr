@@ -1,0 +1,1032 @@
+{
+  "date": "2026-11-09",
+  "scope": "Complete tracked paths; classifications plus manual embedded-code/process/workflow review. No transitive all-Rust claim.",
+  "counts": {
+    "notice/metadata": 13,
+    "declarative/data": 68,
+    "prose/evidence": 65,
+    "rust": 58
+  },
+  "paths": [
+    {
+      "path": ".editorconfig",
+      "class": "notice/metadata",
+      "mode": "100644"
+    },
+    {
+      "path": ".gitattributes",
+      "class": "notice/metadata",
+      "mode": "100644"
+    },
+    {
+      "path": ".github/workflows/gitr-redb-policy.yml",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": ".github/workflows/gitr-rust.yml",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": ".gitignore",
+      "class": "notice/metadata",
+      "mode": "100644"
+    },
+    {
+      "path": ".mailmap",
+      "class": "notice/metadata",
+      "mode": "100644"
+    },
+    {
+      "path": "AGENTS.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "CODE_OF_CONDUCT.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "COPYING",
+      "class": "notice/metadata",
+      "mode": "100644"
+    },
+    {
+      "path": "Cargo.lock",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "Cargo.toml",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/action-api-evidence.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/action-api.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/actions-qualification.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/architecture.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/archive/surrealdb/AGENTS.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/archive/surrealdb/README.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/archive/surrealdb/rust/gitr-store/.gitignore",
+      "class": "notice/metadata",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/archive/surrealdb/rust/gitr-store/Cargo.toml",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/archive/surrealdb/rust/gitr-store/LICENSE",
+      "class": "notice/metadata",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/archive/surrealdb/rust/gitr-store/src/transactions.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/archive/surrealdb/rust/gitr-surreal-probe/.gitignore",
+      "class": "notice/metadata",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/archive/surrealdb/rust/gitr-surreal-probe/Cargo.lock",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/archive/surrealdb/rust/gitr-surreal-probe/Cargo.toml",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/archive/surrealdb/rust/gitr-surreal-probe/LICENSE",
+      "class": "notice/metadata",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/archive/surrealdb/rust/gitr/src/actions_remote.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/archive/surrealdb/surrealdb-decision.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/compatibility.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/database-research.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/ephemeral-runners-evidence.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/ephemeral-runners.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/forge-runtime-plan.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/fork-design.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/libra-integration.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/local-forge.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/native-history-evidence.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/native-history.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/qualification-evidence.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/qualification.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/rbit-workflow-dependencies.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/rbit-workflow-evidence.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/rbit-workflows.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/redb-decision.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/research/2026-11-08-upstream-survey/README.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/research/2026-11-08-upstream-survey/catalog.csv",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/research/2026-11-08-upstream-survey/catalog.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/research/2026-11-08-upstream-survey/core-search-ledger.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/research/2026-11-08-upstream-survey/core-vcs.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/research/2026-11-08-upstream-survey/core-vcs.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/research/2026-11-08-upstream-survey/coverage-summary.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/research/2026-11-08-upstream-survey/expansion/README.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/research/2026-11-08-upstream-survey/expansion/qualification.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/research/2026-11-08-upstream-survey/expansion/reviews.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/research/2026-11-08-upstream-survey/forge-ci-queries.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/research/2026-11-08-upstream-survey/forge-ci.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/research/2026-11-08-upstream-survey/forge-ci.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/research/2026-11-08-upstream-survey/licensing-review.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/research/2026-11-08-upstream-survey/name-search-query-ledger.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/research/2026-11-08-upstream-survey/name-search.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/research/2026-11-08-upstream-survey/name-search.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/research/2026-11-08-upstream-survey/storage-search-ledger.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/research/2026-11-08-upstream-survey/storage-search.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/research/2026-11-08-upstream-survey/storage-search.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/review.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/roadmap.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/root-retirement.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/rust-only-audit.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/rust-only-source.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/rust-root-evidence/actions-smoke.log",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/rust-root-evidence/all-tests-rerun.log",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/rust-root-evidence/all-tests.log",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/rust-root-evidence/api-smoke.log",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/rust-root-evidence/artifacts.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/rust-root-evidence/baseline-build.log",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/rust-root-evidence/benchmark.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/rust-root-evidence/cleanup.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/rust-root-evidence/compiler-plan.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/rust-root-evidence/default-tests.log",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/rust-root-evidence/dependency-closure.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/rust-root-evidence/dependency-features.txt",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/rust-root-evidence/doctests.log",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/rust-root-evidence/final-actions-smoke.log",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/rust-root-evidence/final-all-build.log",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/rust-root-evidence/final-all-tests.log",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/rust-root-evidence/final-api-smoke.log",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/rust-root-evidence/final-default-tests.log",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/rust-root-evidence/final-workflow-smoke.log",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/rust-root-evidence/release-build.log",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/rust-root-evidence/release-smoke.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/rust-root-evidence/root-all-build.log",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/rust-root-evidence/root-build.log",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/rust-root-evidence/root-default-build.log",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/rust-root-evidence/source-hashes.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/rust-root-evidence/toolchain.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/rust-root-evidence/vendor-tests.log",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/rust-root-evidence/wasm.log",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/rust-root-evidence/workflow-smoke-rerun.log",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/rust-root-evidence/workflow-smoke.log",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/rust-root.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/similar-projects.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/surreal-action-store.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/surrealdb-decision.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/surrealdb-qualification.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/upstream-reuse-expanded.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/upstream-snapshot.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "Documentation/gitr/upstreams.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "LGPL-2.1",
+      "class": "notice/metadata",
+      "mode": "100644"
+    },
+    {
+      "path": "README.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "SECURITY.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "UPSTREAM-README.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "crates/action-example/Cargo.lock",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "crates/action-example/Cargo.toml",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "crates/action-example/src/lib.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "crates/test-support/Cargo.toml",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "crates/test-support/src/lib.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "lustr-toolchain.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "src/actions.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "src/actions_api.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "src/actions_export.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "src/actions_forge.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "src/actions_forge_tests.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "src/actions_runner.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "src/actions_runner_tests.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "src/actions_tests.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "src/actions_workflow.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "src/actions_workflow_export.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "src/actions_workflow_plan.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "src/actions_workflow_tests.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "src/assets.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "src/chunks.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "src/db.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "src/git.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "src/git_write.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "src/lfs.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "src/lib.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "src/main.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "src/remote.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "tests/assets.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "tests/chunks.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "tests/db.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "tests/ephemeral_runner.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "tests/git_compat.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "tests/lfs_cache.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "tests/lfs_git_filter.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "tests/lfs_remote.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "tests/native_history.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/.gitignore",
+      "class": "notice/metadata",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/Cargo.lock",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/Cargo.toml",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/Cargo.toml.upstream",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/GITR-NOTICE.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/GITR-UPSTREAM.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/LICENSE-APACHE",
+      "class": "notice/metadata",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/LICENSE-MIT",
+      "class": "notice/metadata",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/src/action.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/src/builtins.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/src/cron.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/src/error.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/src/expr/eval.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/src/expr/functions.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/src/expr/lex.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/src/expr/mod.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/src/expr/parse.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/src/glob.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/src/lib.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/src/limits.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/src/model.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/src/options.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/src/parse.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/src/pattern.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/src/plan.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/src/protocol.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/src/secret.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/src/spec.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/src/trigger.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/src/yaml.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/tests/conformance.rs",
+      "class": "rust",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/tests/conformance/README.md",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/tests/conformance/concurrency_run_name.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/tests/conformance/dispatch_schedule.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/tests/conformance/expressions.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/tests/conformance/known_failures.txt",
+      "class": "prose/evidence",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/tests/conformance/matrix_plan.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/tests/conformance/parse_load.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/tests/conformance/triggers.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/tests/golden/continue_on_error_expr.in.yaml",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/tests/golden/continue_on_error_expr.out.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/tests/golden/has_needs.in.yaml",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/tests/golden/has_needs.out.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/tests/golden/include_exclude.in.yaml",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/tests/golden/include_exclude.out.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/tests/golden/job_name_with_matrix.in.yaml",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/tests/golden/job_name_with_matrix.out.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/tests/golden/job_template.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/tests/golden/multiple_jobs.in.yaml",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/tests/golden/multiple_jobs.out.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/tests/golden/multiple_matrix.in.yaml",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/tests/golden/multiple_matrix.out.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/tests/golden/poll_response.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/tests/golden/prefixed_newline.in.yaml",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "vendor/rbit-workflow/tests/golden/prefixed_newline.out.json",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "xtask/Cargo.lock",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "xtask/Cargo.toml",
+      "class": "declarative/data",
+      "mode": "100644"
+    },
+    {
+      "path": "xtask/src/main.rs",
+      "class": "rust",
+      "mode": "100644"
+    }
+  ]
+}

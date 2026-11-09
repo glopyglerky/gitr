@@ -1,44 +1,19 @@
 name: Gitr produced BlueFe qualification
 on:
   workflow_dispatch:
-    inputs:
-      runner:
-        description: Provisioned runner with the reviewed Lustr/BlueFe bundle (no automatic install)
-        type: choice
-        options: [linux, macos, windows]
-        default: linux
 permissions:
   contents: read
 jobs:
   qualify:
-    runs-on: [self-hosted, '${{ inputs.runner }}', gitr-bluefe]
+    runs-on: [self-hosted, linux, gitr-bluefe]
     env:
       BLUEFE_ROOT: ${{ vars.GITR_BLUEFE_ROOT }}
       CARGO_BUILD_JOBS: 2
+      CARGO_TARGET_DIR: ${{ runner.temp }}/gitr-qualification-target
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
-      - name: Execute reviewed coordinator and produced compiler
-        shell: python
-        run: |
-          import os, pathlib, subprocess
-          root = pathlib.Path(os.environ['BLUEFE_ROOT'])
-          assert root.is_absolute() and root.is_dir(), 'Provision the reviewed bundle first'
-          suffix = '.exe' if os.name == 'nt' else ''
-          version = subprocess.check_output([str(root / 'bin' / ('rustc' + suffix)), '-vV'], text=True)
-          assert 'commit-hash: 7005dc02c9fb6674380eade443022bbc04215276' in version
-          print(version)
-          lustr = str(root / 'bin' / ('lustr' + suffix))
-          def run(*args): subprocess.run([lustr, '--bluefe-root', str(root), *args], check=True)
-          run('build', '--locked')
-          run('test', '--locked', '--all-features', '--all-targets')
-          run('test', '--locked', '--no-default-features', '--all-targets')
-          run('test', '--locked', '--doc', '--all-features')
-          run('build', '--locked', '--all-features')
-          run('build', '--manifest-path', 'crates/action-example/Cargo.toml', '--locked', '--release', '--target', 'wasm32-unknown-unknown')
-          for name in ['actions', 'api', 'workflow']:
-              subprocess.run(['python', 'ci/gitr-' + name + '-smoke.py'], check=True)
-          subprocess.run(['python', 'ci/gitr-redb-policy.py'], check=True)
-# Only Linux/NAS is observed. macOS/Windows require matching produced bundles;
-# this dispatch does not claim they exist or that hosted checks ran.
+      - name: Rust qualification coordinator (provisioned reviewed bundle)
+        run: '"${{ vars.GITR_BLUEFE_ROOT }}/bin/lustr" --bluefe-root "${{ vars.GITR_BLUEFE_ROOT }}" run --manifest-path xtask/Cargo.toml --locked -- qualify'
+# No compiler installation or hosted/macOS/Windows qualification is implied.

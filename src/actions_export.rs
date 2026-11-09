@@ -140,15 +140,14 @@ impl ActionDb {
 
 #[cfg(test)]
 mod tests {
+    use gitr_test_support::{guest, Guest};
+
     use super::*;
 
     fn state() -> (tempfile::TempDir, ActionDb, String) {
         let dir = tempfile::tempdir().unwrap();
         let db = ActionDb::open_path(&dir.path().join("state.redb"), true).unwrap();
-        let wasm = wat::parse_str(
-            r#"(module (memory (export "memory") 1) (func (export "run") (result i32) i32.const 0))"#,
-        )
-        .unwrap();
+        let wasm = guest(Guest::Empty);
         let module = db.install(&wasm).unwrap();
         (dir, db, module)
     }

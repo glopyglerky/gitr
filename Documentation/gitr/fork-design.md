@@ -18,3 +18,7 @@ refer to the old tree. No entire retired source tree was copied elsewhere.
 The migration and current compiler evidence are in [rust-root.md](rust-root.md).
 Historical qualification JSON, research source references and archived experiments
 retain their original paths and do not describe the current build layout.
+
+The [strict Rust-only source contract](rust-only-source.md) now also removes
+foreign build/test/qualification programs and archived executable probes.
+Database and forge design gates remain requirements, not delivered features.

@@ -210,7 +210,7 @@ fn pathname_hashing_requires_explicit_no_filters() {
     fs::write(dir.path().join("nested/asset.bin"), b"bytes").unwrap();
     git(
         dir.path(),
-        &["config", "filter.evil.clean", "touch executed; cat"],
+        &["config", "filter.evil.clean", "touch executed"],
     );
     let output = native_output(dir.path(), &["hash-object", "nested/asset.bin"]);
     assert!(!output.status.success());
@@ -439,7 +439,7 @@ fn status_refuses_configured_filters_and_disables_fsmonitor() {
     git(cwd, &["config", "core.fsmonitor", "touch executed"]);
     assert!(gitr(cwd, &["status", "--porcelain"]).is_empty());
     assert!(!cwd.join("executed").exists());
-    git(cwd, &["config", "filter.evil.clean", "touch executed; cat"]);
+    git(cwd, &["config", "filter.evil.clean", "touch executed"]);
     fs::write(cwd.join(".gitattributes"), b"file filter=evil\n").unwrap();
     fs::write(cwd.join("file"), b"modified\n").unwrap();
     assert!(
@@ -641,7 +641,7 @@ fn status_distinguishes_symlink_type_changes_and_execute_bits() {
     use std::os::unix::fs::{PermissionsExt, symlink};
     let dir = fixture("sha1");
     let cwd = dir.path();
-    fs::write(cwd.join("mode"), b"#!/bin/sh\n").unwrap();
+    fs::write(cwd.join("mode"), b"executable mode fixture\n").unwrap();
     fs::write(cwd.join("type"), b"file\n").unwrap();
     commit(cwd, "base");
     fs::set_permissions(cwd.join("mode"), fs::Permissions::from_mode(0o755)).unwrap();

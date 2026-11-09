@@ -204,12 +204,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bumpalo"
-version = "3.20.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "72f5acc6cb2ba439de613abc23857ec3d78374d8ed5ac84e9d11336e87da8649"
-
-[[package]]
 name = "byteorder"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -651,6 +645,7 @@ dependencies = [
  "axum",
  "clap",
  "fastcdc",
+ "gitr-test-support",
  "gix",
  "ignore",
  "rbit-workflow",
@@ -664,7 +659,13 @@ dependencies = [
  "ureq",
  "url",
  "wasmi",
- "wat",
+]
+
+[[package]]
+name = "gitr-test-support"
+version = "0.1.0"
+dependencies = [
+ "wasm-encoder",
 ]
 
 [[package]]
@@ -2743,28 +2744,6 @@ dependencies = [
  "bitflags 2.13.2",
  "indexmap",
  "semver",
-]
-
-[[package]]
-name = "wast"
-version = "228.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9e5aae124478cb51439f6587f074a3a5e835afd22751c59a87b2e2a882727c97"
-dependencies = [
- "bumpalo",
- "leb128fmt",
- "memchr",
- "unicode-width",
- "wasm-encoder",
-]
-
-[[package]]
-name = "wat"
-version = "1.228.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7ec29c89a8d055df988de7236483bf569988ac3d6905899f6af5ef920f9385ad"
-dependencies = [
- "wast",
 ]
 
 [[package]]

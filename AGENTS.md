@@ -144,4 +144,13 @@ and malformed objects, stale writes, concurrent publication, corrupt asset data,
 interrupted IO and authentication boundaries where the change touches them.
 Record actual executed checks and distinguish CI configuration from observed CI
 results. Performance claims need a reproducible workload and measured results.
-Run `python ci/gitr-redb-policy.py` to check the active backend dependency policy.
+Run the Rust storage guard: `lustr --bluefe-root "$BLUEFE_ROOT" run --manifest-path xtask/Cargo.toml --locked -- policy`.
+
+## Strict Rust-only source
+
+All checked-in implementation, tests and build/operational/qualification helpers
+must be Rust. Preserve notices, prose and declarative configuration/data. Do not
+retain executable foreign archives, embed foreign programs in Rust strings,
+rename extensions or mask languages. Reference source belongs in original
+upstream repositories or Git history. Parser inputs are data and must not be
+executed. See Documentation/gitr/rust-only-source.md for scope and limits.

@@ -15,12 +15,12 @@ metadata qualification, not donor runtime qualification.
 retain exact commits, inspected paths, license evidence and unresolved obligations.
 The original catalogs are preserved. From the repository root:
 
-```sh
-python3 ci/gitr-upstream-review.py --self-test
-python3 ci/gitr-upstream-review.py --output /tmp/gitr-expanded-survey
-```
+The Python catalog generator and its CI job were retired by the strict
+Rust-only directive. The descriptions below record its historical behavior;
+regeneration and its validation tests are currently unavailable. Static catalogs
+and review ledgers remain source-inspection evidence only.
 
-This generates the complete deduplicated CSV/JSON and coverage report. The
+The retired generator produced the complete deduplicated CSV/JSON and coverage report. The
 read-only [gitr upstream review workflow](../../.github/workflows/gitr-upstream-review.yml)
 also retains them as the `gitr-expanded-upstream-survey` artifact. Its original
 [qualified run](https://github.com/glopyglerky/gitr/actions/runs/42547007431) contains

@@ -74,7 +74,7 @@ lustr --engine rustc test --manifest-path Cargo.toml --locked --all-targets
 lustr --engine rustc clippy --manifest-path Cargo.toml --locked --all-targets -- -D warnings
 # Use a reviewed bundle including wasm32-unknown-unknown std.
 lustr --engine rustc build --manifest-path crates/action-example/Cargo.toml --locked --release --target wasm32-unknown-unknown
-python ci/gitr-actions-smoke.py
+# Historical smoke driver retired; see rust-only-source.md.
 ```
 
 The smoke test uses a disposable repository; reference Git is used only to build

@@ -54,7 +54,7 @@ a combined installable release. SurrealDS requires separate Enterprise licensing
 lustr --engine rustc fmt --manifest-path rust/gitr-surreal-probe/Cargo.toml -- --check
 lustr --engine rustc build --manifest-path rust/gitr-surreal-probe/Cargo.toml --locked
 lustr --engine rustc clippy --manifest-path rust/gitr-surreal-probe/Cargo.toml --locked -- -D warnings
-python3 ci/gitr-surreal-smoke.py
+# Historical smoke driver retired; see rust-only-source.md.
 lustr --engine rustc tree --manifest-path rust/gitr-surreal-probe/Cargo.toml --locked -i surrealkv
 ```
 

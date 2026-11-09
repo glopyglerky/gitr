@@ -73,8 +73,8 @@ tracked active Rust manifests and lockfiles, not archived research or generated
 build files. This is a regression guard, not proof of storage correctness.
 
 ```sh
-python ci/gitr-redb-policy.py --self-test
-python ci/gitr-redb-policy.py
+"$BLUEFE_ROOT/bin/lustr" --bluefe-root "$BLUEFE_ROOT" test --manifest-path xtask/Cargo.toml --locked
+"$BLUEFE_ROOT/bin/lustr" --bluefe-root "$BLUEFE_ROOT" run --manifest-path xtask/Cargo.toml --locked -- policy
 lustr --engine rustc test --manifest-path Cargo.toml --locked --all-targets
 lustr --engine rustc clippy --manifest-path Cargo.toml --locked --all-targets -- -D warnings
 ```

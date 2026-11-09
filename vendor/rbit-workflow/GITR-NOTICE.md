@@ -11,3 +11,8 @@ expire instead of disabling the deadline. The latter includes a regression test.
 No Rbit server, SQLite backend, runner subprocess, or secret materialization is
 imported into Gitr's execution service. Keep future updates pinned and review the
 local patch and full conformance corpus rather than replacing notices or tests.
+
+Rust-only audit: this import contains Rust implementation/tests and passive
+YAML/JSON parser fixtures. Their `run` fields are never executed by this crate
+or Gitr. No donor files were changed or removed in the 2026-11-09 cleanup;
+original hashes and the existing local divergence above remain applicable.
