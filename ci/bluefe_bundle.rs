@@ -121,7 +121,10 @@ fn build() -> Result<()> {
     fs::write(&config_path, &config)?;
     run(Command::new(source.join("x"))
         .current_dir(&source)
-        .args(["build", "--config"])
+        // BlueFe is a fork build, not Rust's bors CI merge pipeline. The
+        // explicit bootstrap override selects the upstream LLVM artifact
+        // matching the submodule instead of incorrectly treating HEAD^ as it.
+        .args(["build", "--ci", "false", "--config"])
         .arg(&config_path)
         .args(["--stage", "1", "--target", &format!("{HOST},{TARGET}"), "compiler/rustc", "library", "src/tools/rustdoc"])
         .env_remove("CARGO_TARGET_DIR"))?;
