@@ -10,6 +10,9 @@ The root Git source remains a reference implementation and test corpus.
 |---|---|---|
 | `init` | Worktree/bare repositories, SHA-1/SHA-256, selected initial branch | Defaults to `main`; isolated configuration |
 | `hash-object` | Exact-byte hashing and optional loose-object writes; blob/tree/commit/tag validation | Filename inputs require `--no-filters`; stdin is raw. Structured nonblob input is capped at 16 MiB. Input is snapshotted to disk to obtain a stable length. |
+| `mktree` | Validated tree creation, canonical Git ordering, modes and external Gitlinks; `-z` preserves raw filename bytes | 16 MiB input, 100,000 entries; terminal record delimiter required; no quoted-name newline input, batch mode or general missing-object mode. No refs change. |
+| `write-tree` | Bottom-up tree creation from staged index contents; excludes intent-to-add; index/worktree unchanged | Rejects unmerged stages and sparse/split indexes; 100,000 entries, 128 path components, 16 MiB aggregate path bytes. Initial index decoding is not a hard process-memory limit. |
+| `commit-tree` | Root and ordered multi-parent commits; repeated `-m`, `-F` file/stdin and raw stdin; exact message bytes; duplicate parents ignored | UTF-8 without NUL, 1 MiB message, at most 64 parent arguments; local author/committer required; configured signing and non-UTF-8 encoding rejected. Does not move HEAD or refs, or merge file contents. |
 | `cat-file -t/-s` | Type/size from headers, loose and packed objects | Does not materialize the object payload |
 | `cat-file -p` | Binary blobs, commits/tags, correct tree pretty printing | Payload capped at 64 MiB until streaming packed extraction is implemented |
 | `rev-parse` | One revision; Git/common directory; worktree root; bare/worktree/object-format queries | Not the full Git argument language or shell quoting frontend |
@@ -23,8 +26,11 @@ Repository discovery reads local configuration with isolated options. It does no
 load global/system configuration or includes, or execute hooks, textconv, fsmonitor,
 filter programs and credential helpers. This is a deliberately limited command
 contract, not transparent behavior for every Git configuration. Native add,
-commit, checkout, clone, fetch, push, merge, rebase, stash and general hooks are
-still implementation work. Use ordinary Git for those operations today.
+porcelain commit, checkout, clone, fetch, push, merge, rebase, stash and general
+hooks are still implementation work. Use ordinary Git for those operations today.
+The [native authoring pipeline](native-history.md) can already construct and
+publish commits without a checkout, index or Git subprocess; it does not imply
+completion of those porcelain or network commands.
 
 Git format support and GitHub remote format support are different claims. SHA-1
 is the default compatibility mode. Local SHA-256 tests do not prove that a hosting
@@ -67,7 +73,7 @@ atomic publication, but portable directory syncing is unavailable here; full
 power-loss durability is not claimed there. Process-kill tests are not simulated
 power-loss tests on any platform.
 
-## Repository database
+## Repository database and actions
 
 `gitr db index [revision]` atomically builds a catalog of a committed snapshot in
 the shared Git common directory. Search and graph queries resolve their selected
@@ -92,10 +98,14 @@ metadata parsing and path lengths also have limits. Gix may need additional
 memory for pack/delta decoding, so the file-size cap is not an OS memory quota.
 
 redb 4.5.0 coordinates cooperating local writer processes and reader snapshots.
-Transactions serialize. Distributed replicas, quorum writes, failover, lease
-fencing, learned code embeddings, resolved source graphs and GitQL integration
-are designed or researched but not implemented. See [architecture](architecture.md)
-and [next implementation work](roadmap.md).
+Transactions serialize. Local Wasmi actions use durable fenced claims and atomic
+artifact/receipt publication, with a read-only export and an optional authenticated
+loopback HTTP adapter. See [action limits and evidence](actions-qualification.md)
+and [API contract](action-api.md). Those features do not implement a full DAG
+scheduler, protected-ref policy, standards-compliant MCP or a complete forge.
+Distributed replicas, quorum writes, failover, distributed lease fencing, learned
+code embeddings, resolved source graphs and GitQL integration remain work. See
+[architecture](architecture.md) and [next implementation work](roadmap.md).
 
 ## Build and dependency honesty
 

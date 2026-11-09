@@ -7,24 +7,36 @@ assets and the repository database, not an indefinitely growing research catalog
 ## Working initial implementation
 
 - Native Gitoxide object/ref/index inspection and guarded reference publication.
+- Native `mktree`, read-only `write-tree` and `commit-tree`: checkout-free object
+  authoring and guarded publication, tested against Git in SHA-1 and SHA-256.
 - Verified standard LFS filters, local storage, explicit basic HTTPS transfers,
   and file-lock API client.
 - Local FastCDC chunk deduplication and verified reconstruction into Git LFS.
 - Engine-aware candidate attributes and metadata-only large-asset inventory.
 - redb commit snapshots, automatic lexical feature vectors and factual Git graph.
+- Stored Wasmi actions with immutable committed input, idempotent jobs, fenced
+  local claims, atomic artifact/receipt publication and verified read-only export.
+- Optional authenticated local HTTP action API sharing the existing redb state
+  with CLI processes; restart and crashed-worker recovery qualified on Linux.
 - Pinned Lustr build/test workflow and differential/reference Git qualification.
 
 Consult [qualification](qualification.md) for executed results and
-[compatibility](compatibility.md) for actual command limits.
+[compatibility](compatibility.md) for actual command limits. The
+[native authoring evidence](native-history.md) includes a complete tested route
+from native-created commit through redb indexing to verified Wasm output, without
+a Git subprocess or source checkout in that route. This is not complete porcelain
+or network Git parity. The [forge/runtime contract](forge-runtime-plan.md) retains
+the full integrated-product acceptance gates.
 
 ## Next deliverable: a native everyday Git workflow
 
-Reuse reviewed Gitoxide components and evaluate the MIT Libra/git-internal code
-identified in [similar projects](similar-projects.md) before writing missing
-protocols from scratch. Add transactional native `add`, `commit`, `checkout`,
-`clone`, `fetch` and `push`, including LFS-aware status and attributes. Preserve
-index conflict stages, executable bits, symlinks, byte paths, linked worktrees,
-autocrlf/encoding filters and sparse/promisor semantics deliberately.
+Build on the implemented immutable authoring primitives rather than recreating
+them. Reuse reviewed Gitoxide components and evaluate the MIT Libra/git-internal
+code identified in [similar projects](similar-projects.md) before writing missing
+protocols from scratch. Add transactional native `add`, porcelain `commit`,
+`checkout`, `clone`, `fetch` and `push`, including LFS-aware status and attributes.
+Preserve index conflict stages, executable bits, symlinks, byte paths, linked
+worktrees, autocrlf/encoding filters and sparse/promisor semantics deliberately.
 
 Acceptance: an isolated repository can clone from GitHub, commit source plus an
 LFS asset, push to a test branch, and be cloned/read by ordinary Git and Git LFS.

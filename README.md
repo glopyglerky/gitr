@@ -15,6 +15,8 @@ upstream Git source and test corpus, so the entire repository is not all Rust.
 
 - Native Gitoxide commands for repositories, objects, refs, history, index and
   status. Guarded `update-ref` uses expected-old-value compare-and-swap.
+- Native `mktree`, `write-tree` and `commit-tree` for checkout-free history
+  authoring. Object creation does not move refs or modify the index/worktree.
 - Standard Git LFS clean/smudge filters, verified immutable cache, explicit HTTPS
   basic transfers and the file-lock API.
 - FastCDC local chunk reuse across large asset revisions, with verified hydration
@@ -30,12 +32,13 @@ upstream Git source and test corpus, so the entire repository is not all Rust.
 - Builds and tests through a pinned version of [Lustr](https://github.com/glopyglerky/lustr).
 
 Learned semantic embeddings, resolved call graphs, distributed HA, native
-clone/fetch/push, add/commit/checkout and complete merge/rebase support remain work.
-Local redb multi-process writers serialize transactions; that is not distributed
-consensus. The first search model uses lexical feature hashing, not a trained code
-model. The action runner is not yet a DAG scheduler, standard MCP server, remote
-multi-tenant service, full forge, or GitHub Actions compatibility implementation.
-Unsupported Git commands fail explicitly.
+clone/fetch/push, add/porcelain-commit/checkout and complete merge/rebase support
+remain work. `commit-tree` creates a commit object; it is not the full porcelain
+`commit` command or a content merge. Local redb multi-process writers serialize
+transactions; that is not distributed consensus. The first search model uses
+lexical feature hashing, not a trained code model. The action runner is not yet a
+DAG scheduler, standard MCP server, remote multi-tenant service, full forge, or
+GitHub Actions compatibility implementation. Unsupported Git commands fail explicitly.
 
 ## Build with Lustr
 
@@ -80,6 +83,14 @@ gitr -C /path/to/repo assets hydrate OID SIZE
 that exact indexed commit and reports excluded content. The graph currently
 describes repository membership, not language-resolved calls. Commands emit JSON
 or JSON Lines where a structured report is useful.
+
+For native authoring, `hash-object` supplies blob IDs, `mktree` constructs trees
+(or `write-tree` reads staged content), and `commit-tree` writes a commit. Publish
+separately with an expected-old-value `update-ref`. The
+[native authoring guide and executed evidence](Documentation/gitr/native-history.md)
+show a SHA-1/SHA-256 workflow that continues through redb indexing and Wasm source
+execution without a Git subprocess or source checkout. No native GitHub network
+roundtrip is claimed by that local qualification.
 
 The large-file layer preserves whole-file SHA-256 Git LFS pointers. GitHub still
 receives whole LFS objects. Chunk transfer requires a separately negotiated server
@@ -175,6 +186,7 @@ the configured Linux/macOS/Windows matrix.
 
 - [Compatibility matrix and exact limits](Documentation/gitr/compatibility.md)
 - [Executed qualification](Documentation/gitr/qualification.md)
+- [Native tree/commit authoring and end-to-end redb actions](Documentation/gitr/native-history.md)
 - [Selected redb backend](Documentation/gitr/redb-decision.md)
 - [Repository database, multi-writer and HA design](Documentation/gitr/architecture.md)
 - [Git, Lore and asset upstream catalog](Documentation/gitr/upstreams.md)
