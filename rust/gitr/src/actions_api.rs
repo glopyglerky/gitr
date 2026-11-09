@@ -229,7 +229,7 @@ pub(super) fn serve(repo: &gix::Repository, listen: SocketAddr, repository: &str
     oid(&token).context("invalid API token format")?;
     let root = repo.workdir().unwrap_or_else(|| repo.git_dir());
     let api = Api {
-        db: Arc::new(ActionDb::open(repo, true)?),
+        db: Arc::new(ActionDb::open_for_cli(repo, true)?),
         discovery_root: fs::canonicalize(root)?,
         repository: repository.into(),
         authorization: Arc::new(format!("Bearer {token}").into_bytes()),

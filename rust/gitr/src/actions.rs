@@ -182,6 +182,7 @@ impl SnapshotInput {
 
 pub struct ActionDb {
     db: Database,
+    runner: Option<runner::EphemeralRunner>,
 }
 
 #[derive(Clone)]
@@ -196,6 +197,18 @@ pub fn database_path(repo: &gix::Repository) -> PathBuf {
 }
 
 impl ActionDb {
+    /// Choose disposable processes explicitly when linking Gitr into another host.
+    /// The executable must be a trusted Gitr binary, not repository-provided code.
+    pub fn with_ephemeral_runner(mut self, runner: runner::EphemeralRunner) -> Self {
+        self.runner = Some(runner);
+        self
+    }
+
+    fn open_for_cli(repo: &gix::Repository, create: bool) -> Result<Self> {
+        Ok(Self::open(repo, create)?
+            .with_ephemeral_runner(runner::EphemeralRunner::current_executable()?))
+    }
+
     pub fn open(repo: &gix::Repository, create: bool) -> Result<Self> {
         let path = database_path(repo);
         let directory = path.parent().context("missing action database parent")?;
@@ -262,12 +275,16 @@ impl ActionDb {
                 "unsupported action schema"
             );
         }
-        Ok(Self { db })
+        Ok(Self { db, runner: None })
     }
 
     pub fn install(&self, bytes: &[u8]) -> Result<String> {
         // Validation and eager compilation are deliberately outside a writer.
-        prepare(bytes)?;
+        if let Some(runner) = &self.runner {
+            runner.validate(bytes)?;
+        } else {
+            prepare(bytes)?;
+        }
         let oid = digest(bytes);
         let mut tx = self.db.begin_write()?;
         tx.set_durability(Durability::Immediate)?;
@@ -391,9 +408,23 @@ impl ActionDb {
         };
         // Immutable bytes are copied in bounded read transactions. No writer is
         // retained during validation, compilation, execution or host calls.
-        let module = self.object(&claim.spec.module_sha256)?;
-        let input = self.object(&claim.spec.input_sha256)?;
-        let result = execute(&module, input);
+        let result = (|| {
+            let module = self.object(&claim.spec.module_sha256)?;
+            let input = self.object(&claim.spec.input_sha256)?;
+            if let Some(runner) = &self.runner {
+                runner.execute_while_current(&module, &input, || {
+                    let current = self.get(&claim.id)?;
+                    Ok(current.status == Status::Running
+                        && current.attempt == claim.attempt
+                        && current.spec == claim.spec
+                        && current
+                            .lease_until_ms
+                            .is_some_and(|until| now_ms().is_ok_and(|now| now < until)))
+                })
+            } else {
+                execute(&module, input)
+            }
+        })();
         self.finish(&claim, result, now_ms)
     }
 
@@ -431,7 +462,7 @@ impl ActionDb {
             Err(_) => {
                 job.status = Status::Failed;
                 job.failure = Some(
-                    "guest validation, trap or resource limit failure; output discarded".into(),
+                    "guest, worker, integrity or resource limit failure; output discarded".into(),
                 );
             }
         }
@@ -707,6 +738,11 @@ fn execute(bytes: &[u8], input: Vec<u8>) -> Result<(i32, Vec<u8>)> {
 pub fn control(repo: &gix::Repository, request: Request) -> Result<Job> {
     let create = matches!(request, Request::Submit { .. });
     let db = ActionDb::open(repo, create)?;
+    control_with_db(repo, &db, request)
+}
+
+/// Shared typed operations for hosts that explicitly configure their executor.
+pub fn control_with_db(repo: &gix::Repository, db: &ActionDb, request: Request) -> Result<Job> {
     match request {
         Request::Submit {
             job,
@@ -746,10 +782,12 @@ pub fn run(command: Command) -> Result<()> {
     }
     if let Command::Control = command {
         let bytes = bounded_read(io::stdin().lock(), 32 * 1024)?;
-        return print_json(&control(&repo, serde_json::from_slice(&bytes)?)?);
+        let request: Request = serde_json::from_slice(&bytes)?;
+        let db = ActionDb::open_for_cli(&repo, matches!(request, Request::Submit { .. }))?;
+        return print_json(&control_with_db(&repo, &db, request)?);
     }
     let create = matches!(command, Command::Install { .. } | Command::Submit { .. });
-    let db = ActionDb::open(&repo, create)?;
+    let db = ActionDb::open_for_cli(&repo, create)?;
     match command {
         Command::Install { module } => print_json(
             &serde_json::json!({"module_sha256": db.install(&bounded_read(fs::File::open(module)?, MAX_BYTES)?)?, "profile": PROFILE}),
@@ -797,3 +835,6 @@ mod http;
 
 #[path = "actions_workflow.rs"]
 pub mod workflow;
+
+#[path = "actions_runner.rs"]
+pub mod runner;

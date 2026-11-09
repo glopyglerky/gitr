@@ -601,7 +601,7 @@ pub(super) fn run(repo: &gix::Repository, command: Command) -> Result<()> {
         Command::Status { run } => print_json(&ActionDb::open(repo, false)?.workflow_status(&run)?),
         Command::Cancel { run } => print_json(&ActionDb::open(repo, false)?.workflow_cancel(&run)?),
         Command::Run { run } => {
-            let result = ActionDb::open(repo, false)?.workflow_run(&run)?;
+            let result = ActionDb::open_for_cli(repo, false)?.workflow_run(&run)?;
             print_json(&result)?;
             ensure!(
                 result.status == RunStatus::Passed,

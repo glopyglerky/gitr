@@ -174,6 +174,14 @@ enum LfsCommand {
 }
 
 fn main() -> std::process::ExitCode {
+    // The worker never parses repository options, discovers Git or opens redb.
+    let args: Vec<_> = std::env::args_os().collect();
+    if args.len() == 2 && args[1] == actions::runner::WORKER_ARGUMENT {
+        return match actions::runner::worker_stdio() {
+            Ok(()) => std::process::ExitCode::SUCCESS,
+            Err(_) => std::process::ExitCode::FAILURE,
+        };
+    }
     match run(Cli::parse()) {
         Ok(()) => std::process::ExitCode::SUCCESS,
         Err(error) => {
