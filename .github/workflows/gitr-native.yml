@@ -49,6 +49,10 @@ jobs:
         run: rustup run 1.99.1 rustc --edition=2024 ci/bluefe_bundle.rs -o "${{ runner.temp }}/gitr-bluefe-bundle-helper"
       - name: Compile native qualification coordinator
         run: rustup run 1.99.1 rustc --edition=2024 ci/qualify_native.rs -o "${{ runner.temp }}/gitr-qualify-native"
+      - name: Compile archive validator tests with the orchestration compiler
+        run: rustup run 1.99.1 rustc --edition=2024 --test ci/qualify_native.rs -o "${{ runner.temp }}/gitr-qualify-native-tests"
+      - name: Test archive validation before downloading the compiler
+        run: '"${{ runner.temp }}/gitr-qualify-native-tests"'
       - name: Download the pinned produced compiler bundle
         # Official actions/download-artifact v4.3.0, pinned to its release commit.
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093

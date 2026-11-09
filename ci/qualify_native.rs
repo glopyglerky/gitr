@@ -120,39 +120,95 @@ fn logged(context: &Context, name: &str, command: &mut Command) -> Result<()> {
     Ok(())
 }
 
-fn checked_archive_members(archive: &Path, logs: &Path) -> Result<()> {
-    let names = output(Command::new("tar")
-        .args(["--list", "--gzip", "--quoting-style=literal", "--file"]).arg(archive))?;
+fn archive_path(name: &str) -> Result<PathBuf> {
+    if name.is_empty() || name.chars().any(char::is_control) || name.contains('\\') {
+        return Err(format!("unsupported archive path: {name:?}").into());
+    }
+    let path = Path::new(name);
+    if path.is_absolute() || path.components().any(|part| {
+        matches!(part, Component::ParentDir | Component::RootDir | Component::Prefix(_))
+    }) {
+        return Err(format!("unsafe archive path: {name:?}").into());
+    }
+    Ok(path.components().filter(|part| *part != Component::CurDir).collect())
+}
+
+fn verbose_member(line: &str) -> Result<&str> {
+    // GNU tar with numeric owners has five metadata fields: mode, uid/gid,
+    // size, date, time. Remove exactly the final separating space so leading
+    // spaces in the member name remain data rather than being trimmed away.
+    let mut rest = line;
+    for field in 0..5 {
+        rest = rest.trim_start_matches([' ', '\t']);
+        let end = rest.find([' ', '\t']).ok_or("invalid verbose archive record")?;
+        rest = &rest[end..];
+        if field == 4 {
+            return rest.strip_prefix(' ').ok_or_else(|| "invalid archive name separator".into());
+        }
+    }
+    Err("invalid verbose archive record".into())
+}
+
+fn validate_archive_listing(names: &str, details: &str) -> Result<()> {
+    if names.chars().chain(details.chars()).any(|character| character.is_control() && character != '\n') {
+        return Err("control characters are forbidden in archive listings".into());
+    }
+    let names: Vec<_> = names.lines().collect();
+    let details: Vec<_> = details.lines().collect();
+    if names.is_empty() || names.len() != details.len() {
+        return Err("empty or inconsistent compiler archive listing".into());
+    }
     let mut seen = BTreeSet::new();
-    for name in names.lines() {
-        if name.is_empty() || name.chars().any(char::is_control) || name.contains('\\') {
-            return Err("unsupported archive member name".into());
-        }
-        let path = Path::new(name);
-        if path.is_absolute() || path.components().any(|part| {
-            matches!(part, Component::ParentDir | Component::RootDir | Component::Prefix(_))
-        }) {
-            return Err(format!("unsafe archive member: {name:?}").into());
-        }
-        let normalized: PathBuf = path.components()
-            .filter(|part| *part != Component::CurDir).collect();
-        if !seen.insert(normalized) {
+    let mut regular_files = BTreeSet::new();
+    for (name, detail) in names.into_iter().zip(details) {
+        let normalized = archive_path(name)?;
+        if !seen.insert(normalized.clone()) {
             return Err(format!("duplicate archive member: {name:?}").into());
         }
+        let member = verbose_member(detail)?;
+        match detail.as_bytes().first().copied() {
+            Some(b'-' | b'd') => {
+                if member != name {
+                    return Err(format!("archive member order or name mismatch: {name:?}").into());
+                }
+                if detail.starts_with('-') {
+                    if normalized.as_os_str().is_empty() {
+                        return Err("archive root must be a directory".into());
+                    }
+                    regular_files.insert(normalized);
+                }
+            }
+            Some(b'h') => {
+                // Only a hardlink record interprets this suffix. The separate
+                // name listing disambiguates names containing " link to ".
+                let target = member.strip_prefix(name)
+                    .and_then(|rest| rest.strip_prefix(" link to "))
+                    .ok_or_else(|| format!("invalid hardlink record for {name:?}"))?;
+                let target = archive_path(target)?;
+                if normalized.as_os_str().is_empty() || !regular_files.contains(&target) {
+                    return Err(format!("hardlink {name:?} must target an earlier regular file").into());
+                }
+                // A subsequent hardlink may safely target this validated one.
+                regular_files.insert(normalized);
+            }
+            _ => return Err(format!("symlink or special archive member is forbidden: {name:?}").into()),
+        }
     }
-    if seen.is_empty() {
-        return Err("empty compiler archive".into());
-    }
-    let details = output(Command::new("tar")
-        .args(["--list", "--verbose", "--gzip", "--quoting-style=literal", "--file"])
-        .arg(archive))?;
-    if details.lines().count() != seen.len()
-        || details.lines().any(|line| !matches!(line.as_bytes().first().copied(), Some(b'-' | b'd')))
-    {
-        return Err("compiler archive may contain only regular files and directories".into());
-    }
-    fs::write(logs.join("archive-members.txt"), details)?;
     Ok(())
+}
+
+fn checked_archive_members(archive: &Path, logs: &Path) -> Result<()> {
+    let names = output(Command::new("tar")
+        .env("LC_ALL", "C")
+        .args(["--list", "--gzip", "--quoting-style=literal", "--file"]).arg(archive))?;
+    fs::write(logs.join("archive-member-names.txt"), &names)?;
+    let details = output(Command::new("tar")
+        .env("LC_ALL", "C")
+        .args(["--list", "--verbose", "--numeric-owner", "--gzip", "--quoting-style=literal", "--file"])
+        .arg(archive))?;
+    // Persist both listings before validation, including on rejected archives.
+    fs::write(logs.join("archive-members.txt"), &details)?;
+    validate_archive_listing(&names, &details)
 }
 
 fn prepare(context: &Context, verifier: &Path) -> Result<()> {
@@ -361,5 +417,108 @@ fn main() -> ExitCode {
             eprintln!("{error}");
             ExitCode::FAILURE
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn listings(entries: &[(char, &str, Option<&str>)]) -> (String, String) {
+        let mut names = String::new();
+        let mut details = String::new();
+        for (kind, name, target) in entries {
+            names.push_str(name);
+            names.push('\n');
+            details.push_str(&format!("{kind}rwxr-xr-x 1001/1001 0 2026-11-09 08:00 {name}"));
+            if let Some(target) = target {
+                details.push_str(if *kind == 'h' { " link to " } else { " -> " });
+                details.push_str(target);
+            }
+            details.push('\n');
+        }
+        (names, details)
+    }
+
+    #[test]
+    fn allows_internal_hardlinks_and_validated_hardlink_chains() {
+        let (names, details) = listings(&[
+            ('d', "./", None),
+            ('d', "./lib/", None),
+            ('-', "./lib/has link to marker.so", None),
+            ('h', "./lib/first alias.so", Some("./lib/has link to marker.so")),
+            ('h', "./lib/second.so", Some("lib/first alias.so")),
+        ]);
+        assert!(validate_archive_listing(&names, &details).is_ok());
+    }
+
+    #[test]
+    fn rejects_hardlinks_with_escaping_or_control_character_targets() {
+        for target in ["/outside", "../outside", "lib/../../outside", "./lib/../original",
+            "C:\\outside", "./lib/original\t", "./lib/original\r", "./lib/original\n"]
+        {
+            let (names, details) = listings(&[
+                ('-', "./lib/original", None),
+                ('h', "./lib/alias", Some(target)),
+            ]);
+            assert!(validate_archive_listing(&names, &details).is_err(), "accepted {target:?}");
+        }
+    }
+
+    #[test]
+    fn rejects_missing_future_and_self_hardlink_targets() {
+        for entries in [
+            vec![('h', "./alias", Some("./missing"))],
+            vec![('h', "./alias", Some("./future")), ('-', "./future", None)],
+            vec![('h', "./alias", Some("./alias"))],
+        ] {
+            let (names, details) = listings(&entries);
+            assert!(validate_archive_listing(&names, &details).is_err());
+        }
+    }
+
+    #[test]
+    fn rejects_symlinks_and_special_files() {
+        for kind in ['l', 'b', 'c', 'p', 's'] {
+            let (names, details) = listings(&[
+                ('-', "./original", None),
+                (kind, "./alias", Some("./original")),
+            ]);
+            assert!(validate_archive_listing(&names, &details).is_err());
+        }
+    }
+
+    #[test]
+    fn rejects_hardlink_targets_that_are_directories() {
+        let (names, details) = listings(&[
+            ('d', "./directory/", None),
+            ('h', "./alias", Some("./directory")),
+        ]);
+        assert!(validate_archive_listing(&names, &details).is_err());
+    }
+
+    #[test]
+    fn rejects_duplicate_normalized_member_paths() {
+        let (names, details) = listings(&[
+            ('-', "./lib/original", None),
+            ('h', "lib//original", Some("./lib/original")),
+        ]);
+        assert!(validate_archive_listing(&names, &details).is_err());
+    }
+
+    #[test]
+    fn pairs_names_and_verbose_records_in_order() {
+        let (names, _) = listings(&[('-', "./first", None), ('-', "./second", None)]);
+        let (_, details) = listings(&[('-', "./second", None), ('-', "./first", None)]);
+        assert!(validate_archive_listing(&names, &details).is_err());
+    }
+
+    #[test]
+    fn preserves_leading_spaces_in_member_names() {
+        let (names, details) = listings(&[
+            ('-', " leading space", None),
+            ('h', "another file", Some(" leading space")),
+        ]);
+        assert!(validate_archive_listing(&names, &details).is_ok());
     }
 }
