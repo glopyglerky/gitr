@@ -1,63 +1,122 @@
 # Local redb action API
 
-## Candidate status
+## Implemented and qualified on Linux
 
-`actions_api.rs` is a staged optional integration until the Lustr qualification
-passes and its exact tested source/lockfile are activated. It reuses Gitr's
-existing ActionDb and Wasmi runtime. No Surreal-family dependency, replacement
-database process, storage conversion or migration is introduced.
+The optional `action-api` feature is activated in the normal Gitr source and
+lockfile. It exposes `gitr actions serve` over the existing ActionDb and Wasmi
+runtime. No replacement datastore, storage conversion or migration is introduced.
+The default build does not enable the HTTP server feature.
 
-## Contract
+The exact source and lockfile were promoted from successful
+[run 42540077250](https://github.com/glopyglerky/gitr/actions/runs/42540077250),
+job `128912821801`, input commit
+`69a16ea1506d8efa20dff0e559b5716dc95743bd` plus its reviewed preparation script.
+Qualification completed on 2026-11-09 UTC (November 8 in America/Denver).
+The preparation script is now removed. Ordinary builds compile committed code;
+CI no longer rewrites the implementation and has read-only repository permissions.
+[Machine-readable evidence](action-api-evidence.json) records exact tested blobs.
 
-The `action-api` feature adds an explicitly started `gitr actions serve`
-subcommand. Ordinary commands do not bind a socket or require a service. The API
-and native CLI operate on the same existing `.git/gitr/state.redb` using redb's
-cooperating local-process mode. All job/claim/result state remains in redb; an HTTP
-session carries none of it. This is not multi-host HA or an MCP transport.
+## Executed evidence
 
-The server binds literal IPv4 loopback only, requires a generated 256-bit bearer
-secret from `GITR_API_TOKEN` and a matching `x-gitr-repository` header on every
-operation, and rejects browser Origin headers. This is a local trusted-OS-user
-profile. It does not supply Internet-facing TLS, per-user permissions, separate
-worker credentials, attestation or multi-tenant authorization.
+Lustr coordinator `62494e27717a64c8612b538409de27048fa6adc2`, explicit `rustc`
+engine, Rust 1.99.1, Ubuntu 24.04, reference Git 2.56.0.
 
-`POST /v1/actions` accepts bounded tagged JSON operations: install, submit,
-status, cancel, run and artifact. A submission names a revision and repository
-path; Gitr itself resolves the exact committed blob. Clients cannot submit fake
-commit/blob provenance or a fabricated completion receipt. There is no raw SQL,
-arbitrary filesystem/database path, shell invocation or client-supplied claim
-clock. Existing source-reading and Wasm capability restrictions remain in force.
+| Check | Observed result |
+|---|---|
+| API-enabled Rust unit/integration tests | 84 passed, zero failed |
+| Default-feature-disabled Rust unit/integration tests | 81 passed, zero failed |
+| Strict Clippy, API-enabled and all targets | Passed with `-D warnings` |
+| Backend policy self-tests | 5 passed |
+| Backend dependency/path policy | redb 4.5.0; no active Surreal-family dependency or migration path |
+| Actual Rust guest compiled through Lustr | Passed for `wasm32-unknown-unknown` |
+| Native CLI and HTTP integration/crash fixture | All eight scenario groups passed |
 
-Compilation and execution happen outside redb write transactions on bounded
-blocking workers. Eight admission permits limit simultaneous body readers and
-work items. A disconnected HTTP waiter does not release a running worker's
-permit. Body reads have a ten-second timeout and bounded length. Existing guest
-fuel, memory, host-call and output budgets remain unchanged; these are not a
-whole-process RSS guarantee or an OS sandbox.
+Each Rust suite includes one ignored helper entry that is explicitly invoked by
+the database process tests. It is not an unimplemented feature test.
 
-The module and artifact byte protocol uses lowercase hex and a 1 MiB raw limit.
-This is for small source-policy actions, not a new large-asset transport. Missing
-jobs, stale submissions and other operation errors currently return a redacted
-422 `operation_failed`; the adapter does not classify errors by matching private
-storage error strings. Malformed requests are 400, authentication 401, scope 403,
-content type 415, body limit/timeout 413, and busy admission 503. A successful run
-request returns its durable job record; callers must inspect its status rather
-than assume HTTP 200 means the guest passed.
+The end-to-end fixture proved that jobs created by the native CLI before server
+startup remained visible over HTTP; HTTP-created jobs and verified artifacts
+were readable by a separate native CLI while the API was running. The actual
+Rust/Wasm source policy read committed bytes, not dirty worktree contents. Four
+concurrent requests produced one execution attempt. Cancellation, changed-input
+idempotency conflicts and a failing guest produced no successful artifact.
 
-The 60-second lease policy has no renewal; crash recovery can repeat execution.
-No exactly-once deployment side-effect guarantee is made. Repository API tokens
-grant all supported actions for the configured repository. Do not use an action
-receipt alone to authorize protected refs without a trusted policy/module binding.
+The test forcibly killed a native worker after its claim was persisted, killed
+and restarted the API process, confirmed acknowledged receipts and exact artifact
+bytes survived, waited for the real 60-second lease to expire, and reclaimed the
+job with the next attempt generation. The loop guest then exhausted its fuel and
+persisted a failed receipt with no artifact. `git fsck --strict` still passed.
+A separate unit test proved that cancelling the HTTP waiter does not release a
+running blocking worker's admission permit.
 
-## Qualification scope
+The ongoing workflow runs on Linux, macOS and Windows. The initial evidence above
+is Linux-only; a configured platform job is not evidence of that platform passing.
+These are bounded functional/recovery checks, not performance benchmarks, physical
+power-loss simulation or multi-host partition/failover qualification.
 
-The dedicated workflow builds the actual Rust guest through pinned Lustr. It
-checks pre-existing native jobs, bidirectional CLI/API visibility, binary artifacts,
-committed versus dirty inputs, duplicate and concurrent requests, cancellation,
-a failing guest, authentication/scope/body boundaries, forced API restart and
-reclaiming a native worker's durable claim after that worker is forcibly killed.
-The disconnected-waiter admission test covers blocking work that outlives its
-request. No user repository, real token or paid service is used by these tests.
+## Start the optional service
 
-A configured test is not a passing result. Record observed run and exact commit
-before promoting this candidate; retain existing redb data and backend policy.
+From the Gitr source root, with the pinned Lustr coordinator installed:
+
+```sh
+rustup run 1.99.1 lustr --engine rustc build --manifest-path rust/gitr/Cargo.toml --locked --features action-api
+export GITR_API_TOKEN="$(python3 -c 'import secrets; print(secrets.token_hex(32))')"
+rust/gitr/target/debug/gitr -C /path/to/repository actions serve --repository my-repository
+```
+
+The default listener is `127.0.0.1:0`, which selects an available local port.
+The startup JSON prints the endpoint and repository scope, never the token.
+An explicit loopback port can be provided with `--listen 127.0.0.1:PORT`.
+The token belongs in the environment, not source control, URLs or command-line
+arguments. Keep the operating-system account and repository directory trusted.
+
+Send JSON to `POST /v1/actions` with `Content-Type: application/json`,
+`Authorization: Bearer <token>`, and `x-gitr-repository: my-repository`.
+For example, the request body to read a job is:
+
+```json
+{"operation":"status","job":"whitespace-policy"}
+```
+
+Supported tagged operations are `install` (`wasm_hex`), `submit` (`job`, `module`,
+`revision`, `path`), `status`, `cancel`, `run`, and `artifact` (each with `job`).
+The same existing `actions install/submit/run/status/cancel/artifact` CLI commands
+remain usable against the same redb file. No separate database server is required.
+
+## Authority and resource boundaries
+
+The API and native CLI use `.git/gitr/state.redb` (the common Git directory for
+linked worktrees) through redb's cooperating local-process mode. All job, claim,
+and result state remains in redb; HTTP sessions own none of it. The server binds
+literal IPv4 loopback only, checks the generated 256-bit bearer secret and exact
+configured repository label on every operation, and rejects browser Origin
+headers. This is a local trusted-OS-user profile, not Internet-facing TLS,
+per-user permissions, separate worker credentials, attestation or multi-tenant
+authorization. It is not an MCP protocol implementation or multi-host HA.
+
+A submission names a revision and repository path; Gitr resolves the committed
+blob itself. Clients cannot supply fabricated commit/blob relations or terminal
+worker receipts. There is no raw query, arbitrary filesystem/database path,
+shell operation, caller-selected clock or guest network/filesystem/environment
+capability. The original action sandbox and reference checks remain authoritative.
+
+Compilation and execution run outside redb write transactions on bounded
+blocking workers. Eight permits bound simultaneous admitted body readers and
+work items. A disconnected waiter does not release its running worker's permit.
+Body reads have a ten-second timeout and bounded length. Guest fuel, memory,
+host-call and output budgets remain unchanged; they are not a whole-process RSS
+or hard compilation-time limit, and do not replace OS isolation for hostile tenants.
+
+Module/artifact bytes use lowercase hex with a 1 MiB raw limit. This small-action
+protocol is not a large-asset transport. Operation failures return redacted 422
+`operation_failed`; the adapter does not guess storage error types from private
+message text. Malformed requests are 400, authentication 401, scope 403, content
+type 415, body limit/timeout 413, and busy admission 503. A completed run request
+returns its job record: HTTP 200 alone does not mean the guest passed.
+
+The fixed 60-second leases have no renewal; recovery may repeat execution. There
+is no exactly-once deployment side-effect guarantee. A repository API token grants
+all these operations, including module installation, so a receipt alone is not a
+protected-ref authorization decision without a separate trusted policy/module
+binding. Forge entities, workflow DAGs, remote identity/permissions, MCP transport,
+semantic/code-graph parity and distributed replication remain separate work.

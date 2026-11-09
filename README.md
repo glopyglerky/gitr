@@ -25,14 +25,16 @@ upstream Git source and test corpus, so the entire repository is not all Rust.
 - Content-addressed Wasm action modules, immutable committed-source inputs,
   idempotent job submissions, durable fenced worker claims, and atomic
   artifact/receipt publication in the local database.
+- An optional authenticated local HTTP action API over the same redb database
+  and execution methods as the CLI; no external database server or data migration.
 - Builds and tests through a pinned version of [Lustr](https://github.com/glopyglerky/lustr).
 
 Learned semantic embeddings, resolved call graphs, distributed HA, native
 clone/fetch/push, add/commit/checkout and complete merge/rebase support remain work.
 Local redb multi-process writers serialize transactions; that is not distributed
 consensus. The first search model uses lexical feature hashing, not a trained code
-model. The action runner is not yet a DAG scheduler, an authenticated MCP/API
-server, a full forge, or a GitHub Actions compatibility implementation.
+model. The action runner is not yet a DAG scheduler, standard MCP server, remote
+multi-tenant service, full forge, or GitHub Actions compatibility implementation.
 Unsupported Git commands fail explicitly.
 
 ## Build with Lustr
@@ -145,6 +147,29 @@ memory limits do not impose a hard whole-process memory or wall-time budget.
 
 See [action execution evidence](Documentation/gitr/actions-qualification.md)
 for the measured tests and remaining restrictions.
+
+## Optional local action API
+
+Build with `--features action-api` to add `gitr actions serve`. The default CLI
+build does not enable this feature and ordinary commands never start a listener.
+The API uses the same action records as native CLI processes, not a replacement
+datastore or in-memory session state.
+
+```sh
+rustup run 1.99.1 lustr --engine rustc build --manifest-path rust/gitr/Cargo.toml --locked --features action-api
+export GITR_API_TOKEN="$(python3 -c 'import secrets; print(secrets.token_hex(32))')"
+rust/gitr/target/debug/gitr -C /path/to/repo actions serve --repository my-repository
+```
+
+Startup prints the selected loopback endpoint. Every request requires the bearer
+token and matching repository header. The service supports installation,
+submission, status, cancellation, execution and artifact retrieval. It rejects
+non-loopback listeners, browser Origin headers, oversized requests, raw queries
+and caller-fabricated worker completion records. See the
+[protocol, executed Linux qualification and limitations](Documentation/gitr/action-api.md).
+This is a trusted-local-user profile, not an Internet-facing forge or standard MCP
+transport. Platform success must be read from its actual CI run, not inferred from
+the configured Linux/macOS/Windows matrix.
 
 ## Design and evidence
 

@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "observed_completed_utc": "2026-11-09T00:31:54Z",
+  "repository": "glopyglerky/gitr",
+  "tested_base_commit": "69a16ea1506d8efa20dff0e559b5716dc95743bd",
+  "prepared_by": "ci/gitr-api-prepare.py at tested_base_commit, followed by rustfmt",
+  "workflow_run_id": 42540077250,
+  "job_id": 128912821801,
+  "run_url": "https://github.com/glopyglerky/gitr/actions/runs/42540077250",
+  "platform": "ubuntu-24.04",
+  "lustr_revision": "62494e27717a64c8612b538409de27048fa6adc2",
+  "lustr_engine": "rustc",
+  "rust_version": "1.99.1",
+  "reference_git": "2.56.0",
+  "backend": "redb 4.5.0",
+  "api_feature_rust_tests_passed": 84,
+  "default_profile_rust_tests_passed": 81,
+  "controlled_process_helper_ignored_per_suite": 1,
+  "controlled_process_helper_invoked_by_parent_tests": true,
+  "strict_clippy": "passed",
+  "backend_policy_tests_passed": 5,
+  "backend_policy": "passed; no active SurrealDB dependencies or migration paths",
+  "actual_rust_wasm_build": "passed",
+  "api_process_smoke": "passed",
+  "api_process_scenarios": [
+    "authentication, scope, denied browser origin, typed/body limits and existing redb visibility",
+    "actual Rust/Wasm execution, immutable Git input and bidirectional native CLI/API interoperability",
+    "concurrent API submissions/runs publish one attempt and preserve idempotency",
+    "cancellation, changed-input conflicts and real failing guest publish no success artifact",
+    "native worker killed after durable claim while API remained responsive",
+    "forced API restart preserved existing CLI/API jobs and exact verified artifact bytes",
+    "expired crashed-worker claim reclaimed with next generation; fuel trap published no artifact",
+    "git fsck --strict passed and non-loopback listener rejected"
+  ],
+  "tested_blobs": [
+    {"path":"rust/gitr/Cargo.toml","git_blob":"eb1708fcd5e7f84022d29ad70467669bbd01db53","sha256":"1104ee0a55fe764d04ca8c880dfcf633519bc6964f33e1f6c1da3c9936c64931"},
+    {"path":"rust/gitr/Cargo.lock","git_blob":"c7cfbcd4d2bcf2b2403a9e4a4a0ed62a1b402ccf","sha256":"3f55f249ee08ebb589c99629f40cca0495f5ff69645a656e62ba10d33e0d6234"},
+    {"path":"rust/gitr/src/actions.rs","git_blob":"4ecd8c176f1df91c006180868de7d5967c8d0a41","sha256":"cde86c154298130cf2708b991fa9475d386de193602d57a24586831a9ee983f8"},
+    {"path":"rust/gitr/src/actions_api.rs","git_blob":"5a61aa7293f0fa184753b3ce449427b8be36c567","sha256":"688ffc21a9a98244a89f0c5b4b153345af4630c76559045a87c02aa51814be19"},
+    {"path":"rust/gitr/src/actions_export.rs","git_blob":"6515deb7711d03405b401cc1444b698023686e3e","sha256":"8eab49a83156942ade5c9f55838b896479bb11208ed31e1013050c01f2902de7"}
+  ],
+  "not_proven": [
+    "new API profile on macOS or Windows by this initial run",
+    "whole-process resource limits or hostile multi-tenant isolation",
+    "physical power-loss recovery",
+    "remote authorization or MCP compliance",
+    "multi-host HA or network partition safety",
+    "full Git, forge or code intelligence parity",
+    "performance improvement"
+  ]
+}

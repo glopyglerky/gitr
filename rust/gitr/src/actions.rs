@@ -37,6 +37,14 @@ const META: TableDefinition<&str, u64> = TableDefinition::new("actions.meta.v1")
 
 #[derive(Debug, Subcommand)]
 pub enum Command {
+    /// Opt-in authenticated local HTTP API over the same redb action database.
+    #[cfg(feature = "action-api")]
+    Serve {
+        #[arg(long, default_value = "127.0.0.1:0")]
+        listen: std::net::SocketAddr,
+        #[arg(long)]
+        repository: String,
+    },
     /// Validate and store a binary Wasm module, returning its SHA-256 identity.
     Install { module: PathBuf },
     /// Persist one immutable committed blob as an action input, without a checkout.
@@ -718,6 +726,10 @@ fn print_json(value: &impl Serialize) -> Result<()> {
 }
 pub fn run(command: Command) -> Result<()> {
     let repo = crate::git::discover()?;
+    #[cfg(feature = "action-api")]
+    if let Command::Serve { listen, repository } = command {
+        return http::serve(&repo, listen, &repository);
+    }
     if let Command::Control = command {
         let bytes = bounded_read(io::stdin().lock(), 32 * 1024)?;
         return print_json(&control(&repo, serde_json::from_slice(&bytes)?)?);
@@ -751,6 +763,8 @@ pub fn run(command: Command) -> Result<()> {
             Ok(())
         }
         Command::Export => db.export(&mut io::stdout().lock()),
+        #[cfg(feature = "action-api")]
+        Command::Serve { .. } => unreachable!("handled above"),
         Command::Control => unreachable!("handled above"),
     }
 }
@@ -761,3 +775,7 @@ mod export;
 #[cfg(test)]
 #[path = "actions_tests.rs"]
 mod tests;
+
+#[cfg(feature = "action-api")]
+#[path = "actions_api.rs"]
+mod http;
