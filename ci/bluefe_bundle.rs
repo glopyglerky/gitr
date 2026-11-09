@@ -68,7 +68,7 @@ fn files(root: &Path, current: &Path, result: &mut BTreeMap<String, PathBuf>) ->
             if relative == "SHA256SUMS" {
                 continue;
             }
-            if !relative.bytes().all(|b| b.is_ascii_alphanumeric() || b"/._-".contains(&b)) {
+            if relative.contains(['\n', '\r', '\\']) {
                 return Err(format!("unsupported bundle path {relative:?}").into());
             }
             result.insert(relative.to_owned(), path);
@@ -148,6 +148,19 @@ fn build() -> Result<()> {
         .env("CARGO_ENCODED_RUSTFLAGS", format!("--sysroot\x1f{}", stage1.display())))?;
     fs::create_dir_all(&root)?;
     run(Command::new("cp").args(["-aL", "--"]).arg(stage1.join(".")).arg(&root))?;
+    // Bootstrap exposes its source checkout through this optional sysroot link.
+    // It is not needed to compile applications and must not bloat the portable
+    // runtime bundle with compiler test fixtures or checkout metadata.
+    let rustc_sources = root.join("lib/rustlib/rustc-src");
+    if rustc_sources.is_dir() { fs::remove_dir_all(rustc_sources)?; }
+    let notices = root.join("source-notices");
+    fs::create_dir_all(&notices)?;
+    for name in ["LICENSE-MIT", "LICENSE-APACHE", "COPYRIGHT"] {
+        if source.join(name).is_file() { fs::copy(source.join(name), notices.join(format!("bluefe-{name}")))?; }
+    }
+    for name in ["LICENSE", "LICENSE-MIT", "LICENSE-APACHE"] {
+        if lustr.join(name).is_file() { fs::copy(lustr.join(name), notices.join(format!("lustr-{name}")))?; }
+    }
     fs::copy(stage0.join("bin/cargo"), root.join("bin/cargo"))?;
     fs::copy(lustr_build.join("release/lustr"), root.join("bin/lustr"))?;
     fs::write(root.join("bootstrap.toml"), config)?;
