@@ -1,0 +1,39 @@
+name: gitr redb policy
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'rust/**'
+      - 'ci/gitr-*.py'
+      - '.github/workflows/gitr-*.yml'
+      - 'AGENTS.md'
+      - 'Documentation/gitr/redb-decision.md'
+  pull_request:
+    paths:
+      - 'rust/**'
+      - 'ci/gitr-*.py'
+      - '.github/workflows/gitr-*.yml'
+      - 'AGENTS.md'
+      - 'Documentation/gitr/redb-decision.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gitr-redb-policy-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  storage-policy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Test the storage policy guard
+        run: python3 ci/gitr-redb-policy.py --self-test
+      - name: Check the actual selected backend and retired entry points
+        run: python3 ci/gitr-redb-policy.py

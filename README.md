@@ -3,7 +3,8 @@
 [![Gitr Rust qualification](https://github.com/glopyglerky/gitr/actions/workflows/gitr-rust.yml/badge.svg?branch=master)](https://github.com/glopyglerky/gitr/actions/workflows/gitr-rust.yml)
 
 A Rust Git implementation with verified large-file storage, game-asset chunk
-reuse, a transactional repository graph and vector catalog, and bounded Rust/Wasm\nactions against immutable Git snapshots. Active development
+reuse, a transactional repository graph and vector catalog, and bounded Rust/Wasm
+actions against immutable Git snapshots. Active development
 lives on the default branch, [`master`](https://github.com/glopyglerky/gitr/tree/master).
 
 **Status: initial implementation. Gitr is not yet a complete Git replacement.**
@@ -21,13 +22,18 @@ upstream Git source and test corpus, so the entire repository is not all Rust.
 - Large-asset inventory and candidate Unreal/Unity `.gitattributes` rules.
 - redb snapshots keyed by exact Git commits, factual Git graph queries, and
   automatically generated lexical vectors with exact token matching for local search.
-- Content-addressed Wasm action modules, immutable committed-source inputs,\n  idempotent job submissions, durable fenced worker claims, and atomic\n  artifact/receipt publication in the local database.\n- Builds and tests through a pinned version of [Lustr](https://github.com/glopyglerky/lustr).
+- Content-addressed Wasm action modules, immutable committed-source inputs,
+  idempotent job submissions, durable fenced worker claims, and atomic
+  artifact/receipt publication in the local database.
+- Builds and tests through a pinned version of [Lustr](https://github.com/glopyglerky/lustr).
 
 Learned semantic embeddings, resolved call graphs, distributed HA, native
 clone/fetch/push, add/commit/checkout and complete merge/rebase support remain work.
 Local redb multi-process writers serialize transactions; that is not distributed
 consensus. The first search model uses lexical feature hashing, not a trained code
-model. The action runner is not yet a DAG scheduler, an authenticated MCP/API\nserver, a full forge, or a GitHub Actions compatibility implementation.\nUnsupported Git commands fail explicitly.
+model. The action runner is not yet a DAG scheduler, an authenticated MCP/API
+server, a full forge, or a GitHub Actions compatibility implementation.
+Unsupported Git commands fail explicitly.
 
 ## Build with Lustr
 
@@ -88,18 +94,24 @@ put a token in source files or command arguments. Endpoint discovery, credential
 helpers, automatic pre-push traversal and enforcement of asset locks are not yet
 wired into a complete native push workflow.
 
-## Database transition: SurrealDB 4.0.0
+## Database: redb
 
-**Target:** SurrealDB 4.0.0 with SurrealKV for local storage; SurrealDS is a
-separate optional Enterprise backend for distributed deployments. The running
-catalog and action engine still use redb while the SurrealDB adapter, ownership
-service, and verified migration/rollback are implemented. No existing data is
-converted automatically. See [database decision](Documentation/gitr/surrealdb-decision.md)
-and [isolated qualification probe](rust/gitr-surreal-probe).
+**Gitr uses redb.** The current reviewed pin is **4.5.0**. The repository catalog
+and action state already use it; redb is the selected backend, not a temporary
+fallback. The earlier SurrealDB/SurrealKV/SurrealDS migration direction is retired.
+No existing repository data is converted or deleted.
 
-SurrealDB's source-available core and SurrealDS enterprise licensing require
-review before distributing a combined product. A passing standalone storage
-probe is not evidence of a migrated repository or multi-host HA.
+The rebuildable catalog and durable action state retain their separate files in
+`<common-git-dir>/gitr/`. Relational/code-graph queries, learned vector retrieval,
+forge services and distributed replication remain Gitr implementation work over
+this storage substrate. Selecting redb does not make those capabilities complete
+or turn local writer coordination into multi-host HA.
+
+See the [redb decision](Documentation/gitr/redb-decision.md). Earlier database
+experiments are preserved in a [non-active archive](Documentation/gitr/archive/surrealdb),
+outside the active Rust packages and GitHub workflows. A
+[backend-policy check](.github/workflows/gitr-redb-policy.yml) rejects their
+reintroduction into the active dependency manifests or migration paths.
 
 ## Run a database-resident Rust/Wasm action
 
@@ -121,7 +133,11 @@ umask 077
 gitr -C /path/to/repo actions export > /secure/backups/gitr-actions.jsonl
 ```
 
-The export verifies action object hashes and their receipts; it refuses snapshots\nwith running workers. The export is not a SurrealKV import or an atomic\nauthority cutover, and does not change any stored records.\n\nAction inputs are the bytes in the named **committed Git revision**, not dirty
+The export verifies action object hashes and their receipts; it refuses snapshots
+with running workers. It is a read-only export, not an authority cutover or
+proof of a fully qualified restore facility, and does not change stored records.
+
+Action inputs are the bytes in the named **committed Git revision**, not dirty
 worktree contents. A failed policy test has no downloadable successful artifact.
 The local `actions control` JSON command is not a standards-compliant MCP/HTTP
 transport and assumes OS-level authorization. In-process Wasm fuel and guest
@@ -134,6 +150,7 @@ for the measured tests and remaining restrictions.
 
 - [Compatibility matrix and exact limits](Documentation/gitr/compatibility.md)
 - [Executed qualification](Documentation/gitr/qualification.md)
+- [Selected redb backend](Documentation/gitr/redb-decision.md)
 - [Repository database, multi-writer and HA design](Documentation/gitr/architecture.md)
 - [Git, Lore and asset upstream catalog](Documentation/gitr/upstreams.md)
 - [Rust database and retrieval comparison](Documentation/gitr/database-research.md)

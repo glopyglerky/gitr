@@ -32,21 +32,27 @@ Guest module SHA-256:
 The passing report was `{"bytes":13,"lines":1,"trailing_whitespace":false}`.
 This is functional execution evidence, not a speed benchmark.
 
-## Storage transition
+## Selected storage: redb
 
-The working action implementation currently uses redb. It is a validated
-reference for the [preferred SurrealDB 4 / SurrealKV backend](surrealdb-decision.md),
-not evidence that the migration is complete. Retain claim fencing, idempotency,
-short publication transactions and atomic artifact/receipt semantics in the new
-backend. No existing database is modified by the standalone SurrealDB probe.
+The working action implementation uses redb, which is also the user's selected
+backend. The [redb decision](redb-decision.md) supersedes the earlier SurrealDB
+migration proposal. Retain claim fencing, idempotency, short publication
+transactions and atomic artifact/receipt semantics in this implementation.
+Existing redb files and the newer read-only `actions export` functionality are
+preserved; no database conversion is part of the backend-policy change.
+
+The historical test counts above describe the recorded run, not a new execution
+of every later change. Retired database candidates and their workflows are
+archived and cannot qualify a backend switch. Read the actual workflow result
+for each new commit before attributing a passing runtime check to it.
 
 ## Exact scope
 
 This is a bounded core-Wasm action primitive, not a complete forge, DAG workflow
-scheduler, GitHub Actions replacement, Surrealism adapter, deployment engine or
-multi-host HA implementation. The local JSON control command is not MCP/HTTP and
-assumes the invoking OS user is authorized for the repository. Cross-platform
-results belong to their actual workflow run; Linux success is not proof of them.
+scheduler, GitHub Actions replacement, deployment engine or multi-host HA
+implementation. The local JSON control command is not MCP/HTTP and assumes the
+invoking OS user is authorized for the repository. Cross-platform results belong
+to their actual workflow run; Linux success is not proof of them.
 
 Claims expire after 60 seconds; execution does not renew them. An expired worker
 cannot publish, but may still consume CPU until it stops. Fuel and guest-memory

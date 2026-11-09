@@ -13,32 +13,33 @@ vector search, automatic local embeddings, lightweight operation, and high
 availability. Preserve this requirement. Treat the checked-in database design
 and compatibility matrix as contracts, not evidence that unfinished features work.
 
-## Preferred database target
+## Database: redb
 
-Use SurrealDB 4.0.0 with SurrealKV for local/embedded storage; evaluate SurrealDS
-as a separate, optional licensed distributed backend, not a replication layer
-added to the same SurrealKV directory. See `Documentation/gitr/surrealdb-decision.md`.
-The current working redb catalog/action implementation is transition evidence,
-not a decision to reject the user's preferred stack. Never destroy or silently
-convert existing data. Qualify storage contracts, migration and rollback first.
+The user's latest instruction is **use redb**. It supersedes the earlier
+SurrealDB/SurrealKV/SurrealDS selection. redb is Gitr's selected database, not a
+fallback or a temporary migration source. Retain the reviewed redb 4.5.0 pin and
+lockfile unless a separately tested dependency update changes them. See
+`Documentation/gitr/redb-decision.md`.
 
-SurrealKV has one datastore owner with many concurrent transactions/client clones.
-Multiple CLI/worker/API/MCP processes must use the owner service rather than each
-opening the same directory. Preserve durable compare-and-swap, fencing and
-idempotency, including cross-record invariants under snapshot isolation. Enforce
-explicit durability and do not advertise SurrealKV as multi-host HA.
+Keep the existing redb repository catalog and durable action database. Preserve
+all data, verified exports, transaction rollback, compare-and-swap, idempotency,
+worker fencing and atomic artifact/receipt publication. Do not convert or delete
+existing databases, impose a replacement service, or activate SurrealDB candidate
+artifacts. Retired experiments and their licenses are preserved under
+`Documentation/gitr/archive/surrealdb` for historical reference only.
 
-Surrealism is the upstream Rust/Wasm extension candidate for trusted bounded
-in-database functions. Long or untrusted CI execution stays outside write
-transactions. Keep large streaming Git/LFS/chunk payloads out of ordinary rows
-unless workload measurements justify a different physical layout. Preserve exact
-Git identities, source-grounded search and local/offline operation.
+Build relational, graph and vector indexing as Gitr capabilities over redb with
+rebuildable, revision-addressed indexes. redb alone does not provide semantic
+embeddings, a query language or resolved code relationships. Preserve exact Git
+object identities and source provenance. Large Git/LFS/chunk payloads remain
+bounded-memory streaming data unless measurements justify a different layout.
 
-Core BSL licensing and inherited GPL-2.0-only distribution require review; SDK
-licensing does not relicense the engine. Do not silently relicense inherited code.
-SurrealDS needs a vendor-issued Enterprise license. Offline license files exist
-when offline use is included; online key validation is not universal. Do not
-purchase/configure licenses or claim DS deployment/HA qualification without evidence.
+Retain the Rust/Wasmi action runtime. Store code, inputs, jobs and receipts in
+redb; execute untrusted guests outside write transactions. Do not introduce
+Surrealism, SurrealDS or a vendor database license as a dependency of Gitr.
+Multi-host HA remains a separate Rust replication/consensus implementation and
+qualification requirement; local cooperating redb writers are not HA. Never
+share a writable redb file between machines as a substitute for replication.
 
 ## Integrated forge, actions and control
 
@@ -80,7 +81,7 @@ do not replace implementation with an indefinitely growing research catalog.
 - The root currently retains upstream Git and its test corpus for compatibility
   work. Do not describe this inherited source tree as an all-Rust repository.
 - `Documentation/gitr` records decisions, upstream reuse, qualification evidence,
-  and remaining implementation work.
+  and remaining implementation work. Its `archive` is not an active build target.
 
 ## Correctness
 
@@ -114,3 +115,4 @@ and malformed objects, stale writes, concurrent publication, corrupt asset data,
 interrupted IO and authentication boundaries where the change touches them.
 Record actual executed checks and distinguish CI configuration from observed CI
 results. Performance claims need a reproducible workload and measured results.
+Run `python ci/gitr-redb-policy.py` to check the active backend dependency policy.
