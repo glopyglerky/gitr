@@ -1,6 +1,6 @@
 # Gitr
 
-Matt Mayhugh's independently maintained Git fork, owned at
+Independently maintained Git fork, owned at
 [glopyglerky/gitr](https://github.com/glopyglerky/gitr), with verified fork parent
 [git/git](https://github.com/git/git).
 
