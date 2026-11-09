@@ -39,3 +39,8 @@ if 'mod http;' not in text:
         Command::Serve { .. } => unreachable!("handled above"),
 ''' + needle)
     path.write_text(text)
+
+path = Path('rust/gitr/src/actions_api.rs')
+text = path.read_text()
+text = text.replace('.chunks_exact(2)', '.as_chunks::<2>().0.iter()')
+path.write_text(text)
