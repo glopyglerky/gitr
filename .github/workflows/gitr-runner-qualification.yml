@@ -1,0 +1,81 @@
+name: gitr ephemeral worker candidate
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'rust/gitr/src/actions_runner*.rs'
+      - 'ci/fixtures/ephemeral_runner.rs'
+      - 'ci/gitr-runner-*.py'
+      - '.github/workflows/gitr-runner-qualification.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: gitr-runner-candidate-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  qualify:
+    if: github.repository == 'glopyglerky/gitr' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      RUSTUP_TOOLCHAIN: 1.99.1
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: glopyglerky/lustr
+          ref: 62494e27717a64c8612b538409de27048fa6adc2
+          path: .gitr-ci/lustr-src
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: glopyglerky/gitr
+          ref: a02dca8462a5a30fd15a102e12f8a5e7d03d152b
+          path: .gitr-ci/pre-workflow
+          persist-credentials: false
+      - name: Bootstrap pinned Lustr and prepare worker integration
+        run: |
+          rustup toolchain install 1.99.1 --profile minimal --component rustfmt --component clippy --target wasm32-unknown-unknown
+          cargo install --path .gitr-ci/lustr-src/tools/cargo-lust --root .gitr-ci/lustr --locked --offline
+          echo "$GITHUB_WORKSPACE/.gitr-ci/lustr/bin" >> "$GITHUB_PATH"
+          python3 -m py_compile ci/gitr-runner-prepare.py
+          python3 ci/gitr-runner-prepare.py
+          cp ci/fixtures/ephemeral_runner.rs rust/gitr/tests/ephemeral_runner.rs
+      - name: Real worker protocol, parent loss, quotas and scheduler regression
+        run: |
+          lustr --engine rustc fmt --manifest-path rust/gitr/Cargo.toml --package gitr
+          lustr --engine rustc test --manifest-path rust/gitr/Cargo.toml --locked --all-features --all-targets
+          lustr --engine rustc clippy --manifest-path rust/gitr/Cargo.toml --locked --all-features --all-targets -- -D warnings
+          lustr --engine rustc build --manifest-path rust/gitr/Cargo.toml --locked --all-features
+          lustr --engine rustc build --manifest-path rust/gitr-action-example/Cargo.toml --locked --release --target wasm32-unknown-unknown
+          python3 ci/gitr-actions-smoke.py
+          python3 ci/gitr-api-smoke.py
+      - name: Committed workflow through actual disposable Rust Wasm processes
+        run: |
+          lustr --engine rustc build --manifest-path .gitr-ci/pre-workflow/rust/gitr/Cargo.toml --locked
+          cp .gitr-ci/pre-workflow/rust/gitr/target/debug/gitr .gitr-ci/gitr-before
+          python3 ci/gitr-workflow-smoke.py
+          lustr --engine rustc test --manifest-path rust/gitr/Cargo.toml --locked --no-default-features --all-targets
+          python3 ci/gitr-redb-policy.py --self-test
+          python3 ci/gitr-redb-policy.py
+          git diff --exit-code -- rust/gitr/Cargo.toml rust/gitr/Cargo.lock rust/vendor
+      - name: Retain exact tested source blobs without changing commits or branches
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import base64, hashlib, json, os, urllib.request
+          from pathlib import Path
+          print('TESTED_BASE_COMMIT='+os.environ['GITHUB_SHA'])
+          paths=['rust/gitr/src/actions.rs','rust/gitr/src/actions_api.rs','rust/gitr/src/actions_workflow.rs','rust/gitr/src/main.rs','rust/gitr/src/actions_runner.rs','rust/gitr/src/actions_runner_tests.rs','rust/gitr/tests/ephemeral_runner.rs']
+          for path in paths:
+              data=Path(path).read_bytes()
+              request=urllib.request.Request('https://api.github.com/repos/glopyglerky/gitr/git/blobs',data=json.dumps({'encoding':'base64','content':base64.b64encode(data).decode()}).encode(),headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json','Content-Type':'application/json'},method='POST')
+              with urllib.request.urlopen(request,timeout=30) as response: blob=json.load(response)
+              print('TESTED_BLOB='+json.dumps({'path':path,'sha':blob['sha'],'sha256':hashlib.sha256(data).hexdigest()}))
+          PY
+# Trusted candidate-only bootstrap. Only the final step receives GH_TOKEN, and
+# only immutable blobs are written. Activation removes rewriting/write permission.
