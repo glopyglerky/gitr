@@ -86,8 +86,17 @@ fn inventory(root: &Path) -> Result<BTreeMap<String, PathBuf>> {
 }
 
 fn build() -> Result<()> {
-    let source = path_env("BLUEFE_SOURCE")?;
-    let lustr = path_env("LUSTR_SOURCE")?;
+    let source_checkout = path_env("BLUEFE_SOURCE")?;
+    let lustr_checkout = path_env("LUSTR_SOURCE")?;
+    // Keep Cargo's workspace discovery outside the application's workspace.
+    // Only these fresh checkouts on the ephemeral hosted runner are relocated.
+    let source = path_env("RUNNER_TEMP")?.join("gitr-bluefe-source");
+    let lustr = path_env("RUNNER_TEMP")?.join("gitr-lustr-source");
+    if source.exists() || lustr.exists() {
+        return Err("refusing to replace an existing compiler checkout".into());
+    }
+    fs::rename(&source_checkout, &source)?;
+    fs::rename(&lustr_checkout, &lustr)?;
     let build = path_env("BLUEFE_BUILD_DIR")?;
     let lustr_build = path_env("LUSTR_BUILD_DIR")?;
     let root = path_env("BLUEFE_ROOT")?;
