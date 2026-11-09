@@ -1,0 +1,2273 @@
+{
+  "schema_version": 1,
+  "repository": "https://github.com/gitbutlerapp/grit",
+  "revision": "e197103087b1110db2d629c4c269ef9258508169",
+  "selection": "Complete Rust source and test files in grit-lib, grit-git and grit-test-support, their declarative manifests and embedded help data. Upstream shell libraries and Git reference sources are excluded.",
+  "excluded_package_files": [
+    "grit-git/shell-lib/git-sh-i18n.sh",
+    "grit-git/shell-lib/git-sh-setup.sh"
+  ],
+  "files": [
+    {
+      "upstream_path": "grit-lib/Cargo.toml",
+      "path": "grit-lib/Cargo.toml",
+      "upstream_sha256": "c067ff1a77cf78f73ac8a29d97aee882ccbb18e77208a9877d8d420ecd77894c"
+    },
+    {
+      "upstream_path": "grit-lib/README.md",
+      "path": "grit-lib/README.md",
+      "upstream_sha256": "bc95e5ac5803f1ec0bfafcd9b9669bc497ea116d6a83ffc1896e9a0bcc88f8d4"
+    },
+    {
+      "upstream_path": "grit-lib/examples/README.md",
+      "path": "grit-lib/examples/README.md",
+      "upstream_sha256": "3bb07be5d880b8507e6b3db64d485e7ea555f329e83bad990db1620c04571eff"
+    },
+    {
+      "upstream_path": "grit-lib/examples/cherry_pick.rs",
+      "path": "grit-lib/examples/cherry_pick.rs",
+      "upstream_sha256": "ee1d557517e3dc4f527c4c7b02213fb9ba976468c56f54241e28a8cc038cefd4"
+    },
+    {
+      "upstream_path": "grit-lib/examples/commit_tree.rs",
+      "path": "grit-lib/examples/commit_tree.rs",
+      "upstream_sha256": "fd6deecc30266a8d6afecb2c30a663efdca0c0a345091958a189dfe128b0970e"
+    },
+    {
+      "upstream_path": "grit-lib/examples/ignore_match.rs",
+      "path": "grit-lib/examples/ignore_match.rs",
+      "upstream_sha256": "9140c6d49f05084f41818a437a8b998674ea9da5ff44a3f9ed7f94cff893ecdb"
+    },
+    {
+      "upstream_path": "grit-lib/examples/index_add.rs",
+      "path": "grit-lib/examples/index_add.rs",
+      "upstream_sha256": "e72de6416d6e3290a0a719909f4f6d8e26f7c2aad10cb98137cda671e68867f1"
+    },
+    {
+      "upstream_path": "grit-lib/examples/merge_base.rs",
+      "path": "grit-lib/examples/merge_base.rs",
+      "upstream_sha256": "2cdbe283662ab776a6fdc33ada6ce60f922e6a554a0308f9183b69bedee0d068"
+    },
+    {
+      "upstream_path": "grit-lib/examples/odb_blob.rs",
+      "path": "grit-lib/examples/odb_blob.rs",
+      "upstream_sha256": "afc335a7ec6bc2ad5a19db26d02b64200027c3333c3207ff513eb3fbb33af43c"
+    },
+    {
+      "upstream_path": "grit-lib/examples/pack_index.rs",
+      "path": "grit-lib/examples/pack_index.rs",
+      "upstream_sha256": "e694e0ec6f6cad4e80cf11fdee42ec3ce760d99ab5c5accab99b488d0a07db91"
+    },
+    {
+      "upstream_path": "grit-lib/examples/repo_init_and_open.rs",
+      "path": "grit-lib/examples/repo_init_and_open.rs",
+      "upstream_sha256": "8b713538df6027dddc02caf94f0533e8f0a41eb09cda245188d2b6ee3d777eb3"
+    },
+    {
+      "upstream_path": "grit-lib/examples/rev_list.rs",
+      "path": "grit-lib/examples/rev_list.rs",
+      "upstream_sha256": "423a3713bf8d71c225d01f2f1824ee2ff0688439d1c9cf61e1aade6c0163d321"
+    },
+    {
+      "upstream_path": "grit-lib/examples/rev_parse.rs",
+      "path": "grit-lib/examples/rev_parse.rs",
+      "upstream_sha256": "ddab422aca45726b699d265bf87e7b79082c9b9f4b5870a58c395e53506209a0"
+    },
+    {
+      "upstream_path": "grit-lib/examples/walk_tree.rs",
+      "path": "grit-lib/examples/walk_tree.rs",
+      "upstream_sha256": "645458a22eed8186c8b58f7793599b0d4f107805539429616201a3fce3e4de52"
+    },
+    {
+      "upstream_path": "grit-lib/src/am.rs",
+      "path": "grit-lib/src/am.rs",
+      "upstream_sha256": "494f115ed702037052834335d14d845b278081b7b21464bc946da657d52744ea"
+    },
+    {
+      "upstream_path": "grit-lib/src/apply.rs",
+      "path": "grit-lib/src/apply.rs",
+      "upstream_sha256": "ce942f9af62bb48f578a0b0d20022ea89c9c3fdf872de2e89faa27862716ef30"
+    },
+    {
+      "upstream_path": "grit-lib/src/attributes.rs",
+      "path": "grit-lib/src/attributes.rs",
+      "upstream_sha256": "b3bd2a730e6e545eb3afaaefeed5f2a9fb8a6c8a63c98526e983ac91641e0449"
+    },
+    {
+      "upstream_path": "grit-lib/src/blame.rs",
+      "path": "grit-lib/src/blame.rs",
+      "upstream_sha256": "6dcb86889967e08db19bc02b99e65ecc9a15dab57a4ee59e1bc7aa233afe3d58"
+    },
+    {
+      "upstream_path": "grit-lib/src/bloom.rs",
+      "path": "grit-lib/src/bloom.rs",
+      "upstream_sha256": "1ca8dfe46106ad7621fa60dffc71173aa5e8ec892c19dc800b2f4f5eeae070ab"
+    },
+    {
+      "upstream_path": "grit-lib/src/branch_ref_format.rs",
+      "path": "grit-lib/src/branch_ref_format.rs",
+      "upstream_sha256": "c89ae7b7138b0c6bfbd5349b6fcde4d030ce915523a0a598de495f2e5ae02b23"
+    },
+    {
+      "upstream_path": "grit-lib/src/branch_tracking.rs",
+      "path": "grit-lib/src/branch_tracking.rs",
+      "upstream_sha256": "6e5912bde95383b1d4ab78a3b3a2525c396e2ca13444f49c1c458073523f9f57"
+    },
+    {
+      "upstream_path": "grit-lib/src/check_ref_format.rs",
+      "path": "grit-lib/src/check_ref_format.rs",
+      "upstream_sha256": "77fccde0cc18688a6cfca87ac93de2b7d59242cfee28d8782b41f4c7180e36ca"
+    },
+    {
+      "upstream_path": "grit-lib/src/combined_diff_patch.rs",
+      "path": "grit-lib/src/combined_diff_patch.rs",
+      "upstream_sha256": "910149ced1c12faa4f0d746e357e01d1b7f0668de7d3a3fd74896be102b0ddf5"
+    },
+    {
+      "upstream_path": "grit-lib/src/combined_tree_diff.rs",
+      "path": "grit-lib/src/combined_tree_diff.rs",
+      "upstream_sha256": "fcd546815776e5646a4fe4334eabe75b36df18fc376ffeccbe51a979fb7d3b02"
+    },
+    {
+      "upstream_path": "grit-lib/src/commit.rs",
+      "path": "grit-lib/src/commit.rs",
+      "upstream_sha256": "3f727cf3b85aecc30fc64da7b87018b52e45059170146ae92fbac3e0860c01e4"
+    },
+    {
+      "upstream_path": "grit-lib/src/commit_encoding.rs",
+      "path": "grit-lib/src/commit_encoding.rs",
+      "upstream_sha256": "f3b2fe06c96d6c8fbeb791ad6a626456f597033d73428fc750ba8328eb6d4bb7"
+    },
+    {
+      "upstream_path": "grit-lib/src/commit_graph_file.rs",
+      "path": "grit-lib/src/commit_graph_file.rs",
+      "upstream_sha256": "b8aae896d84798272cf69c98e2a2bc44560513ae1f1625201ea0610f6d82a290"
+    },
+    {
+      "upstream_path": "grit-lib/src/commit_graph_write.rs",
+      "path": "grit-lib/src/commit_graph_write.rs",
+      "upstream_sha256": "f21038145f825c074e2427cafe724056d1e77ac6525a1ba17ea77c24c5225faf"
+    },
+    {
+      "upstream_path": "grit-lib/src/commit_pretty.rs",
+      "path": "grit-lib/src/commit_pretty.rs",
+      "upstream_sha256": "ea205a4cc7b5f6a936cc71824a22fcaadaef338e7dcc0a4ead294cda3086af13"
+    },
+    {
+      "upstream_path": "grit-lib/src/commit_trailers.rs",
+      "path": "grit-lib/src/commit_trailers.rs",
+      "upstream_sha256": "216d3e7dd1ec7eb7d1d3530cc0ca381b1b24544a2469e55ce153beb51b92720e"
+    },
+    {
+      "upstream_path": "grit-lib/src/config.rs",
+      "path": "grit-lib/src/config.rs",
+      "upstream_sha256": "2de2ebdd619e4666fffcfb91263bc187ecabdc31fa581e6af4c2701742b99cba"
+    },
+    {
+      "upstream_path": "grit-lib/src/connectivity.rs",
+      "path": "grit-lib/src/connectivity.rs",
+      "upstream_sha256": "37bbd9e0fb1686ad791bd3463cea764309ddcd594612d1e029a8621b29d91eed"
+    },
+    {
+      "upstream_path": "grit-lib/src/credentials.rs",
+      "path": "grit-lib/src/credentials.rs",
+      "upstream_sha256": "acbbdebb79ced41146602cba2d254fb58694a3eb1d27fea7abee7bc064123652"
+    },
+    {
+      "upstream_path": "grit-lib/src/crlf.rs",
+      "path": "grit-lib/src/crlf.rs",
+      "upstream_sha256": "a0ea7886788c3eb7b4fd97fcf45c70627a2572d269b442358177a447c6d29df6"
+    },
+    {
+      "upstream_path": "grit-lib/src/delta_encode.rs",
+      "path": "grit-lib/src/delta_encode.rs",
+      "upstream_sha256": "d84600de2f36107f5e33c4aa524cefc2ab24c900b31f53202c8701ca86030ebc"
+    },
+    {
+      "upstream_path": "grit-lib/src/delta_islands.rs",
+      "path": "grit-lib/src/delta_islands.rs",
+      "upstream_sha256": "385f899d81fb78a2146219418032f7c6ce63f1c64d47ee30f17498313ba5fdeb"
+    },
+    {
+      "upstream_path": "grit-lib/src/diff.rs",
+      "path": "grit-lib/src/diff.rs",
+      "upstream_sha256": "90397a96efd75d3f622f148475aa0991ec17be61b85d30a7bbd4dc395dc2af9e"
+    },
+    {
+      "upstream_path": "grit-lib/src/diff_indent_heuristic.rs",
+      "path": "grit-lib/src/diff_indent_heuristic.rs",
+      "upstream_sha256": "a3e4ff142f3e411c2c8c459e85b68f2d038ada26f7724c47f3809fcb97afb76a"
+    },
+    {
+      "upstream_path": "grit-lib/src/diff_moved.rs",
+      "path": "grit-lib/src/diff_moved.rs",
+      "upstream_sha256": "ec4913692d5a5e93ede9ed14b102d9906b41847eb7c3716083bdaeb577791b14"
+    },
+    {
+      "upstream_path": "grit-lib/src/diffstat.rs",
+      "path": "grit-lib/src/diffstat.rs",
+      "upstream_sha256": "33401d9ba1c3450ca1dca02630bef9caba55df738c88c8c65858c7c225485f4e"
+    },
+    {
+      "upstream_path": "grit-lib/src/difftool.rs",
+      "path": "grit-lib/src/difftool.rs",
+      "upstream_sha256": "4732b6dbf780e32925e64c45c29c644b854372d323ad18cc283dcaa8f482984b"
+    },
+    {
+      "upstream_path": "grit-lib/src/dotfile.rs",
+      "path": "grit-lib/src/dotfile.rs",
+      "upstream_sha256": "a57d1b5b5d5563609e1502c51ff4b8151fa658ab3f4c28af66f844badddd0971"
+    },
+    {
+      "upstream_path": "grit-lib/src/error.rs",
+      "path": "grit-lib/src/error.rs",
+      "upstream_sha256": "37103e9cf1e4df16bd87d1bdeffa629edabcc2d52a919fea29744132ac948ea3"
+    },
+    {
+      "upstream_path": "grit-lib/src/ewah_bitmap.rs",
+      "path": "grit-lib/src/ewah_bitmap.rs",
+      "upstream_sha256": "dd71f0091f79ce2326973e417ed00bccd0ba32f8d02982617c0fb1e75ef7dc83"
+    },
+    {
+      "upstream_path": "grit-lib/src/fast_export.rs",
+      "path": "grit-lib/src/fast_export.rs",
+      "upstream_sha256": "7e4ec6fccb0d1163c9b62766abe4d4ba72a8a862f669f42b84a6fa8348626046"
+    },
+    {
+      "upstream_path": "grit-lib/src/fast_import.rs",
+      "path": "grit-lib/src/fast_import.rs",
+      "upstream_sha256": "33bf916c0b9166e37e0ff994269eeacc320f54804315a9341180f52099543566"
+    },
+    {
+      "upstream_path": "grit-lib/src/fetch.rs",
+      "path": "grit-lib/src/fetch.rs",
+      "upstream_sha256": "fae5a949514261feb25ee86592522aeb56545528782036157630062be2abfeec"
+    },
+    {
+      "upstream_path": "grit-lib/src/fetch_head.rs",
+      "path": "grit-lib/src/fetch_head.rs",
+      "upstream_sha256": "f2a456cfa2f79a52ba4b42f4af3dbf24b62fa768924c2c728cbb095e37ead9cb"
+    },
+    {
+      "upstream_path": "grit-lib/src/fetch_negotiator.rs",
+      "path": "grit-lib/src/fetch_negotiator.rs",
+      "upstream_sha256": "583917497794abaf17bfb919febcb4ba8271d014e0cf5c6d6c17f37ca85c64af"
+    },
+    {
+      "upstream_path": "grit-lib/src/fetch_submodules.rs",
+      "path": "grit-lib/src/fetch_submodules.rs",
+      "upstream_sha256": "35d7f4ee5dd1f67b723a06e0c4541fa2949856efb009330dadcee1ebb0c41d7d"
+    },
+    {
+      "upstream_path": "grit-lib/src/filter_process.rs",
+      "path": "grit-lib/src/filter_process.rs",
+      "upstream_sha256": "bfee9e51bf0d246ae9a9a01b0c006c51dd695bdfde1faa8d90e767d65cda5971"
+    },
+    {
+      "upstream_path": "grit-lib/src/fmt_merge_msg.rs",
+      "path": "grit-lib/src/fmt_merge_msg.rs",
+      "upstream_sha256": "0510e0581647e8e6f295036e5109e851417d80aac160da4b58e57ea03b2a65ec"
+    },
+    {
+      "upstream_path": "grit-lib/src/fsck_standalone.rs",
+      "path": "grit-lib/src/fsck_standalone.rs",
+      "upstream_sha256": "cfa9e9b08cfe2a5715146205d5d4ae8bd543e5687524539fe22c88cb0d303fd0"
+    },
+    {
+      "upstream_path": "grit-lib/src/gc.rs",
+      "path": "grit-lib/src/gc.rs",
+      "upstream_sha256": "a5ea1d918d2b290c4de672b2721dfbb88fdeda409e11d0ea5c816be34fe3c204"
+    },
+    {
+      "upstream_path": "grit-lib/src/git_binary_base85.rs",
+      "path": "grit-lib/src/git_binary_base85.rs",
+      "upstream_sha256": "36b389451da9373ae8f239bb26c2b90ea513e58177cc4f7d7d4f857e0ed6e448"
+    },
+    {
+      "upstream_path": "grit-lib/src/git_column.rs",
+      "path": "grit-lib/src/git_column.rs",
+      "upstream_sha256": "88213e9e98c1eed429163222406e511a86f0be67dcddca168fe91b4276f6d25d"
+    },
+    {
+      "upstream_path": "grit-lib/src/git_date/approx.rs",
+      "path": "grit-lib/src/git_date/approx.rs",
+      "upstream_sha256": "6ea326f6845e767acb7be9f4ff6cd17558632b7e94f9d30b15bf610dd75e01e9"
+    },
+    {
+      "upstream_path": "grit-lib/src/git_date/compat.rs",
+      "path": "grit-lib/src/git_date/compat.rs",
+      "upstream_sha256": "544a4d9d962f867064106af2091532d85f1bd52d952128d07bb7f68fa3c06b43"
+    },
+    {
+      "upstream_path": "grit-lib/src/git_date/mod.rs",
+      "path": "grit-lib/src/git_date/mod.rs",
+      "upstream_sha256": "674a8c5973624f7d33cefddc02e725a9a9fafc5fe845c73057f1681c5027272d"
+    },
+    {
+      "upstream_path": "grit-lib/src/git_date/parse.rs",
+      "path": "grit-lib/src/git_date/parse.rs",
+      "upstream_sha256": "61d4123a42031f6838f4b20a3dded9bd3e6880c5fb4a89e089f8e13cc0936006"
+    },
+    {
+      "upstream_path": "grit-lib/src/git_date/show.rs",
+      "path": "grit-lib/src/git_date/show.rs",
+      "upstream_sha256": "048a4a5dafd7663f1e63229808c37fa0c8f87458f3c9742c9dab7c871ee8c0e4"
+    },
+    {
+      "upstream_path": "grit-lib/src/git_date/tm.rs",
+      "path": "grit-lib/src/git_date/tm.rs",
+      "upstream_sha256": "3b7612f73932fdbd7b2b84b0448da15f2721803ed51e56f18590cf80fab4adf0"
+    },
+    {
+      "upstream_path": "grit-lib/src/git_path.rs",
+      "path": "grit-lib/src/git_path.rs",
+      "upstream_sha256": "cedd92fcae6c7ddbf3e50fcf7ff38641627936fae577330e81dcec421ceec796"
+    },
+    {
+      "upstream_path": "grit-lib/src/gitmodules.rs",
+      "path": "grit-lib/src/gitmodules.rs",
+      "upstream_sha256": "b20b186c4cbe582521d1a1e910e425e19c4da389fe2c22c82f1c33e8502383e9"
+    },
+    {
+      "upstream_path": "grit-lib/src/hide_refs.rs",
+      "path": "grit-lib/src/hide_refs.rs",
+      "upstream_sha256": "dde4c6f49c0fed1e593795587acc5d1692a2ae5e5c01cd0635569204cffb353f"
+    },
+    {
+      "upstream_path": "grit-lib/src/hooks.rs",
+      "path": "grit-lib/src/hooks.rs",
+      "upstream_sha256": "6927045f394fe41a348f52662f189744e1a7cd2b0aeef092738fe70b909ebe58"
+    },
+    {
+      "upstream_path": "grit-lib/src/ident.rs",
+      "path": "grit-lib/src/ident.rs",
+      "upstream_sha256": "c3553c8c6fb5b2b4d8642883b359c3b43a9476685fca0d6a2a2c61e63fb3a05b"
+    },
+    {
+      "upstream_path": "grit-lib/src/ident_config.rs",
+      "path": "grit-lib/src/ident_config.rs",
+      "upstream_sha256": "cee7e20a069b410db08a566628d47e9a4667b696a095134062a229d30299ecc0"
+    },
+    {
+      "upstream_path": "grit-lib/src/ident_resolve.rs",
+      "path": "grit-lib/src/ident_resolve.rs",
+      "upstream_sha256": "1ca04e3cbff972df80d7e73c9dedd1375163a45dfa7f345dd0cadcd07993cd36"
+    },
+    {
+      "upstream_path": "grit-lib/src/ignore.rs",
+      "path": "grit-lib/src/ignore.rs",
+      "upstream_sha256": "1c1f0d4e0d3b2f9dc03089684c576559166e9b3d09894d4b19d094ee931b97fd"
+    },
+    {
+      "upstream_path": "grit-lib/src/index.rs",
+      "path": "grit-lib/src/index.rs",
+      "upstream_sha256": "37f218824f09dbbb6938dae8b114b14eb5debf7884d1b01116aa60f7ac208622"
+    },
+    {
+      "upstream_path": "grit-lib/src/index_name_hash_lazy.rs",
+      "path": "grit-lib/src/index_name_hash_lazy.rs",
+      "upstream_sha256": "0a2ed291cd7bdee4c29348cbbf28e35feda717d7ca2e6e5392079d35faccd576"
+    },
+    {
+      "upstream_path": "grit-lib/src/instaweb/mod.rs",
+      "path": "grit-lib/src/instaweb/mod.rs",
+      "upstream_sha256": "a91153cae659cdb0627ec438f721febd27fdcf855ab83f2b3907dbc884b1e785"
+    },
+    {
+      "upstream_path": "grit-lib/src/interpret_trailers.rs",
+      "path": "grit-lib/src/interpret_trailers.rs",
+      "upstream_sha256": "f7559926c4582234c711e513f4755e2aeac28657d502156073d977917d53667d"
+    },
+    {
+      "upstream_path": "grit-lib/src/lib.rs",
+      "path": "grit-lib/src/lib.rs",
+      "upstream_sha256": "0a4ac0cca396b0bba30ff3e21ec49b10cabf9c4cdfd31fc58274f5d9f7fc3b8e"
+    },
+    {
+      "upstream_path": "grit-lib/src/line_log.rs",
+      "path": "grit-lib/src/line_log.rs",
+      "upstream_sha256": "785faa8356c1815ff229471b8af04bc23a6fd7bfc03f6d9291dfa80f4e2bda29"
+    },
+    {
+      "upstream_path": "grit-lib/src/ls_remote.rs",
+      "path": "grit-lib/src/ls_remote.rs",
+      "upstream_sha256": "e669425a3201b9960957066a651f1934f6a7f0ee7149f8e3447be2eb65f02288"
+    },
+    {
+      "upstream_path": "grit-lib/src/mailinfo.rs",
+      "path": "grit-lib/src/mailinfo.rs",
+      "upstream_sha256": "99e2d5dcdabbbc65cbeaf8ec9f3659f2ba2d8cfd8446568abc0a0c834f878938"
+    },
+    {
+      "upstream_path": "grit-lib/src/mailmap.rs",
+      "path": "grit-lib/src/mailmap.rs",
+      "upstream_sha256": "19730ed147ded589ec5bd382c68c00ef1972362f79b8db6905b804866c1cf3b1"
+    },
+    {
+      "upstream_path": "grit-lib/src/merge_base.rs",
+      "path": "grit-lib/src/merge_base.rs",
+      "upstream_sha256": "155bca39c1e5bd5d4d874e43e5e16542cacbd7174c9c0f1ec150f49cd59d4e3b"
+    },
+    {
+      "upstream_path": "grit-lib/src/merge_diff.rs",
+      "path": "grit-lib/src/merge_diff.rs",
+      "upstream_sha256": "391083cba60dc3ee4b910bb210403f28d95340f4f6519520ad59b70ed9cca07d"
+    },
+    {
+      "upstream_path": "grit-lib/src/merge_file.rs",
+      "path": "grit-lib/src/merge_file.rs",
+      "upstream_sha256": "1154cd14f7544fff1a5ecd983bc057df4ee8b13b80a17bffe4fd97535624b57e"
+    },
+    {
+      "upstream_path": "grit-lib/src/merge_tree_trivial.rs",
+      "path": "grit-lib/src/merge_tree_trivial.rs",
+      "upstream_sha256": "a0e8e1b7d32fb457ccf2c6b9d0545e3b954a352eb3b257f540bcddf821d29c37"
+    },
+    {
+      "upstream_path": "grit-lib/src/merge_trees.rs",
+      "path": "grit-lib/src/merge_trees.rs",
+      "upstream_sha256": "c053f58ee7d504fdd7209462b07091beef037475b2cc4d946b11ac76955f3769"
+    },
+    {
+      "upstream_path": "grit-lib/src/mergetool_vimdiff.rs",
+      "path": "grit-lib/src/mergetool_vimdiff.rs",
+      "upstream_sha256": "201b7eb32a48999c74cdb46965381667f8ff812026e69fe34e016bd45e8a0a4e"
+    },
+    {
+      "upstream_path": "grit-lib/src/midx.rs",
+      "path": "grit-lib/src/midx.rs",
+      "upstream_sha256": "397408c7aa28b6c875cb8bb9a4dd4cda8bfdb61a82cf2f4932a635961a0e2abd"
+    },
+    {
+      "upstream_path": "grit-lib/src/name_rev.rs",
+      "path": "grit-lib/src/name_rev.rs",
+      "upstream_sha256": "3161f8a88088428c32b6cb6a4f2b4caccab7a25befd6f5cc4770c71433ff7375"
+    },
+    {
+      "upstream_path": "grit-lib/src/net_trace.rs",
+      "path": "grit-lib/src/net_trace.rs",
+      "upstream_sha256": "c397bbe1ea2fab33473e2dcbd594168083c3c17f51ade43b82145ead2a7f9e6a"
+    },
+    {
+      "upstream_path": "grit-lib/src/notes.rs",
+      "path": "grit-lib/src/notes.rs",
+      "upstream_sha256": "ad1670327b5f506100756f7b439d94c7ade40e2e4c1c1968583b26069f4580f2"
+    },
+    {
+      "upstream_path": "grit-lib/src/objects.rs",
+      "path": "grit-lib/src/objects.rs",
+      "upstream_sha256": "e030c849b4203ab29e46ce92c5077e1df3c145500c8f6cea733cfd1c02b53084"
+    },
+    {
+      "upstream_path": "grit-lib/src/odb.rs",
+      "path": "grit-lib/src/odb.rs",
+      "upstream_sha256": "04a68896fd4fabe5360ceaed55b18553b7245b4638d81ff169ba914a97912fc8"
+    },
+    {
+      "upstream_path": "grit-lib/src/pack.rs",
+      "path": "grit-lib/src/pack.rs",
+      "upstream_sha256": "8ef17241b5790e5a8eae0bcee6c664b797a2fbeab8b6f11955aa4505625494c3"
+    },
+    {
+      "upstream_path": "grit-lib/src/pack_geometry.rs",
+      "path": "grit-lib/src/pack_geometry.rs",
+      "upstream_sha256": "e47897de43cdaf4c7b562369e18a6d853600cdea80fd0b7263d2ae15a8081d0c"
+    },
+    {
+      "upstream_path": "grit-lib/src/pack_name_hash.rs",
+      "path": "grit-lib/src/pack_name_hash.rs",
+      "upstream_sha256": "ad81de870d3d174975ae7f4fb683558132d6e3548cea1dbb783bffd1a012ce7e"
+    },
+    {
+      "upstream_path": "grit-lib/src/pack_rev.rs",
+      "path": "grit-lib/src/pack_rev.rs",
+      "upstream_sha256": "5b3b6c443f0090757bf0263b07685128f2ace65b3310c1138cc4e34773f4d816"
+    },
+    {
+      "upstream_path": "grit-lib/src/parse_options_test_tool/flags_cmd.rs",
+      "path": "grit-lib/src/parse_options_test_tool/flags_cmd.rs",
+      "upstream_sha256": "4269b15aaf9885a25c6951fd3ecf162fdd134b6ec2c76aee95a713086ac1accd"
+    },
+    {
+      "upstream_path": "grit-lib/src/parse_options_test_tool/git_number.rs",
+      "path": "grit-lib/src/parse_options_test_tool/git_number.rs",
+      "upstream_sha256": "ae181244d90fd1012ade361af14c3c35c41b8e64979696c94261fbe8601d3b10"
+    },
+    {
+      "upstream_path": "grit-lib/src/parse_options_test_tool/mod.rs",
+      "path": "grit-lib/src/parse_options_test_tool/mod.rs",
+      "upstream_sha256": "a72c36577a2f6ca4099d755cdc261d520134863635a0726390c8ca05df87dfce"
+    },
+    {
+      "upstream_path": "grit-lib/src/parse_options_test_tool/parse_options_cmd.rs",
+      "path": "grit-lib/src/parse_options_test_tool/parse_options_cmd.rs",
+      "upstream_sha256": "4e02bd521c6d7a34ef5ab5de14a0f66bb859784395c7bf6e4449aac26478780a"
+    },
+    {
+      "upstream_path": "grit-lib/src/parse_options_test_tool/parse_options_help.txt",
+      "path": "grit-lib/src/parse_options_test_tool/parse_options_help.txt",
+      "upstream_sha256": "4c3787eab3300a8e3086d8b43c8c08511f3d1050b29ea3c43e07019e35b322cb"
+    },
+    {
+      "upstream_path": "grit-lib/src/parse_options_test_tool/sub_cmd.rs",
+      "path": "grit-lib/src/parse_options_test_tool/sub_cmd.rs",
+      "upstream_sha256": "fa2ef9f531699f65c67128a9ef9617269831ef23e361a0ad982e59369a0ffc99"
+    },
+    {
+      "upstream_path": "grit-lib/src/patch_ids.rs",
+      "path": "grit-lib/src/patch_ids.rs",
+      "upstream_sha256": "2e17b5569dde3bfd7b2f66e85f7cf51527038ed0d914a2fa846692e2865b9171"
+    },
+    {
+      "upstream_path": "grit-lib/src/path.rs",
+      "path": "grit-lib/src/path.rs",
+      "upstream_sha256": "59ddb43c7ed3cab3b59f99f4fe75f58a330b3a8c37db51f72271ef08712db401"
+    },
+    {
+      "upstream_path": "grit-lib/src/path_walk.rs",
+      "path": "grit-lib/src/path_walk.rs",
+      "upstream_sha256": "f8b3e93f37a5a7394cdffd8e4cbb7e5634fe1b6a1d1fad09764d1771064f42b8"
+    },
+    {
+      "upstream_path": "grit-lib/src/pathspec.rs",
+      "path": "grit-lib/src/pathspec.rs",
+      "upstream_sha256": "a362055f0a098f214668fcfe47bc78cc40a39f556c2bd461aadb431a5c351007"
+    },
+    {
+      "upstream_path": "grit-lib/src/pkt_line.rs",
+      "path": "grit-lib/src/pkt_line.rs",
+      "upstream_sha256": "404f67c2b68b83cbac471c9758c0336fe2b31b0d9edc9968772b7a379c886a72"
+    },
+    {
+      "upstream_path": "grit-lib/src/plumbing/mod.rs",
+      "path": "grit-lib/src/plumbing/mod.rs",
+      "upstream_sha256": "4c083d9e67c82806c5835fb57a2b47500455baac4ec46e454a62340d64276f77"
+    },
+    {
+      "upstream_path": "grit-lib/src/porcelain/checkout.rs",
+      "path": "grit-lib/src/porcelain/checkout.rs",
+      "upstream_sha256": "16b254f6caf25f0c4e81304a33bb113f4556efc604c23710cf29fe8b9a183851"
+    },
+    {
+      "upstream_path": "grit-lib/src/porcelain/cherry_pick.rs",
+      "path": "grit-lib/src/porcelain/cherry_pick.rs",
+      "upstream_sha256": "4d743b63fa37f1da562e9b4767c60d13afedad0f126dc557e398d2f330bbaf1b"
+    },
+    {
+      "upstream_path": "grit-lib/src/porcelain/format_patch.rs",
+      "path": "grit-lib/src/porcelain/format_patch.rs",
+      "upstream_sha256": "111e111676ca921b83b22d03bbe75db254f930c71ec5d76cb74110aca0b06061"
+    },
+    {
+      "upstream_path": "grit-lib/src/porcelain/log.rs",
+      "path": "grit-lib/src/porcelain/log.rs",
+      "upstream_sha256": "6e250c937d684e3d461b9b2268db25ab9116c945e101eac981533e63f5646bb9"
+    },
+    {
+      "upstream_path": "grit-lib/src/porcelain/merge.rs",
+      "path": "grit-lib/src/porcelain/merge.rs",
+      "upstream_sha256": "f8a52d752789a519e86ee8364253c3a8e467d1ba8d6fec423359b1244adf678a"
+    },
+    {
+      "upstream_path": "grit-lib/src/porcelain/mod.rs",
+      "path": "grit-lib/src/porcelain/mod.rs",
+      "upstream_sha256": "127807a78c8904debd0cfbba6a35d26fbe37b8c55d1d9414d9d1705b0c9962f8"
+    },
+    {
+      "upstream_path": "grit-lib/src/porcelain/rebase.rs",
+      "path": "grit-lib/src/porcelain/rebase.rs",
+      "upstream_sha256": "1b587d4fdd78229667752e1e9dc53e01d2ba50936c2d80c17b1fa8da159bc3e0"
+    },
+    {
+      "upstream_path": "grit-lib/src/porcelain/revert.rs",
+      "path": "grit-lib/src/porcelain/revert.rs",
+      "upstream_sha256": "0c523fc6b19285383a4b7a0b7c8e14c5a06366f5d7748589e0522b50b0c60f01"
+    },
+    {
+      "upstream_path": "grit-lib/src/porcelain/stash.rs",
+      "path": "grit-lib/src/porcelain/stash.rs",
+      "upstream_sha256": "e37816cc07b5e96408795c014d8c94a8fdd58dbee0752c4384041b1b648560fe"
+    },
+    {
+      "upstream_path": "grit-lib/src/porcelain/status.rs",
+      "path": "grit-lib/src/porcelain/status.rs",
+      "upstream_sha256": "b354a7722d519f264400471bae6690eca7e52f4c9858e1aa0f2df500fa205b46"
+    },
+    {
+      "upstream_path": "grit-lib/src/porcelain/tag.rs",
+      "path": "grit-lib/src/porcelain/tag.rs",
+      "upstream_sha256": "b84b7fe71100e254d3c03b41ea446a37768d5cfec02f0b5b92adc419186d5008"
+    },
+    {
+      "upstream_path": "grit-lib/src/precompose_config.rs",
+      "path": "grit-lib/src/precompose_config.rs",
+      "upstream_sha256": "76cc6f5222b8578c988312197e6e6b60a9d2dc036ecb95a158e4dd1ac7066ad0"
+    },
+    {
+      "upstream_path": "grit-lib/src/progress.rs",
+      "path": "grit-lib/src/progress.rs",
+      "upstream_sha256": "c206a4fcb8886c87fc13075e027fcc69b70517157ed440a0e8fcd36a6a681b16"
+    },
+    {
+      "upstream_path": "grit-lib/src/promisor.rs",
+      "path": "grit-lib/src/promisor.rs",
+      "upstream_sha256": "2627ce707e0960825137a69f690d23699fa1664a77e1fc219feebcb2d14d63fc"
+    },
+    {
+      "upstream_path": "grit-lib/src/promisor_remote.rs",
+      "path": "grit-lib/src/promisor_remote.rs",
+      "upstream_sha256": "8cb3db85036e04105391491779ccda89435cb58a12ca81cf445b2f313f850a0d"
+    },
+    {
+      "upstream_path": "grit-lib/src/protocol.rs",
+      "path": "grit-lib/src/protocol.rs",
+      "upstream_sha256": "1ba4ff330051a6cc9760d349ca8ac1e52cedee0349b649a9d56b5f2f2f3feba2"
+    },
+    {
+      "upstream_path": "grit-lib/src/protocol_v2.rs",
+      "path": "grit-lib/src/protocol_v2.rs",
+      "upstream_sha256": "fda4b7baa09ebad340b189fce8115ddd7632299dc82f92590263e69cd0432be6"
+    },
+    {
+      "upstream_path": "grit-lib/src/prune_packed.rs",
+      "path": "grit-lib/src/prune_packed.rs",
+      "upstream_sha256": "65f2b0c5a57b8abcada2bfb2518facc07198b1e5e58320058dc1f6d9e7a8b90e"
+    },
+    {
+      "upstream_path": "grit-lib/src/push.rs",
+      "path": "grit-lib/src/push.rs",
+      "upstream_sha256": "7717d3039a96802a9939b7fc06f3cdb7ee0cdfdae14e84730609ef035faa9141"
+    },
+    {
+      "upstream_path": "grit-lib/src/push_cert.rs",
+      "path": "grit-lib/src/push_cert.rs",
+      "upstream_sha256": "cbfdcfe3e5f0835383bb4dd72bef62c7c5249ed7597780f1f6c621877b2ffad8"
+    },
+    {
+      "upstream_path": "grit-lib/src/push_report.rs",
+      "path": "grit-lib/src/push_report.rs",
+      "upstream_sha256": "43cee66e1df66375e2437f070f6caea3745c5abf26dd6ae155a9732ac0e29255"
+    },
+    {
+      "upstream_path": "grit-lib/src/push_submodules.rs",
+      "path": "grit-lib/src/push_submodules.rs",
+      "upstream_sha256": "eed1fc96e48fecc5cbe939cb4f9c28f336f95464f3d2782d91c344ea0e118a1a"
+    },
+    {
+      "upstream_path": "grit-lib/src/quote_path.rs",
+      "path": "grit-lib/src/quote_path.rs",
+      "upstream_sha256": "aa224b05145c1157cfeff22fd664ec229f7fa5a951156d8a26b1d2a70692ad57"
+    },
+    {
+      "upstream_path": "grit-lib/src/receive_pack.rs",
+      "path": "grit-lib/src/receive_pack.rs",
+      "upstream_sha256": "9b5a68363d5adc031e320f7b4d75b8135a2373b647dc30c63b1754acc13c1d46"
+    },
+    {
+      "upstream_path": "grit-lib/src/ref_exclusions.rs",
+      "path": "grit-lib/src/ref_exclusions.rs",
+      "upstream_sha256": "c3fba7d14f8fdd9c343f52b3b928c6bc83e035b1c18cbb9ead2c84167bb6c769"
+    },
+    {
+      "upstream_path": "grit-lib/src/ref_namespace.rs",
+      "path": "grit-lib/src/ref_namespace.rs",
+      "upstream_sha256": "10a126db75d6aeaebce9251171ffbc331319b3f7ce9156e0c891dd09ac4a5cc4"
+    },
+    {
+      "upstream_path": "grit-lib/src/reflog.rs",
+      "path": "grit-lib/src/reflog.rs",
+      "upstream_sha256": "4fba364c911da44a5f0967541160b0d4e650a1693f2b475efcf41509428f22cd"
+    },
+    {
+      "upstream_path": "grit-lib/src/refs.rs",
+      "path": "grit-lib/src/refs.rs",
+      "upstream_sha256": "573fe9855a49e23503b8b8ecad0c6224ed0a82732cff35dd4f562a0c3c657442"
+    },
+    {
+      "upstream_path": "grit-lib/src/refs_fsck.rs",
+      "path": "grit-lib/src/refs_fsck.rs",
+      "upstream_sha256": "1058933f1a612a60601199da7f7557a5b2df4274d136903093acde2414915dc5"
+    },
+    {
+      "upstream_path": "grit-lib/src/refspec.rs",
+      "path": "grit-lib/src/refspec.rs",
+      "upstream_sha256": "6664353b54eb6b932366d152a874657d98c7656407a17dd837638a7b3baf6a94"
+    },
+    {
+      "upstream_path": "grit-lib/src/reftable.rs",
+      "path": "grit-lib/src/reftable.rs",
+      "upstream_sha256": "3b0a30fd24399da66fc9e366ce81ca9474cacc6608df8cbcf01293b2f092399d"
+    },
+    {
+      "upstream_path": "grit-lib/src/repo.rs",
+      "path": "grit-lib/src/repo.rs",
+      "upstream_sha256": "41938a8ef16179d92ecc3486610c7ea79486fc3f459ef326e1b7306393244834"
+    },
+    {
+      "upstream_path": "grit-lib/src/rerere.rs",
+      "path": "grit-lib/src/rerere.rs",
+      "upstream_sha256": "5821c9bd355ba6bf7e6b832b9385c5de88988485ae0814481af4717a0ba7c974"
+    },
+    {
+      "upstream_path": "grit-lib/src/resolve_undo.rs",
+      "path": "grit-lib/src/resolve_undo.rs",
+      "upstream_sha256": "e9af58288ef6b464ce86b25fdeed4a5ddb1dd85f9dd9b973becfc92eeb94f97b"
+    },
+    {
+      "upstream_path": "grit-lib/src/rev_list.rs",
+      "path": "grit-lib/src/rev_list.rs",
+      "upstream_sha256": "60d7eb17ac27a4f8b1873ff27b7b55d1b0fb20e5a524c9c1b401f55b24c8c5a1"
+    },
+    {
+      "upstream_path": "grit-lib/src/rev_parse.rs",
+      "path": "grit-lib/src/rev_parse.rs",
+      "upstream_sha256": "7f31de0ff57ce4e43f858ccab4452f1a9f6672c07644c87ee292ec9bb9dfd70e"
+    },
+    {
+      "upstream_path": "grit-lib/src/serve/mod.rs",
+      "path": "grit-lib/src/serve/mod.rs",
+      "upstream_sha256": "ba95e2f2c7a0be91d7b396e37d7c878ce862ab62911fb658d23fc2a7521caedb"
+    },
+    {
+      "upstream_path": "grit-lib/src/serve/receive_pack.rs",
+      "path": "grit-lib/src/serve/receive_pack.rs",
+      "upstream_sha256": "04f0168adf9ead620ef6aef8d195b344d5fef47818c59d60c70961baea322172"
+    },
+    {
+      "upstream_path": "grit-lib/src/serve/upload_pack.rs",
+      "path": "grit-lib/src/serve/upload_pack.rs",
+      "upstream_sha256": "f6ba7083951834441e647d2740910455a2bb8fb2354079e3a72785316c17d4cd"
+    },
+    {
+      "upstream_path": "grit-lib/src/shallow.rs",
+      "path": "grit-lib/src/shallow.rs",
+      "upstream_sha256": "66f7fabbb3ec5d742e600aab9302791e156d321c84673546480b1bd878bfeb95"
+    },
+    {
+      "upstream_path": "grit-lib/src/shared_repo.rs",
+      "path": "grit-lib/src/shared_repo.rs",
+      "upstream_sha256": "13b68f92425fd85669295b3fd4254decc31ae2c095b434f34b341bb41e1e6a11"
+    },
+    {
+      "upstream_path": "grit-lib/src/signing.rs",
+      "path": "grit-lib/src/signing.rs",
+      "upstream_sha256": "e3a68f9ade28da2967d51ac7c3fd46dedf6b1254dc2e4ed846f53bef1c7bbbd2"
+    },
+    {
+      "upstream_path": "grit-lib/src/simple_ipc.rs",
+      "path": "grit-lib/src/simple_ipc.rs",
+      "upstream_sha256": "711c0d7c76fec20ca69b0cd97c623bdd4ccefc2739066c36c87b43f5ff4d4d73"
+    },
+    {
+      "upstream_path": "grit-lib/src/sparse_checkout.rs",
+      "path": "grit-lib/src/sparse_checkout.rs",
+      "upstream_sha256": "077b29409fcb8590d588f16f7235dc26ff489d9a1602c439e960b1924957b80a"
+    },
+    {
+      "upstream_path": "grit-lib/src/split_index.rs",
+      "path": "grit-lib/src/split_index.rs",
+      "upstream_sha256": "3689aeec0bdb087bf8f78506c53fbaa622cdcb05866d8ec609ab971418eba0c2"
+    },
+    {
+      "upstream_path": "grit-lib/src/state.rs",
+      "path": "grit-lib/src/state.rs",
+      "upstream_sha256": "76c544f02d29e06cfd76851b557f1b6dd6070395c01a5dde538a8cbd3fd438c3"
+    },
+    {
+      "upstream_path": "grit-lib/src/stripspace.rs",
+      "path": "grit-lib/src/stripspace.rs",
+      "upstream_sha256": "eab8da54095024d25d5a1fa72c450c87b22ee4767c987b804f3c16ba59d6ac0a"
+    },
+    {
+      "upstream_path": "grit-lib/src/submodule_active.rs",
+      "path": "grit-lib/src/submodule_active.rs",
+      "upstream_sha256": "597d5d6540efb93c5d6d40da2af86766d95eb400c3dced7efff058c1d2192e6a"
+    },
+    {
+      "upstream_path": "grit-lib/src/submodule_config.rs",
+      "path": "grit-lib/src/submodule_config.rs",
+      "upstream_sha256": "f9afa5e919532fccc6123ff850a8c9ff04aa8281df56775c4b12af7046743d9f"
+    },
+    {
+      "upstream_path": "grit-lib/src/submodule_config_cache.rs",
+      "path": "grit-lib/src/submodule_config_cache.rs",
+      "upstream_sha256": "bc67c379ee76dbe42ebe0af43a6cff5e4dfdda5b80a96ac6d8c822245d76a41a"
+    },
+    {
+      "upstream_path": "grit-lib/src/submodule_gitdir.rs",
+      "path": "grit-lib/src/submodule_gitdir.rs",
+      "upstream_sha256": "5e02dc9fd8ac1e7d6e25eb8dfefd0a47a376cb184ca9589013fe996d8f7b1232"
+    },
+    {
+      "upstream_path": "grit-lib/src/tab_expand.rs",
+      "path": "grit-lib/src/tab_expand.rs",
+      "upstream_sha256": "efa668991bfb14c23001a6e951f2aeed74a801c7b52fb26559d1a897514f84e1"
+    },
+    {
+      "upstream_path": "grit-lib/src/terminal.rs",
+      "path": "grit-lib/src/terminal.rs",
+      "upstream_sha256": "3667610e1f5c57f449657d91d47674684e3ebfb3e6883effe25b4d9dc33a54f3"
+    },
+    {
+      "upstream_path": "grit-lib/src/test_tool_progress.rs",
+      "path": "grit-lib/src/test_tool_progress.rs",
+      "upstream_sha256": "5cd1fdef19d069f1d3464b010f527543f98b9afb6771afab1bcd0801921e65da"
+    },
+    {
+      "upstream_path": "grit-lib/src/textconv_cache.rs",
+      "path": "grit-lib/src/textconv_cache.rs",
+      "upstream_sha256": "e0dde33b33de436ff5c4db2b7420a4396646166af59d19aabd8bd01fab1d51c0"
+    },
+    {
+      "upstream_path": "grit-lib/src/transfer.rs",
+      "path": "grit-lib/src/transfer.rs",
+      "upstream_sha256": "eda4b50893febf43810d3b4f9ef895cf21c5400a9e54d1dd768f96ce6255663f"
+    },
+    {
+      "upstream_path": "grit-lib/src/transport/http/ureq_client.rs",
+      "path": "grit-lib/src/transport/http/ureq_client.rs",
+      "upstream_sha256": "ad6815ba3d0afba82f7ea3edd3bfb322e10e46e1d50798adb43b7515d8add3a0"
+    },
+    {
+      "upstream_path": "grit-lib/src/transport/http.rs",
+      "path": "grit-lib/src/transport/http.rs",
+      "upstream_sha256": "e8d17d266bc2d2fe60fcd164a85e3f5335b79bd22812751d46789886b42638ef"
+    },
+    {
+      "upstream_path": "grit-lib/src/transport.rs",
+      "path": "grit-lib/src/transport.rs",
+      "upstream_sha256": "7a63d263d305dd38ba3c0ca105c6687f0fbdfd001fd3ddc6f16e7532f5684021"
+    },
+    {
+      "upstream_path": "grit-lib/src/transport_path.rs",
+      "path": "grit-lib/src/transport_path.rs",
+      "upstream_sha256": "345c8d3ade7d13009ba273c6dcd8c93c809fef2b9173cf49b2d09d747b562422"
+    },
+    {
+      "upstream_path": "grit-lib/src/tree_path_follow.rs",
+      "path": "grit-lib/src/tree_path_follow.rs",
+      "upstream_sha256": "dd0bfb22c62b411594b0be67f6499f2958985b867b247ca2bacc7b2a23d467c5"
+    },
+    {
+      "upstream_path": "grit-lib/src/unicode_normalization.rs",
+      "path": "grit-lib/src/unicode_normalization.rs",
+      "upstream_sha256": "c41cf4b647573b3541f37964c7d2306c613f7a949dd02f451785f3bc9705a544"
+    },
+    {
+      "upstream_path": "grit-lib/src/unix_process.rs",
+      "path": "grit-lib/src/unix_process.rs",
+      "upstream_sha256": "42ec6bdd09a1e7ccdef14212d29806db9e2ca433c7b2bafaa4796e42edaf0b93"
+    },
+    {
+      "upstream_path": "grit-lib/src/unpack_objects.rs",
+      "path": "grit-lib/src/unpack_objects.rs",
+      "upstream_sha256": "343a879276bcb5cb6deacc8ae7b89e1b3b1b7aa335798fcbd14af2f66b8b9508"
+    },
+    {
+      "upstream_path": "grit-lib/src/untracked_cache.rs",
+      "path": "grit-lib/src/untracked_cache.rs",
+      "upstream_sha256": "1f48475cfeefb3904a565debe4484e29875a9ddeedd341a730d21acdd593d3bb"
+    },
+    {
+      "upstream_path": "grit-lib/src/upload_filter.rs",
+      "path": "grit-lib/src/upload_filter.rs",
+      "upstream_sha256": "fe3e48a3aad76f3fd464dca1c4a73e2e24c91d618252bd7a60e02db683fed9ae"
+    },
+    {
+      "upstream_path": "grit-lib/src/url_rewrite.rs",
+      "path": "grit-lib/src/url_rewrite.rs",
+      "upstream_sha256": "d3be3b7216cc475a918437cd1c9c0d8b9172d3896c1d06bbd3129d45bddc1c31"
+    },
+    {
+      "upstream_path": "grit-lib/src/userdiff.rs",
+      "path": "grit-lib/src/userdiff.rs",
+      "upstream_sha256": "d757e0e4417ccf2dbd04451128459974b6dd6db20fa23db15fc551759e753368"
+    },
+    {
+      "upstream_path": "grit-lib/src/whitespace_rule.rs",
+      "path": "grit-lib/src/whitespace_rule.rs",
+      "upstream_sha256": "0f09ae3443f8a7123dc1052af3cd6b535f4f54ef79945c5135136f5a3ce69269"
+    },
+    {
+      "upstream_path": "grit-lib/src/wildmatch.rs",
+      "path": "grit-lib/src/wildmatch.rs",
+      "upstream_sha256": "6b55bb124a8f92827bfa8ab8cc843aa1208e8036d51b2634f4d4ad33367872d9"
+    },
+    {
+      "upstream_path": "grit-lib/src/worktree.rs",
+      "path": "grit-lib/src/worktree.rs",
+      "upstream_sha256": "21dc6738975ec0a9c868e449d884c0b89714ded36f426c00421354fd12f1b9d9"
+    },
+    {
+      "upstream_path": "grit-lib/src/worktree_cwd.rs",
+      "path": "grit-lib/src/worktree_cwd.rs",
+      "upstream_sha256": "cfbca75a815a3f17776ced0c12bf0dd48be2d09313f9793b6bdf86beddd3919b"
+    },
+    {
+      "upstream_path": "grit-lib/src/worktree_ref.rs",
+      "path": "grit-lib/src/worktree_ref.rs",
+      "upstream_sha256": "1cc4731409e96989519407f3e670ca7f9274a4f0d3ae59664ce5c58b96be91d7"
+    },
+    {
+      "upstream_path": "grit-lib/src/write_tree.rs",
+      "path": "grit-lib/src/write_tree.rs",
+      "upstream_sha256": "c13b3e3562026e185694b1127e3f5d347191b27947b0a6bc8f2740133ed357cc"
+    },
+    {
+      "upstream_path": "grit-lib/src/ws.rs",
+      "path": "grit-lib/src/ws.rs",
+      "upstream_sha256": "5ac85ae3668450b80e336587c683855925215d913f457d95c1d003b401d87d85"
+    },
+    {
+      "upstream_path": "grit-lib/tests/bounded_limit_list.rs",
+      "path": "grit-lib/tests/bounded_limit_list.rs",
+      "upstream_sha256": "17034dc5c60d8de53aa2df8a65c94df95439b7657823898ae94b7162e1bf819c"
+    },
+    {
+      "upstream_path": "grit-lib/tests/credentials.rs",
+      "path": "grit-lib/tests/credentials.rs",
+      "upstream_sha256": "4a5c7c63d7c66c2909a7637ff563eaf0ed0b6eab53c1fab6bd169ae985d4dd0e"
+    },
+    {
+      "upstream_path": "grit-lib/tests/fetch_malicious_advertisement.rs",
+      "path": "grit-lib/tests/fetch_malicious_advertisement.rs",
+      "upstream_sha256": "27d273208a65aca532d3d27b27d255093f3761e87b15b0d38406453892826ecf"
+    },
+    {
+      "upstream_path": "grit-lib/tests/matrix_completeness.rs",
+      "path": "grit-lib/tests/matrix_completeness.rs",
+      "upstream_sha256": "b10bf6897a44e81e3dba4e5d67f9953cf45a738f1d0cf5402ae51ce03bf7b705"
+    },
+    {
+      "upstream_path": "grit-lib/tests/matrix_credentials.rs",
+      "path": "grit-lib/tests/matrix_credentials.rs",
+      "upstream_sha256": "e978e17222eec9e276cda2e5b1892e705ac19aa3c36f0e061bea203c8f08d9ad"
+    },
+    {
+      "upstream_path": "grit-lib/tests/matrix_fetch.rs",
+      "path": "grit-lib/tests/matrix_fetch.rs",
+      "upstream_sha256": "f632146edf28ab593a602a7447dbdd298aa71d4389fa757d7a21ef1807e59903"
+    },
+    {
+      "upstream_path": "grit-lib/tests/matrix_packs.rs",
+      "path": "grit-lib/tests/matrix_packs.rs",
+      "upstream_sha256": "cc3c391e330557c385f9a128d4982014b4812465e85e943e9497ffd5b1e5dacd"
+    },
+    {
+      "upstream_path": "grit-lib/tests/matrix_push.rs",
+      "path": "grit-lib/tests/matrix_push.rs",
+      "upstream_sha256": "79aacadb3df1e2e39a75b73035bc1c1dcecc2bc81c775a882b646176a5a24bc2"
+    },
+    {
+      "upstream_path": "grit-lib/tests/matrix_sha256.rs",
+      "path": "grit-lib/tests/matrix_sha256.rs",
+      "upstream_sha256": "dc33f51b0faea64856d1c366ae4b4ad608729114a3ac75ad27130dcdce13322c"
+    },
+    {
+      "upstream_path": "grit-lib/tests/negotiator_tag_tip.rs",
+      "path": "grit-lib/tests/negotiator_tag_tip.rs",
+      "upstream_sha256": "c6d826330ae9026ba9262a5bcc8434d99fdd19e0c2f229a8fe7f956a5c7fd484"
+    },
+    {
+      "upstream_path": "grit-lib/tests/transfer_local_fetch.rs",
+      "path": "grit-lib/tests/transfer_local_fetch.rs",
+      "upstream_sha256": "46b6a7312d4e980970d9a0c40cd7db473d84da4aa38ecf0ac1ce2e299cbd34cd"
+    },
+    {
+      "upstream_path": "grit-lib/tests/transfer_local_push.rs",
+      "path": "grit-lib/tests/transfer_local_push.rs",
+      "upstream_sha256": "2e166450983d401dc2970e88f1bcf82e943b66275b44bfa0c3a358bad05033e1"
+    },
+    {
+      "upstream_path": "grit-lib/tests/transfer_maint.rs",
+      "path": "grit-lib/tests/transfer_maint.rs",
+      "upstream_sha256": "ae431b1b80da64ce902a4ff8e0c0dd241d9a597bad151554452f4b477ba9763c"
+    },
+    {
+      "upstream_path": "grit-lib/tests/transfer_pack.rs",
+      "path": "grit-lib/tests/transfer_pack.rs",
+      "upstream_sha256": "9cdb5c90aca387c2a857d81c52e9ea914fd397ab6c18312a9a1ff2adba88e3ce"
+    },
+    {
+      "upstream_path": "grit-lib/tests/transport_git_daemon.rs",
+      "path": "grit-lib/tests/transport_git_daemon.rs",
+      "upstream_sha256": "cb8b839a5690cf7aa741ed95dc955d44e07380734ed57d42b69b74678589fda3"
+    },
+    {
+      "upstream_path": "grit-lib/tests/transport_git_daemon_v2.rs",
+      "path": "grit-lib/tests/transport_git_daemon_v2.rs",
+      "upstream_sha256": "4be9c9d5abd00066989cf5e7446c19bfcced077a7b5cdad57bd45567845d7982"
+    },
+    {
+      "upstream_path": "grit-lib/tests/transport_http.rs",
+      "path": "grit-lib/tests/transport_http.rs",
+      "upstream_sha256": "add431035916fe1ffef607c7a9841856d75e8f683194c256792c9004ad101452"
+    },
+    {
+      "upstream_path": "grit-lib/tests/transport_http_auth.rs",
+      "path": "grit-lib/tests/transport_http_auth.rs",
+      "upstream_sha256": "42e751caec7577e9bc1e46d0c176fcc74477898256df671f9f6f9b7742e021a5"
+    },
+    {
+      "upstream_path": "grit-lib/tests/transport_http_proxy_cookies.rs",
+      "path": "grit-lib/tests/transport_http_proxy_cookies.rs",
+      "upstream_sha256": "31cb7a19e709a10cf5682d062ad0753edb6b013cb346b9897a1df39c86e0e92d"
+    },
+    {
+      "upstream_path": "grit-lib/tests/transport_http_redirect_auth.rs",
+      "path": "grit-lib/tests/transport_http_redirect_auth.rs",
+      "upstream_sha256": "ababf319efc6e34cbd13fa31a78f33d93e37ee0ef18041888294470b10a4635f"
+    },
+    {
+      "upstream_path": "grit-lib/tests/transport_http_shallow.rs",
+      "path": "grit-lib/tests/transport_http_shallow.rs",
+      "upstream_sha256": "19de5d50e69ad27a214d8a4d2ca18d2e9ada5b7b67879684694685424b6b642a"
+    },
+    {
+      "upstream_path": "grit-lib/tests/transport_push.rs",
+      "path": "grit-lib/tests/transport_push.rs",
+      "upstream_sha256": "cc787eb8510ef199558ef1af3815ed43049a35e8aca938139f5c1ce773878728"
+    },
+    {
+      "upstream_path": "grit-lib/tests/transport_push_options.rs",
+      "path": "grit-lib/tests/transport_push_options.rs",
+      "upstream_sha256": "19c60c867515c19bb2cbc1249ddc94770c4219ec8e39cedf8e4bd649a068b9d5"
+    },
+    {
+      "upstream_path": "grit-lib/tests/transport_shallow.rs",
+      "path": "grit-lib/tests/transport_shallow.rs",
+      "upstream_sha256": "cae4ec8958602e6f369b6b4428d1cb86bebe78fa4d221982db83dc7b4e46c1b4"
+    },
+    {
+      "upstream_path": "grit-lib/tests/transport_ssh.rs",
+      "path": "grit-lib/tests/transport_ssh.rs",
+      "upstream_sha256": "f5279c6da4ed1c68ea04e1d4c39d42a5acead636c717ffec4ab80bb2eacb0b8e"
+    },
+    {
+      "upstream_path": "grit-lib/tests/transport_ssh_push.rs",
+      "path": "grit-lib/tests/transport_ssh_push.rs",
+      "upstream_sha256": "7b8ceb5cfb4d05f92a8bd719ef51e8aad2444a44f2991c006b64cfd02fa0efef"
+    },
+    {
+      "upstream_path": "grit-lib/tests/transport_v2_adversarial.rs",
+      "path": "grit-lib/tests/transport_v2_adversarial.rs",
+      "upstream_sha256": "95d97c399cd555a77072e31c39aee2f946a04090db4d7dd6e3de7b1f09c20bd9"
+    },
+    {
+      "upstream_path": "grit-git/Cargo.toml",
+      "path": "grit-git/Cargo.toml",
+      "upstream_sha256": "a9a13bd95f6861ab381f2281caf0b8280f4d46274ca8eaeace5b081c9fbd82a7"
+    },
+    {
+      "upstream_path": "grit-git/README.md",
+      "path": "grit-git/README.md",
+      "upstream_sha256": "5358ead798614e8e7365fbf0a2478f97722b94a864185717f3f9aa139d720c39"
+    },
+    {
+      "upstream_path": "grit-git/build.rs",
+      "path": "grit-git/build.rs",
+      "upstream_sha256": "b93eeeea75dd6f63baf6cc119943f268deb999ffbc753d113fdaba0fd6431d4a"
+    },
+    {
+      "upstream_path": "grit-git/src/alias.rs",
+      "path": "grit-git/src/alias.rs",
+      "upstream_sha256": "40d4d970ff90c8baf46417e85ff83ee2959d74512ed38ef4916d4936d3420386"
+    },
+    {
+      "upstream_path": "grit-git/src/bin/grit_instaweb.rs",
+      "path": "grit-git/src/bin/grit_instaweb.rs",
+      "upstream_sha256": "b781b4fd0e810cd30cefb2960786949a39a02b40253b716119b9140bc25e1a2b"
+    },
+    {
+      "upstream_path": "grit-git/src/bin/test_httpd.rs",
+      "path": "grit-git/src/bin/test_httpd.rs",
+      "upstream_sha256": "0e0a1c4b6aabd5c53c22ecf8f28bcd65743dbe5e820e62930e7465b8cc2a9905"
+    },
+    {
+      "upstream_path": "grit-git/src/branch_ref_format.rs",
+      "path": "grit-git/src/branch_ref_format.rs",
+      "upstream_sha256": "dc622d888048d0a19f848bfbf54a238f067a1b12a31ffb2234278a1ea124bc31"
+    },
+    {
+      "upstream_path": "grit-git/src/branch_tracking.rs",
+      "path": "grit-git/src/branch_tracking.rs",
+      "upstream_sha256": "95c7e86c9b5021e2ad8eca38245115f5244075ee90eca52071ffa4c89059ad20"
+    },
+    {
+      "upstream_path": "grit-git/src/bundle_uri.rs",
+      "path": "grit-git/src/bundle_uri.rs",
+      "upstream_sha256": "adec468febbf6c0f5d4a85fd2bcce7a7f296a6f22f6a2723c2453305bda097cd"
+    },
+    {
+      "upstream_path": "grit-git/src/bundle_uri_test_tool.rs",
+      "path": "grit-git/src/bundle_uri_test_tool.rs",
+      "upstream_sha256": "e968f322a0acdc0f4c559ac971c8500991da091a50d359da7362753477bbc04d"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/_submodule_run_update_inner.rs.inc",
+      "path": "grit-git/src/commands/_submodule_run_update_inner.rs.inc",
+      "upstream_sha256": "6123da0f44081221eb1abff472b660e44bc159df22191ff8eb703071b7a0e2cd"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/add.rs",
+      "path": "grit-git/src/commands/add.rs",
+      "upstream_sha256": "96fbf55a79affb4b4e90ff990b48c762a7e90b42405294282e29502927cef1a1"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/add_interactive.rs",
+      "path": "grit-git/src/commands/add_interactive.rs",
+      "upstream_sha256": "ba690ec74091bd983e5c5450ae7c7f7a8f62b269bf108471fdebd35c3af322eb"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/add_patch.rs",
+      "path": "grit-git/src/commands/add_patch.rs",
+      "upstream_sha256": "110a00a481a865122468c9c5e621bd15b3a6d392c1ba6ef45e05f4ac81a1b582"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/am.rs",
+      "path": "grit-git/src/commands/am.rs",
+      "upstream_sha256": "59727ef7b60278d60c2995c688c941c4a7d97fd1cbfba2a32da8defd2d96cab0"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/annotate.rs",
+      "path": "grit-git/src/commands/annotate.rs",
+      "upstream_sha256": "49ae30b71678fca3e5237d8840e856fe129e900e36428822f739fca9cb75b12d"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/apply.rs",
+      "path": "grit-git/src/commands/apply.rs",
+      "upstream_sha256": "04b29ecc69f4b59fe6314bd5b6f6dab3ffcd41d2a9937d6dded0e8de640fbce5"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/archive.rs",
+      "path": "grit-git/src/commands/archive.rs",
+      "upstream_sha256": "aad37ea91f629ddfca1108d964ab2f3e29a0157c32581953e184120c4f2d4062"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/backfill.rs",
+      "path": "grit-git/src/commands/backfill.rs",
+      "upstream_sha256": "a9a596b746e8e36ff5b73b207743fcca2ae643dd4e490f3a6fa6d209960624ce"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/bisect.rs",
+      "path": "grit-git/src/commands/bisect.rs",
+      "upstream_sha256": "3ae3d68ff0fdcef61c8bb9f455ceb4dc23ce7005513b12a3836b61772b08e0cf"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/blame.rs",
+      "path": "grit-git/src/commands/blame.rs",
+      "upstream_sha256": "eb769ce2c96d1cb6e077d9cff0ae944a4b7cbb1ae17274517d643fcada93d870"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/branch.rs",
+      "path": "grit-git/src/commands/branch.rs",
+      "upstream_sha256": "9ff04800c4926e55952d600297611eec326dbeab2d2461e064bd45c9cd707dc4"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/bugreport.rs",
+      "path": "grit-git/src/commands/bugreport.rs",
+      "upstream_sha256": "02bb23b8b23e66def3276972704077fba044de59c011a71a830c9244da8a1f49"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/bundle.rs",
+      "path": "grit-git/src/commands/bundle.rs",
+      "upstream_sha256": "861a81c897d405bf56bf2eb2fbe4147067eb74fb13e94c8dd7efd180cbfcdd57"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/cat_file.rs",
+      "path": "grit-git/src/commands/cat_file.rs",
+      "upstream_sha256": "f777463415e3d1d65ee27d26114e8379f360397073857de6be5636e9cb6e390b"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/check_attr.rs",
+      "path": "grit-git/src/commands/check_attr.rs",
+      "upstream_sha256": "6683629259f9a7aeb40e85717d891da2af89f7ae3a22c1f05da0b0e8ede7114b"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/check_ignore.rs",
+      "path": "grit-git/src/commands/check_ignore.rs",
+      "upstream_sha256": "74f6c8e8e269967608f520d30e3be9cc8359883bf787c92e870564b01dfbb802"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/check_mailmap.rs",
+      "path": "grit-git/src/commands/check_mailmap.rs",
+      "upstream_sha256": "9053448c4b355b0e1b8828203f7b7ccb48a31014e73d20d79fe219351955c72d"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/check_ref_format.rs",
+      "path": "grit-git/src/commands/check_ref_format.rs",
+      "upstream_sha256": "b887265b11d0685cef855e0fab65e1c1067cd4b162fb051110719bb690176b8f"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/checkout.rs",
+      "path": "grit-git/src/commands/checkout.rs",
+      "upstream_sha256": "dfc7a745a0b06361a688ac2cd3f8b9cfff1ca1f5734057031b1244c8ef84d504"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/checkout_index.rs",
+      "path": "grit-git/src/commands/checkout_index.rs",
+      "upstream_sha256": "6168d0bad174b28d7f248c22585464151072468c785311eda74df8c37e284692"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/cherry.rs",
+      "path": "grit-git/src/commands/cherry.rs",
+      "upstream_sha256": "27485bd44ae706aaf15bae01ea71fa9da2b67a3d93260c73c26f4b7c670f7cbb"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/cherry_pick.rs",
+      "path": "grit-git/src/commands/cherry_pick.rs",
+      "upstream_sha256": "4dc421f96ea2fb854b33427b25f770d154d79ccdf2434a429c1be4a190645224"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/clean.rs",
+      "path": "grit-git/src/commands/clean.rs",
+      "upstream_sha256": "9bf4bb71e1d78b00b370511161966fef046bcd795ec7ba9ad6dad4d69d456034"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/clone.rs",
+      "path": "grit-git/src/commands/clone.rs",
+      "upstream_sha256": "f5fea3c7195fc55a209a84527d42b29eb9f556d604d44a23d75e4ef7d66b8899"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/column.rs",
+      "path": "grit-git/src/commands/column.rs",
+      "upstream_sha256": "e8356d6964ea0ba0ba15e66630ce1b1e1b3bb971cd43885d4b08f47eb6d9c268"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/commit.rs",
+      "path": "grit-git/src/commands/commit.rs",
+      "upstream_sha256": "411cc5b24dd13748d6cbbfde2c365eee50c19f9db9d225c68eb1d2edbc0ebcee"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/commit_graph.rs",
+      "path": "grit-git/src/commands/commit_graph.rs",
+      "upstream_sha256": "92c4b2a712dc4028c8e9a5627b1137fb3d49be7051b26a5b50693d338593bc02"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/commit_tree.rs",
+      "path": "grit-git/src/commands/commit_tree.rs",
+      "upstream_sha256": "5f5f9895906152e4abbb75ebab7bf13f1423a20db513e459a49f85e03fc5be7b"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/completions.rs",
+      "path": "grit-git/src/commands/completions.rs",
+      "upstream_sha256": "8e279a5e0540716969ea2afdd38e7ba884e028a3fab13912ca33a0dddec8c526"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/config.rs",
+      "path": "grit-git/src/commands/config.rs",
+      "upstream_sha256": "96f20ef435a6a6a38910ee92f96e9f62b7fe83083851f693c84bf531fc108fc2"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/config_sections.txt",
+      "path": "grit-git/src/commands/config_sections.txt",
+      "upstream_sha256": "616a9c537e3371887034d044c4bf013aa94a6e3d42d73bcc0195d586e14bed95"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/config_vars.txt",
+      "path": "grit-git/src/commands/config_vars.txt",
+      "upstream_sha256": "2dda679f882917be5d660bdf63bb0b1bcb2b1161363365ae8cc6f0b962c78bd3"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/config_vars_all.txt",
+      "path": "grit-git/src/commands/config_vars_all.txt",
+      "upstream_sha256": "b60d749c47198696adcf574ba954de18f6a4f12058ca20328c307450052c4dd4"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/count_objects.rs",
+      "path": "grit-git/src/commands/count_objects.rs",
+      "upstream_sha256": "0092d542afab74f4e74cce1c56720a1e530a7b13ec774cf977ce9d93ea8d3219"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/credential.rs",
+      "path": "grit-git/src/commands/credential.rs",
+      "upstream_sha256": "fce7d86b5c9afb10d0051a1a76019e0fc4f5fbd219fc43f32867c3f55e3fb93b"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/credential_cache.rs",
+      "path": "grit-git/src/commands/credential_cache.rs",
+      "upstream_sha256": "c56b0b6a8f0c6c701923c67324b8511a061513459ac261ca4f1c590299028b83"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/credential_store.rs",
+      "path": "grit-git/src/commands/credential_store.rs",
+      "upstream_sha256": "cbadbd2d75f4df17f2ab79d77cbeb95735bef97ea9595121f07c362addd2555d"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/cwd_pathspec.rs",
+      "path": "grit-git/src/commands/cwd_pathspec.rs",
+      "upstream_sha256": "e9bf107835ad603a19edbb2f334bd5b00bac937a5b3568187cea6e35576b4531"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/daemon.rs",
+      "path": "grit-git/src/commands/daemon.rs",
+      "upstream_sha256": "d60eccf207a85ebacdd91ee4ad998a3cb9cae1ac78c4ec120061561a9e5fd9c7"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/describe.rs",
+      "path": "grit-git/src/commands/describe.rs",
+      "upstream_sha256": "2de14bd0a76e02191c840c36ac28ea5f1779a5b39c87b12fbf216330e33c2fd0"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/diagnose.rs",
+      "path": "grit-git/src/commands/diagnose.rs",
+      "upstream_sha256": "4090bd18c132fd7e756346aaded3e029b0a031334693bc9d7acd30ddc1c507d5"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/diff.rs",
+      "path": "grit-git/src/commands/diff.rs",
+      "upstream_sha256": "03bd7483e6f7afe2621e19c116a05575748b4e933c41a5792070a1ef72a79444"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/diff_files.rs",
+      "path": "grit-git/src/commands/diff_files.rs",
+      "upstream_sha256": "aa1729385494c5e9704076bb73429d6a97eb1ff516a3450aed8f9b3e0b1bf71d"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/diff_index.rs",
+      "path": "grit-git/src/commands/diff_index.rs",
+      "upstream_sha256": "10ec74e5344ededc35ed3da5d357ca9b6d7f5c9d6fe63b3d2bf5e2d1436abd43"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/diff_pairs.rs",
+      "path": "grit-git/src/commands/diff_pairs.rs",
+      "upstream_sha256": "0863d1af5193966a04ab40ce75e4a6457976f6ba1f46b68db1060c0f41aea975"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/diff_tree.rs",
+      "path": "grit-git/src/commands/diff_tree.rs",
+      "upstream_sha256": "f5605fd1e61587410e9f574a79e3376035523173e6caac3edc0377d066f0f0ed"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/difftool.rs",
+      "path": "grit-git/src/commands/difftool.rs",
+      "upstream_sha256": "734c6e425a8941eb033bf4635a2085bce6ed394c97978ad97a013d1e87ffec6e"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/fast_export.rs",
+      "path": "grit-git/src/commands/fast_export.rs",
+      "upstream_sha256": "21c625bc6edf405a9836f621cbcd1625afa6f829a95ed5b9f207ec9fef32586c"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/fast_import.rs",
+      "path": "grit-git/src/commands/fast_import.rs",
+      "upstream_sha256": "8054e210e4bc6bd42a6c051a1e64198f8a26327181fab453ad8d11c4a55f6ecb"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/fetch.rs",
+      "path": "grit-git/src/commands/fetch.rs",
+      "upstream_sha256": "e4dc0ee807656d8277009eb06626d14fc00d2fe50e67cc75fbc2a91306ccb033"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/fetch_pack.rs",
+      "path": "grit-git/src/commands/fetch_pack.rs",
+      "upstream_sha256": "5b63bebe9f18ee5582a9f0473c279005d5cd1463bd9bd1bcc23db8a755750ccd"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/filter_branch.rs",
+      "path": "grit-git/src/commands/filter_branch.rs",
+      "upstream_sha256": "2af4f66ca0c24cd52553c31680495ea131e5001c65a6c99ec4ccb6196331a509"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/fmt_merge_msg.rs",
+      "path": "grit-git/src/commands/fmt_merge_msg.rs",
+      "upstream_sha256": "343af6c3e0cacf89cf46fe93bb117ddaffc131ed7de032ecde61b9bbfbabd34a"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/for_each_ref.rs",
+      "path": "grit-git/src/commands/for_each_ref.rs",
+      "upstream_sha256": "69e75d15deae767c85c92f06fb5631f764eaefdcbc3816a6693a16e85bfd7d65"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/for_each_repo.rs",
+      "path": "grit-git/src/commands/for_each_repo.rs",
+      "upstream_sha256": "511f6b2e3bf0b619c708e8c28afe53d268fac9a75e0ccab0d08434e454309754"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/format_patch.rs",
+      "path": "grit-git/src/commands/format_patch.rs",
+      "upstream_sha256": "7f7413e9ab796e23049257143ee4e28e649323a773dc11a9e536f8ccf2ac8a41"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/fsck.rs",
+      "path": "grit-git/src/commands/fsck.rs",
+      "upstream_sha256": "fc37f5a3c07777ee92de1d41cba36f8a7908ffec52bcf311c6cadf0970b1b540"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/gc.rs",
+      "path": "grit-git/src/commands/gc.rs",
+      "upstream_sha256": "1c312459312c05b40a0f7d3e555db27bae2e416d536899d953d4e4a2b00be555"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/get_tar_commit_id.rs",
+      "path": "grit-git/src/commands/get_tar_commit_id.rs",
+      "upstream_sha256": "27276a7d9c1a83845abfbe4242701d9cc44498ff02a2a1b59fe1da2a407cd652"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/grep.rs",
+      "path": "grit-git/src/commands/grep.rs",
+      "upstream_sha256": "1223a2f52a6d0686d7a5f4652fe40c349c26225e105cfc353640d03dfb69fb65"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/grep_expr.rs",
+      "path": "grit-git/src/commands/grep_expr.rs",
+      "upstream_sha256": "326e656f3ac21554eb771a2cd006793ffe6c7131e3e0506c73302025e3747d1e"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/grep_pattern.rs",
+      "path": "grit-git/src/commands/grep_pattern.rs",
+      "upstream_sha256": "a4aa410fd2cfd9fd221e0b987ef881f3327f314591682ac5acac98c85ecae2c8"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/hash_object.rs",
+      "path": "grit-git/src/commands/hash_object.rs",
+      "upstream_sha256": "83f026eaf77573956c6f73cda2afac9f42124b3e06d34defa09bff81aab345c3"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/help/assets/all_commands_help.txt",
+      "path": "grit-git/src/commands/help/assets/all_commands_help.txt",
+      "upstream_sha256": "017d423dc7fcf7d01393e0e27b78329b7aa879d6899c396d111ce3cbfa2aff45"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/help/assets/common_help.txt",
+      "path": "grit-git/src/commands/help/assets/common_help.txt",
+      "upstream_sha256": "e0010b570838553b0e3accf7d5980d3f144d7879c9a9903d61065527de770919"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/help/assets/developer_interfaces_help.txt",
+      "path": "grit-git/src/commands/help/assets/developer_interfaces_help.txt",
+      "upstream_sha256": "406ede4b5241dcf3ff9f076c402bb4afa3e259f5ffa991f7a18e118244990f09"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/help/assets/guides_help.txt",
+      "path": "grit-git/src/commands/help/assets/guides_help.txt",
+      "upstream_sha256": "8a7bf69a5b7045a30273fb1237fc7ecd72496d212d3b56bb6c61b4924944eecf"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/help/assets/user_interfaces_help.txt",
+      "path": "grit-git/src/commands/help/assets/user_interfaces_help.txt",
+      "upstream_sha256": "4b18486bdb36e7f155fec4ea46f1c5dafc2192f4e309a7c8a113eaef07201b13"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/help.rs",
+      "path": "grit-git/src/commands/help.rs",
+      "upstream_sha256": "6f4e88f2aba84ce20514102c21b5fb50241518ab8942540323afb7172b94f21e"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/history.rs",
+      "path": "grit-git/src/commands/history.rs",
+      "upstream_sha256": "cb9f385943f4a67c93052eafb26572662eac7c8cab3ce81d4b2c546be2ca49e5"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/hook.rs",
+      "path": "grit-git/src/commands/hook.rs",
+      "upstream_sha256": "fc47b2a345f308d7b70cc2cf0ff4aa5ea0e1fb0faca95e818cd56ff16e813afc"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/http_backend.rs",
+      "path": "grit-git/src/commands/http_backend.rs",
+      "upstream_sha256": "4124011123e5c3c6deea5f1cb7c6a0a0793822edbb62b2fa33ff97228cc03d01"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/http_fetch.rs",
+      "path": "grit-git/src/commands/http_fetch.rs",
+      "upstream_sha256": "b88fb81ba1adb0f06f6973b796a4d06df08daf718d2a907287987271a9d9038a"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/http_push.rs",
+      "path": "grit-git/src/commands/http_push.rs",
+      "upstream_sha256": "430353847842de36ce8f70636bcb9eb8202d34846cbcf5e6abba261cb663ba80"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/imap_send.rs",
+      "path": "grit-git/src/commands/imap_send.rs",
+      "upstream_sha256": "6a172f63a0a1ea3ffc74b366299a00bb61ad50f2bfa48bee54f964fb7ac360ea"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/index_pack.rs",
+      "path": "grit-git/src/commands/index_pack.rs",
+      "upstream_sha256": "5a2dd2a71e76f7fa500643f998d0774165e2c317ea45b8fbab745e51c9596c5b"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/init.rs",
+      "path": "grit-git/src/commands/init.rs",
+      "upstream_sha256": "2b1b814c905ad9cbaa72b2fa4509fe563f36d2ad2cdd28a907e7b60b98d4ec6f"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/instaweb.rs",
+      "path": "grit-git/src/commands/instaweb.rs",
+      "upstream_sha256": "912e9e2e4d29537d1175db65f24fe8e34ec1a4f031c0727be0525d5e37df4c90"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/interpret_trailers.rs",
+      "path": "grit-git/src/commands/interpret_trailers.rs",
+      "upstream_sha256": "e629575cf7be7968abfc3593e4a065b56a32aef196b419879749da79db78f3ee"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/last_modified.rs",
+      "path": "grit-git/src/commands/last_modified.rs",
+      "upstream_sha256": "90c5d31981e43afe34ec98f488c7dd6b1c8ecd08721b03a23b08dc29c1191d3b"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/log.rs",
+      "path": "grit-git/src/commands/log.rs",
+      "upstream_sha256": "782af4cbb2a760888b58662d2961610fa324770cb75ca41b4c3f57bb1f336e3c"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/ls_files.rs",
+      "path": "grit-git/src/commands/ls_files.rs",
+      "upstream_sha256": "7c43cdf0679c4b7d06dce40a61dc4cc044657eb5581129ad7bc57636c560c763"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/ls_remote.rs",
+      "path": "grit-git/src/commands/ls_remote.rs",
+      "upstream_sha256": "7a8c8ad590d428cd70b8c26eddb7e1722b0e365cdaf7883d6426d2df30b816fb"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/ls_tree.rs",
+      "path": "grit-git/src/commands/ls_tree.rs",
+      "upstream_sha256": "ec5afe67ee62ba1bcd80432a0ff97c0922c69fc26883999b11cd9c46c055c1f7"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/mailinfo.rs",
+      "path": "grit-git/src/commands/mailinfo.rs",
+      "upstream_sha256": "fd1e2934102ca4a9ea7a27815e243e5ae332b270823e11730e12156790bba469"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/mailsplit.rs",
+      "path": "grit-git/src/commands/mailsplit.rs",
+      "upstream_sha256": "65f7e44123e81ebe7a514352b7aab07b4db05d7ad04df56d069c2ee8af376abe"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/maintenance.rs",
+      "path": "grit-git/src/commands/maintenance.rs",
+      "upstream_sha256": "918db88761985973d01e1023436e915225de162c79eef7a553c01d0455f5b6b8"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/merge.rs",
+      "path": "grit-git/src/commands/merge.rs",
+      "upstream_sha256": "5dee8ae740de56bb558b4abb1c0998916c07ae86351e7beb107c021f57ca5ca1"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/merge_base.rs",
+      "path": "grit-git/src/commands/merge_base.rs",
+      "upstream_sha256": "9eaa2163f6396fb1509dad9a948965036dee2822d04157f4b6b04e75f3a634d4"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/merge_file.rs",
+      "path": "grit-git/src/commands/merge_file.rs",
+      "upstream_sha256": "ce54aecd9a710de6e2ab01151285306d844a48993e9639d5f0fb3640a1ef99e7"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/merge_index.rs",
+      "path": "grit-git/src/commands/merge_index.rs",
+      "upstream_sha256": "1cd4a60255c4c37051c09369f9d40201c2e24d79ab90aed3e18d2f474709a4cf"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/merge_one_file.rs",
+      "path": "grit-git/src/commands/merge_one_file.rs",
+      "upstream_sha256": "093a723ab57050c15549bc06b393640bd38845cac643585fe5d02efde03a2816"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/merge_recursive.rs",
+      "path": "grit-git/src/commands/merge_recursive.rs",
+      "upstream_sha256": "d5f500d13a11cfd4ed0c2f3006c3f935acae3f1228fba4868061778ffc90789b"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/merge_resolve.rs",
+      "path": "grit-git/src/commands/merge_resolve.rs",
+      "upstream_sha256": "94b56ecf7fed674fbac1a2938a63b9f678add747a53f8ddd306b1a32cb6dd8ef"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/merge_tree.rs",
+      "path": "grit-git/src/commands/merge_tree.rs",
+      "upstream_sha256": "cad254948ea708ab1894a1e8cb6641b1baba25c19fe77bb84c5c8aa672d3a465"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/mergetool.rs",
+      "path": "grit-git/src/commands/mergetool.rs",
+      "upstream_sha256": "96ad4ce29feff2c1e79680494ebc9c53a6c5e4ee92e8af7b4c5c2fa93080790a"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/mktag.rs",
+      "path": "grit-git/src/commands/mktag.rs",
+      "upstream_sha256": "4965de69d846b12ca6527cf817142fa5982af0e34565adb0396d6e52b957fe25"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/mktree.rs",
+      "path": "grit-git/src/commands/mktree.rs",
+      "upstream_sha256": "98dbb26a46ad752824d15ba1403788594f6818e0c0bde6f0758d0e6abe91ca46"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/mod.rs",
+      "path": "grit-git/src/commands/mod.rs",
+      "upstream_sha256": "10cdfc74a27ac31b83c539661bb0a6addb7c1bef4fea23bfc934f0aaf1acef99"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/multi_pack_index.rs",
+      "path": "grit-git/src/commands/multi_pack_index.rs",
+      "upstream_sha256": "6e30ad635616cff508692002057a80b5f979e0dd7774964e456c9599f262ae03"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/mv.rs",
+      "path": "grit-git/src/commands/mv.rs",
+      "upstream_sha256": "59e74a750e0bb53c1e8422190f3b35ef0c5c64f5d28f00c8b9a7e40164a46709"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/name_rev.rs",
+      "path": "grit-git/src/commands/name_rev.rs",
+      "upstream_sha256": "8f5ef3403c6a5adb2fe45d401cb25c1db9290e3b1361a85b5c00109a20e782ff"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/notes.rs",
+      "path": "grit-git/src/commands/notes.rs",
+      "upstream_sha256": "cc6868378953eb4dc6e886626ee44caa8140ae43fb809135bbf7faef2ca29c05"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/pack_objects.rs",
+      "path": "grit-git/src/commands/pack_objects.rs",
+      "upstream_sha256": "76941f3a6beb51e2858b1c620e9e08f9b9a70e47a6c9c69f1d3a0d7ac962ccbf"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/pack_redundant.rs",
+      "path": "grit-git/src/commands/pack_redundant.rs",
+      "upstream_sha256": "8f05845b1c999cdc34a5ffc09b6887adf36946068e80ba5753d366387138bbfa"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/pack_refs.rs",
+      "path": "grit-git/src/commands/pack_refs.rs",
+      "upstream_sha256": "f468dfe941d9f3069b79fec11b308eed65e086f98bb1e9fb324914623ba63f85"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/patch_id.rs",
+      "path": "grit-git/src/commands/patch_id.rs",
+      "upstream_sha256": "f5bfe236b5a33df1fe5aeaa9aeed579ba7fe1de5be543c6b064516253aeeea71"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/promisor_hydrate.rs",
+      "path": "grit-git/src/commands/promisor_hydrate.rs",
+      "upstream_sha256": "2a9cf2c995994e70c33d7464c038515a444a7f2d34dfec1bed41195fcc6f31a0"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/prune.rs",
+      "path": "grit-git/src/commands/prune.rs",
+      "upstream_sha256": "2936def74827ed88b87d44ac2ba964ec7e4a3803f988a5b7653b36f7eda7596e"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/prune_packed.rs",
+      "path": "grit-git/src/commands/prune_packed.rs",
+      "upstream_sha256": "9b240fa4a01161aff7179436e9fd2a73aeba86ae2e03a0af9291f14ccdc343f3"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/pull.rs",
+      "path": "grit-git/src/commands/pull.rs",
+      "upstream_sha256": "4200ce62882d5b7b6230fb9eb4f3096d490f3e47900dd5af98b5a82a38c65c62"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/push.rs",
+      "path": "grit-git/src/commands/push.rs",
+      "upstream_sha256": "b068b0115da8b2b92ec039fc04cb5376a7c52bdc2d97dab5006537b929233bb9"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/range_diff.rs",
+      "path": "grit-git/src/commands/range_diff.rs",
+      "upstream_sha256": "2f7c5c205e6c247e5767827926af13335ecdd2e61b0d18a51ba630a567db0638"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/read_tree.rs",
+      "path": "grit-git/src/commands/read_tree.rs",
+      "upstream_sha256": "d1db5e4c9be88e97e7fdc21049102fb07ed6563e622be4d69ecc6209f38c42c7"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/rebase.rs",
+      "path": "grit-git/src/commands/rebase.rs",
+      "upstream_sha256": "50746c2bd61632032e001eb690d4e1abcd145e0101950fe965906946bc73535a"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/receive_pack.rs",
+      "path": "grit-git/src/commands/receive_pack.rs",
+      "upstream_sha256": "ef9d4f577080bb0a5922683ae845ed9b35f2a08916c3c83a9aca237233d47c55"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/reflog.rs",
+      "path": "grit-git/src/commands/reflog.rs",
+      "upstream_sha256": "55ce8a1d62f82bf2ad18de01ac70dc8479f9920255978fe5b22a29d534b0dc03"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/refs.rs",
+      "path": "grit-git/src/commands/refs.rs",
+      "upstream_sha256": "2f759dffa8c4af1fbfcf815e7d892015222f178301ccf62882118f2e0e2b2d24"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/remerge_diff.rs",
+      "path": "grit-git/src/commands/remerge_diff.rs",
+      "upstream_sha256": "46863dde5c3d302629f64d6c1ebf796297272bc53da60dd51ade2aacf743a6af"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/remote.rs",
+      "path": "grit-git/src/commands/remote.rs",
+      "upstream_sha256": "193209c798d85dbebfa46ecc2b2158e71aa7c88591ceee840eb680267c8f04e3"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/repack.rs",
+      "path": "grit-git/src/commands/repack.rs",
+      "upstream_sha256": "b0ec870136c921627a04f513b25232d09d3c0f9f07a3b62bd1bde2a717f87ed0"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/replace.rs",
+      "path": "grit-git/src/commands/replace.rs",
+      "upstream_sha256": "8fb301e02a5cdba193494daf609bbf54a5075bb941555ecdc82dead1fe590519"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/replay.rs",
+      "path": "grit-git/src/commands/replay.rs",
+      "upstream_sha256": "b9608eb2ddd23bc09e75f6ef4d7beb72923c2b5f4d0335203832c413edbc2a30"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/repo.rs",
+      "path": "grit-git/src/commands/repo.rs",
+      "upstream_sha256": "508336984d482a328ea450da2321ce76fdd327e6fa49503f8ea1cebecd8ae549"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/request_pull.rs",
+      "path": "grit-git/src/commands/request_pull.rs",
+      "upstream_sha256": "60ab10ed8af2c414a8851dccd910f368b3ef9327d76943056a5ae96bfcffb780"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/rerere.rs",
+      "path": "grit-git/src/commands/rerere.rs",
+      "upstream_sha256": "b217ebcaf014b155f2cd83d5920f3aea07e1840716006fc1cc5ad0f77cd74b9d"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/reset.rs",
+      "path": "grit-git/src/commands/reset.rs",
+      "upstream_sha256": "051afe605b41be917354373156b7b0ff55add8cf82f727076301c44c981e3a21"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/restore.rs",
+      "path": "grit-git/src/commands/restore.rs",
+      "upstream_sha256": "50fee228cca21385a8b2576890641f46e7e154a00a55688d73b73a6b38255626"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/rev_list.rs",
+      "path": "grit-git/src/commands/rev_list.rs",
+      "upstream_sha256": "55a4c0bce7ca782f05a7a9f3ab734f3aec7e425d83146e454a9372de2289ef99"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/rev_parse.rs",
+      "path": "grit-git/src/commands/rev_parse.rs",
+      "upstream_sha256": "447158cd8d5bd2f9328b8f953e084061b08cc689963f5cf32c2ab83b172bced0"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/rev_parse_parseopt.rs",
+      "path": "grit-git/src/commands/rev_parse_parseopt.rs",
+      "upstream_sha256": "1967170bb6a712a35ca1cf743aca5fb892d6a4a8591bb090399e470f65742413"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/revert.rs",
+      "path": "grit-git/src/commands/revert.rs",
+      "upstream_sha256": "8bf0f4bd2daa1f3d32e2cc7073deb04b532dfbcde89584a7e94f7616087d9a80"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/rm.rs",
+      "path": "grit-git/src/commands/rm.rs",
+      "upstream_sha256": "adef3be32998bd19648ed6d0e60f57bb6302600cf62d98545bce6601ead148a8"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/scalar.rs",
+      "path": "grit-git/src/commands/scalar.rs",
+      "upstream_sha256": "659d0f68c834183c180e580ecf22452cc13c233f1a2c4612b7b02c599e0b0085"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/send_pack.rs",
+      "path": "grit-git/src/commands/send_pack.rs",
+      "upstream_sha256": "f5577b7a1fc7a8f9e37d55d0542d3b52192b1d679c1ab60060b0fd0c3a38fc85"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/sequencer.rs",
+      "path": "grit-git/src/commands/sequencer.rs",
+      "upstream_sha256": "3c777621c46452843b2bff5725850c679d1299f720afc2faa01a8fe33d34a4de"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/serve_v2.rs",
+      "path": "grit-git/src/commands/serve_v2.rs",
+      "upstream_sha256": "5b76c143117d303ad4f816793d10f66c5dcbce18e4963a3b5dc03a2a7f8aec2a"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/sh_i18n.rs",
+      "path": "grit-git/src/commands/sh_i18n.rs",
+      "upstream_sha256": "4139872c780b0abdeabce34957e88b0b9e2f132b3c37b0eab3ab3feb2e6b4d2c"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/sh_i18n_envsubst.rs",
+      "path": "grit-git/src/commands/sh_i18n_envsubst.rs",
+      "upstream_sha256": "c66e3181053f26e2ade46e0c9e6717a529a391461527b435a56f3ad1fa329fd7"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/sh_setup.rs",
+      "path": "grit-git/src/commands/sh_setup.rs",
+      "upstream_sha256": "0ccff4f5106b19d05cc51b876ace893a1fc20ce32094ed51c7fa6cc615f9ff3c"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/shell.rs",
+      "path": "grit-git/src/commands/shell.rs",
+      "upstream_sha256": "fe468d0abe0e8de59afb29eb15a365bce481482e4913e545a4c59e545496c3f4"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/shortlog.rs",
+      "path": "grit-git/src/commands/shortlog.rs",
+      "upstream_sha256": "a5361f42dd27d855057ba9893e304ac8df812b74085c561bc2c3b8f8b2ac6146"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/show.rs",
+      "path": "grit-git/src/commands/show.rs",
+      "upstream_sha256": "1f090fc0e485278397c517aba7fcbf1307f2d6cad237dfb96f79120540435a86"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/show_branch.rs",
+      "path": "grit-git/src/commands/show_branch.rs",
+      "upstream_sha256": "648d0b92150934c5b7b375c4240d02756a68d212564b47e69482ad24b36fc63c"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/show_index.rs",
+      "path": "grit-git/src/commands/show_index.rs",
+      "upstream_sha256": "290e4bd9be4a01e30ca084f2ba32807db606743fa28a8866b376e984a5629ebc"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/show_ref.rs",
+      "path": "grit-git/src/commands/show_ref.rs",
+      "upstream_sha256": "014aec479323534781caf9caecaa5228df04b84456da3b2973e325b421d3d3fb"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/sparse_advice.rs",
+      "path": "grit-git/src/commands/sparse_advice.rs",
+      "upstream_sha256": "5f160ad50ae5c86d02587339b80943fc9b3c1bb4e81bab6cb67f9ed79e5785bb"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/sparse_checkout.rs",
+      "path": "grit-git/src/commands/sparse_checkout.rs",
+      "upstream_sha256": "5b4fafe9896aca1f4a4bff6ff786578e88de33dacd9d7df7825993e7fb6659ac"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/stage.rs",
+      "path": "grit-git/src/commands/stage.rs",
+      "upstream_sha256": "89a5553d0965ddcf82385563ac07bbbe01f8f9c3f50c370b5148fd828b9b7ca8"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/stash.rs",
+      "path": "grit-git/src/commands/stash.rs",
+      "upstream_sha256": "b35e374ef0819687b0248367ea6215b17cee9e86a9b5c0525ef0d7e1a2c74840"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/status.rs",
+      "path": "grit-git/src/commands/status.rs",
+      "upstream_sha256": "71b023e3d8fe3ef132f3eab077a4156174222d235db22290cb410221fb8b97fb"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/stripspace.rs",
+      "path": "grit-git/src/commands/stripspace.rs",
+      "upstream_sha256": "6b6e8e2adffebd05044c384cf66ff278f2d4182461ff3be655860a80d112d5b5"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/submodule.rs",
+      "path": "grit-git/src/commands/submodule.rs",
+      "upstream_sha256": "539652b8267d655f8c470e9d0212763fc4e576ddd3abc7ee899197387e6b6f6c"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/submodule_helper.rs",
+      "path": "grit-git/src/commands/submodule_helper.rs",
+      "upstream_sha256": "a6fe00efdf10acfe2271124f647637cfc1875b22db7a38e86c2ab07f4521a7ca"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/switch.rs",
+      "path": "grit-git/src/commands/switch.rs",
+      "upstream_sha256": "3c8ff89d4f7cc42cd221cb728f9f48295d6427e219917858a95e12c9de7e3585"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/symbolic_ref.rs",
+      "path": "grit-git/src/commands/symbolic_ref.rs",
+      "upstream_sha256": "3c292f5ad1f13853400f85b2c4a18648566f1ec6489e697bf7208b6a632abe6a"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/tag.rs",
+      "path": "grit-git/src/commands/tag.rs",
+      "upstream_sha256": "c1a8b7493c2fb4ab0a1b0a8f5adc64e296fd8526b235cc5d33abdc84796f3909"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/test_tool_reach.rs",
+      "path": "grit-git/src/commands/test_tool_reach.rs",
+      "upstream_sha256": "485376b48b1ea84fc5cd84ed694dd18f3e48bb07ad21fa1880054437cf12ec36"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/test_tool_ref_store.rs",
+      "path": "grit-git/src/commands/test_tool_ref_store.rs",
+      "upstream_sha256": "5760a0178140bc38ce4d1c2725036426bb8fad30cd3c4e1cfeee2a7257b42791"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/test_tool_rot13_filter.rs",
+      "path": "grit-git/src/commands/test_tool_rot13_filter.rs",
+      "upstream_sha256": "f28e550bbcf0699205d540d516f445d6c90ac772aa1465711537a0e97b672cc5"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/unpack_file.rs",
+      "path": "grit-git/src/commands/unpack_file.rs",
+      "upstream_sha256": "a697a4ffe64810a30b3f3f20128dcfeabae3a9d0d3608788c34a3516132a80a9"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/unpack_objects.rs",
+      "path": "grit-git/src/commands/unpack_objects.rs",
+      "upstream_sha256": "85b8e6902f4f4f8f374f54e431663d1fd10e4e319abbb56b01dea2ce19a10f1b"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/update.rs",
+      "path": "grit-git/src/commands/update.rs",
+      "upstream_sha256": "1d892a9c98b96e1911328a280fd7239ac205580b7299747eeafc6ad7fc6f4f72"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/update_index.rs",
+      "path": "grit-git/src/commands/update_index.rs",
+      "upstream_sha256": "5a7bb0f58888598cd4102541b56d7689c6d2738aec5e48f157e2de4196917f5d"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/update_ref.rs",
+      "path": "grit-git/src/commands/update_ref.rs",
+      "upstream_sha256": "284e0268953f4f091010fc231a9c9b2c596d5d69d3ee9e2abef95644031da284"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/update_server_info.rs",
+      "path": "grit-git/src/commands/update_server_info.rs",
+      "upstream_sha256": "5a86f3ddc3f885580e5cc22c510e088e01ea82238ddbe60ec72b751387427fbd"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/upload_archive.rs",
+      "path": "grit-git/src/commands/upload_archive.rs",
+      "upstream_sha256": "1dbfb6d6cccd5fc992026407cf879f28df1ac83799d0a41d9271b336b9a3365e"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/upload_pack.rs",
+      "path": "grit-git/src/commands/upload_pack.rs",
+      "upstream_sha256": "b38ffe06d7edfb121bfba1dd2879357c37852645df921f4b781584d139113766"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/upstream_synopsis_help.rs",
+      "path": "grit-git/src/commands/upstream_synopsis_help.rs",
+      "upstream_sha256": "ad87266ae193cbaec2e3d33d5ab208f8dc91c09063eb56542d0eb1cc79a9f413"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/var.rs",
+      "path": "grit-git/src/commands/var.rs",
+      "upstream_sha256": "420326eacb9a3094bf22c9c9d73e4c837dce09d523fd11f4b94cb9a293355dfe"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/verify_commit.rs",
+      "path": "grit-git/src/commands/verify_commit.rs",
+      "upstream_sha256": "f2f01d71598e88ea6b425f07d295324ae804a8b3370f3d9349f2d87a1aa7ab05"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/verify_pack.rs",
+      "path": "grit-git/src/commands/verify_pack.rs",
+      "upstream_sha256": "ac345142ce7f8da564c1c3344c7a6515ae3134308a83f917331353c8f06f03aa"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/verify_tag.rs",
+      "path": "grit-git/src/commands/verify_tag.rs",
+      "upstream_sha256": "74fc05e3ed1114c799840878b01b2d644c3a0dcb6f91a3ca41f79f030fdb9998"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/version.rs",
+      "path": "grit-git/src/commands/version.rs",
+      "upstream_sha256": "da98ff24d914241a4e3f460541d55233e6a437a06fb202ada57fd563e7c34ad4"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/web_browse.rs",
+      "path": "grit-git/src/commands/web_browse.rs",
+      "upstream_sha256": "2e7ce6defaf75b6ba34acd3da46833afa7123cd42ba81fd9fa4aa6e7213b25cc"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/whatchanged.rs",
+      "path": "grit-git/src/commands/whatchanged.rs",
+      "upstream_sha256": "d8a0cee691e076d9a1245cba8b8ad92e9637d9984a0f8062a6f2aa4e998f4c89"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/worktree.rs",
+      "path": "grit-git/src/commands/worktree.rs",
+      "upstream_sha256": "70862ff242fab4a2a04d2d93cad6754b51a4143ffbd3e0f4b37d64f4714451e2"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/worktree_refs.rs",
+      "path": "grit-git/src/commands/worktree_refs.rs",
+      "upstream_sha256": "1bcfd62cdae8ff94f60f8c36f7534938f1ed47d3f6b26db31eeb21ee5d16f30c"
+    },
+    {
+      "upstream_path": "grit-git/src/commands/write_tree.rs",
+      "path": "grit-git/src/commands/write_tree.rs",
+      "upstream_sha256": "29d9ccca09e446901d413e523cc53153df9521720f8ff46292279c5fb440d33a"
+    },
+    {
+      "upstream_path": "grit-git/src/editor.rs",
+      "path": "grit-git/src/editor.rs",
+      "upstream_sha256": "d860e017fc0055a2e50338c91199c4ea75acbd5e5f40428c2144ae7f05121f21"
+    },
+    {
+      "upstream_path": "grit-git/src/explicit_exit.rs",
+      "path": "grit-git/src/explicit_exit.rs",
+      "upstream_sha256": "83b1ad09767978cc7ba9f80e52f034c844fd96016194dc0c644c3736962c1760"
+    },
+    {
+      "upstream_path": "grit-git/src/ext_transport.rs",
+      "path": "grit-git/src/ext_transport.rs",
+      "upstream_sha256": "99b832f13379bff80d291d82f9269aab2bc236ecdaef8c0b43d9738062c36e46"
+    },
+    {
+      "upstream_path": "grit-git/src/fetch_submodule_record.rs",
+      "path": "grit-git/src/fetch_submodule_record.rs",
+      "upstream_sha256": "5075946a9090231b939248dd36dc18ffff39362f25759cf7d7ebb89619e1d013"
+    },
+    {
+      "upstream_path": "grit-git/src/fetch_submodule_recurse.rs",
+      "path": "grit-git/src/fetch_submodule_recurse.rs",
+      "upstream_sha256": "d7721a93176382776e27c9ccce666a6140f144ab79a228703b45e42f771b01e9"
+    },
+    {
+      "upstream_path": "grit-git/src/fetch_transport.rs",
+      "path": "grit-git/src/fetch_transport.rs",
+      "upstream_sha256": "19347af7e3b50e13db5bc8f0b61c7a0f3890dd9282196fdaefd18e930492492d"
+    },
+    {
+      "upstream_path": "grit-git/src/file_upload_pack_v2.rs",
+      "path": "grit-git/src/file_upload_pack_v2.rs",
+      "upstream_sha256": "4e23f2bd75b9fa59c3f26c42dd3a648ea0e2d03ecefd1d62ae2129abefa2a69e"
+    },
+    {
+      "upstream_path": "grit-git/src/git_column.rs",
+      "path": "grit-git/src/git_column.rs",
+      "upstream_sha256": "757346e29d4d38d35288fd39d0b2959dd5a90e1fc4c2b7dc0d26e0c6e3cafc26"
+    },
+    {
+      "upstream_path": "grit-git/src/git_daemon_url.rs",
+      "path": "grit-git/src/git_daemon_url.rs",
+      "upstream_sha256": "c7a449b515307f799878804e0e9a85647f18512d086062a51d756932f605df76"
+    },
+    {
+      "upstream_path": "grit-git/src/grit_exe.rs",
+      "path": "grit-git/src/grit_exe.rs",
+      "upstream_sha256": "7716e0ae953c0c63c46602f67b3b0580a812d7b77216821226d43ebe9dd08b17"
+    },
+    {
+      "upstream_path": "grit-git/src/http_bundle_uri.rs",
+      "path": "grit-git/src/http_bundle_uri.rs",
+      "upstream_sha256": "3eba628f3df7be1cf73fbb1b2324eb88aa08df9332ee59ad34285e02aaf3788d"
+    },
+    {
+      "upstream_path": "grit-git/src/http_client.rs",
+      "path": "grit-git/src/http_client.rs",
+      "upstream_sha256": "59d9c66750ece60e5c038b5d920758079501275ef19ad74f0926a8bb7b59676e"
+    },
+    {
+      "upstream_path": "grit-git/src/http_push_smart.rs",
+      "path": "grit-git/src/http_push_smart.rs",
+      "upstream_sha256": "6b7e987f75d5ba69dcd3c54b200b08760adb91f7d30dbed7e0244105f9574e2b"
+    },
+    {
+      "upstream_path": "grit-git/src/http_smart.rs",
+      "path": "grit-git/src/http_smart.rs",
+      "upstream_sha256": "bad1c967aa4702fdbb4859bbb1b4b5f1fafc9301f05e655a71a212a735f6cce8"
+    },
+    {
+      "upstream_path": "grit-git/src/http_transport.rs",
+      "path": "grit-git/src/http_transport.rs",
+      "upstream_sha256": "b2ec77c4ab17a0f2928d0baebbf256a1c75a720773842cc7abab88d49823f82a"
+    },
+    {
+      "upstream_path": "grit-git/src/ident.rs",
+      "path": "grit-git/src/ident.rs",
+      "upstream_sha256": "34c2d6c4dccc5e28aeae36235249c6e9320bdeddb8458785bf76267e9e7bc200"
+    },
+    {
+      "upstream_path": "grit-git/src/main.rs",
+      "path": "grit-git/src/main.rs",
+      "upstream_sha256": "3e19e45b38f05bb1eef5d0cbe0f6f272fc2d6958acc48d6b49e2380753edd5e6"
+    },
+    {
+      "upstream_path": "grit-git/src/pack_objects_upload.rs",
+      "path": "grit-git/src/pack_objects_upload.rs",
+      "upstream_sha256": "8113feff2a75bae5a1e10ba6aef147cc96e61533998f7a8473d143a9afeb3bcb"
+    },
+    {
+      "upstream_path": "grit-git/src/pathspec.rs",
+      "path": "grit-git/src/pathspec.rs",
+      "upstream_sha256": "1406516df6ef02669253f15df4e76122c5ca59cbcef736a76ece74c3f1e2c3ba"
+    },
+    {
+      "upstream_path": "grit-git/src/pkt_line.rs",
+      "path": "grit-git/src/pkt_line.rs",
+      "upstream_sha256": "124784434390888ce5efec5f538571173b3a376fa01c57ad3fdac1a985ef487a"
+    },
+    {
+      "upstream_path": "grit-git/src/porcelain_rev.rs",
+      "path": "grit-git/src/porcelain_rev.rs",
+      "upstream_sha256": "6972406515455cb0243e304143479254f1e6aca982fe64c17805abcb0eae2682"
+    },
+    {
+      "upstream_path": "grit-git/src/precompose.rs",
+      "path": "grit-git/src/precompose.rs",
+      "upstream_sha256": "3dc054cab5ea420a63e1e6d8b4ee242abb8700c388da239ea8f152cc70198d9f"
+    },
+    {
+      "upstream_path": "grit-git/src/protocol.rs",
+      "path": "grit-git/src/protocol.rs",
+      "upstream_sha256": "b84f6001d927715465d5575e7c2ed77b1c241afebe4f2a1231ca79cfa9e26c2e"
+    },
+    {
+      "upstream_path": "grit-git/src/protocol_wire.rs",
+      "path": "grit-git/src/protocol_wire.rs",
+      "upstream_sha256": "55ea8642006fcea4290f9dacaf6bcfdbed9cf026dc9d33985005e3008ac046e2"
+    },
+    {
+      "upstream_path": "grit-git/src/receive_ingest.rs",
+      "path": "grit-git/src/receive_ingest.rs",
+      "upstream_sha256": "132964aa882fd0d4ed11b8706e3cb46945699cb50363ff2f2a44b568d960ddbc"
+    },
+    {
+      "upstream_path": "grit-git/src/ref_transaction_hooks.rs",
+      "path": "grit-git/src/ref_transaction_hooks.rs",
+      "upstream_sha256": "a62d11e4c9bb05bf04f848b05f06046366a500d3ba4c2645e58482b03f476136"
+    },
+    {
+      "upstream_path": "grit-git/src/ssh_transport.rs",
+      "path": "grit-git/src/ssh_transport.rs",
+      "upstream_sha256": "eebed9ccb477da180c6c65b5e6eec4cb97a713b5729e28b88161fb67426a7f13"
+    },
+    {
+      "upstream_path": "grit-git/src/test_tool_example_tap_output.txt",
+      "path": "grit-git/src/test_tool_example_tap_output.txt",
+      "upstream_sha256": "265d4273f06da786620a05392e20891aa2e330de4a17aafe252006652a04370a"
+    },
+    {
+      "upstream_path": "grit-git/src/test_tool_pack_deltas.rs",
+      "path": "grit-git/src/test_tool_pack_deltas.rs",
+      "upstream_sha256": "540a953ec6a617da68535f026bb9b80791bdee4e94a32b3fde3b2ccd8230aed3"
+    },
+    {
+      "upstream_path": "grit-git/src/test_tool_run_command.rs",
+      "path": "grit-git/src/test_tool_run_command.rs",
+      "upstream_sha256": "6f98010e636b15b3fa4936aa950e857e47adbad6ca168bc01f00cf12368ee2b8"
+    },
+    {
+      "upstream_path": "grit-git/src/trace2_transfer.rs",
+      "path": "grit-git/src/trace2_transfer.rs",
+      "upstream_sha256": "145df1444a83a45e539171fd0cd4c7d70057ea6a6cd1350630fc1ebc89570ce0"
+    },
+    {
+      "upstream_path": "grit-git/src/trace_packet.rs",
+      "path": "grit-git/src/trace_packet.rs",
+      "upstream_sha256": "187e1a5a63b94d80b6444ceab1f7bf276aea5dc3ba5eb2236f32536dcb1dff32"
+    },
+    {
+      "upstream_path": "grit-git/src/wire_trace.rs",
+      "path": "grit-git/src/wire_trace.rs",
+      "upstream_sha256": "3f26d35a37176fc375f0c5cbddbddc1319af677718c53a927daef837b07601af"
+    },
+    {
+      "upstream_path": "grit-git/tests/common/mod.rs",
+      "path": "grit-git/tests/common/mod.rs",
+      "upstream_sha256": "40215f92b917e67061f91a987951d9c648ce485b63b7fc0dcfe9d5ca8542ced5"
+    },
+    {
+      "upstream_path": "grit-git/tests/completions.rs",
+      "path": "grit-git/tests/completions.rs",
+      "upstream_sha256": "8f83f2c98a8e886a71328e284fc4463004d195b6f61d3e3f696c640912d84e89"
+    },
+    {
+      "upstream_path": "grit-git/tests/full_name_scope.rs",
+      "path": "grit-git/tests/full_name_scope.rs",
+      "upstream_sha256": "932abc66f3fc7e5c38041526dc53343de80fed12eee68563d3117ea97b959a22"
+    },
+    {
+      "upstream_path": "grit-git/tests/pathspec_normalize_root.rs",
+      "path": "grit-git/tests/pathspec_normalize_root.rs",
+      "upstream_sha256": "2198bf59e749e30567eb368d1a2ec771455c12626a7ee23a118f44b5778b06af"
+    },
+    {
+      "upstream_path": "grit-git/tests/receive_pack_funny_ref.rs",
+      "path": "grit-git/tests/receive_pack_funny_ref.rs",
+      "upstream_sha256": "95487fb7267760986fa3566069c91498b7bd23d665812ef848a6fc7364ee7d5c"
+    },
+    {
+      "upstream_path": "grit-git/tests/repo_info.rs",
+      "path": "grit-git/tests/repo_info.rs",
+      "upstream_sha256": "98634e8ef2381f8c6caacc4715adc492c84761d36ae9749244f86365d0ea5cb9"
+    },
+    {
+      "upstream_path": "grit-git/tests/sha256_support.rs",
+      "path": "grit-git/tests/sha256_support.rs",
+      "upstream_sha256": "a0509676238cd528fb1e0770681093dce8061e927a1d93865157b388c3d31c6a"
+    },
+    {
+      "upstream_path": "grit-git/tests/submodule_init_command.rs",
+      "path": "grit-git/tests/submodule_init_command.rs",
+      "upstream_sha256": "a4f6bd3fdd8bed5a7f1c26c7340fd837af21ce7ebaa80c429dd095e40eb4918e"
+    },
+    {
+      "upstream_path": "grit-git/tests/upload_pack_v2_shallow_want_ref_order.rs",
+      "path": "grit-git/tests/upload_pack_v2_shallow_want_ref_order.rs",
+      "upstream_sha256": "98d2221e2f0999d11b514f6a33020815f5e07b0e5774450d1c63fd1f243975f2"
+    },
+    {
+      "upstream_path": "grit-git/upstream_help_synopsis.rs",
+      "path": "grit-git/upstream_help_synopsis.rs",
+      "upstream_sha256": "3a7ac01e7ee964ff82b1aaa8f4f3e21500b1d0ba637cde926baae5c84654738a"
+    },
+    {
+      "upstream_path": "grit-git/upstream_range_diff_help.txt",
+      "path": "grit-git/upstream_range_diff_help.txt",
+      "upstream_sha256": "4852b9f46c0ba60f42c6a73a014528319cdaf11f82a0c27bc0bc4058fd164373"
+    },
+    {
+      "upstream_path": "grit-git/upstream_update_index_help.txt",
+      "path": "grit-git/upstream_update_index_help.txt",
+      "upstream_sha256": "78aa2166bc83556d7753bbf1ce8d4c55ea90966bae4898cddf3b676be4c4e39d"
+    },
+    {
+      "upstream_path": "grit-test-support/Cargo.toml",
+      "path": "grit-test-support/Cargo.toml",
+      "upstream_sha256": "a1fd7174289e0e18d3d6fe6d0bafea5d7d953808935c93f1ad1b75d8a719759c"
+    },
+    {
+      "upstream_path": "grit-test-support/src/lib.rs",
+      "path": "grit-test-support/src/lib.rs",
+      "upstream_sha256": "5778010711a2e6bf548e582f136bc157bebc7926c07617e1f7dcf6a705ce02a4"
+    },
+    {
+      "upstream_path": "Cargo.toml",
+      "path": "Cargo.toml",
+      "upstream_sha256": "e12986d591222cb8bba124c385c3392cecb4ec1586bec45ecb7103b6c35c0058"
+    },
+    {
+      "upstream_path": "Cargo.lock",
+      "path": "Cargo.lock",
+      "upstream_sha256": "79fca2a5ef3c2ed120345b4d072f17d0046adaec78572a0058fe3a1b220831ff"
+    },
+    {
+      "upstream_path": "LICENSE",
+      "path": "LICENSE",
+      "upstream_sha256": "f6ab3cc2febb438ccaf5c118d08d7cf14eedc743173c1c2a40370441dfb06e53"
+    },
+    {
+      "upstream_path": "git/COPYING",
+      "path": "COPYING",
+      "upstream_sha256": "5b2198d1645f767585e8a88ac0499b04472164c0d2da22e75ecf97ef443ab32e"
+    }
+  ],
+  "supplementary_notices": [
+    {
+      "path": "LICENSE-MIT",
+      "repository": "https://github.com/gitbutlerapp/grit",
+      "revision": "f615c13628313bd63f25d157d55da24a79ad9d68",
+      "upstream_path": "LICENSE",
+      "upstream_blob": "9efc94077a75c8b2df1614a548f4499ab60c327f",
+      "sha256": "e3a14b0428af6d0b37c3464bb050e84ed587bbeb56443bd214f8bc6afd97a616",
+      "scope": "Full upstream MIT notice for already MIT-declared grit-lib and grit-test-support only. Does not relicense historical grit-git."
+    }
+  ]
+}

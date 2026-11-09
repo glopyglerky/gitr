@@ -7,10 +7,11 @@ license = "GPL-2.0-only"
 description = "Rust Git tooling with verified large-file storage and GitHub-compatible protocols"
 repository = "https://github.com/glopyglerky/gitr"
 publish = false
+default-run = "gitr"
 
 # The root package is the default Gitr executable; support crates are isolated.
 [workspace]
-exclude = ["crates/action-example", "vendor/rbit-workflow", "xtask", "crates/test-support"]
+exclude = ["crates/action-example", "vendor/rbit-workflow", "xtask", "crates/test-support", "vendor/grit"]
 
 [features]
 default = []
@@ -18,6 +19,7 @@ workflows = ["dep:rbit-workflow"]
 action-api = ["dep:axum", "dep:tokio", "dep:subtle"]
 
 [dependencies]
+grit-git = { path = "vendor/grit/grit-git", default-features = false }
 rbit-workflow = { path = "vendor/rbit-workflow", optional = true }
 anyhow = "1.0"
 clap = { version = "4.6", features = ["derive"] }
