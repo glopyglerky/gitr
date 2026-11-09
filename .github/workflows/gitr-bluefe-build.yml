@@ -18,12 +18,12 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 180
     env:
-      BLUEFE_ROOT: ${{ runner.temp }}/gitr-produced-bluefe
+      BLUEFE_ROOT: ${{ github.workspace }}/.gitr-ci/gitr-produced-bluefe
       BLUEFE_SOURCE: ${{ github.workspace }}/.ci-bluefe
       LUSTR_SOURCE: ${{ github.workspace }}/.ci-lustr
-      BLUEFE_BUILD_DIR: ${{ runner.temp }}/gitr-bluefe-build
-      LUSTR_BUILD_DIR: ${{ runner.temp }}/gitr-lustr-build
-      CARGO_TARGET_DIR: ${{ runner.temp }}/gitr-qualification-target
+      BLUEFE_BUILD_DIR: ${{ github.workspace }}/.gitr-ci/gitr-bluefe-build
+      LUSTR_BUILD_DIR: ${{ github.workspace }}/.gitr-ci/gitr-lustr-build
+      CARGO_TARGET_DIR: ${{ github.workspace }}/.gitr-ci/gitr-qualification-target
       CARGO_BUILD_JOBS: 2
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -38,7 +38,7 @@ jobs:
       - uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830
         id: toolchain-cache
         with:
-          path: ${{ runner.temp }}/gitr-produced-bluefe
+          path: ${{ env.BLUEFE_ROOT }}
           key: gitr-bluefe-ubuntu24-x64-7005dc02c9fb6674380eade443022bbc04215276-lustr-6339fbb104d6adda4be7e6be7dc637a6a9e5586b-${{ hashFiles('ci/bluefe_bundle.rs') }}
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         if: steps.toolchain-cache.outputs.cache-hit != 'true'
@@ -64,7 +64,7 @@ jobs:
       - uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830
         if: steps.toolchain-cache.outputs.cache-hit != 'true'
         with:
-          path: ${{ runner.temp }}/gitr-produced-bluefe
+          path: ${{ env.BLUEFE_ROOT }}
           key: ${{ steps.toolchain-cache.outputs.cache-primary-key }}
       - name: Archive the self-contained Linux compiler bundle
         run: '"${{ runner.temp }}/gitr-bluefe-bundle-helper" archive'

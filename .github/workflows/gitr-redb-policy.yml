@@ -8,7 +8,7 @@ jobs:
     runs-on: [self-hosted, linux, gitr-bluefe]
     env:
       CARGO_BUILD_JOBS: 2
-      CARGO_TARGET_DIR: ${{ runner.temp }}/gitr-policy-target
+      CARGO_TARGET_DIR: ${{ github.workspace }}/.gitr-ci/gitr-policy-target
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
