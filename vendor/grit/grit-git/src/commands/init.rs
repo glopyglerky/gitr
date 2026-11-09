@@ -481,16 +481,15 @@ pub fn run(args: Args, global_bare: bool) -> Result<()> {
         }
     }
 
-    // Leftover `.git` from a failed/partial init (no HEAD): remove so `git init` matches Git
-    // (t5332 `git init` into a directory that had an incomplete `.git`).
-    if !bare && real_git_dir.exists() && !real_git_dir.join("HEAD").exists() {
-        if real_git_dir.is_dir() {
-            fs::remove_dir_all(&real_git_dir)
-                .with_context(|| format!("cannot remove incomplete {}", real_git_dir.display()))?;
-        } else {
-            fs::remove_file(&real_git_dir)
-                .with_context(|| format!("cannot remove {}", real_git_dir.display()))?;
+    // Missing HEAD does not make existing objects, configuration, or recovery
+    // data disposable. Continue initialization in an existing directory.
+    match fs::metadata(&real_git_dir) {
+        Ok(metadata) if !metadata.is_dir() => {
+            bail!("repository path is not a directory: {}", real_git_dir.display());
         }
+        Ok(_) => {}
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+        Err(error) => return Err(error).context("inspect repository directory"),
     }
 
     // Check if this is a reinit
@@ -996,25 +995,27 @@ fn create_git_dir(git_dir: &Path, opts: CreateGitDirOptions<'_>) -> Result<()> {
         let reftable_dir = git_dir.join("reftable");
         fs::create_dir_all(&reftable_dir)?;
         let tables_list = reftable_dir.join("tables.list");
-        if !tables_list.exists() {
-            fs::write(&tables_list, "")?;
+        match fs::OpenOptions::new().write(true).create_new(true).open(&tables_list) {
+            Ok(file) => {
+                file.sync_all()?;
+                #[cfg(unix)]
+                fs::File::open(&reftable_dir)?.sync_all()?;
+            }
+            Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {
+                if !fs::symlink_metadata(&tables_list)?.file_type().is_file() {
+                    bail!("reftable tables.list must be a regular file");
+                }
+            }
+            Err(error) => return Err(error).context("initialize reftable tables.list"),
         }
-        if !is_reinit && fs::read_to_string(&tables_list)?.trim().is_empty() {
-            let writer = grit_lib::reftable::ReftableWriter::new(
-                grit_lib::reftable::WriteOptions::default(),
-                1,
-                1,
-            );
-            let table = writer.finish()?;
-            let mut stack = grit_lib::reftable::ReftableStack::open(git_dir)?;
-            stack.add_table(&table, 1)?;
-        }
+        // An empty stack is valid. The first checked writer publishes its first
+        // table under the stack lock; init must not append from a stale read.
     }
 
     // Apply templates or built-in defaults
     if let Some(tmpl) = template_dir {
         if tmpl.is_dir() {
-            copy_template(tmpl, git_dir)?;
+            copy_template(tmpl, git_dir, git_dir)?;
         }
     } else if !skip_default_templates {
         // Create built-in default template content.
@@ -1033,13 +1034,6 @@ fn create_git_dir(git_dir: &Path, opts: CreateGitDirOptions<'_>) -> Result<()> {
                  .test_tick\n",
             )?;
         }
-    }
-
-    // Write HEAD (only on fresh init, or if missing during unusual setups)
-    let head_path = git_dir.join("HEAD");
-    if !initial_branch.is_empty() && (!is_reinit || !head_path.exists()) {
-        let head_content = format!("ref: refs/heads/{initial_branch}\n");
-        fs::write(&head_path, head_content)?;
     }
 
     // Write or merge config (templates may supply `config`; do not clobber it — t1301 #22).
@@ -1103,6 +1097,14 @@ fn create_git_dir(git_dir: &Path, opts: CreateGitDirOptions<'_>) -> Result<()> {
                 "Unnamed repository; edit this file 'description' to name the repository.\n",
             )?;
         }
+    }
+
+    // Publish HEAD only after repository formats/configuration exist. Preserve
+    // a template HEAD or another initializer's HEAD; when absent, creation is
+    // an expected-absent update under HEAD.lock, never a blind overwrite.
+    if !initial_branch.is_empty() && grit_lib::refs::read_ref_snapshot(git_dir, "HEAD")?.is_none() {
+        grit_lib::refs::compare_and_swap_ref(git_dir, "HEAD", None,
+            Some(&grit_lib::refs::Ref::Symbolic(format!("refs/heads/{initial_branch}"))))?;
     }
 
     Ok(())
@@ -1197,17 +1199,76 @@ fn expand_tilde(path: &str) -> String {
 }
 
 /// Recursively copy template files from `src` to `dst`, skipping existing files.
-fn copy_template(src: &Path, dst: &Path) -> Result<()> {
+fn copy_template(src: &Path, dst: &Path, repository: &Path) -> Result<()> {
     for entry in fs::read_dir(src)? {
         let entry = entry?;
         let src_path = entry.path();
         let dst_path = dst.join(entry.file_name());
         if src_path.is_dir() {
             fs::create_dir_all(&dst_path)?;
-            copy_template(&src_path, &dst_path)?;
+            copy_template(&src_path, &dst_path, repository)?;
         } else {
-            fs::copy(&src_path, &dst_path)?;
+            if dst_path == repository.join("HEAD") {
+                let value = grit_lib::refs::read_ref_file(&src_path)?;
+                if grit_lib::refs::read_ref_snapshot(repository, "HEAD")?.is_none() {
+                    grit_lib::refs::compare_and_swap_ref(repository, "HEAD", None, Some(&value))?;
+                }
+                continue;
+            }
+            let mut destination = match fs::OpenOptions::new().write(true).create_new(true).open(&dst_path) {
+                Ok(file) => file,
+                Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => continue,
+                Err(error) => return Err(error.into()),
+            };
+            let mut source = fs::File::open(&src_path)?;
+            std::io::copy(&mut source, &mut destination)?;
+            destination.set_permissions(source.metadata()?.permissions())?;
+            destination.sync_all()?;
         }
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod safety_tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+    use super::*;
+
+    #[test]
+    fn incomplete_repository_keeps_objects_and_recovery_data() {
+        let root = tempfile::tempdir().unwrap();
+        let git_dir = root.path().join(".git");
+        fs::create_dir_all(git_dir.join("objects/ab")).unwrap();
+        let object = git_dir.join("objects/ab/recoverable");
+        fs::write(&object, b"recoverable object bytes").unwrap();
+        fs::write(git_dir.join("recovery-state"), b"keep me").unwrap();
+        run(Args {
+            bare: false, quiet: true, template: Some(String::new()),
+            separate_git_dir: None, object_format: Some("sha1".to_owned()),
+            initial_branch: Some("main".to_owned()), shared: None,
+            ref_format: Some("files".to_owned()), directory: Some(root.path().to_path_buf()),
+        }, false).unwrap();
+        assert_eq!(fs::read(&object).unwrap(), b"recoverable object bytes");
+        assert_eq!(fs::read(git_dir.join("recovery-state")).unwrap(), b"keep me");
+        assert_eq!(fs::read_to_string(git_dir.join("HEAD")).unwrap(), "ref: refs/heads/main\n");
+    }
+
+    #[test]
+    fn templates_and_stale_fresh_init_do_not_replace_existing_head() {
+        let root = tempfile::tempdir().unwrap();
+        let templates = tempfile::tempdir().unwrap();
+        fs::write(templates.path().join("HEAD"), b"ref: refs/heads/template\n").unwrap();
+        let make = |initial_branch| create_git_dir(root.path(), CreateGitDirOptions {
+            initial_branch, bare: true, object_format: "sha1",
+            template_dir: Some(templates.path()), skip_default_templates: false,
+            is_reinit: false, ref_format: "reftable", work_tree: None,
+        });
+        make("requested").unwrap();
+        assert_eq!(fs::read_to_string(root.path().join("HEAD")).unwrap(), "ref: refs/heads/template\n");
+        fs::write(root.path().join("HEAD"), b"ref: refs/heads/winner\n").unwrap();
+        fs::write(root.path().join("reftable/tables.list"), b"winner-table.ref\n").unwrap();
+        make("loser").unwrap();
+        assert_eq!(fs::read_to_string(root.path().join("HEAD")).unwrap(), "ref: refs/heads/winner\n");
+        assert_eq!(fs::read(root.path().join("reftable/tables.list")).unwrap(), b"winner-table.ref\n");
+    }
 }

@@ -2443,7 +2443,7 @@ fn effective_submodule_clone_url(configured: &str, gitmodules_url: &str) -> Stri
     }
 }
 
-include!("_submodule_run_update_inner.rs.inc");
+include!("_submodule_run_update_inner.rs");
 
 /// Ensure `.git/modules/<rel>` exists when the superproject still records the submodule but the
 /// module directory was removed (e.g. `git revert` after replacing a submodule with a file).
@@ -3381,17 +3381,19 @@ fn run_foreach_in(
 
         let sha1 = read_submodule_commit(super_repo, &m.path)?.unwrap_or_default();
 
-        let mut cmd = Command::new("sh");
-        if command_argv.len() == 1 {
-            // One shell snippet (e.g. `git submodule foreach "git submodule update --init"`).
-            cmd.arg("-c").arg(&command_argv[0]);
+        let mut cmd = if command_argv.len() == 1 {
+            // A single argument is the user's shell command.
+            let mut command = Command::new("sh");
+            command.arg("-c").arg(&command_argv[0]);
+            command
         } else {
-            // Multiple argv words: run via `exec` so the command is not parsed twice (matches Git).
-            cmd.arg("-c")
-                .arg("exec \"$@\"")
-                .arg("sh")
-                .args(command_argv);
-        }
+            let Some((program, arguments)) = command_argv.split_first() else {
+                bail!("submodule foreach requires a command");
+            };
+            let mut command = Command::new(program);
+            command.args(arguments);
+            command
+        };
         let status = cmd
             .current_dir(&sub_path)
             .stdin(Stdio::inherit())

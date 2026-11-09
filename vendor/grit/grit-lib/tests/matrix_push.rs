@@ -309,7 +309,7 @@ fn spawn_daemon(base_path: &Path, port: u16) -> Option<Child> {
 
 /// Write an executable fake-ssh program that ignores host/options, rewrites the
 /// dashed transport name to the `git <service>` subcommand, and execs it
-/// locally. Returns `None` if it cannot be created/made executable.
+/// locally. A compiler failure fails the test.
 #[cfg(unix)]
 fn write_fake_ssh(dir: &Path) -> Option<PathBuf> {
     Some(rust_fixtures::fake_ssh(dir))
@@ -945,14 +945,13 @@ fn remote_rejection_surfaces_over_ssh() {
 // happy-path tests above already exercise v2 parsing against a real server. To
 // *also* pin the plain-v1 report and the v2-specific trailing `option` line, we
 // drive a tiny real fake-`receive-pack` Rust fixture program over the SSH transport: it
-// emits a valid v0 advertisement, drains the client's command list + pack, then
-// writes a chosen report (v1 or v2) byte-for-byte. This is a real subprocess
+// emits a valid v0 advertisement, drains the client's command list + pack
+// concurrently, and writes a chosen report (v1 or v2) byte-for-byte. This is a real subprocess
 // wire exchange, not a synthetic in-process call.
 // ===========================================================================
 
 /// Build a fake-ssh program whose "receive-pack" is `fake_rp`: the fixture execs
-/// the fake receive-pack regardless of the requested command. Returns `None` if
-/// it cannot be created.
+/// the fake receive-pack regardless of the requested command.
 #[cfg(unix)]
 fn write_fake_ssh_to(dir: &Path, name: &str, fake_rp: &Path) -> Option<PathBuf> {
     Some(rust_fixtures::forward_to(dir, name, fake_rp))
@@ -961,8 +960,8 @@ fn write_fake_ssh_to(dir: &Path, name: &str, fake_rp: &Path) -> Option<PathBuf> 
 /// Write an executable fake-`receive-pack` Rust program that:
 ///   1. prints a v0 advertisement: one ref line carrying capabilities (NO
 ///      side-band, so `push_remote` reads the report raw), then a flush;
-///   2. drains stdin to EOF (the client's command list + pack);
-///   3. prints `$REPORT_BYTES` (the chosen report-status body) and exits.
+///   2. drains stdin concurrently while the client sends its command list and pack;
+///   3. writes the exact report bytes and keeps stdin open briefly before exiting.
 ///
 /// `report_bytes` is the exact pkt-line report to emit (built with [`pkt`]).
 #[cfg(unix)]

@@ -8,8 +8,8 @@ use std::str::FromStr;
 
 use grit_lib::config::ConfigSet;
 use grit_lib::crlf::{self, ConversionConfig};
-use grit_lib::fsck_standalone::fsck_object;
-use grit_lib::objects::ObjectKind;
+use grit_lib::fsck_standalone::fsck_object_with_hash;
+use grit_lib::objects::{HashAlgo, ObjectKind};
 use grit_lib::odb::Odb;
 use grit_lib::repo::Repository;
 
@@ -72,12 +72,11 @@ pub fn run(args: Args) -> Result<()> {
     let use_filters = kind == ObjectKind::Blob && !args.no_filters;
     let repo = if args.write {
         Some(Repository::discover(None).context("not a git repository")?)
-    } else if use_filters {
-        Repository::discover(None).ok()
     } else {
-        None
+        Repository::discover(None).ok()
     };
-    let filter_context = repo.as_ref().and_then(HashObjectFilterContext::load);
+    let algo = repo.as_ref().map_or(HashAlgo::Sha1, |repo| repo.odb.hash_algo());
+    let filter_context = repo.as_ref().filter(|_| use_filters).and_then(HashObjectFilterContext::load);
 
     // We only need the odb if -w is given (in which case `repo` is always `Some`).
     let odb = if let Some(repo) = repo.as_ref().filter(|_| args.write) {
@@ -99,10 +98,16 @@ pub fn run(args: Args) -> Result<()> {
     });
 
     if args.stdin {
+        if kind == ObjectKind::Blob && (args.no_filters || vpath.is_none() || filter_context.is_none()) {
+            let oid = hash_blob_stream(&mut std::io::stdin().lock(), odb.as_ref(), algo)?;
+            println!("{oid}");
+        } else {
         let mut data = Vec::new();
         std::io::stdin()
+            .take(BUFFERED_OBJECT_LIMIT + 1)
             .read_to_end(&mut data)
             .context("reading stdin")?;
+        ensure_buffered_size(data.len())?;
         // With --stdin, the only attribute path available is --path (Git passes `vpath` to
         // hash_fd); without it, no filter applies.
         let data = if args.no_filters {
@@ -112,10 +117,14 @@ pub fn run(args: Args) -> Result<()> {
         } else {
             data
         };
-        validate_object_data(kind, &data, args.literally)?;
-        let oid = hash_and_maybe_write(kind, &data, odb.as_ref())?;
+        validate_object_data(kind, &data, args.literally, algo)?;
+        let oid = hash_and_maybe_write(kind, &data, odb.as_ref(), algo)?;
         println!("{oid}");
+        }
         for path in &args.files {
+            if stream_path_if_unfiltered(path, kind, args.no_filters || filter_context.is_none(), odb.as_ref(), algo)? {
+                continue;
+            }
             let file_data = read_file_for_hash(
                 path,
                 kind,
@@ -123,8 +132,8 @@ pub fn run(args: Args) -> Result<()> {
                 filter_context.as_ref(),
                 vpath.as_ref(),
             )?;
-            validate_object_data(kind, &file_data, args.literally)?;
-            let file_oid = hash_and_maybe_write(kind, &file_data, odb.as_ref())?;
+            validate_object_data(kind, &file_data, args.literally, algo)?;
+            let file_oid = hash_and_maybe_write(kind, &file_data, odb.as_ref(), algo)?;
             println!("{file_oid}");
         }
     } else if args.stdin_paths {
@@ -137,14 +146,20 @@ pub fn run(args: Args) -> Result<()> {
                 continue;
             }
             let path = PathBuf::from(line);
+            if stream_path_if_unfiltered(&path, kind, args.no_filters || filter_context.is_none(), odb.as_ref(), algo)? {
+                continue;
+            }
             let data =
                 read_file_for_hash(&path, kind, args.no_filters, filter_context.as_ref(), None)?;
-            validate_object_data(kind, &data, args.literally)?;
-            let oid = hash_and_maybe_write(kind, &data, odb.as_ref())?;
+            validate_object_data(kind, &data, args.literally, algo)?;
+            let oid = hash_and_maybe_write(kind, &data, odb.as_ref(), algo)?;
             println!("{oid}");
         }
     } else {
         for path in &args.files {
+            if stream_path_if_unfiltered(path, kind, args.no_filters || filter_context.is_none(), odb.as_ref(), algo)? {
+                continue;
+            }
             let data = read_file_for_hash(
                 path,
                 kind,
@@ -152,8 +167,8 @@ pub fn run(args: Args) -> Result<()> {
                 filter_context.as_ref(),
                 vpath.as_ref(),
             )?;
-            validate_object_data(kind, &data, args.literally)?;
-            let oid = hash_and_maybe_write(kind, &data, odb.as_ref())?;
+            validate_object_data(kind, &data, args.literally, algo)?;
+            let oid = hash_and_maybe_write(kind, &data, odb.as_ref(), algo)?;
             println!("{oid}");
         }
     }
@@ -203,7 +218,10 @@ fn read_file_for_hash(
     filter_context: Option<&HashObjectFilterContext<'_>>,
     vpath: Option<&Option<String>>,
 ) -> Result<Vec<u8>> {
-    let raw = std::fs::read(path).with_context(|| format!("cannot read '{}'", path.display()))?;
+    let mut raw = Vec::new();
+    std::fs::File::open(path).with_context(|| format!("cannot read '{}'", path.display()))?
+        .take(BUFFERED_OBJECT_LIMIT + 1).read_to_end(&mut raw)?;
+    ensure_buffered_size(raw.len())?;
     if kind != ObjectKind::Blob || no_filters {
         return Ok(raw);
     }
@@ -244,11 +262,11 @@ fn filter_relative_path(path: &Path, work_tree: Option<&Path>) -> Option<String>
     Some(rel.to_string_lossy().replace('\\', "/"))
 }
 
-fn validate_object_data(kind: ObjectKind, data: &[u8], literally: bool) -> Result<()> {
+fn validate_object_data(kind: ObjectKind, data: &[u8], literally: bool, algo: HashAlgo) -> Result<()> {
     if literally {
         return Ok(());
     }
-    if let Err(e) = fsck_object(kind, data) {
+    if let Err(e) = fsck_object_with_hash(kind, data, algo) {
         if kind == ObjectKind::Tree && e.id == "badTree" {
             eprintln!("error: too-short tree object");
         }
@@ -280,18 +298,50 @@ fn odb_for_write(repo: &Repository) -> Result<Odb> {
             .context("GIT_OBJECT_DIRECTORY is relative; need current directory")?
             .join(p)
     };
-    Ok(Odb::new(&abs))
+    Ok(Odb::new(&abs).with_config_git_dir(repo.git_dir.clone()))
 }
 
 fn hash_and_maybe_write(
     kind: ObjectKind,
     data: &[u8],
     odb: Option<&Odb>,
+    algo: HashAlgo,
 ) -> Result<grit_lib::objects::ObjectId> {
     if let Some(db) = odb {
         db.write_loose_materialize(kind, data)
             .context("writing object")
     } else {
-        Ok(Odb::hash_object_data(kind, data))
+        // Structured inputs are bounded above; their exact repository hash
+        // algorithm still applies even when -w is not requested.
+        if algo == HashAlgo::Sha1 {
+            Ok(Odb::hash_object_data(kind, data))
+        } else {
+            use sha2::Digest;
+            let mut hasher = sha2::Sha256::new();
+            hasher.update(format!("{kind} {}\0", data.len()).as_bytes());
+            hasher.update(data);
+            Ok(grit_lib::objects::ObjectId::from_bytes(hasher.finalize().as_slice())?)
+        }
     }
+}
+
+const BUFFERED_OBJECT_LIMIT: u64 = 64 * 1024 * 1024;
+
+fn ensure_buffered_size(size: usize) -> Result<()> {
+    if size as u64 > BUFFERED_OBJECT_LIMIT {
+        bail!("structured or filtered hash-object inputs above 64 MiB are not qualified; unfiltered blobs use --no-filters with bounded-memory streaming");
+    }
+    Ok(())
+}
+
+fn hash_blob_stream(input: &mut dyn Read, odb: Option<&Odb>, algo: HashAlgo) -> Result<grit_lib::objects::ObjectId> {
+    if let Some(odb) = odb { Ok(odb.write_blob_stream(input)?) }
+    else { Ok(Odb::hash_blob_stream(algo, input)?) }
+}
+
+fn stream_path_if_unfiltered(path: &Path, kind: ObjectKind, unfiltered: bool, odb: Option<&Odb>, algo: HashAlgo) -> Result<bool> {
+    if kind != ObjectKind::Blob || !unfiltered { return Ok(false); }
+    let mut file = std::fs::File::open(path).with_context(|| format!("cannot read '{}'", path.display()))?;
+    println!("{}", hash_blob_stream(&mut file, odb, algo)?);
+    Ok(true)
 }

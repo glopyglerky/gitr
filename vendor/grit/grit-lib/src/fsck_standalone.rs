@@ -6,7 +6,7 @@
 
 use crate::check_ref_format::{check_refname_format, RefNameOptions};
 use crate::git_date::tm::date_overflows;
-use crate::objects::{ObjectId, ObjectKind};
+use crate::objects::{HashAlgo, ObjectId, ObjectKind};
 
 /// Git-compatible fsck failure for loose object validation.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -39,11 +39,16 @@ impl FsckError {
 /// Returns `Ok(())` when the object is well-formed, or the first fsck error Git
 /// would report for truncated or malformed buffers.
 pub fn fsck_object(kind: ObjectKind, data: &[u8]) -> Result<(), FsckError> {
+    fsck_object_with_hash(kind, data, HashAlgo::Sha1)
+}
+
+/// Validate tree entry widths using the repository's object hash algorithm.
+pub fn fsck_object_with_hash(kind: ObjectKind, data: &[u8], algo: HashAlgo) -> Result<(), FsckError> {
     match kind {
         ObjectKind::Blob => Ok(()),
         ObjectKind::Commit => fsck_commit(data),
         ObjectKind::Tag => fsck_tag(data),
-        ObjectKind::Tree => fsck_tree(data),
+        ObjectKind::Tree => fsck_tree(data, algo.len()),
     }
 }
 
@@ -426,7 +431,7 @@ pub fn parse_tag_for_mktag(
     }
     i += 7;
     let n = parse_oid_line(&data[i..], "badObjectSha1")?;
-    let tagged_oid = std::str::from_utf8(&data[i..i + 40])
+    let tagged_oid = std::str::from_utf8(&data[i..i + n - 1])
         .map_err(|_| FsckError::new("badObjectSha1", "invalid 'object' line format - bad sha1"))?
         .parse::<ObjectId>()
         .map_err(|_| FsckError::new("badObjectSha1", "invalid 'object' line format - bad sha1"))?;
@@ -614,7 +619,7 @@ pub fn fsck_tag_mktag_trailer(data: &[u8]) -> Result<(), FsckError> {
     Ok(())
 }
 
-fn fsck_tree(data: &[u8]) -> Result<(), FsckError> {
+fn fsck_tree(data: &[u8], oid_width: usize) -> Result<(), FsckError> {
     let mut pos = 0usize;
     let mut names: Vec<Vec<u8>> = Vec::new();
     while pos < data.len() {
@@ -647,13 +652,13 @@ fn fsck_tree(data: &[u8]) -> Result<(), FsckError> {
         names.push(data[pos..pos + nul].to_vec());
         pos += nul + 1;
 
-        if pos + 20 > data.len() {
+        if pos + oid_width > data.len() {
             return Err(FsckError::new("badTree", "cannot be parsed as a tree"));
         }
-        if ObjectId::from_bytes(&data[pos..pos + 20]).is_err() {
+        if ObjectId::from_bytes(&data[pos..pos + oid_width]).is_err() {
             return Err(FsckError::new("badTree", "cannot be parsed as a tree"));
         }
-        pos += 20;
+        pos += oid_width;
     }
     let mut sorted = names;
     sorted.sort();
@@ -669,6 +674,25 @@ fn fsck_tree(data: &[u8]) -> Result<(), FsckError> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn tree_validation_uses_the_repository_hash_width() {
+        for algo in [HashAlgo::Sha1, HashAlgo::Sha256] {
+            let mut tree = b"100644 file\0".to_vec();
+            tree.extend(std::iter::repeat_n(0xa5, algo.len()));
+            fsck_object_with_hash(ObjectKind::Tree, &tree, algo).unwrap();
+            tree.pop();
+            assert!(fsck_object_with_hash(ObjectKind::Tree, &tree, algo).is_err());
+        }
+    }
+
+    #[test]
+    fn mktag_preserves_a_sha256_target() {
+        let hex = "a5".repeat(32);
+        let tag = format!("object {hex}\ntype blob\ntag example\ntagger Test <test@example.invalid> 1700000000 +0000\n\nmessage\n");
+        let (oid, _, _, _) = parse_tag_for_mktag(tag.as_bytes(), true, &mut |_| {}).unwrap();
+        assert_eq!(oid.to_hex(), hex);
+    }
 
     #[test]
     fn empty_commit_is_unterminated_header() {

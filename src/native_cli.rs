@@ -31,6 +31,9 @@ pub(crate) fn select(args: &mut Vec<OsString>) -> bool {
             index += 1;
             continue;
         }
+        // Preserve the already qualified strict-CAS plumbing interface while
+        // the donor's full update-ref transaction modes are being migrated.
+        if arg == "update-ref" { return false; }
         return !EXTENSIONS.contains(&arg);
     }
     true
@@ -54,11 +57,12 @@ mod tests {
 
     #[test]
     fn standard_commands_use_native_engine() {
-        for command in ["init", "add", "commit", "clone", "fetch", "push", "merge", "rebase", "stash", "log", "update-ref"] {
+        for command in ["init", "add", "commit", "clone", "fetch", "push", "merge", "rebase", "stash", "log"] {
             assert!(select(&mut args(&["gitr", "-C", "repo", command])));
         }
         assert!(select(&mut args(&["gitr", "--native-git", "log"])));
         assert!(select(&mut args(&["gitr", "-c", "user.name=Test", "commit"])));
+        assert!(!select(&mut args(&["gitr", "update-ref", "refs/heads/main", "new", "old"])));
     }
 
     #[test]

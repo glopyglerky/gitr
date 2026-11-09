@@ -36,6 +36,7 @@ use crate::pack;
 
 /// Gitr's optional durable, chunked redb object backend.
 pub mod redb_store;
+mod streaming;
 #[cfg(test)]
 mod redb_tests;
 
@@ -321,15 +322,17 @@ impl Odb {
         if let Some(store) = cached.as_ref() {
             return Ok(Some(Arc::clone(store)));
         }
-        let store = match fs::symlink_metadata(&path) {
-            Ok(_) => RedbObjectStore::open(&path, self.hash_algo())?,
-            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
-                if !create {
-                    return Ok(None);
-                }
-                RedbObjectStore::create(&path, self.hash_algo())?
+        let store = if create {
+            // Another first writer may already have created the file without
+            // committing its schema yet. Creation validates or initializes the
+            // schema under redb's writer lock; a schema lookup can be too early.
+            RedbObjectStore::create(&path, self.hash_algo())?
+        } else {
+            match fs::symlink_metadata(&path) {
+                Ok(_) => RedbObjectStore::open(&path, self.hash_algo())?,
+                Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(None),
+                Err(error) => return Err(Error::Io(error)),
             }
-            Err(error) => return Err(Error::Io(error)),
         };
         let store = Arc::new(store);
         *cached = Some(Arc::clone(&store));
@@ -365,7 +368,7 @@ impl Odb {
         let compression = self.loose_compression()?;
         // An existing conflicting mirror is evidence of corruption, not a file
         // that can be overwritten just because the database holds valid bytes.
-        self.verify_loose_mirror(&oid, raw)?;
+        let _ = self.verify_loose_mirror(&oid, raw)?;
         let store = self.redb_store(true)?
             .ok_or_else(|| Error::RedbObjectStore("selected object backend disappeared".to_owned()))?;
         let stored = store.insert_raw(raw)?;
@@ -376,54 +379,59 @@ impl Odb {
         Ok(Some(oid))
     }
 
-    fn verify_loose_mirror(&self, oid: &ObjectId, raw: &[u8]) -> Result<bool> {
+    fn verify_loose_mirror(&self, oid: &ObjectId, raw: &[u8]) -> Result<Option<fs::File>> {
         let path = self.object_path(oid);
         match fs::symlink_metadata(&path) {
             Ok(meta) if meta.file_type().is_file() => {}
             Ok(_) => return Err(Error::RedbObjectStore("object mirror must be a regular file".to_owned())),
-            Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(false),
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(None),
             Err(error) => return Err(Error::Io(error)),
         }
-        let stored = read_zlib_loose_payload(fs::File::open(&path)?)?;
+        let file = fs::File::open(&path)?;
+        let stored = read_zlib_loose_payload(file.try_clone()?)?;
         if stored != raw {
             return Err(Error::ObjectIdentityConflict(oid.to_hex()));
         }
-        Ok(true)
+        // Keep the verified handle so publication syncs the actual existing or
+        // concurrently winning mirror, not only our own temporary file.
+        Ok(Some(file))
     }
 
     fn publish_loose_mirror(&self, oid: &ObjectId, raw: &[u8], compression: Compression) -> Result<()> {
-        if self.verify_loose_mirror(oid, raw)? {
-            let _ = self.freshen_object(oid);
-            return Ok(());
-        }
         let path = self.object_path(oid);
         let directory = path.parent()
             .ok_or_else(|| Error::PathError("object mirror path has no parent".to_owned()))?;
-        fs::create_dir_all(directory)?;
-        if !fs::symlink_metadata(directory)?.file_type().is_dir() {
-            return Err(Error::RedbObjectStore("object mirror parent must be a real directory".to_owned()));
-        }
-        let mut temporary = tempfile::NamedTempFile::new_in(directory)?;
-        {
-            let mut encoder = ZlibEncoder::new(temporary.as_file_mut(), compression);
-            encoder.write_all(raw).map_err(|e| Error::Zlib(e.to_string()))?;
-            encoder.finish().map_err(|e| Error::Zlib(e.to_string()))?;
-        }
-        #[cfg(unix)]
-        {
-            use std::os::unix::fs::PermissionsExt;
-            temporary.as_file().set_permissions(fs::Permissions::from_mode(0o444))?;
-        }
-        temporary.as_file().sync_all()?;
-        match temporary.persist_noclobber(&path) {
-            Ok(_) => {}
-            Err(error) if error.error.kind() == std::io::ErrorKind::AlreadyExists => {
-                if !self.verify_loose_mirror(oid, raw)? {
-                    return Err(Error::RedbObjectStore("concurrent object mirror disappeared".to_owned()));
-                }
+        let mirror = if let Some(file) = self.verify_loose_mirror(oid, raw)? {
+            let _ = self.freshen_object(oid);
+            file
+        } else {
+            fs::create_dir_all(directory)?;
+            if !fs::symlink_metadata(directory)?.file_type().is_dir() {
+                return Err(Error::RedbObjectStore("object mirror parent must be a real directory".to_owned()));
             }
-            Err(error) => return Err(Error::Io(error.error)),
-        }
+            let mut temporary = tempfile::NamedTempFile::new_in(directory)?;
+            {
+                let mut encoder = ZlibEncoder::new(temporary.as_file_mut(), compression);
+                encoder.write_all(raw).map_err(|e| Error::Zlib(e.to_string()))?;
+                encoder.finish().map_err(|e| Error::Zlib(e.to_string()))?;
+            }
+            #[cfg(unix)]
+            {
+                use std::os::unix::fs::PermissionsExt;
+                temporary.as_file().set_permissions(fs::Permissions::from_mode(0o444))?;
+            }
+            temporary.as_file().sync_all()?;
+            match temporary.persist_noclobber(&path) {
+                Ok(file) => file,
+                Err(error) if error.error.kind() == std::io::ErrorKind::AlreadyExists => {
+                    self.verify_loose_mirror(oid, raw)?.ok_or_else(|| {
+                        Error::RedbObjectStore("concurrent object mirror disappeared".to_owned())
+                    })?
+                }
+                Err(error) => return Err(Error::Io(error.error)),
+            }
+        };
+        mirror.sync_all()?;
         #[cfg(unix)]
         {
             fs::File::open(directory)?.sync_all()?;
@@ -573,12 +581,11 @@ impl Odb {
             Err(_) => return false,
         }
         // The empty tree is a well-known object (no on-disk loose file). Git's
-        // canonical SHA-1 is `...8d69288fbee4904`; some harnesses still use the
-        // legacy typo hash `...899d69f7c6948d4` — treat both as present.
+        // canonical SHA-1 is `...8d69288fbee4904`. Other identities must exist
+        // in storage and must not be synthesized for a test-suite shortcut.
         const EMPTY_TREE_CANON: &str = "4b825dc642cb6eb9a060e54bf8d69288fbee4904";
-        const EMPTY_TREE_LEGACY: &str = "4b825dc642cb6eb9a060e54bf899d69f7c6948d4";
         let hex = oid.to_hex();
-        if hex == EMPTY_TREE_CANON || hex == EMPTY_TREE_LEGACY {
+        if hex == EMPTY_TREE_CANON {
             return true;
         }
         if self.exists_in_dir(&self.objects_dir, oid) {
@@ -643,9 +650,8 @@ impl Odb {
     #[must_use]
     pub fn freshen_object(&self, oid: &ObjectId) -> bool {
         const EMPTY_TREE_CANON: &str = "4b825dc642cb6eb9a060e54bf8d69288fbee4904";
-        const EMPTY_TREE_LEGACY: &str = "4b825dc642cb6eb9a060e54bf899d69f7c6948d4";
         let hex = oid.to_hex();
-        if hex == EMPTY_TREE_CANON || hex == EMPTY_TREE_LEGACY {
+        if hex == EMPTY_TREE_CANON {
             return false;
         }
 
@@ -727,9 +733,8 @@ impl Odb {
         }
         // The empty tree is a well-known virtual object — no storage needed.
         const EMPTY_TREE_CANON: &str = "4b825dc642cb6eb9a060e54bf8d69288fbee4904";
-        const EMPTY_TREE_LEGACY: &str = "4b825dc642cb6eb9a060e54bf899d69f7c6948d4";
         let hex = oid.to_hex();
-        if hex == EMPTY_TREE_CANON || hex == EMPTY_TREE_LEGACY {
+        if hex == EMPTY_TREE_CANON {
             return Ok(crate::objects::Object {
                 kind: crate::objects::ObjectKind::Tree,
                 data: Vec::new(),

@@ -1819,6 +1819,12 @@ fn branch_creation_recurse_submodules(repo: &Repository, args: &Args) -> bool {
         .unwrap_or(false)
 }
 
+/// Retain the donor implementation for further integration, while refusing to
+/// expose its unqualified multi-ref/config/reflog rollback as a safe operation.
+fn require_qualified_branch_transaction(operation: &str) -> Result<()> {
+    bail!("{operation} is unavailable until its multi-ref transaction and rollback are qualified")
+}
+
 fn create_branch_recursing_submodules(
     repo: &Repository,
     head: &HeadState,
@@ -1826,6 +1832,7 @@ fn create_branch_recursing_submodules(
     start_point: Option<&str>,
     args: &Args,
 ) -> Result<()> {
+    require_qualified_branch_transaction("recursive branch creation")?;
     let config = ConfigSet::load(Some(&repo.git_dir), true).unwrap_or_default();
     let propagate = config
         .get_bool("submodule.propagatebranches")
@@ -1929,7 +1936,11 @@ fn create_submodule_branch_recursive(
     args: &Args,
 ) -> Result<()> {
     let refname = format!("refs/heads/{name}");
-    grit_lib::refs::write_ref(&repo.git_dir, &refname, &commit_oid)
+    let previous = refs::read_ref_snapshot(&repo.git_dir, &refname)?;
+    if previous.is_some() && !args.force {
+        bail!("submodule branch '{name}' appeared after preflight");
+    }
+    refs::compare_and_swap_ref(&repo.git_dir, &refname, previous.as_ref(), Some(&refs::Ref::Direct(commit_oid)))
         .map_err(|e| anyhow::anyhow!("{e}"))?;
     configure_submodule_tracking(repo, name, start_point, args);
     let nested = collect_branch_submodules(repo, commit_oid)?;
@@ -2148,8 +2159,13 @@ fn create_branch(
     args: &Args,
 ) -> Result<()> {
     let refname = format!("refs/heads/{name}");
-    let previous_oid = grit_lib::refs::resolve_ref(&repo.git_dir, &refname).ok();
-    let exists = previous_oid.is_some();
+    let previous_ref = refs::read_ref_snapshot(&repo.git_dir, &refname)?;
+    let previous_oid = match &previous_ref {
+        Some(refs::Ref::Direct(oid)) => Some(*oid),
+        Some(refs::Ref::Symbolic(_)) => grit_lib::refs::resolve_ref(&repo.git_dir, &refname).ok(),
+        None => None,
+    };
+    let exists = previous_ref.is_some();
 
     if exists && !args.force {
         bail!("A branch named '{name}' already exists.");
@@ -2250,47 +2266,8 @@ fn create_branch(
     }
 
     let should_create_reflog = args.create_reflog || should_log_ref_updates(repo);
-    let mut wrote_ref_with_reftable_log = false;
-    if grit_lib::reftable::is_reftable_repo(&repo.git_dir)
-        && !exists
-        && should_create_reflog
-        && refname.starts_with("refs/heads/branch-")
-        && reftable_tables_locked(repo)
-    {
-        let ident = get_reflog_identity();
-        let from = match start_point {
-            Some(sp) => sp.to_string(),
-            None => head.branch_name().unwrap_or("HEAD").to_string(),
-        };
-        let msg = format!("branch: Created from {from}");
-        let zero_oid = ObjectId::from_hex("0000000000000000000000000000000000000000")?;
-        let (name, email, time_seconds, tz_offset) = reftable_log_identity_parts(&ident);
-        grit_lib::reftable::reftable_write_transaction(
-            &repo.git_dir,
-            vec![grit_lib::reftable::ReftableTransactionUpdate {
-                refname: refname.clone(),
-                value: grit_lib::reftable::RefValue::Val1(oid),
-                log: Some(grit_lib::reftable::LogRecord {
-                    refname: refname.clone(),
-                    update_index: 0,
-                    old_id: zero_oid,
-                    new_id: oid,
-                    name,
-                    email,
-                    time_seconds,
-                    tz_offset,
-                    message: msg,
-                }),
-            }],
-        )
-        .map_err(|e| anyhow::anyhow!("{e}"))
+    refs::compare_and_swap_ref(&repo.git_dir, &refname, previous_ref.as_ref(), Some(&refs::Ref::Direct(oid)))
         .with_context(|| format!("updating branch ref {refname}"))?;
-        wrote_ref_with_reftable_log = true;
-    } else {
-        grit_lib::refs::write_ref(&repo.git_dir, &refname, &oid)
-            .map_err(|e| anyhow::anyhow!("{e}"))
-            .with_context(|| format!("updating branch ref {refname}"))?;
-    }
 
     if start_point.is_none() && args.track.is_some() {
         if let Some(tracked_short) = head.branch_name() {
@@ -2306,7 +2283,7 @@ fn create_branch(
 
     // Create reflog when explicitly requested or when core.logAllRefUpdates
     // enables branch reflogs for this repository.
-    if should_create_reflog && !wrote_ref_with_reftable_log {
+    if should_create_reflog {
         let reflog_path = grit_lib::refs::reflog_file_path(&repo.git_dir, &refname);
         if let Some(parent) = reflog_path.parent() {
             fs::create_dir_all(parent)
@@ -2900,7 +2877,7 @@ fn delete_branch(repo: &Repository, head: &HeadState, args: &Args, name_input: &
         let branch_oid = grit_lib::refs::resolve_ref(&repo.git_dir, &refname).map_err(|_| {
             anyhow::anyhow!("error: remote-tracking branch '{name_input}' not found.")
         })?;
-        grit_lib::refs::delete_ref(&repo.git_dir, &refname).map_err(|e| anyhow::anyhow!("{e}"))?;
+        refs::compare_and_swap_ref(&repo.git_dir, &refname, Some(&refs::Ref::Direct(branch_oid)), None)?;
         if !args.quiet {
             let hex = branch_oid.to_hex();
             let short = &hex[..7.min(hex.len())];
@@ -2931,7 +2908,7 @@ fn delete_branch(repo: &Repository, head: &HeadState, args: &Args, name_input: &
     // A branch that is itself a symbolic ref is deleted as-is (its symref target is reported as the
     // "was" value, not the resolved OID); the target branch is left intact (t3200 81-83).
     if let Ok(Some(target)) = refs::read_symbolic_ref(&repo.git_dir, &refname) {
-        grit_lib::refs::delete_ref(&repo.git_dir, &refname).map_err(|e| anyhow::anyhow!("{e}"))?;
+        refs::compare_and_swap_ref(&repo.git_dir, &refname, Some(&refs::Ref::Symbolic(target.clone())), None)?;
         remove_branch_config_section(repo, &name);
         if !args.quiet {
             println!("Deleted branch {name} (was {target}).");
@@ -2992,7 +2969,7 @@ fn delete_branch(repo: &Repository, head: &HeadState, args: &Args, name_input: &
         }
     }
 
-    grit_lib::refs::delete_ref(&repo.git_dir, &refname).map_err(|e| anyhow::anyhow!("{e}"))?;
+    refs::compare_and_swap_ref(&repo.git_dir, &refname, Some(&refs::Ref::Direct(branch_oid)), None)?;
 
     // For files backend, clean up empty parent directories
     if !grit_lib::reftable::is_reftable_repo(&repo.git_dir) {
@@ -3087,6 +3064,7 @@ fn remove_branch_config_section(repo: &Repository, name: &str) {
 
 /// Rename a branch.
 fn rename_branch(repo: &Repository, head: &HeadState, args: &Args) -> Result<()> {
+    require_qualified_branch_transaction("branch rename")?;
     let (old_name_owned, new_name_owned);
     let (old_name, new_name): (&str, &str);
     if let Some(sp) = args.start_point.as_deref() {
@@ -3124,6 +3102,7 @@ fn rename_branch(repo: &Repository, head: &HeadState, args: &Args) -> Result<()>
     let force = args.force_rename || args.force;
     let old_ref = format!("refs/heads/{old_name}");
     let new_ref = format!("refs/heads/{new_name}");
+    let destination_snapshot = refs::read_ref_snapshot(&repo.git_dir, &new_ref)?;
 
     // Renaming a branch that is a symbolic ref is not allowed (t3200 84).
     if matches!(
@@ -3145,9 +3124,7 @@ fn rename_branch(repo: &Repository, head: &HeadState, args: &Args) -> Result<()>
         oid
     } else if head.branch_name() == Some(old_name) && head.oid().is_none() {
         // Allow renaming an unborn current branch (e.g. immediately after init).
-        let head_path = repo.git_dir.join("HEAD");
-        let head_content = format!("ref: refs/heads/{new_name}\n");
-        fs::write(head_path, head_content)?;
+        refs::compare_and_swap_ref(&repo.git_dir, "HEAD", Some(&refs::Ref::Symbolic(old_ref.clone())), Some(&refs::Ref::Symbolic(new_ref.clone())))?;
         rename_branch_config(repo, old_name, new_name)?;
         return Ok(());
     } else if branch_ref_is_unborn_across_worktrees(repo, &old_ref)? {
@@ -3211,11 +3188,14 @@ fn rename_branch(repo: &Repository, head: &HeadState, args: &Args) -> Result<()>
         None
     };
 
-    // Delete the old ref FIRST to avoid d/f conflicts
-    // (e.g., renaming m to m/m needs to remove refs/heads/m file before
-    // creating refs/heads/m/ directory, or n/n to n needs to remove refs/heads/n/
-    // directory before creating refs/heads/n file)
-    grit_lib::refs::delete_ref(&repo.git_dir, &old_ref).map_err(|e| anyhow::anyhow!("{e}"))?;
+    // Publish the destination before removing the source, so failed destination
+    // publication cannot lose the branch. Prefix-changing renames need a
+    // multi-ref transaction and fail explicitly until that is implemented.
+    if new_ref.starts_with(&format!("{old_ref}/")) || old_ref.starts_with(&format!("{new_ref}/")) {
+        bail!("branch renames between ancestor and descendant names require a qualified multi-ref transaction");
+    }
+    refs::compare_and_swap_ref(&repo.git_dir, &new_ref, destination_snapshot.as_ref(), Some(&refs::Ref::Direct(old_oid)))?;
+    refs::compare_and_swap_ref(&repo.git_dir, &old_ref, Some(&refs::Ref::Direct(old_oid)), None)?;
 
     // Clean up empty parent directories for old ref
     let old_path = repo.git_dir.join(&old_ref);
@@ -3231,14 +3211,9 @@ fn rename_branch(repo: &Repository, head: &HeadState, args: &Args) -> Result<()>
         parent = p.parent();
     }
 
-    // Now write the new ref
-    grit_lib::refs::write_ref(&repo.git_dir, &new_ref, &old_oid)
-        .map_err(|e| anyhow::anyhow!("{e}"))?;
-
     // Update HEAD if we renamed the current branch
     if head.branch_name() == Some(old_name) {
-        let head_content = format!("ref: refs/heads/{new_name}\n");
-        fs::write(repo.git_dir.join("HEAD"), head_content)?;
+        refs::compare_and_swap_ref(&repo.git_dir, "HEAD", Some(&refs::Ref::Symbolic(old_ref.clone())), Some(&refs::Ref::Symbolic(new_ref.clone())))?;
     }
 
     // Also update HEAD in worktrees that have the old branch checked out. Git updates each
@@ -3389,14 +3364,7 @@ fn update_worktree_heads(repo: &Repository, old_name: &str, new_name: &str) -> R
             if content.trim() != expected {
                 continue;
             }
-            // A pre-existing HEAD.lock means another process holds the ref lock; we cannot update
-            // this worktree's HEAD. Skip it and signal overall failure.
-            if wt_dir.join("HEAD.lock").exists() {
-                any_failed = true;
-                continue;
-            }
-            let new_content = format!("ref: refs/heads/{new_name}\n");
-            if fs::write(&head_path, new_content).is_err() {
+            if refs::compare_and_swap_ref(&wt_dir, "HEAD", Some(&refs::Ref::Symbolic(format!("refs/heads/{old_name}"))), Some(&refs::Ref::Symbolic(format!("refs/heads/{new_name}")))).is_err() {
                 any_failed = true;
             }
         }
@@ -3419,51 +3387,6 @@ fn get_reflog_identity() -> String {
         std::env::var("GIT_COMMITTER_EMAIL").unwrap_or_else(|_| "test@example.com".to_string());
     let date = reflog_committer_date();
     format!("{name} <{email}> {date}")
-}
-
-fn reftable_tables_locked(repo: &Repository) -> bool {
-    let dir = repo.git_dir.join("reftable");
-    let Ok(entries) = fs::read_dir(dir) else {
-        return false;
-    };
-    entries.flatten().any(|entry| {
-        entry
-            .file_name()
-            .to_str()
-            .is_some_and(|name| name.ends_with(".ref.lock"))
-    })
-}
-
-fn reftable_log_identity_parts(identity: &str) -> (String, String, u64, i16) {
-    let (name_part, rest) = identity
-        .rsplit_once(" <")
-        .map(|(name, rest)| (name.to_owned(), rest))
-        .unwrap_or_else(|| ("Test User".to_owned(), identity));
-    let (email, after_email) = rest
-        .split_once("> ")
-        .map(|(email, after)| (email.to_owned(), after))
-        .unwrap_or_else(|| (String::new(), rest));
-    let mut parts = after_email.split_whitespace();
-    let time_seconds = parts
-        .next()
-        .and_then(|value| value.parse::<u64>().ok())
-        .unwrap_or(0);
-    let tz_offset = parts.next().map(parse_reftable_tz_offset).unwrap_or(0);
-    (name_part, email, time_seconds, tz_offset)
-}
-
-fn parse_reftable_tz_offset(raw: &str) -> i16 {
-    if raw.len() != 5 {
-        return 0;
-    }
-    let sign = if raw.as_bytes().first() == Some(&b'-') {
-        -1
-    } else {
-        1
-    };
-    let hours = raw[1..3].parse::<i16>().unwrap_or(0);
-    let minutes = raw[3..5].parse::<i16>().unwrap_or(0);
-    sign * (hours * 60 + minutes)
 }
 
 /// Reflog timestamp as `<unix-epoch> <±HHMM>`. A `GIT_COMMITTER_DATE` may be in any human form
@@ -3542,6 +3465,7 @@ fn branch_ref_is_unborn_across_worktrees(repo: &Repository, branch_ref: &str) ->
 }
 
 fn copy_branch(repo: &Repository, head: &HeadState, args: &Args) -> Result<()> {
+    require_qualified_branch_transaction("branch copy")?;
     let (src_name_owned, dst_name_owned);
     let (src_name, dst_name): (&str, &str);
     if let Some(sp) = args.start_point.as_deref() {
@@ -3570,6 +3494,7 @@ fn copy_branch(repo: &Repository, head: &HeadState, args: &Args) -> Result<()> {
 
     let src_ref = format!("refs/heads/{src_name}");
     let dst_ref = format!("refs/heads/{dst_name}");
+    let destination_snapshot = refs::read_ref_snapshot(&repo.git_dir, &dst_ref)?;
 
     let src_oid = if let Ok(oid) = grit_lib::refs::resolve_ref(&repo.git_dir, &src_ref) {
         oid
@@ -3588,7 +3513,7 @@ fn copy_branch(repo: &Repository, head: &HeadState, args: &Args) -> Result<()> {
 
     // Check if dst already exists. Force can come from `-C` (force_copy) or `-c -f` (force).
     let force = args.force_copy || args.force;
-    let dst_exists = grit_lib::refs::resolve_ref(&repo.git_dir, &dst_ref).is_ok();
+    let dst_exists = destination_snapshot.is_some();
     if !force && dst_exists {
         bail!("A branch named '{dst_name}' already exists.");
     }
@@ -3613,7 +3538,7 @@ fn copy_branch(repo: &Repository, head: &HeadState, args: &Args) -> Result<()> {
         bail!("fatal: branch copy failed");
     }
 
-    grit_lib::refs::write_ref(&repo.git_dir, &dst_ref, &src_oid)
+    refs::compare_and_swap_ref(&repo.git_dir, &dst_ref, destination_snapshot.as_ref(), Some(&refs::Ref::Direct(src_oid)))
         .map_err(|e| anyhow::anyhow!("{e}"))?;
 
     // Copy reflog if exists

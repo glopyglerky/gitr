@@ -125,20 +125,6 @@ fn sq_quote_argv(args: &[String]) -> String {
         .join(" ")
 }
 
-/// `hello` line count as `Np` for bisect run scripts using `sed -ne $p hello` (t6030).
-fn hello_sed_p_env(work_dir: &Path) -> Option<String> {
-    let path = work_dir.join("hello");
-    let Ok(s) = fs::read_to_string(&path) else {
-        return None;
-    };
-    let n = s.lines().count();
-    if n == 0 {
-        None
-    } else {
-        Some(format!("{n}p"))
-    }
-}
-
 /// Parse one line of `BISECT_NAMES` (shell-quoted words) into pathspec tokens.
 fn first_bisect_replay_token_and_rest(line: &str) -> (&str, &str) {
     let s = line.trim_start();
@@ -1920,9 +1906,6 @@ fn cmd_run(repo: &Repository, args: &[String]) -> Result<()> {
             .current_dir(work_dir)
             .stdout(Stdio::piped())
             .stderr(Stdio::inherit());
-        if let Some(p) = hello_sed_p_env(work_dir) {
-            sh_cmd.env("p", p);
-        }
         let mut child = sh_cmd
             .spawn()
             .with_context(|| format!("failed to execute: {display_cmd}"))?;
@@ -2047,9 +2030,6 @@ fn verify_good_revision(
     }
     let mut sh_cmd = std::process::Command::new("sh");
     sh_cmd.arg("-c").arg(cmd_line).current_dir(work_dir);
-    if let Some(p) = hello_sed_p_env(work_dir) {
-        sh_cmd.env("p", p);
-    }
     let status = sh_cmd.status().unwrap_or_else(|_| std::process::exit(127));
     let rc = status.code().unwrap_or(1);
     if no_checkout {

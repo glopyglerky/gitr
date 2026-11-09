@@ -365,6 +365,9 @@ fn resolve_tool_context(
     config: &ConfigSet,
 ) -> Result<ToolContext> {
     if let Some(ext) = &opts.extcmd {
+        if ext.is_empty() {
+            return Err(Error::Message("no <cmd> given for --extcmd=<cmd>".into()));
+        }
         return Ok(ToolContext {
             tool_name: ext.clone(),
             extcmd: Some(ext.clone()),
@@ -439,13 +442,7 @@ fn valid_tool(config: &ConfigSet, tool: &str) -> bool {
         .get(&path_key)
         .or_else(|| config.get(&merge_path_key))
     {
-        if Command::new("sh")
-            .arg("-c")
-            .arg(format!("type {} >/dev/null 2>&1", shell_quote(&path)))
-            .status()
-            .ok()
-            .is_some_and(|s| s.success())
-        {
+        if which_tool_executable(&path).is_some() {
             return true;
         }
     }
@@ -453,16 +450,58 @@ fn valid_tool(config: &ConfigSet, tool: &str) -> bool {
 }
 
 fn which_tool_executable(tool: &str) -> Option<String> {
-    if Command::new("sh")
-        .arg("-c")
-        .arg(format!("type {tool} >/dev/null 2>&1"))
-        .status()
-        .ok()
-        .is_some_and(|s| s.success())
-    {
-        return Some(tool.to_string());
+    if tool.is_empty() {
+        return None;
     }
-    None
+    let path = Path::new(tool);
+    if path.components().count() > 1 {
+        return tool_path_is_executable(path).then(|| tool.to_string());
+    }
+    std::env::var_os("PATH")
+        .into_iter()
+        .flat_map(|paths| std::env::split_paths(&paths).collect::<Vec<_>>())
+        .any(|directory| tool_path_is_executable(&directory.join(path)))
+        .then(|| tool.to_string())
+}
+
+fn tool_path_is_executable(path: &Path) -> bool {
+    fn executable_file(path: &Path) -> bool {
+        let Ok(metadata) = std::fs::metadata(path) else {
+            return false;
+        };
+        if !metadata.is_file() {
+            return false;
+        }
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            metadata.permissions().mode() & 0o111 != 0
+        }
+        #[cfg(not(unix))]
+        {
+            true
+        }
+    }
+
+    if executable_file(path) {
+        return true;
+    }
+    #[cfg(windows)]
+    if path.extension().is_none() {
+        let extensions = std::env::var_os("PATHEXT")
+            .unwrap_or_else(|| ".COM;.EXE;.BAT;.CMD".into());
+        for extension in extensions.to_string_lossy().split(';') {
+            if extension.is_empty() {
+                continue;
+            }
+            let mut candidate = path.as_os_str().to_owned();
+            candidate.push(extension);
+            if executable_file(Path::new(&candidate)) {
+                return true;
+            }
+        }
+    }
+    false
 }
 
 fn collect_diff_entries(
@@ -695,72 +734,42 @@ fn run_tool(
     counter: usize,
     total: usize,
 ) -> Result<std::process::ExitStatus> {
-    if let Some(extcmd) = &tool.extcmd {
-        let append_pair = !extcmd.contains(char::is_whitespace);
-        let script = format!(
-            "export LOCAL={local} REMOTE={remote} MERGED={merged} BASE={merged}; \
-             export GIT_DIFF_PATH_COUNTER={counter} GIT_DIFF_PATH_TOTAL={total} GIT_PREFIX=.; \
-             set -- \"$MERGED\" \"$LOCAL\" \"$REMOTE\"; \
-             cmd={cmd}; \
-             if test {append_pair} = true; then \
-                 eval \"$cmd\" \"$LOCAL\" \"$REMOTE\"; \
-             else \
-                 eval \"$cmd\"; \
-             fi",
-            local = shell_quote(&local.display().to_string()),
-            remote = shell_quote(&remote.display().to_string()),
-            merged = shell_quote(merged),
-            cmd = shell_quote(extcmd),
-            append_pair = if append_pair { "true" } else { "false" },
-        );
-        return Command::new("sh")
+    let mut command = if let Some(extcmd) = &tool.extcmd {
+        // --extcmd is explicitly user-provided shell syntax. Only argument
+        // forwarding is added; paths travel as argv, never as shell source.
+        // Git appends the pair even when the command includes options/spaces.
+        let mut command = Command::new("sh");
+        command
             .arg("-c")
-            .arg(&script)
-            .stdout(Stdio::inherit())
-            .status()
-            .map_err(Error::Io);
-    }
-
-    if let Some(tool_cmd) = &tool.tool_cmd {
-        let script = format!(
-            "export LOCAL={local} REMOTE={remote} MERGED={merged} BASE={merged}; \
-             export GIT_DIFF_PATH_COUNTER={counter} GIT_DIFF_PATH_TOTAL={total} GIT_PREFIX=.; \
-             export merge_tool={name} merge_tool_path={path}; \
-             eval {tool_cmd}",
-            local = shell_quote(&local.display().to_string()),
-            remote = shell_quote(&remote.display().to_string()),
-            merged = shell_quote(merged),
-            name = shell_quote(&tool.tool_name),
-            path = shell_quote(tool.tool_path.as_deref().unwrap_or(&tool.tool_name)),
-            tool_cmd = tool_cmd,
-        );
-        return Command::new("sh")
-            .arg("-c")
-            .arg(&script)
-            .stdout(Stdio::inherit())
-            .status()
-            .map_err(Error::Io);
-    }
-
-    let exe = tool.tool_path.as_deref().unwrap_or(&tool.tool_name);
-    Command::new(exe)
-        .arg(local)
-        .arg(remote)
+            .arg(format!("{extcmd} \"$LOCAL\" \"$REMOTE\""))
+            .arg("gitr-difftool")
+            .arg(merged)
+            .arg(local)
+            .arg(remote);
+        command
+    } else if let Some(tool_cmd) = &tool.tool_cmd {
+        let mut command = Command::new("sh");
+        command.arg("-c").arg(tool_cmd).arg("gitr-difftool");
+        command
+    } else {
+        let exe = tool.tool_path.as_deref().unwrap_or(&tool.tool_name);
+        let mut command = Command::new(exe);
+        command.arg(local).arg(remote);
+        command
+    };
+    command
+        .env("LOCAL", local)
+        .env("REMOTE", remote)
+        .env("MERGED", merged)
+        .env("BASE", merged)
+        .env("GIT_DIFF_PATH_COUNTER", counter.to_string())
+        .env("GIT_DIFF_PATH_TOTAL", total.to_string())
+        .env("GIT_PREFIX", ".")
+        .env("merge_tool", &tool.tool_name)
+        .env("merge_tool_path", tool.tool_path.as_deref().unwrap_or(&tool.tool_name))
         .stdout(Stdio::inherit())
         .status()
         .map_err(Error::Io)
-}
-
-fn shell_quote(s: &str) -> String {
-    if s.is_empty() {
-        return "''".to_string();
-    }
-    if s.chars()
-        .all(|c| c.is_ascii_alphanumeric() || matches!(c, '@' | '%' | '+' | '-' | '_' | '.' | '/'))
-    {
-        return s.to_string();
-    }
-    format!("'{}'", s.replace('\'', "'\\''"))
 }
 
 #[expect(clippy::too_many_arguments)]
@@ -813,45 +822,33 @@ fn run_dir_diff(
         }
     }
 
-    let status = if let Some(extcmd) = &tool.extcmd {
-        let script = format!(
-            "export LOCAL={} REMOTE={}; export GIT_DIFFTOOL_DIRDIFF=true; \
-             set -- . \"$LOCAL\" \"$REMOTE\"; eval {} \"$LOCAL\" \"$REMOTE\"",
-            shell_quote(&left.display().to_string()),
-            shell_quote(&right.display().to_string()),
-            extcmd,
-        );
-        Command::new("sh")
-            .arg("-c")
-            .arg(script)
-            .stdout(Stdio::inherit())
-            .status()
-            .map_err(Error::Io)?
+    let mut command = if let Some(extcmd) = &tool.extcmd {
+        // Git's directory mode executes --extcmd as a program with two
+        // directory arguments. It does not interpret it as a shell program.
+        let mut command = Command::new(extcmd);
+        command.arg(&left).arg(&right);
+        command
     } else if let Some(tool_cmd) = &tool.tool_cmd {
-        let script = format!(
-            "export LOCAL={} REMOTE={} MERGED=. BASE=.; export GIT_DIFFTOOL_DIRDIFF=true; \
-             export merge_tool={} merge_tool_path={}; eval {}",
-            shell_quote(&left.display().to_string()),
-            shell_quote(&right.display().to_string()),
-            shell_quote(&tool.tool_name),
-            shell_quote(tool.tool_path.as_deref().unwrap_or(&tool.tool_name)),
-            tool_cmd,
-        );
-        Command::new("sh")
-            .arg("-c")
-            .arg(script)
-            .stdout(Stdio::inherit())
-            .status()
-            .map_err(Error::Io)?
+        let mut command = Command::new("sh");
+        command.arg("-c").arg(tool_cmd).arg("gitr-difftool");
+        command
     } else {
         let exe = tool.tool_path.as_deref().unwrap_or(&tool.tool_name);
-        Command::new(exe)
-            .arg(&left)
-            .arg(&right)
-            .stdout(Stdio::inherit())
-            .status()
-            .map_err(Error::Io)?
+        let mut command = Command::new(exe);
+        command.arg(&left).arg(&right);
+        command
     };
+    let status = command
+        .env("LOCAL", &left)
+        .env("REMOTE", &right)
+        .env("MERGED", ".")
+        .env("BASE", ".")
+        .env("GIT_DIFFTOOL_DIRDIFF", "true")
+        .env("merge_tool", &tool.tool_name)
+        .env("merge_tool_path", tool.tool_path.as_deref().unwrap_or(&tool.tool_name))
+        .stdout(Stdio::inherit())
+        .status()
+        .map_err(Error::Io)?;
 
     let code = status.code().unwrap_or(1);
     if !use_symlinks {
@@ -1098,5 +1095,41 @@ fn paths_differ(left: &Path, right: &Path) -> bool {
     match (std::fs::read(left), std::fs::read(right)) {
         (Ok(left), Ok(right)) => left != right,
         _ => true,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used)]
+
+    use super::*;
+
+    #[test]
+    fn difftool_empty_extcmd_is_rejected_before_launch() {
+        let options = DifftoolOptions {
+            extcmd: Some(String::new()),
+            ..DifftoolOptions::default()
+        };
+        assert!(resolve_tool_context(
+            &options,
+            &DifftoolEnv::default(),
+            &ConfigSet::default(),
+        ).is_err());
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn difftool_tool_lookup_checks_files_without_interpreting_names() {
+        use std::os::unix::fs::PermissionsExt;
+
+        let directory = tempfile::tempdir().unwrap();
+        let executable = directory.path().join("viewer with 'quoted' $name; chars");
+        std::fs::write(&executable, []).unwrap();
+        std::fs::set_permissions(&executable, std::fs::Permissions::from_mode(0o644)).unwrap();
+        assert!(which_tool_executable(executable.to_str().unwrap()).is_none());
+        std::fs::set_permissions(&executable, std::fs::Permissions::from_mode(0o755)).unwrap();
+        assert!(which_tool_executable(executable.to_str().unwrap()).is_some());
+        assert!(which_tool_executable(directory.path().to_str().unwrap()).is_none());
+        assert!(which_tool_executable("gitr-nonexistent-tool;another-name").is_none());
     }
 }

@@ -2,7 +2,7 @@
   "schema_version": 2,
   "repository": "glopyglerky/lustr",
   "revision": "6339fbb104d6adda4be7e6be7dc637a6a9e5586b",
-  "manifest": "tools/cargo-lust/Cargo.toml",
+  "manifest": "crates/lustr/Cargo.toml",
   "engine": "bluefe",
   "bluefe": {
     "repository": "glopyglerky/bluefe",

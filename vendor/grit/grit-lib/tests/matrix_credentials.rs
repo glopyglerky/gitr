@@ -9,7 +9,7 @@
 //!   * the `Credential` accessors (`is_complete`, `target_url`, `parse_bytes`);
 //!   * [`use_http_path`] config resolution (global and URL-scoped);
 //!   * [`HelperCredentialProvider`] driving REAL helper programs:
-//!       - a shell (`!cmd`) helper (fill + store/erase dispatch, arg forwarding);
+//!       - a Rust helper through `!cmd` configuration (fill, store/erase, arg forwarding);
 //!       - the external `git-credential-store` binary against an on-disk store
 //!         file, with the full fill -> approve(store) -> reject(erase) lifecycle
 //!         cross-checked against the system `git credential-store` reading the
@@ -22,7 +22,7 @@
 //!     to return (not hang) via a watchdog thread;
 //!   * HTTP `401` -> `fill` -> `Authorization: Basic` retry against an authed
 //!     `grit-http-server`, driven through `HelperCredentialProvider` + a real
-//!     shell helper, asserting the fetch lands real objects (fsck-clean) and the
+//!     Rust helper, asserting the fetch lands real objects (fsck-clean) and the
 //!     wrong-credential case fails with the typed [`Error::Auth`].
 //!
 //! Real fixtures throughout: system `git`, on-disk repos / credential stores,
@@ -785,7 +785,7 @@ mod http_401 {
         bare
     }
 
-    /// Build a `HelperCredentialProvider` whose configured shell helper emits the
+    /// Build a `HelperCredentialProvider` whose configured Rust helper emits the
     /// given user/pass on `get` and records each invoked action to `record`.
     fn helper_provider(
         cfg_dir: &Path,

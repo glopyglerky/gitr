@@ -77,10 +77,9 @@ fn build_source(dir: &Path) {
     git(dir, &["branch", "topic"]);
 }
 
-/// Write an executable fake-ssh program and return its path, or `None` if it
-/// cannot be created/made executable on this platform.
+/// Compile the Rust fake-SSH fixture. A compiler failure fails the test.
 ///
-/// The fixture is invoked as `<script> [<-p port>] <host> <remote-cmd>`, where
+/// The fixture is invoked as `<fixture> [<-p port>] <host> <remote-cmd>`, where
 /// `<remote-cmd>` is `git-upload-pack '<path>'`. It ignores everything except
 /// the last argument (the remote command), rewrites `git-upload-pack` to
 /// `git upload-pack` (a subcommand, always available), and decodes the

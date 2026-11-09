@@ -221,10 +221,14 @@ fn try_expand_alias(
     config: &ConfigSet,
     expanded_aliases: &mut Vec<String>,
     root_alias: &str,
+    inspection: bool,
 ) -> Result<Option<Vec<String>>> {
     let Some(alias_string) = lookup_alias(alias_command, config)? else {
         return Ok(None);
     };
+    if inspection && alias_string.starts_with('!') {
+        bail!("repository inspection alias '{root_alias}' does not execute shell alias '{alias_command}'");
+    }
 
     if rest.len() == 1 && rest[0] == "-h" {
         eprintln!("'{alias_command}' is aliased to '{alias_string}'");
@@ -239,13 +243,8 @@ fn try_expand_alias(
     )?))
 }
 
-/// Runs the normal git dispatch path after expanding `alias.*` chains (shell and internal).
-pub(crate) fn run_command_with_aliases(
-    subcmd: String,
-    rest: Vec<String>,
-    opts: &GlobalOpts,
-) -> Result<()> {
-    let git_dir = std::env::var("GIT_DIR")
+fn current_alias_git_dir() -> Option<PathBuf> {
+    std::env::var("GIT_DIR")
         .ok()
         .filter(|raw| !raw.is_empty())
         .and_then(|raw| {
@@ -256,7 +255,16 @@ pub(crate) fn run_command_with_aliases(
             grit_lib::repo::Repository::discover(None)
                 .ok()
                 .map(|r| r.git_dir)
-        });
+        })
+}
+
+/// Runs the normal git dispatch path after expanding `alias.*` chains (shell and internal).
+pub(crate) fn run_command_with_aliases(
+    subcmd: String,
+    rest: Vec<String>,
+    opts: &GlobalOpts,
+) -> Result<()> {
+    let git_dir = current_alias_git_dir();
     let mut config = match grit_lib::config::ConfigSet::load(git_dir.as_deref(), true) {
         Ok(c) => c,
         Err(e) => {
@@ -280,9 +288,11 @@ pub(crate) fn run_command_with_aliases(
     let mut expanded_aliases: Vec<String> = Vec::new();
     let mut done_alias = false;
     let root_alias = args[0].clone();
+    let mut inspection = crate::read_safety::is_inspection(&root_alias);
 
     loop {
         let cmd = args[0].clone();
+        inspection |= crate::read_safety::is_inspection(&cmd);
 
         if cmd.starts_with('-') {
             let mut argv = vec!["git".to_owned()];
@@ -291,10 +301,17 @@ pub(crate) fn run_command_with_aliases(
                 return crate::dispatch(&cmd, &args[1..], opts);
             };
             crate::apply_globals(&alias_opts)?;
-            config = grit_lib::config::ConfigSet::load(git_dir.as_deref(), true)?;
+            config = grit_lib::config::ConfigSet::load(current_alias_git_dir().as_deref(), true)?;
             args = vec![alias_cmd];
             args.extend(alias_rest);
             continue;
+        }
+
+        if inspection {
+            crate::read_safety::check_current_inspection()?;
+            if is_builtin(&cmd) && !crate::read_safety::is_inspection(&cmd) {
+                bail!("repository inspection alias '{root_alias}' cannot run noninspection command '{cmd}'");
+            }
         }
 
         if is_deprecated_command(&cmd) {
@@ -304,6 +321,7 @@ pub(crate) fn run_command_with_aliases(
                 &config,
                 &mut expanded_aliases,
                 &root_alias,
+                inspection,
             )? {
                 args = new_argv;
                 done_alias = true;
@@ -328,6 +346,7 @@ pub(crate) fn run_command_with_aliases(
                 &config,
                 &mut expanded_aliases,
                 &root_alias,
+                inspection,
             )? {
                 args = new_argv;
                 done_alias = true;
@@ -335,6 +354,9 @@ pub(crate) fn run_command_with_aliases(
             }
         }
 
+        if inspection {
+            bail!("repository inspection alias '{root_alias}' does not execute external command '{cmd}'");
+        }
         trace_run_command_line(&cmd, &args[1..]);
         if try_exec_dashed(&cmd, &args[1..], opts)? {
             return Ok(());

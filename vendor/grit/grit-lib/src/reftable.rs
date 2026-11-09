@@ -2199,6 +2199,54 @@ impl ReftableStack {
         Ok(())
     }
 
+    /// Compare a caller-captured raw ref value and publish under the same
+    /// tables-list lock. Reloading the stack before this comparison prevents
+    /// two writers based on one old value from both succeeding.
+    fn compare_and_swap_ref(
+        &mut self,
+        refname: &str,
+        expected: Option<&crate::refs::Ref>,
+        new_value: Option<&crate::refs::Ref>,
+        opts: &WriteOptions,
+    ) -> Result<()> {
+        {
+            let guard = self.acquire_tables_list_lock()?;
+            let list = fs::read_to_string(self.reftable_dir.join("tables.list"))?;
+            self.table_names = list.lines().filter(|line| !line.is_empty()).map(str::to_owned).collect();
+            let actual = self.lookup_ref(refname)?.and_then(|record| ref_snapshot(record.value));
+            if actual.as_ref() != expected {
+                return Err(Error::InvalidRef(format!(
+                    "cannot lock ref '{refname}': value changed since the operation started"
+                )));
+            }
+            if new_value.is_some() && self.read_refs()?.iter().any(|record| {
+                record.name != refname
+                    && (record.name.starts_with(&format!("{refname}/"))
+                        || refname.starts_with(&format!("{}/", record.name)))
+            }) {
+                return Err(Error::InvalidRef(format!(
+                    "cannot update ref '{refname}': reference namespace conflict"
+                )));
+            }
+            let value = match new_value {
+                Some(crate::refs::Ref::Direct(oid)) => RefValue::Val1(*oid),
+                Some(crate::refs::Ref::Symbolic(target)) => RefValue::Symref(target.clone()),
+                None => RefValue::Deletion,
+            };
+            let index = self.max_update_index_unlocked()? + 1;
+            let mut writer = ReftableWriter::new(opts.clone(), index, index);
+            writer.add_ref(RefRecord { name: refname.to_owned(), update_index: index, value })?;
+            let data = writer.finish()?;
+            let filename = self.write_table_file(&data, index)?;
+            self.table_names.push(filename);
+            self.write_tables_list_locked(&guard)?;
+        }
+        // Do not turn successful, durable publication into an error merely
+        // because optional compaction contends with a subsequent writer.
+        let _ = self.maybe_auto_compact();
+        Ok(())
+    }
+
     /// Max update index from the *current* in-memory `table_names` (caller is
     /// expected to have reloaded under the lock), tolerating tables removed by a
     /// concurrent compaction.
@@ -2332,7 +2380,9 @@ impl ReftableStack {
             update_index, update_index, random as u32
         );
         let path = self.reftable_dir.join(&filename);
-        fs::write(&path, data).map_err(Error::Io)?;
+        let mut file = fs::OpenOptions::new().write(true).create_new(true).open(&path)?;
+        file.write_all(data)?;
+        file.sync_all()?;
         Ok(filename)
     }
 
@@ -2357,11 +2407,16 @@ impl ReftableStack {
             } else {
                 "\n"
             };
-        fs::write(&guard.path, &content).map_err(Error::Io)?;
+        let mut file = fs::OpenOptions::new().write(true).truncate(true).open(&guard.path)?;
+        file.write_all(content.as_bytes())?;
+        file.sync_all()?;
+        drop(file);
         // `fs::rename` consumes the lock file; mark the guard disarmed so its
         // Drop does not try to remove the (now-renamed) path.
         fs::rename(&guard.path, &tables_list).map_err(Error::Io)?;
         guard.disarm();
+        #[cfg(unix)]
+        fs::File::open(&self.reftable_dir)?.sync_all()?;
         Ok(())
     }
 
@@ -2551,6 +2606,35 @@ fn reftable_resolve_ref_depth(git_dir: &Path, refname: &str, depth: usize) -> Re
         },
         None => Err(Error::InvalidRef(format!("ref not found: {refname}"))),
     }
+}
+
+fn ref_snapshot(value: RefValue) -> Option<crate::refs::Ref> {
+    match value {
+        RefValue::Val1(oid) | RefValue::Val2(oid, _) => Some(crate::refs::Ref::Direct(oid)),
+        RefValue::Symref(target) => Some(crate::refs::Ref::Symbolic(target)),
+        RefValue::Deletion => None,
+    }
+}
+
+/// Read a raw reftable ref for a subsequent expected-old publication. Unlike
+/// resolving a revision, this preserves symbolic references and absence.
+pub fn reftable_read_ref_snapshot(git_dir: &Path, refname: &str) -> Result<Option<crate::refs::Ref>> {
+    let (store, name) = reftable_storage_location(git_dir, refname);
+    Ok(ReftableStack::open(&store)?.lookup_ref(&name)?.and_then(|record| ref_snapshot(record.value)))
+}
+
+/// Publish a raw ref only if its caller-captured value is still current while
+/// the authoritative reftable stack lock is held. HEAD's loose-file handling
+/// belongs to `refs::compare_and_swap_ref`.
+pub fn reftable_compare_and_swap_ref(
+    git_dir: &Path,
+    refname: &str,
+    expected: Option<&crate::refs::Ref>,
+    new_value: Option<&crate::refs::Ref>,
+) -> Result<()> {
+    let (store, name) = reftable_storage_location(git_dir, refname);
+    let mut stack = ReftableStack::open(&store)?;
+    stack.compare_and_swap_ref(&name, expected, new_value, &read_write_options(&store))
 }
 
 /// Write a ref to a reftable repo.

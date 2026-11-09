@@ -47,6 +47,8 @@ pub mod protocol;
 mod protocol_wire;
 mod receive_ingest;
 mod read_safety;
+mod path_safety;
+mod write_safety;
 mod ref_transaction_hooks;
 mod ssh_transport;
 #[cfg(feature = "test-tools")]
@@ -59,13 +61,25 @@ mod wire_trace;
 
 /// Return the version string, e.g. `"2.47.0.grit-0.1.3"`.
 pub fn version_string() -> String {
+    if let Some(version) = write_safety::product_version() {
+        return format!("2.47.0.gitr-{version}.grit-{}", env!("CARGO_PKG_VERSION"));
+    }
     format!("2.47.0.grit-{}", env!("CARGO_PKG_VERSION"))
 }
 
-fn argv_lossy() -> Vec<String> {
-    let mut args: Vec<_> = std::env::args_os()
-        .map(|arg| arg.to_string_lossy().into_owned())
-        .collect();
+fn utf8_arguments(arguments: impl IntoIterator<Item = std::ffi::OsString>) -> Result<Vec<String>> {
+    arguments.into_iter().enumerate().map(|(index, argument)| {
+        argument.into_string().map_err(|_| anyhow::anyhow!(
+            "native Git argument {index} is not UTF-8; refusing lossy pathname conversion"
+        ))
+    }).collect()
+}
+
+fn argv_utf8() -> Vec<String> {
+    let mut args = utf8_arguments(std::env::args_os()).unwrap_or_else(|error| {
+        eprintln!("fatal: {error}");
+        std::process::exit(128);
+    });
     // Gitr's explicit engine selector is not a Git argument. Remove it only
     // before the command, never from a pathname or an option's value.
     let mut index = 1;
@@ -89,9 +103,18 @@ fn argv_lossy() -> Vec<String> {
 ///
 /// Call once from a single-threaded process entry point. The imported Git CLI
 /// owns process-global Git configuration and may terminate via `process::exit`.
-/// Children inherit the engine marker and return directly to this dispatcher.
+/// Native child processes use the current executable and its standard Git route.
+pub fn gitr_main_entry(version: &'static str) -> ! {
+    write_safety::enable(version);
+    main_entry()
+}
+
+/// Upstream conformance entry. Gitr's product binary uses `gitr_main_entry`,
+/// which enforces its atomic reference-publication qualification boundary.
 pub fn main_entry() -> ! {
-    std::env::set_var("GITR_NATIVE_GIT", "1");
+    // Validate the complete OS argument vector before traces, configuration,
+    // directory changes or any repository action can cause side effects.
+    let _ = argv_utf8();
     let start = std::time::Instant::now();
     let trace2_path = std::env::var("GIT_TRACE2").ok().filter(|s| !s.is_empty());
     let trace2_perf_path = std::env::var("GIT_TRACE2_PERF")
@@ -105,7 +128,7 @@ pub fn main_entry() -> ! {
     // Write trace2 version event at startup
     if let Some(ref path) = trace2_path {
         let _ = trace2_write_event(path, "version", env!("CARGO_PKG_VERSION"));
-        let cmd_line = argv_lossy();
+        let cmd_line = argv_utf8();
         let _ = trace2_write_event(path, "start", &cmd_line.join(" "));
         let ancestry = get_process_ancestry();
         let _ = trace2_write_event(
@@ -115,7 +138,7 @@ pub fn main_entry() -> ! {
         );
     }
     if let Some(ref path) = trace2_perf_path {
-        let cmd_line = argv_lossy();
+        let cmd_line = argv_utf8();
         let _ = trace2_write_perf(path, "version", env!("CARGO_PKG_VERSION"));
         let _ = trace2_write_perf(path, "start", &cmd_line.join(" "));
         let ancestry = get_process_ancestry();
@@ -126,7 +149,7 @@ pub fn main_entry() -> ! {
         );
     }
     if let Some(ref path) = trace2_event_path {
-        let cmd_line = argv_lossy();
+        let cmd_line = argv_utf8();
         let _ = trace2_write_json_event(path, "version", env!("CARGO_PKG_VERSION"));
         let _ = trace2_write_json_event(path, "start", &cmd_line.join(" "));
         let ancestry = get_process_ancestry();
@@ -3913,7 +3936,7 @@ fn run() -> Result<()> {
         }
     }
 
-    let args = argv_lossy();
+    let args = argv_utf8();
     let (opts, subcmd, rest) = extract_globals(&args)?;
 
     let subcmd = match subcmd {
@@ -5618,7 +5641,9 @@ const COMMON_PORCELAIN_COMMANDS: &[&str] = &[
 ///
 /// Each arm only constructs the clap parser for that specific command.
 pub(crate) fn dispatch(subcmd: &str, rest: &[String], opts: &GlobalOpts) -> Result<()> {
-    read_safety::check(subcmd)?;
+    write_safety::check(subcmd, rest)?;
+    path_safety::check(subcmd, rest)?;
+    read_safety::check(subcmd, rest)?;
     match subcmd {
         "add" => commands::add::run(parse_cmd_args(subcmd, rest)),
         "am" => commands::am::run(parse_cmd_args(subcmd, rest)),
@@ -7450,7 +7475,6 @@ fn is_writing_gitmodules_ok_for_test_tool(
 /// Handle `test-tool chmtime` — get or set file modification times.
 #[cfg(feature = "test-tools")]
 fn run_test_tool_chmtime(rest: &[String]) -> Result<()> {
-    use std::os::unix::fs::MetadataExt;
     if rest.is_empty() {
         bail!("usage: test-tool chmtime [--get|=<ts>|+<n>|-<n>] <file>");
     }
@@ -7459,14 +7483,14 @@ fn run_test_tool_chmtime(rest: &[String]) -> Result<()> {
         for path in &rest[1..] {
             let meta = std::fs::metadata(path)
                 .map_err(|e| anyhow::anyhow!("chmtime: cannot stat '{path}': {e}"))?;
-            println!("{}", meta.mtime());
+            println!("{}", filetime::FileTime::from_last_modification_time(&meta).unix_seconds());
         }
         return Ok(());
     }
     for path in &rest[1..] {
         let meta = std::fs::metadata(path)
             .map_err(|e| anyhow::anyhow!("chmtime: cannot stat '{path}': {e}"))?;
-        let current_mtime = meta.mtime();
+        let current_mtime = filetime::FileTime::from_last_modification_time(&meta).unix_seconds();
         let new_mtime: i64 = if let Some(ts_str) = flag.strip_prefix('=') {
             if ts_str.starts_with('+') || ts_str.starts_with('-') {
                 let offset = ts_str
@@ -7494,31 +7518,8 @@ fn run_test_tool_chmtime(rest: &[String]) -> Result<()> {
         } else {
             bail!("chmtime: unknown flag '{flag}'");
         };
-        // Use touch -t to set the mtime (format: [[CC]YY]MMDDhhmm[.ss])
-        // Convert epoch to touch -d format
-        // Use 'touch -m -d @<epoch>' to set mtime in UTC (avoids timezone issues)
-        // macOS supports: touch -m -t YYYYMMDDhhmm.ss but that's TZ-dependent.
-        // Use python or perl as fallback for reliable epoch setting.
-        let ts_str = new_mtime.to_string();
-        // Try touch with @epoch (works on Linux/BSD with GNU touch)
-        let ok = std::process::Command::new("touch")
-            .args(["-m", "-d", &format!("@{ts_str}"), path])
-            .stdout(std::process::Stdio::null())
-            .stderr(std::process::Stdio::null())
-            .status()
-            .map(|s| s.success())
-            .unwrap_or(false);
-        if !ok {
-            // Fallback: use Python
-            let py = format!("import os; os.utime('{path}', ({new_mtime}, {new_mtime}))");
-            let status = std::process::Command::new("python3")
-                .args(["-c", &py])
-                .status()
-                .map_err(|e| anyhow::anyhow!("chmtime: python3 failed: {e}"))?;
-            if !status.success() {
-                bail!("chmtime: could not set mtime for '{path}'");
-            }
-        }
+        filetime::set_file_mtime(path, filetime::FileTime::from_unix_time(new_mtime, 0))
+            .with_context(|| format!("chmtime: could not set mtime for '{path}'"))?;
     }
     Ok(())
 }

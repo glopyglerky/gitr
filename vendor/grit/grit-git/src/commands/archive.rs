@@ -1956,17 +1956,11 @@ fn run_remote_archive(
     let is_default_exec = matches!(exec_base, "git-upload-archive" | "upload-archive")
         || exec_trimmed == "git upload-archive";
     let mut child = if is_default_exec {
-        let prog = std::env::var("GUST_BIN")
-            .ok()
-            .filter(|s| !s.is_empty())
-            .map(PathBuf::from)
-            .or_else(|| std::env::current_exe().ok())
-            .unwrap_or_else(|| PathBuf::from("git"));
-        let subcmd = exec_base.strip_prefix("git-").unwrap_or(exec_base);
+        let prog = crate::grit_exe::grit_executable();
         Command::new(&prog)
             .arg("-C")
             .arg(&repo_path)
-            .arg(subcmd)
+            .arg("upload-archive")
             .arg(".")
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
@@ -1974,12 +1968,7 @@ fn run_remote_archive(
             .spawn()
             .context("spawning upload-archive")?
     } else {
-        let prog = std::env::var("GUST_BIN")
-            .ok()
-            .filter(|s| !s.is_empty())
-            .map(PathBuf::from)
-            .or_else(|| std::env::current_exe().ok())
-            .unwrap_or_else(|| PathBuf::from("git"));
+        let prog = crate::grit_exe::grit_executable();
         let prog_quoted = shell_single_quote(&prog.to_string_lossy());
         let exec_script = if exec_trimmed.contains("git-upload-archive") {
             exec_trimmed.replace(

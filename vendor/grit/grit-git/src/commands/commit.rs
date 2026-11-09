@@ -21,7 +21,7 @@ use grit_lib::interpret_trailers::{NewTrailerArg, ProcessTrailerOptions};
 use grit_lib::mailmap::load_mailmap_table;
 use grit_lib::objects::{parse_commit, serialize_commit, CommitData, ObjectId, ObjectKind};
 use grit_lib::reflog::read_reflog;
-use grit_lib::refs::{append_reflog, list_refs, should_autocreate_reflog, write_ref};
+use grit_lib::refs::{append_reflog, list_refs, should_autocreate_reflog, update_head_cas};
 use grit_lib::repo::Repository;
 use grit_lib::rev_list::{rev_list, RevListOptions};
 use grit_lib::rev_parse::resolve_revision_as_commit;
@@ -1645,35 +1645,10 @@ pub fn run(mut args: Args) -> Result<()> {
 
     // Update HEAD
     let old_oid = head.oid().copied().unwrap_or_else(ObjectId::zero);
-    ensure_head_unchanged(&repo.git_dir, &head)?;
-    update_head(&repo.git_dir, &head, &commit_oid)?;
+    update_head_cas(&repo.git_dir, &head, &commit_oid)?;
 
-    let zero_oid = ObjectId::zero();
-    let mut amend_reattached_ref: Option<String> = None;
-
-    // `git commit --amend` with detached HEAD: if exactly one local branch still points at the
-    // pre-amend commit, move that branch to the new commit and attach HEAD (matches Git; t3428).
-    if args.amend && head.is_detached() && old_oid != zero_oid {
-        let mut branches = Vec::new();
-        if let Ok(refs) = list_refs(&repo.git_dir, "refs/heads/") {
-            for (name, tip) in refs {
-                if tip == old_oid {
-                    branches.push(name);
-                }
-            }
-        }
-        branches.sort();
-        if branches.len() == 1 {
-            let refname = branches[0].clone();
-            let ref_path = repo.git_dir.join(&refname);
-            if let Some(parent) = ref_path.parent() {
-                fs::create_dir_all(parent)?;
-            }
-            write_ref(&repo.git_dir, &refname, &commit_oid)?;
-            fs::write(repo.git_dir.join("HEAD"), format!("ref: {refname}\n"))?;
-            amend_reattached_ref = Some(refname);
-        }
-    }
+    // A detached commit, including --amend, stays detached and does not move
+    // any branch that happens to reference its previous commit.
 
     let reflog_msg = if head.is_unborn() {
         format!(
@@ -1743,18 +1718,6 @@ pub fn run(mut args: Args) -> Result<()> {
             )?;
         }
     }
-    if let Some(ref refname) = amend_reattached_ref {
-        append_reflog(
-            &repo.git_dir,
-            refname,
-            &old_oid,
-            &commit_oid,
-            &commit_data.committer,
-            &reflog_msg,
-            false,
-        )?;
-    }
-
     let _ = run_reference_transaction_committed_for_head_update(
         &repo,
         &head,
@@ -5331,47 +5294,6 @@ fn run_prepare_commit_msg_hook_on(
         bail!("prepare-commit-msg hook exited with status {code}");
     }
     Ok(())
-}
-
-/// Update HEAD to point to the new commit.
-fn update_head(git_dir: &Path, head: &HeadState, commit_oid: &ObjectId) -> Result<()> {
-    match head {
-        HeadState::Branch { refname, .. } => {
-            write_ref(git_dir, refname, commit_oid)?;
-        }
-        HeadState::Detached { .. } | HeadState::Invalid => {
-            // Write directly to HEAD
-            fs::write(git_dir.join("HEAD"), format!("{}\n", commit_oid.to_hex()))?;
-        }
-    }
-    Ok(())
-}
-
-fn ensure_head_unchanged(git_dir: &Path, expected: &HeadState) -> Result<()> {
-    let current = resolve_head(git_dir)?;
-    let unchanged = match (expected, &current) {
-        (
-            HeadState::Branch {
-                refname: expected_ref,
-                oid: expected_oid,
-                ..
-            },
-            HeadState::Branch {
-                refname: current_ref,
-                oid: current_oid,
-                ..
-            },
-        ) => expected_ref == current_ref && expected_oid == current_oid,
-        (HeadState::Detached { oid: expected_oid }, HeadState::Detached { oid: current_oid }) => {
-            expected_oid == current_oid
-        }
-        (HeadState::Invalid, HeadState::Invalid) => true,
-        _ => false,
-    };
-    if unchanged {
-        return Ok(());
-    }
-    bail!("cannot lock ref 'HEAD': is at a different commit than expected");
 }
 
 /// Extract the trailing `# Conflicts:` comment block from `MERGE_MSG` for re-attaching to

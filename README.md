@@ -11,18 +11,31 @@ reuse, a transactional repository graph and vector catalog, and bounded Rust/Was
 actions and dependency workflows against immutable Git snapshots. Active development
 lives on the default branch, [`master`](https://github.com/glopyglerky/gitr/tree/master).
 
-**Status: initial implementation. Gitr is not yet a complete Git replacement.**
-The Rust implementation is the root Cargo package. The inherited C Git build,
+**Status: the full historical Grit Rust package family is imported and integrated;
+100% Git parity and a general speed advantage are not established.**
+The default executable builds the imported Rust CLI together with Gitr's redb
+storage, catalog and actions. Source coverage and enabled product operations are
+different: reference-changing commands remain disabled until their publication
+paths meet Gitr's expected-old-value transaction contract. See the
+[import decision, exact source lineage and capability boundary](Documentation/gitr/rust-git-import.md).
+The inherited C Git build,
 production sources and unused upstream shell corpus have been retired from the
 working tree; their exact recovery point remains in Git history. The GitHub fork
 relationship is unchanged. Transitive native TLS code remains (see dependency limits).
 
 ## Implemented capabilities
 
-- Native Gitoxide commands for repositories, objects, refs, history, index and
-  status. Guarded `update-ref` uses expected-old-value compare-and-swap.
+- In-process Rust Git commands from the vendored Grit engine, including staging,
+  commits, simple branches/tags, object plumbing and repository inspection.
+  Commit, branch and tag publication checks the expected value under its lock.
+- The earlier isolated Gitoxide profile remains available with `--isolated-git`.
+  The default `update-ref` route retains that profile's strict compare-and-swap.
+- An opt-in redb 4.5 object store, with exact SHA-1/SHA-256 identities, atomic
+  chunked writes and durable standard Git loose-object mirrors. Raw blob hashing
+  and writing use bounded-memory streaming.
 - Native `mktree`, `write-tree` and `commit-tree` for checkout-free history
-  authoring. Object creation does not move refs or modify the index/worktree.
+  authoring. These do not move refs or change the worktree; native `write-tree`
+  may update the index's cache-tree metadata.
 - Standard Git LFS clean/smudge filters, verified immutable cache, explicit HTTPS
   basic transfers and the file-lock API.
 - FastCDC local chunk reuse across large asset revisions, with verified hydration
@@ -40,10 +53,11 @@ relationship is unchanged. Transitive native TLS code remains (see dependency li
   and execution methods as the CLI; no external database server or data migration.
 - Builds and tests through a pinned version of [Lustr](https://github.com/glopyglerky/lustr).
 
-Learned semantic embeddings, resolved call graphs, distributed HA, native
-clone/fetch/push, add/porcelain-commit/checkout and complete merge/rebase support
-remain work. `commit-tree` creates a commit object; it is not the full porcelain
-`commit` command or a content merge. Local redb multi-process writers serialize
+Learned semantic embeddings, resolved call graphs and distributed HA remain work.
+The clone/fetch/push, checkout, merge/rebase and other history-writing algorithms
+are now checked in; their default Gitr command routes remain disabled pending
+the remaining reference-transaction migration and qualification. `commit-tree`
+creates a commit object without moving refs. Local redb multi-process writers serialize
 transactions; that is not distributed consensus. The first search model uses
 lexical feature hashing, not a trained code model. The bounded Wasm workflow
 profile is not a general-purpose build/deployment runner, standard MCP server,
@@ -59,7 +73,10 @@ These checks do not certify complete Git parity or a public release.
 | Path | Role |
 | --- | --- |
 | `src/main.rs` | Gitr CLI entry point |
-| `src/git.rs`, `git_write.rs` | Native Git operations and authoring |
+| `src/native_cli.rs` | Default native dispatcher and isolated-profile selection |
+| `vendor/grit/grit-git`, `vendor/grit/grit-lib`, `vendor/grit/grit-test-support` | Imported Rust Git CLI, engine and test support |
+| `vendor/grit/upstream-source.json`, `vendor/grit/NOTICE.md` | Exact donor revision, original hashes and license/provenance notices |
+| `src/git.rs`, `git_write.rs` | Isolated Gitoxide operations and authoring |
 | `src/lfs.rs`, `remote.rs`, `chunks.rs`, `assets.rs` | LFS and large assets |
 | `src/db.rs`, `actions*.rs` | redb catalog, bounded Wasm jobs and optional API |
 | `Cargo.toml` | Default Gitr executable build |
@@ -110,6 +127,19 @@ gitr -C /path/to/repo assets import Content/World.uasset
 # Use the returned full-file OID and size to materialize the standard LFS cache:
 gitr -C /path/to/repo assets hydrate OID SIZE
 ```
+
+For the database-backed object path, explicitly enable it in a repository:
+
+```sh
+gitr -C /path/to/repo config gitr.redbObjects true
+gitr -C /path/to/repo hash-object --no-filters -w path/to/blob
+```
+
+Objects are committed to `<common-git-dir>/gitr/objects.redb` before a standard
+loose-object mirror is acknowledged. Existing packs are readable but are not
+automatically imported. Refs/indexes remain in Git's format, and database pruning
+and pack ingestion still need integration. See the [storage boundaries](Documentation/gitr/rust-git-import.md#redb-object-storage)
+before treating the database as a replacement for the whole repository.
 
 `db index` reads committed objects, not uncommitted worktree files. Search requires
 that exact indexed commit and reports excluded content. The graph currently
@@ -249,6 +279,7 @@ the configured Linux/macOS/Windows matrix.
 ## Design and evidence
 
 - [Compatibility matrix and exact limits](Documentation/gitr/compatibility.md)
+- [Historical Grit import, redb integration and qualification](Documentation/gitr/rust-git-import.md)
 - [Executed qualification](Documentation/gitr/qualification.md)
 - [Native tree/commit authoring and end-to-end redb actions](Documentation/gitr/native-history.md)
 - [Rbit workflows, transaction gates and execution evidence](Documentation/gitr/rbit-workflows.md)
@@ -265,7 +296,9 @@ The authored Rust package currently declares GPL-2.0-only. The project owner
 has authorized a different license for code they control where lawful to enable
 the best product; existing declarations require a scoped provenance review before
 changing. See the [license assessment](Documentation/gitr/research/2026-11-08-upstream-survey/licensing-review.md).
-Upstream licenses remain intact. Gitoxide and the vendored Rbit workflow crate use
+Upstream licenses remain intact. The imported Grit CLI is GPL-2.0-only; its
+library and test-support crate are MIT. Their original notices and full license
+texts remain under `vendor/grit`. Gitoxide and the vendored Rbit workflow crate use
 their offered MIT alternatives; both Rbit license notices are retained. No libgit2
 or inherited C Git library is linked into this package. TLS currently uses rustls
 with ring, whose cryptographic implementation includes native code. See the
@@ -276,7 +309,8 @@ catalog before incorporating differently licensed upstream source.
 Full native Rust conversion and 100% memory-safe Rust through Lustr/BlueFe are
 future goals. Gitr's manifest forbids unsafe code in its own crate, which does
 not prove that dependencies or the complete artifact contain no unsafe or native
-code. The retained Git reference includes C, shell, Perl, Python and Tcl/Tk.
+code. The donor uses some platform FFI and transitive cryptographic dependencies
+include native code. The former C Git reference tree is retained in Git history.
 The current Lustr `rustc` engine coordinates Cargo/rustc; it does not establish
 that native Lustr/BlueFe builds those non-Rust components. Working Git behavior
 and compatibility remain the basis for any later replacement.

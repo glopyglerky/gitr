@@ -8,8 +8,6 @@ use crate::config::ConfigSet;
 use crate::crlf::{get_file_attrs, AttrRule, DiffAttr};
 use regex::{Regex, RegexBuilder};
 use std::collections::BTreeMap;
-use std::io::Write;
-use std::process::{Command, Stdio};
 use std::sync::OnceLock;
 
 /// Built-in diff driver funcname patterns (same strings as Git's userdiff builtin drivers).
@@ -347,14 +345,8 @@ pub fn builtin_word_regex(driver: &str) -> Option<(&'static str, bool)> {
 
 #[derive(Debug, Clone)]
 struct FuncRule {
-    matcher: RuleMatcher,
+    matcher: Regex,
     negate: bool,
-}
-
-#[derive(Debug, Clone)]
-enum RuleMatcher {
-    Rust(Regex),
-    Posix { pattern: String, ignore_case: bool },
 }
 
 #[derive(Debug, Clone)]
@@ -384,28 +376,15 @@ impl FuncnameMatcher {
         }
 
         for rule in &self.rules {
-            let matched_text = match &rule.matcher {
-                RuleMatcher::Rust(regex) => {
-                    let Some(caps) = regex.captures(text) else {
-                        continue;
-                    };
-                    caps.get(1)
-                        .or_else(|| caps.get(0))
-                        .map(|m| m.as_str())
-                        .unwrap_or_default()
-                        .trim_end_matches(char::is_whitespace)
-                        .to_owned()
-                }
-                RuleMatcher::Posix {
-                    pattern,
-                    ignore_case,
-                } => {
-                    if !posix_line_matches(pattern, *ignore_case, text) {
-                        continue;
-                    }
-                    text.trim_end_matches(char::is_whitespace).to_owned()
-                }
+            let Some(caps) = rule.matcher.captures(text) else {
+                continue;
             };
+            let matched_text = caps.get(1)
+                .or_else(|| caps.get(0))
+                .map(|capture| capture.as_str())
+                .unwrap_or_default()
+                .trim_end_matches(char::is_whitespace)
+                .to_owned();
             if rule.negate {
                 return None;
             }
@@ -538,23 +517,12 @@ fn compile_matcher(
         } else {
             bre_to_ere(line)
         };
-        let posix_pattern = if extended {
-            line.to_owned()
-        } else {
-            bre_to_ere(line)
-        };
-
-        validate_posix_regex_via_grep(&posix_pattern, ignore_case)
-            .map_err(|_| format!("Invalid regexp to look for hunk header: {line}"))?;
-
         let matcher = RegexBuilder::new(&rust_pattern)
             .case_insensitive(ignore_case)
             .build()
-            .map(RuleMatcher::Rust)
-            .unwrap_or_else(|_| RuleMatcher::Posix {
-                pattern: posix_pattern,
-                ignore_case,
-            });
+            .map_err(|_| format!(
+                "Invalid or unsupported native regexp to look for hunk header: {line}"
+            ))?;
         rules.push(FuncRule { matcher, negate });
     }
 
@@ -713,42 +681,13 @@ fn fix_charclass_escapes(pattern: &str) -> String {
     result
 }
 
-fn validate_posix_regex_via_grep(pattern: &str, ignore_case: bool) -> std::io::Result<()> {
-    let mut cmd = Command::new("grep");
-    cmd.arg("-E").arg("-q");
-    if ignore_case {
-        cmd.arg("-i");
-    }
-    cmd.arg("--").arg(pattern).arg("/dev/null");
-    let status = cmd.status()?;
-    if status.success() || status.code() == Some(1) {
-        Ok(())
-    } else {
-        Err(std::io::Error::new(
-            std::io::ErrorKind::InvalidInput,
-            "invalid regex",
-        ))
-    }
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-fn posix_line_matches(pattern: &str, ignore_case: bool, line: &str) -> bool {
-    let mut cmd = Command::new("grep");
-    cmd.arg("-E").arg("-q");
-    if ignore_case {
-        cmd.arg("-i");
+    #[test]
+    fn unsupported_backreferences_are_rejected_without_external_matching() {
+        let error = compile_matcher(r"(repeated)\1", true, false).unwrap_err();
+        assert!(error.contains("unsupported native regexp"));
     }
-    cmd.arg("--").arg(pattern);
-    cmd.stdin(Stdio::piped());
-    cmd.stdout(Stdio::null());
-    cmd.stderr(Stdio::null());
-
-    let Ok(mut child) = cmd.spawn() else {
-        return false;
-    };
-    if let Some(mut stdin) = child.stdin.take() {
-        let _ = stdin.write_all(line.as_bytes());
-        let _ = stdin.write_all(b"\n");
-    }
-
-    child.wait().map(|status| status.success()).unwrap_or(false)
 }

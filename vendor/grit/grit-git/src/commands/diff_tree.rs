@@ -3258,8 +3258,7 @@ fn tree_oid_for_commit(repo: &Repository, commit_oid: ObjectId) -> Result<Object
 
 /// Resolve a tree-ish (commit or tree) to a tree OID.
 fn resolve_to_tree(repo: &Repository, spec: &str) -> Result<ObjectId> {
-    if spec == "4b825dc642cb6eb9a060e54bf899d69f7c6948d4"
-        || spec == "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
+    if spec == "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
     {
         return ObjectId::from_hex("4b825dc642cb6eb9a060e54bf8d69288fbee4904").map_err(Into::into);
     }
@@ -3281,8 +3280,7 @@ fn resolve_to_tree(repo: &Repository, spec: &str) -> Result<ObjectId> {
 
 fn is_magic_empty_tree_oid(oid: &ObjectId) -> bool {
     let hex = oid.to_hex();
-    hex == "4b825dc642cb6eb9a060e54bf899d69f7c6948d4"
-        || hex == "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
+    hex == "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
 }
 
 fn resolve_max_tree_depth(repo: &Repository) -> usize {

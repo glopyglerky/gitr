@@ -174,6 +174,41 @@ fn redb_odb_simultaneous_mirror_publication_is_idempotent() {
     assert_eq!(Odb::read_loose_verify_oid(&odb.object_path(&ids[0]), &ids[0]).unwrap().data, b"same payload");
 }
 
+#[test]
+fn redb_odb_concurrent_first_writers_initialize_one_complete_store() {
+    for algo in [HashAlgo::Sha1, HashAlgo::Sha256] {
+        let (_directory, odb) = repository(algo, true);
+        let barrier = Arc::new(std::sync::Barrier::new(4));
+        let handles: Vec<_> = (0..4).map(|worker| {
+            let objects = odb.objects_dir().to_path_buf();
+            let git_dir = odb.config_git_dir().unwrap().to_path_buf();
+            let barrier = Arc::clone(&barrier);
+            std::thread::spawn(move || {
+                // Independent Odb instances have separate handle caches. The
+                // database and its schema do not exist before this barrier.
+                let own = Odb::new(&objects).with_config_git_dir(git_dir);
+                let payload = format!("first writer {worker}").into_bytes();
+                barrier.wait();
+                let oid = own.write(ObjectKind::Blob, &payload).unwrap();
+                let shared = own.write(ObjectKind::Blob, b"shared initial write").unwrap();
+                (oid, payload, shared)
+            })
+        }).collect();
+        let published: Vec<_> = handles.into_iter()
+            .map(|handle| handle.join().unwrap()).collect();
+        let store = RedbObjectStore::open(odb.redb_object_path().unwrap().unwrap(), algo).unwrap();
+        for (oid, payload, shared) in &published {
+            assert_eq!(store.read(oid).unwrap().unwrap().data, *payload);
+            assert_eq!(odb.read(oid).unwrap().data, *payload);
+            assert_eq!(Odb::read_loose_verify_oid(&odb.object_path(oid), oid).unwrap().data, *payload);
+            assert_eq!(*shared, published[0].2);
+        }
+        let shared = published[0].2;
+        assert_eq!(store.read(&shared).unwrap().unwrap().data, b"shared initial write");
+        assert_eq!(Odb::read_loose_verify_oid(&odb.object_path(&shared), &shared).unwrap().data, b"shared initial write");
+    }
+}
+
 #[cfg(unix)]
 #[test]
 fn redb_odb_refuses_database_symlinks() {

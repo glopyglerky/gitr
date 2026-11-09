@@ -3,9 +3,11 @@
 use std::{
     ffi::OsStr,
     fs,
-    io::Write,
+    io::{Read, Write},
     path::Path,
     process::{Command, Output, Stdio},
+    thread,
+    time::{Duration, Instant},
 };
 use tempfile::TempDir;
 
@@ -28,7 +30,6 @@ fn command(program: impl AsRef<OsStr>, cwd: &Path, args: &[&str]) -> Command {
         .env_remove("GIT_INDEX_FILE")
         .env_remove("GIT_OBJECT_DIRECTORY")
         .env_remove("GIT_ALTERNATE_OBJECT_DIRECTORIES")
-        .env_remove("GITR_NATIVE_GIT")
         .env_remove("GIT_CONFIG_COUNT")
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
@@ -38,11 +39,25 @@ fn command(program: impl AsRef<OsStr>, cwd: &Path, args: &[&str]) -> Command {
 
 fn execute(mut command: Command, input: &[u8]) -> Output {
     let mut child = command.spawn().expect("start qualification command");
-    if !input.is_empty() {
-        child.stdin.take().unwrap().write_all(input).unwrap();
-    }
-    drop(child.stdin.take());
-    child.wait_with_output().expect("wait for qualification command")
+    let mut stdin = child.stdin.take().unwrap();
+    let input = input.to_vec();
+    let writer = thread::spawn(move || stdin.write_all(&input));
+    let mut stdout = child.stdout.take().unwrap();
+    let mut stderr = child.stderr.take().unwrap();
+    let out = thread::spawn(move || { let mut bytes = Vec::new(); stdout.read_to_end(&mut bytes).unwrap(); bytes });
+    let err = thread::spawn(move || { let mut bytes = Vec::new(); stderr.read_to_end(&mut bytes).unwrap(); bytes });
+    let deadline = Instant::now() + Duration::from_secs(60);
+    let status = loop {
+        if let Some(status) = child.try_wait().expect("wait for qualification command") { break status; }
+        if Instant::now() >= deadline {
+            let _ = child.kill();
+            let _ = child.wait();
+            panic!("qualification command exceeded 60 seconds: {command:?}");
+        }
+        thread::sleep(Duration::from_millis(10));
+    };
+    let _ = writer.join().expect("stdin writer");
+    Output { status, stdout: out.join().unwrap(), stderr: err.join().unwrap() }
 }
 
 fn output(cwd: &Path, args: &[&str], input: &[u8]) -> Output {
@@ -121,109 +136,106 @@ fn add_commit_log_status_diff_and_tag_are_git_compatible() {
 }
 
 #[test]
-fn branch_checkout_and_nonconflicting_merge_produce_valid_history() {
+fn branch_creation_and_native_commits_interoperate_with_git_checkout() {
     let temp = fixture();
     let root = temp.path();
-    commit(root, "base.txt", b"base\n", "base");
-    native(root, &["switch", "-c", "topic"]);
+    let base = commit(root, "base.txt", b"base\n", "base");
+    native(root, &["branch", "topic"]);
+    assert_eq!(text(reference(root, &["rev-parse", "topic"])), base);
+    // Checkout's complete source is imported but its ref transaction still
+    // needs migration. Reference Git prepares this branch for commit coverage.
+    reference(root, &["checkout", "topic"]);
     let topic = commit(root, "topic.txt", b"topic\n", "topic");
-    native(root, &["checkout", "main"]);
-    let main = commit(root, "main.txt", b"main\n", "main");
-    native(root, &["merge", "--no-edit", "topic"]);
-    assert_eq!(text(native(root, &["rev-parse", "HEAD^1"])), main);
-    assert_eq!(text(native(root, &["rev-parse", "HEAD^2"])), topic);
-    assert_eq!(fs::read(root.join("topic.txt")).unwrap(), b"topic\n");
-    compare(root, &["ls-tree", "-r", "HEAD"]);
+    assert_eq!(text(reference(root, &["rev-parse", "topic^1"])), base);
+    assert_eq!(text(reference(root, &["rev-parse", "main"])), base);
+    compare(root, &["ls-tree", "-r", &topic]);
     compare(root, &["status", "--porcelain"]);
     reference(root, &["fsck", "--strict"]);
 }
 
 #[test]
-fn merge_conflicts_preserve_index_stages_and_abort_restores_worktree() {
+fn native_inspection_preserves_git_merge_conflict_stages() {
     let temp = fixture();
     let root = temp.path();
     commit(root, "file", b"base\n", "base");
-    native(root, &["checkout", "-b", "topic"]);
+    reference(root, &["checkout", "-b", "topic"]);
     commit(root, "file", b"topic\n", "topic");
-    native(root, &["checkout", "main"]);
+    reference(root, &["checkout", "main"]);
     let main = commit(root, "file", b"main\n", "main");
-    let conflict = output(root, &["merge", "--no-edit", "topic"], &[]);
-    assert!(!conflict.status.success(), "conflicting merge must fail");
+    let conflict = execute(command("git", root, &["merge", "--no-edit", "topic"]), &[]);
+    assert!(!conflict.status.success(), "fixture requires an actual conflict");
     compare(root, &["ls-files", "--stage"]);
     compare(root, &["status", "--porcelain"]);
+    let index = fs::read(root.join(".git/index")).unwrap();
+    let result = output(root, &["merge", "--abort"], &[]);
+    assert!(!result.status.success());
+    assert!(String::from_utf8_lossy(&result.stderr).contains("disabled before mutation"));
+    assert_eq!(fs::read(root.join(".git/index")).unwrap(), index);
     assert_eq!(text(reference(root, &["rev-parse", "HEAD"])), main);
-    native(root, &["merge", "--abort"]);
-    assert_eq!(fs::read(root.join("file")).unwrap(), b"main\n");
-    assert!(native(root, &["status", "--porcelain"]).is_empty());
+    reference(root, &["merge", "--abort"]);
 }
 
 #[test]
-fn rebase_cherry_pick_and_revert_run_without_external_git() {
+fn unqualified_history_writers_and_aliases_fail_before_mutation() {
     let temp = fixture();
     let root = temp.path();
-    commit(root, "base", b"base\n", "base");
-    native(root, &["switch", "-c", "topic"]);
-    commit(root, "topic", b"topic\n", "topic");
-    native(root, &["switch", "main"]);
-    let main = commit(root, "main", b"main\n", "main");
-    native(root, &["switch", "topic"]);
-    native(root, &["rebase", "main"]);
-    assert_eq!(text(native(root, &["rev-parse", "HEAD^"])), main);
-    let rebased = text(native(root, &["rev-parse", "HEAD"]));
-    native(root, &["switch", "main"]);
-    native(root, &["cherry-pick", &rebased]);
-    assert_eq!(fs::read(root.join("topic")).unwrap(), b"topic\n");
-    native(root, &["revert", "--no-edit", "HEAD"]);
-    assert!(!root.join("topic").exists());
-    compare(root, &["log", "--format=%H %P %s", "--all"]);
-    reference(root, &["fsck", "--strict"]);
+    let head = commit(root, "file", b"original\n", "base");
+    let index = fs::read(root.join(".git/index")).unwrap();
+    native(root, &["config", "alias.move-history", "reset --hard HEAD"]);
+    for args in [
+        vec!["rebase", "main"], vec!["cherry-pick", "HEAD"],
+        vec!["revert", "--no-edit", "HEAD"], vec!["stash", "push"],
+        vec!["reset", "--hard", "HEAD"], vec!["checkout", "-b", "unexpected"],
+        vec!["switch", "-c", "unexpected"], vec!["move-history"],
+        vec!["--native-git", "reset", "--hard", "HEAD"],
+    ] {
+        let result = output(root, &args, &[]);
+        assert!(!result.status.success(), "{args:?}");
+        assert!(String::from_utf8_lossy(&result.stderr).contains("disabled before mutation"), "{args:?}: {}", String::from_utf8_lossy(&result.stderr));
+        assert_eq!(text(reference(root, &["rev-parse", "HEAD"])), head);
+        assert_eq!(fs::read(root.join(".git/index")).unwrap(), index);
+        assert_eq!(fs::read(root.join("file")).unwrap(), b"original\n");
+        assert!(!root.join(".git/refs/heads/unexpected").exists());
+    }
 }
 
 #[test]
-fn stash_restore_move_remove_and_reset_roundtrip() {
+fn restore_move_and_remove_roundtrip_without_external_git() {
     let temp = fixture();
     let root = temp.path();
-    let initial = commit(root, "file", b"original\n", "initial");
+    commit(root, "file", b"original\n", "initial");
     fs::write(root.join("file"), b"dirty\n").unwrap();
-    native(root, &["stash", "push", "-m", "pending"]);
-    assert_eq!(fs::read(root.join("file")).unwrap(), b"original\n");
-    native(root, &["stash", "pop"]);
-    assert_eq!(fs::read(root.join("file")).unwrap(), b"dirty\n");
     native(root, &["restore", "file"]);
     assert_eq!(fs::read(root.join("file")).unwrap(), b"original\n");
     native(root, &["mv", "file", "renamed"]);
     native(root, &["commit", "-q", "-m", "rename"]);
     native(root, &["rm", "renamed"]);
     native(root, &["commit", "-q", "-m", "remove"]);
-    native(root, &["reset", "--hard", &initial]);
-    assert_eq!(fs::read(root.join("file")).unwrap(), b"original\n");
     assert!(!root.join("renamed").exists());
     compare(root, &["status", "--porcelain"]);
+    reference(root, &["fsck", "--strict"]);
 }
 
 #[test]
-fn native_clone_push_fetch_and_pull_interoperate_with_reference_git() {
+fn unqualified_transport_writers_do_not_create_or_move_remote_refs() {
     let parent = tempfile::tempdir().unwrap();
     let source = parent.path().join("source");
     fs::create_dir(&source).unwrap();
     native(&source, &["init", "-q", "-b", "main"]);
-    let initial = commit(&source, "file", b"first\n", "first");
+    let head = commit(&source, "file", b"first\n", "first");
     native(parent.path(), &["init", "-q", "--bare", "-b", "main", "remote.git"]);
     let remote = parent.path().join("remote.git");
-    native(&source, &["remote", "add", "origin", remote.to_str().unwrap()]);
-    native(&source, &["push", "-u", "origin", "main"]);
-    assert_eq!(text(reference(&remote, &["rev-parse", "refs/heads/main"])), initial);
-    native(parent.path(), &["clone", remote.to_str().unwrap(), "clone"]);
-    let clone = parent.path().join("clone");
-    assert_eq!(fs::read(clone.join("file")).unwrap(), b"first\n");
-    let next = commit(&source, "next", b"next\n", "next");
-    native(&source, &["push", "origin", "main"]);
-    native(&clone, &["fetch", "origin"]);
-    assert_eq!(text(native(&clone, &["rev-parse", "origin/main"])), next);
-    native(&clone, &["pull", "--ff-only", "origin", "main"]);
-    assert_eq!(text(native(&clone, &["rev-parse", "HEAD"])), next);
-    reference(&clone, &["fsck", "--strict"]);
-    reference(&remote, &["fsck", "--strict"]);
+    reference(&source, &["remote", "add", "origin", remote.to_str().unwrap()]);
+    for args in [vec!["push", "origin", "main"], vec!["fetch", "origin"], vec!["pull", "origin", "main"]] {
+        let result = output(&source, &args, &[]);
+        assert!(!result.status.success());
+        assert!(String::from_utf8_lossy(&result.stderr).contains("disabled before mutation"));
+        assert_eq!(text(reference(&source, &["rev-parse", "HEAD"])), head);
+        assert!(reference(&remote, &["for-each-ref"]).is_empty());
+    }
+    let result = output(parent.path(), &["clone", remote.to_str().unwrap(), "clone"], &[]);
+    assert!(!result.status.success());
+    assert!(!parent.path().join("clone").exists());
 }
 
 #[test]
@@ -255,5 +267,41 @@ fn unknown_commands_and_foreign_program_dependencies_fail_explicitly() {
     for args in [vec!["definitely-not-a-git-command"], vec!["filter-branch", "--all"]] {
         let result = output(temp.path(), &args, &[]);
         assert!(!result.status.success(), "unexpected success: {args:?}");
+    }
+}
+
+#[test]
+fn absent_objects_are_not_synthesized_for_an_upstream_test_typo() {
+    let temp = fixture();
+    let root = temp.path();
+    let real_empty_tree = "4b825dc642cb6eb9a060e54bf8d69288fbee4904";
+    let upstream_typo = "4b825dc642cb6eb9a060e54bf899d69f7c6948d4";
+    compare(root, &["cat-file", "-t", real_empty_tree]);
+    for mode in ["-e", "-t", "-p"] {
+        let args = ["cat-file", mode, upstream_typo];
+        let expected = execute(command("git", root, &args), &[]);
+        let actual = output(root, &args, &[]);
+        assert!(!expected.status.success());
+        assert!(!actual.status.success(), "invented object for {args:?}");
+        assert!(actual.stdout.is_empty());
+    }
+}
+
+#[test]
+fn raw_blob_streaming_preserves_sha1_sha256_and_redb_interoperability() {
+    for format in ["sha1", "sha256"] {
+        let temp = tempfile::tempdir().unwrap();
+        let root = temp.path();
+        native(root, &["init", "-q", "--object-format", format]);
+        native(root, &["config", "gitr.redbObjects", "true"]);
+        let bytes = vec![0xa5; 3 * 1024 * 1024 + 13];
+        fs::write(root.join("blob"), &bytes).unwrap();
+        let expected = reference(root, &["hash-object", "--no-filters", "blob"]);
+        assert_eq!(native(root, &["hash-object", "--no-filters", "blob"]), expected);
+        assert_eq!(success(output(root, &["hash-object", "--stdin", "-w"], &bytes), &["hash-object"]), expected);
+        assert!(root.join(".git/gitr/objects.redb").is_file());
+        let oid = text(expected);
+        assert_eq!(reference(root, &["cat-file", "blob", &oid]), bytes);
+        assert_eq!(native(root, &["cat-file", "blob", &oid]), bytes);
     }
 }

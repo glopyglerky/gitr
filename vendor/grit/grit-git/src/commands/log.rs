@@ -9613,6 +9613,61 @@ fn path_has_textconv_driver(git_dir: &Path, config: &ConfigSet, path: &str) -> b
     false
 }
 
+/// Check the configured executable without evaluating any part of the command.
+fn textconv_program_exists(program: &str) -> bool {
+    fn executable(path: &Path) -> bool {
+        let Ok(metadata) = std::fs::metadata(path) else {
+            return false;
+        };
+        if !metadata.is_file() {
+            return false;
+        }
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            metadata.permissions().mode() & 0o111 != 0
+        }
+        #[cfg(not(unix))]
+        {
+            true
+        }
+    }
+
+    if Path::new(program).components().count() > 1 {
+        return executable(Path::new(program));
+    }
+    // These commands are provided by the shell used for explicit textconv
+    // configuration even when no executable with that name exists on PATH.
+    if matches!(program, ":" | "." | "alias" | "bg" | "break" | "cd" | "command"
+        | "continue" | "echo" | "eval" | "exec" | "exit" | "export" | "false"
+        | "fc" | "fg" | "getopts" | "hash" | "jobs" | "kill" | "printf" | "pwd"
+        | "read" | "readonly" | "return" | "set" | "shift" | "test" | "times"
+        | "trap" | "true" | "type" | "ulimit" | "umask" | "unalias" | "unset" | "wait") {
+        return true;
+    }
+    let Some(path) = std::env::var_os("PATH") else {
+        return false;
+    };
+    std::env::split_paths(&path).any(|directory| {
+        let candidate = directory.join(program);
+        if executable(&candidate) {
+            return true;
+        }
+        #[cfg(windows)]
+        {
+            let extensions = std::env::var_os("PATHEXT")
+                .unwrap_or_else(|| ".COM;.EXE;.BAT;.CMD".into());
+            return extensions.to_string_lossy().split(';').any(|extension| {
+                let mut name = candidate.as_os_str().to_os_string();
+                name.push(extension);
+                executable(Path::new(&name))
+            });
+        }
+        #[cfg(not(windows))]
+        { false }
+    })
+}
+
 fn validate_pickaxe_textconv_drivers(git_dir: &Path, work_tree: Option<&Path>) -> Result<()> {
     let Some(wt) = work_tree else {
         return Ok(());
@@ -9636,24 +9691,7 @@ fn validate_pickaxe_textconv_drivers(git_dir: &Path, work_tree: Option<&Path>) -
         let Some(first_word) = pickaxe_textconv_cmd_first_token(&cmd_line) else {
             continue;
         };
-        if first_word.starts_with('/') || first_word.contains('/') {
-            if !Path::new(&first_word).is_file() {
-                return Err(anyhow::Error::new(ExplicitExit {
-                    code: 128,
-                    message: format!(
-                        "error: cannot run {}: No such file or directory\nfatal: unable to read files to diff",
-                        first_word
-                    ),
-                }));
-            }
-            continue;
-        }
-        let exists = std::process::Command::new("sh")
-            .arg("-c")
-            .arg(format!("command -v {first_word} >/dev/null 2>&1"))
-            .status()
-            .map(|s| s.success())
-            .unwrap_or(false);
+        let exists = textconv_program_exists(&first_word);
         if !exists {
             return Err(anyhow::Error::new(ExplicitExit {
                 code: 128,

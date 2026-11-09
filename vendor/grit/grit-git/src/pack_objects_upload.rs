@@ -54,13 +54,10 @@ pub fn spawn_pack_objects_upload_shallow(
 
     let mut cmd = if let Some(ref hook_path) = hook_raw {
         let hook_resolved = resolve_hook_path(git_dir, hook_path);
-        let mut c = Command::new("sh");
-        c.arg("-c")
-            .arg("exec \"$0\" \"$@\"")
-            .arg(&hook_resolved)
-            .arg("git")
-            .arg("pack-objects")
-            .arg("--revs");
+        // The hook is an explicit executable path. Forward this native
+        // implementation as the pack command for hooks that delegate their argv.
+        let mut c = Command::new(&hook_resolved);
+        c.arg(&grit).arg("pack-objects").arg("--revs");
         if thin {
             c.arg("--thin");
         }

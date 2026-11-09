@@ -220,6 +220,11 @@ pub fn run(args: Args) -> Result<()> {
         bail!("'{}' is not a valid tag name.", name);
     }
 
+    // Capture the destination before resolving objects or running an editor or
+    // signer. A later writer must not be overwritten by this operation.
+    let tag_refname = format!("refs/tags/{name}");
+    let previous_ref = grit_lib::refs::read_ref_snapshot(&repo.git_dir, &tag_refname)?;
+
     // Resolve the target commit
     let target_rev = commit.unwrap_or("HEAD");
     let target_oid = resolve_revision(&repo, target_rev)
@@ -232,17 +237,16 @@ pub fn run(args: Args) -> Result<()> {
 
     let annotated = args.annotate || sign || !args.message.is_empty() || args.file.is_some();
 
-    let tag_refname = format!("refs/tags/{name}");
-    let tag_exists = grit_lib::refs::resolve_ref(&repo.git_dir, &tag_refname).is_ok();
+    let tag_exists = previous_ref.is_some();
 
     if tag_exists && !args.force {
         bail!("tag '{name}' already exists");
     }
 
     if annotated {
-        create_annotated_tag(&repo, name, target_oid, &args)?;
+        create_annotated_tag(&repo, name, target_oid, &args, previous_ref.as_ref())?;
     } else {
-        create_lightweight_tag(&repo, name, target_oid, &args)?;
+        create_lightweight_tag(&repo, name, target_oid, &args, previous_ref.as_ref())?;
     }
 
     Ok(())
@@ -254,11 +258,14 @@ fn create_lightweight_tag(
     name: &str,
     target_oid: ObjectId,
     args: &Args,
+    expected: Option<&grit_lib::refs::Ref>,
 ) -> Result<()> {
     let refname = format!("refs/tags/{name}");
-    let old_oid =
-        grit_lib::refs::resolve_ref(&repo.git_dir, &refname).unwrap_or_else(|_| zero_oid());
-    grit_lib::refs::write_ref(&repo.git_dir, &refname, &target_oid)
+    let old_oid = match expected {
+        Some(grit_lib::refs::Ref::Direct(oid)) => *oid,
+        _ => zero_oid(),
+    };
+    grit_lib::refs::compare_and_swap_ref(&repo.git_dir, &refname, expected, Some(&grit_lib::refs::Ref::Direct(target_oid)))
         .map_err(|e| anyhow::anyhow!("{e}"))?;
     if should_create_tag_reflog(repo, args, &refname) {
         let config = ConfigSet::load(Some(&repo.git_dir), true)?;
@@ -283,6 +290,7 @@ fn create_annotated_tag(
     name: &str,
     target_oid: ObjectId,
     args: &Args,
+    expected: Option<&grit_lib::refs::Ref>,
 ) -> Result<()> {
     // Build the message
     let message = build_tag_message(args)?;
@@ -332,9 +340,11 @@ fn create_annotated_tag(
     let tag_oid = repo.odb.write(ObjectKind::Tag, &tag_bytes)?;
 
     let refname = format!("refs/tags/{name}");
-    let old_oid =
-        grit_lib::refs::resolve_ref(&repo.git_dir, &refname).unwrap_or_else(|_| zero_oid());
-    grit_lib::refs::write_ref(&repo.git_dir, &refname, &tag_oid)
+    let old_oid = match expected {
+        Some(grit_lib::refs::Ref::Direct(oid)) => *oid,
+        _ => zero_oid(),
+    };
+    grit_lib::refs::compare_and_swap_ref(&repo.git_dir, &refname, expected, Some(&grit_lib::refs::Ref::Direct(tag_oid)))
         .map_err(|e| anyhow::anyhow!("{e}"))?;
     if should_create_tag_reflog(repo, args, &refname) {
         let msg = format!("tag: {name}");
@@ -368,7 +378,8 @@ fn delete_tag(repo: &Repository, name: &str) -> Result<()> {
         .map_err(|_| anyhow::anyhow!("tag '{name}' not found."))?;
     let log_path = reflog_path(&repo.git_dir, &refname);
     let saved_log = fs::read(&log_path).ok();
-    grit_lib::refs::delete_ref(&repo.git_dir, &refname).map_err(|e| anyhow::anyhow!("{e}"))?;
+    grit_lib::refs::compare_and_swap_ref(&repo.git_dir, &refname, Some(&grit_lib::refs::Ref::Direct(oid)), None)
+        .map_err(|e| anyhow::anyhow!("{e}"))?;
     if let Some(content) = saved_log {
         if let Some(parent) = log_path.parent() {
             let _ = fs::create_dir_all(parent);
@@ -381,10 +392,8 @@ fn delete_tag(repo: &Repository, name: &str) -> Result<()> {
     Ok(())
 }
 
-/// Verify a tag: check it exists and print its contents if annotated.
-///
-/// For unsigned annotated tags, git tag -v fails because there is no
-/// GPG signature to verify.  We replicate that behaviour.
+/// Verify the actual tag signature and trust policy, printing the signed
+/// payload and verifier diagnostics as `git tag -v` does.
 fn verify_tag(repo: &Repository, name: &str) -> Result<()> {
     let refname = format!("refs/tags/{name}");
     let oid = grit_lib::refs::resolve_ref(&repo.git_dir, &refname)
@@ -392,15 +401,25 @@ fn verify_tag(repo: &Repository, name: &str) -> Result<()> {
     let obj = repo.odb.read(&oid)?;
     match obj.kind {
         ObjectKind::Tag => {
-            // Annotated tag — check for GPG signature
-            let content = String::from_utf8_lossy(&obj.data);
-            if content.contains("-----BEGIN PGP SIGNATURE-----") {
-                // We don't actually do GPG verification; print tag contents
-                print!("{content}");
-                Ok(())
-            } else {
-                bail!("no signature found");
+            use grit_lib::signing::{self, GpgConfig};
+            let config = ConfigSet::load(Some(&repo.git_dir), true)?;
+            let gpg = GpgConfig::from_config(&config)?;
+            let mut out = io::stdout().lock();
+            match signing::parse_signed_buffer(&obj.data) {
+                Some((payload, _)) => out.write_all(&payload)?,
+                None => out.write_all(&obj.data)?,
             }
+            out.flush()?;
+            let signature = signing::verify_tag(&gpg, &obj.data)?;
+            if !signature.output.is_empty() {
+                io::stderr().lock().write_all(signature.output.as_bytes())?;
+            } else if signature.result == 'N' {
+                eprintln!("error: {}: no signature found", oid.to_hex());
+            }
+            if !signature.verify_status(gpg.min_trust_level) {
+                bail!("could not verify tag signature");
+            }
+            Ok(())
         }
         _ => {
             // Lightweight tag — nothing to verify

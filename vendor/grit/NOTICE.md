@@ -5,8 +5,9 @@ Source: [gitbutlerapp/grit](https://github.com/gitbutlerapp/grit), revision
 This is the revision immediately preceding removal of upstream's `grit-git`
 compatibility CLI. Newer upstream releases intentionally target a different CLI.
 
-The import preserves the complete Rust sources and Rust tests of `grit-lib`,
-`grit-git`, and `grit-test-support`, their embedded help text and manifests. The
+The import started with the complete Rust sources and Rust tests of `grit-lib`,
+`grit-git`, and `grit-test-support`, their embedded help text and manifests.
+The local changes and removed execution paths are recorded below. The
 upstream Git reference tree and executable shell helpers are not included.
 `upstream-source.json` records each imported path and the original SHA-256, before
 local changes. Root qualification records describe the resulting build and tests.
@@ -30,8 +31,24 @@ copyright notices and code comments remain in the source files.
   upstream implementation ran the system Git shell script.
 - The build no longer installs `git-sh-setup` or `git-sh-i18n` shell programs.
   The shell source interface `sh-setup` is explicitly unsupported.
+- The donor self-updater is disabled. It previously downloaded and ran a remote
+  shell installer that could replace Gitr with a different upstream product.
+- Built-in Vimdiff merge layouts are unsupported because their implementation
+  generated executable Vimscript. The library retains declarative layout data;
+  `mergetool.<tool>.cmd` still runs an explicit user-supplied tool command with
+  `BASE`, `LOCAL`, `REMOTE` and `MERGED` paths in its environment.
+- Diff hunk-context regex validation and matching use the Rust regex engine.
+  Unsupported regex syntax fails explicitly instead of delegating to `grep`.
+- Timestamp changes and executable existence checks use Rust filesystem APIs.
+  Pack hooks launch their configured executable directly and receive the current
+  native executable as the delegated pack command. Multi-argument submodule
+  commands also launch directly. Browser shell adapters evaluate the configured
+  command without an extra fixed `eval` program.
+- Archive subprocesses no longer fall back to a `git` executable on PATH or use
+  the donor's `GUST_BIN` override. The bisect test-fixture environment shim that
+  derived `p` from a file named `hello` was removed.
 - Read commands reject effective executable filter, textconv, external diff,
-  fsmonitor and pager configuration. They do not execute those helpers while
+  fsmonitor, signature verifier and pager configuration. They do not execute those helpers while
   inspecting a repository. Worktree-writing commands retain Git's explicit
   hook and filter interfaces.
 - Rust subprocess fixture programs replace embedded shell fixtures in tests.
@@ -48,8 +65,9 @@ reentrant application API. Applications should use `grit-lib` for typed APIs.
 The donor's historical test-suite headline is not a qualification result for
 this import. More than 140 command handlers and their source tests are retained,
 but passing Gitr's executed differential tests is required for every reported
-capability. The removed C Git fallbacks, shell-only interfaces, byte-lossy CLI
-arguments and any unexecuted upstream scenarios remain explicit parity gaps.
+capability. The removed C Git fallbacks, shell-only interfaces, non-UTF-8 CLI
+arguments, built-in Vimdiff layouts, self-update and any unexecuted upstream
+scenarios remain explicit parity gaps.
 No 100% parity or universal speed claim follows from importing these sources.
 
 For an update, compare upstream source hashes at a pinned revision, inspect the

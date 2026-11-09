@@ -277,7 +277,7 @@ fn push_options_are_delivered_to_receive_pack_hook_over_git_daemon() {
 
 /// Write an executable fake-ssh program (as in `transport_ssh_push.rs`): ignore
 /// host/options, rewrite the dashed transport name to the `git <service>`
-/// subcommand, and exec it locally. Returns `None` if it cannot be created.
+/// subcommand, and exec it locally. A compiler failure fails the test.
 #[cfg(unix)]
 fn write_fake_ssh(dir: &Path) -> Option<std::path::PathBuf> {
     Some(rust_fixtures::fake_ssh(dir))

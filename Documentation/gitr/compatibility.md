@@ -1,10 +1,42 @@
 # Compatibility and limits
 
-This is an initial working Rust implementation, not complete Git command parity.
+The historical Grit Rust package family is imported, but full Git command parity
+is not qualified. Its source inventory is not a list of enabled product features.
 Unimplemented commands fail instead of silently invoking the C Git executable.
 The reference Git is an external test oracle; its former source tree is preserved in Git history.
 
-## Native Git commands
+## Default native Git profile
+
+The default CLI calls the vendored Grit implementation in process. Gitr's
+`actions`, `assets`, `db`, `doctor` and `lfs` extensions retain their existing
+implementations. `update-ref` retains the strict isolated implementation below.
+
+The imported dispatcher includes more than 140 handlers. Gitr enables core
+staging/commit, simple branch/tag, object and inspection operations. History and
+transport writers whose refs have not been migrated to locked expected-old
+publication fail explicitly before their handlers run, including checkout,
+switch, merge, rebase, cherry-pick, revert, reset, stash, clone, fetch, push, pull,
+receive-pack and update-ref's donor variants. Branch rename/copy and recursive
+branch creation also fail before mutation. The precise gate is
+`vendor/grit/grit-git/src/write_safety.rs`.
+
+Inspection rejects configuration-supplied executable filters, textconv, external
+diff, fsmonitor, pagers and signature-verifier programs. Inspection aliases
+cannot route to shell/external helpers or modifying builtins. Native OS arguments
+must be UTF-8 and otherwise fail before side effects; lossless byte-path CLI
+compatibility remains work. Default Git configuration loading is broader than
+the isolated profile, and explicit write operations retain user hooks/filters.
+
+The optional redb object store is selected with `gitr.redbObjects=true`. Raw
+`hash-object --no-filters` blobs and raw stdin use bounded-memory streaming;
+structured and attribute-converted inputs are limited to 64 MiB. Other donor
+object APIs still materialize complete objects. Read the [full import record](rust-git-import.md)
+for source provenance, storage boundaries and observed test results.
+
+## Isolated Gitoxide profile (`--isolated-git`)
+
+The following table describes the earlier explicit profile. These limits are
+preserved for callers needing its configuration and resource contract.
 
 | Command | Implemented behavior | Explicit differences and limits |
 |---|---|---|
@@ -26,9 +58,9 @@ The reference Git is an external test oracle; its former source tree is preserve
 Repository discovery reads local configuration with isolated options. It does not
 load global/system configuration or includes, or execute hooks, textconv, fsmonitor,
 filter programs and credential helpers. This is a deliberately limited command
-contract, not transparent behavior for every Git configuration. Native add,
-porcelain commit, checkout, clone, fetch, push, merge, rebase, stash and general
-hooks are still implementation work. Use ordinary Git for those operations today.
+contract, not transparent behavior for every Git configuration. It does not expose
+the imported porcelain or network implementation. The default profile above has
+its own narrower qualification boundary for reference writers.
 The [native authoring pipeline](native-history.md) can already construct and
 publish commits without a checkout, index or Git subprocess; it does not imply
 completion of those porcelain or network commands.

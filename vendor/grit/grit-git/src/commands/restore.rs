@@ -142,6 +142,10 @@ pub fn run(args: Args) -> Result<()> {
         }
         let repo = Repository::discover(None).context("not a git repository")?;
         let source = args.source.as_deref();
+        if let Some(source) = source {
+            let tree = commit_to_tree(&repo, resolve_source(&repo, source)?)?;
+            crate::path_safety::check_restore_tree(&repo, tree)?;
+        }
         let cfg = grit_lib::config::ConfigSet::load(Some(&repo.git_dir), true).unwrap_or_default();
         let context = crate::commands::add::resolve_patch_context(args.unified, &cfg)?;
         let inter_hunk_context =
@@ -191,6 +195,10 @@ pub fn run(args: Args) -> Result<()> {
     } else {
         None
     };
+
+    if let Some(tree) = source_tree_oid {
+        crate::path_safety::check_restore_tree(&repo, tree)?;
+    }
 
     // Collect all paths to operate on.
     let expanded = expand_pathspecs(
@@ -549,6 +557,10 @@ fn ensure_trailing_newline(mut text: String) -> String {
 ///
 /// Returns an error on any filesystem failure.
 fn write_to_worktree(work_tree: &Path, rel_path: &str, data: &[u8], mode: u32) -> Result<()> {
+    let symlink_target = if mode == MODE_SYMLINK {
+        Some(std::str::from_utf8(data)
+            .with_context(|| format!("symlink target for '{rel_path}' is not UTF-8"))?)
+    } else { None };
     let abs_path = work_tree.join(rel_path);
 
     if let Some(parent) = abs_path.parent() {
@@ -565,9 +577,7 @@ fn write_to_worktree(work_tree: &Path, rel_path: &str, data: &[u8], mode: u32) -
         }
     }
 
-    if mode == MODE_SYMLINK {
-        let target = std::str::from_utf8(data)
-            .with_context(|| format!("symlink target for '{rel_path}' is not UTF-8"))?;
+    if let Some(target) = symlink_target {
         std::os::unix::fs::symlink(target, &abs_path)
             .with_context(|| format!("creating symlink '{rel_path}'"))?;
     } else {
@@ -708,7 +718,7 @@ fn expand_pathspecs(
                     }
                 }
                 for entry in &index.entries {
-                    let path = String::from_utf8_lossy(&entry.path).into_owned();
+                    let path = crate::path_safety::utf8_bytes(&entry.path, "restore index entry")?.to_owned();
                     if seen.insert(path.clone()) {
                         result.push(path);
                     }
@@ -719,14 +729,14 @@ fn expand_pathspecs(
                 // conflicts depending on `--ignore-unmerged`.
                 let mut seen = std::collections::BTreeSet::new();
                 for entry in &index.entries {
-                    let path = String::from_utf8_lossy(&entry.path).into_owned();
+                    let path = crate::path_safety::utf8_bytes(&entry.path, "restore index entry")?.to_owned();
                     if seen.insert(path.clone()) {
                         result.push(path);
                     }
                 }
             }
         } else {
-            let rel = resolve_pathspec(spec, work_tree, cwd);
+            let rel = resolve_pathspec(spec, work_tree, cwd)?;
             if is_glob_pattern(&rel) {
                 let mut matches = Vec::new();
                 if let Some(tree_oid) = source_tree {
@@ -742,7 +752,7 @@ fn expand_pathspecs(
                         if entry.stage() != 0 {
                             continue;
                         }
-                        let p = String::from_utf8_lossy(&entry.path).into_owned();
+                        let p = crate::path_safety::utf8_bytes(&entry.path, "restore index entry")?.to_owned();
                         if glob_matches(&rel, &p) {
                             matches.push(p);
                         }
@@ -801,9 +811,9 @@ fn collect_tree_paths(
     }
     let entries = parse_tree(&tree_obj.data)?;
     for entry in entries {
-        let name = String::from_utf8_lossy(&entry.name);
+        let name = crate::path_safety::utf8_bytes(&entry.name, "restore source tree entry")?;
         let full_path = if prefix.is_empty() {
-            name.into_owned()
+            name.to_owned()
         } else {
             format!("{prefix}/{name}")
         };
@@ -820,9 +830,9 @@ fn collect_tree_paths(
 ///
 /// Handles `"."` (returns the cwd prefix), absolute paths, and relative paths
 /// from cwd within the worktree.
-fn resolve_pathspec(spec: &str, work_tree: &Path, cwd: &Path) -> String {
+fn resolve_pathspec(spec: &str, work_tree: &Path, cwd: &Path) -> Result<String> {
     if spec == "." {
-        return compute_prefix(work_tree, cwd).unwrap_or_default();
+        return Ok(compute_prefix(work_tree, cwd)?.unwrap_or_default());
     }
 
     let candidate = PathBuf::from(spec);
@@ -834,22 +844,19 @@ fn resolve_pathspec(spec: &str, work_tree: &Path, cwd: &Path) -> String {
 
     // Make relative to worktree
     if let Ok(rel) = abs.strip_prefix(work_tree) {
-        rel.to_string_lossy().into_owned()
+        Ok(rel.to_str().context("restore path is not UTF-8")?.to_owned())
     } else {
-        spec.to_owned()
+        Ok(spec.to_owned())
     }
 }
 
 /// Compute the cwd-relative prefix inside the worktree (e.g. `"subdir"`).
-fn compute_prefix(work_tree: &Path, cwd: &Path) -> Option<String> {
-    let wt = work_tree.canonicalize().ok()?;
-    let c = cwd.canonicalize().ok()?;
-    if wt == c {
-        return None;
-    }
-    c.strip_prefix(&wt)
-        .ok()
-        .map(|p| p.to_string_lossy().into_owned())
+fn compute_prefix(work_tree: &Path, cwd: &Path) -> Result<Option<String>> {
+    let wt = work_tree.canonicalize()?;
+    let c = cwd.canonicalize()?;
+    if wt == c { return Ok(None); }
+    let Ok(relative) = c.strip_prefix(&wt) else { return Ok(None); };
+    Ok(Some(relative.to_str().context("restore working directory is not UTF-8")?.to_owned()))
 }
 
 fn parse_pathspecs_from_file(content: &str, nul_terminated: bool) -> Result<Vec<String>> {
@@ -1019,4 +1026,20 @@ fn glob_matches_inner(pattern: &[u8], path: &[u8]) -> bool {
         pi += 1;
     }
     pi == pattern.len()
+}
+
+#[cfg(all(test, unix))]
+mod path_safety_tests {
+    use super::*;
+
+    #[test]
+    fn invalid_symlink_target_does_not_remove_the_destination() {
+        let temp = tempfile::tempdir().unwrap();
+        let destination = temp.path().join("preserve");
+        std::fs::write(&destination, b"original").unwrap();
+        assert!(write_to_worktree(temp.path(), "preserve", b"bad-\xff", MODE_SYMLINK).is_err());
+        assert_eq!(std::fs::read(&destination).unwrap(), b"original");
+        assert!(write_to_worktree(temp.path(), "new-parent/link", b"bad-\xff", MODE_SYMLINK).is_err());
+        assert!(!temp.path().join("new-parent").exists());
+    }
 }

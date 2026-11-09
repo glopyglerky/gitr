@@ -377,10 +377,10 @@ fn firefox_newtab_flag(browser_path: &str) -> Option<&'static str> {
 }
 
 fn launch_custom_shell(browser_cmd: &str, urls: &[String]) -> Result<()> {
+    // Only the user-supplied browser command is evaluated by the shell.
     let status = Command::new("sh")
-        .env("BROWSER_CMD", browser_cmd)
         .arg("-c")
-        .arg(r#"eval "$BROWSER_CMD \"\$@\"""#)
+        .arg(format!("{browser_cmd} \"$@\""))
         .arg("_")
         .args(urls)
         .status()

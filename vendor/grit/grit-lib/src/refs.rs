@@ -23,6 +23,9 @@ use crate::error::{Error, Result};
 use crate::objects::ObjectId;
 use crate::pack;
 
+mod cas;
+pub use cas::{compare_and_swap_ref, read_ref_snapshot, update_head_cas};
+
 /// A symbolic or direct reference.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Ref {
@@ -991,6 +994,10 @@ pub fn delete_ref(git_dir: &Path, refname: &str) -> Result<()> {
     }
     let storage_dir = ref_storage_dir(git_dir, refname);
     let stor = crate::ref_namespace::storage_ref_name(refname);
+    delete_ref_at_storage(&storage_dir, &stor)
+}
+
+fn delete_ref_at_storage(storage_dir: &Path, stor: &str) -> Result<()> {
     let path = storage_dir.join(&stor);
 
     // Remove the packed-refs entry *first* (acquiring the packed-refs lock). Git deletes the
@@ -1041,9 +1048,53 @@ pub fn delete_ref(git_dir: &Path, refname: &str) -> Result<()> {
     Ok(())
 }
 
+struct PackedRefLockGuard(PathBuf);
+
+impl Drop for PackedRefLockGuard {
+    fn drop(&mut self) {
+        let _ = fs::remove_file(&self.0);
+    }
+}
+
 /// Remove a single entry from the packed-refs file, rewriting it.
 fn remove_packed_ref(git_dir: &Path, refname: &str) -> Result<()> {
     let packed_path = git_dir.join("packed-refs");
+    let lock = lock_path_for_ref(&packed_path); // packed-refs.lock
+    let abs_lock = fs::canonicalize(git_dir)
+        .map(|d| d.join("packed-refs.lock"))
+        .unwrap_or_else(|_| lock.clone());
+    // Honor `core.packedrefstimeout`: git retries acquiring the packed-refs lock for up to
+    // this many milliseconds before giving up (t0600 "no bogus intermediate values during
+    // delete" holds the lock and expects update-ref to block, not fail immediately).
+    let timeout_ms = ConfigSet::load(Some(git_dir), true)
+        .ok()
+        .and_then(|cfg| cfg.get("core.packedrefstimeout"))
+        .and_then(|v| v.trim().parse::<i64>().ok())
+        .unwrap_or(0);
+    let deadline =
+        std::time::Instant::now() + std::time::Duration::from_millis(timeout_ms.max(0) as u64);
+    loop {
+        match std::fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(&lock)
+        {
+            Ok(_) => break,
+            Err(e) if e.kind() == io::ErrorKind::AlreadyExists => {
+                if timeout_ms > 0 && std::time::Instant::now() < deadline {
+                    std::thread::sleep(std::time::Duration::from_millis(50));
+                    continue;
+                }
+                return Err(Error::Message(format!(
+                    "Unable to create '{}': File exists.",
+                    abs_lock.display()
+                )));
+            }
+            Err(e) => return Err(Error::Io(e)),
+        }
+    }
+
+    let _guard = PackedRefLockGuard(lock);
     let content = match fs::read_to_string(&packed_path) {
         Ok(c) => c,
         Err(e)
@@ -1109,41 +1160,6 @@ fn remove_packed_ref(git_dir: &Path, refname: &str) -> Result<()> {
         // `update-ref -d` fails cleanly — leaving the reference intact — when either file is
         // already present (t0600 "delete fails cleanly if packed-refs file is locked / .new
         // write fails").
-        let lock = lock_path_for_ref(&packed_path); // packed-refs.lock
-        let abs_lock = fs::canonicalize(git_dir)
-            .map(|d| d.join("packed-refs.lock"))
-            .unwrap_or_else(|_| lock.clone());
-        // Honor `core.packedrefstimeout`: git retries acquiring the packed-refs lock for up to
-        // this many milliseconds before giving up (t0600 "no bogus intermediate values during
-        // delete" holds the lock and expects update-ref to block, not fail immediately).
-        let timeout_ms = ConfigSet::load(Some(git_dir), true)
-            .ok()
-            .and_then(|cfg| cfg.get("core.packedrefstimeout"))
-            .and_then(|v| v.trim().parse::<i64>().ok())
-            .unwrap_or(0);
-        let deadline =
-            std::time::Instant::now() + std::time::Duration::from_millis(timeout_ms.max(0) as u64);
-        loop {
-            match std::fs::OpenOptions::new()
-                .write(true)
-                .create_new(true)
-                .open(&lock)
-            {
-                Ok(_) => break,
-                Err(e) if e.kind() == io::ErrorKind::AlreadyExists => {
-                    if timeout_ms > 0 && std::time::Instant::now() < deadline {
-                        std::thread::sleep(std::time::Duration::from_millis(50));
-                        continue;
-                    }
-                    return Err(Error::Message(format!(
-                        "Unable to create '{}': File exists.",
-                        abs_lock.display()
-                    )));
-                }
-                Err(e) => return Err(Error::Io(e)),
-            }
-        }
-
         let tmp = packed_path.with_extension("new");
         let mut created_tmp = false;
         let write_result = (|| -> Result<()> {
@@ -1155,15 +1171,17 @@ fn remove_packed_ref(git_dir: &Path, refname: &str) -> Result<()> {
             created_tmp = true;
             use std::io::Write as _;
             file.write_all(out.as_bytes()).map_err(Error::Io)?;
+            file.sync_all().map_err(Error::Io)?;
             drop(file);
             fs::rename(&tmp, &packed_path).map_err(Error::Io)?;
+            #[cfg(unix)]
+            fs::File::open(git_dir)?.sync_all()?;
             created_tmp = false; // consumed by rename
             Ok(())
         })();
 
         // Always release the lock; on failure clean up only a tempfile that we created (never a
         // pre-existing `packed-refs.new` placed by the caller/test).
-        let _ = fs::remove_file(&lock);
         if write_result.is_err() && created_tmp {
             let _ = fs::remove_file(&tmp);
         }

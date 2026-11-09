@@ -185,7 +185,7 @@ fn main() -> std::process::ExitCode {
         };
     }
     if native_cli::select(&mut args) {
-        grit_git::main_entry();
+        grit_git::gitr_main_entry(env!("CARGO_PKG_VERSION"));
     }
     match run(Cli::parse_from(args)) {
         Ok(()) => std::process::ExitCode::SUCCESS,

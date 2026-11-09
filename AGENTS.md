@@ -107,6 +107,10 @@ runtime qualification; preserve that distinction in reports and release gates.
 
 - Root `src`, `Cargo.toml` and `Cargo.lock` build the standalone Rust Gitr executable.
 - `crates/action-example` and `vendor/rbit-workflow` are isolated support packages.
+- `vendor/grit` preserves the historical upstream Rust Git package family and
+  its licenses. Gitr's entry point enforces the product qualification boundary;
+  the standalone donor executable is a conformance/development target, not a
+  certified substitute for that boundary. See `Documentation/gitr/rust-git-import.md`.
 - Inherited C Git production/build/test sources were retired; recover them from
   `bf628ff8c74da4ab03a4a99001edf6780d8d84a0`. Reference tests use installed Git.
 - `Documentation/gitr` records decisions, upstream reuse, qualification evidence,

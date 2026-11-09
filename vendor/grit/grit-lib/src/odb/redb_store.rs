@@ -10,6 +10,10 @@
 //! selects it only for `gitr.redbObjects=true` and publishes standard loose files
 //! after a successful database commit. No table from Gitr's catalog or action
 //! database is opened here.
+//!
+//! Each new handle checks redb's committed pages before trusting them. That scan
+//! may rebuild allocator bookkeeping and requires write access even when the
+//! caller only reads objects. The check is cached with the shared open handle.
 
 use std::fs;
 use std::io;
@@ -26,6 +30,8 @@ use crate::error::{Error, Result};
 use crate::objects::{HashAlgo, Object, ObjectId};
 
 use super::{hash_bytes_with, parse_object_bytes};
+
+mod streaming;
 
 /// Maximum bytes in one object chunk. Reads through `Odb` still return a whole
 /// object because that is the imported engine's API; this is not a streaming API.
@@ -62,6 +68,10 @@ fn builder() -> redb::Builder {
     let mut builder = Database::builder();
     builder
         .set_concurrency_mode(ConcurrencyMode::MultiWriter)
+        // Report externally damaged committed pages as errors. Plain redb
+        // opens trust clean-shutdown files and may panic on that corruption.
+        // This scans the database once per open handle, not once per object.
+        .set_check_integrity_on_open(true)
         .set_cache_size(8 * 1024 * 1024);
     builder
 }
@@ -107,7 +117,9 @@ fn validate_schema(
 }
 
 impl RedbObjectStore {
-    /// Open an existing database without creating files, directories or tables.
+    /// Open an existing database without creating filesystem paths or
+    /// initializing the object schema. Redb verifies its committed pages and
+    /// may rebuild allocator bookkeeping during the open.
     pub fn open(path: impl AsRef<Path>, algo: HashAlgo) -> Result<Self> {
         let path = path.as_ref();
         check_path(path, false)?;
@@ -473,6 +485,59 @@ mod tests {
         let read = db.begin_read().unwrap();
         assert_eq!(read.open_table(unrelated).unwrap().get("kept").unwrap().unwrap().value(), 7);
         assert!(read.open_table(META).is_err());
+    }
+
+    #[test]
+    fn redb_odb_first_write_initializes_an_existing_empty_database() {
+        let dir = tempfile::tempdir().unwrap();
+        let git_dir = dir.path().join(".git");
+        let objects = git_dir.join("objects");
+        let path = git_dir.join("gitr/objects.redb");
+        fs::create_dir_all(&objects).unwrap();
+        fs::create_dir_all(path.parent().unwrap()).unwrap();
+        fs::write(git_dir.join("config"), "[gitr]\nredbObjects=true\n").unwrap();
+        // A first creator can be paused after redb creates the file but before
+        // it begins the schema transaction. Reproduce that exact visible state.
+        let first_handle = builder().create(&path).unwrap();
+        let odb = crate::odb::Odb::new(&objects).with_config_git_dir(git_dir);
+        let oid = odb.write(ObjectKind::Blob, b"first writer").unwrap();
+        let read = first_handle.begin_read().unwrap();
+        let meta = read.open_table(META).unwrap();
+        assert_eq!(meta.get("schema").unwrap().unwrap().value(), SCHEMA);
+        assert_eq!(odb.read(&oid).unwrap().data, b"first writer");
+        assert!(odb.object_path(&oid).is_file());
+    }
+
+    #[test]
+    fn redb_objects_external_file_corruption_returns_errors_without_panicking() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("objects.redb");
+        let raw = build_store_bytes(
+            ObjectKind::Blob,
+            b"unique stored payload for the external-file corruption regression",
+        );
+        let store = RedbObjectStore::create(&path, HashAlgo::Sha1).unwrap();
+        store.insert_raw(&raw).unwrap();
+        drop(store);
+
+        // Damage the raw committed chunk after a clean database shutdown.
+        // Alter every occurrence so an old copy of the page cannot conceal it.
+        let mut bytes = fs::read(&path).unwrap();
+        let offsets: Vec<_> = bytes.windows(raw.len()).enumerate()
+            .filter_map(|(offset, value)| (value == raw.as_slice()).then_some(offset))
+            .collect();
+        assert!(!offsets.is_empty());
+        for offset in offsets {
+            bytes[offset + raw.len() - 1] ^= 1;
+        }
+        fs::write(&path, &bytes).unwrap();
+
+        let opened = std::panic::catch_unwind(|| RedbObjectStore::open(&path, HashAlgo::Sha1));
+        assert!(opened.is_ok(), "corrupt database open must not panic");
+        assert!(opened.unwrap().is_err());
+        let created = std::panic::catch_unwind(|| RedbObjectStore::create(&path, HashAlgo::Sha1));
+        assert!(created.is_ok(), "corrupt database create must not panic");
+        assert!(created.unwrap().is_err());
     }
 
     #[test]
