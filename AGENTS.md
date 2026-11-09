@@ -81,6 +81,15 @@ lawful when that enables the best product. Do not exclude Apache, GPL or AGPL
 donors solely because the current Rust manifest declares GPL-2.0-only. Assess
 their code quality and integration fit, then select a compatible composition.
 
+Complete source copies, whole-crate/package-family imports and whole application
+forks are explicitly permitted when upstream terms and source provenance allow
+them. Prefer retaining coherent upstream modules, tests, fuzz fixtures and notices
+over unnecessary reimplementation or fragile snippet extraction. Record the exact
+upstream revision, imported paths/hashes, selected license alternatives, build
+closure, local patches, qualification and update method. Gitr still owns its ref,
+job and storage authority: a large donor import must not introduce competing
+masters or discard the selected redb/Wasmi/Git compatibility contracts.
+
 Preserve the inherited Git GPLv2-only scope and all donor notices and obligations.
 Before changing existing license declarations, record file-level source origin,
 copyright/relicensing authority and the resolved build/release composition.
@@ -89,6 +98,10 @@ rights. For new independently authored reusable Rust components, MIT OR
 Apache-2.0 is a practical default; selected donor terms may require another scope.
 The broad donor catalog and scoped license assessment are in
 `Documentation/gitr/research/2026-11-08-upstream-survey`.
+The expanded import-sized recommendations, source findings and reproducible
+combined catalog are linked from `Documentation/gitr/upstream-reuse-expanded.md`.
+A dependency allowlist or source-only survey is not legal approval or executed
+runtime qualification; preserve that distinction in reports and release gates.
 
 ## Repository layout
 
