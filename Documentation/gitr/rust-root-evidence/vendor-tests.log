@@ -1,0 +1,204 @@
+    Updating crates.io index
+ Downloading crates ...
+  Downloaded itoa v1.0.19
+  Downloaded quick-error v1.2.3
+  Downloaded unarray v0.1.4
+  Downloaded rand_xorshift v0.5.0
+  Downloaded bit-vec v0.10.1
+  Downloaded rusty-fork v0.3.1
+  Downloaded bit-set v0.11.1
+  Downloaded proptest v1.12.0
+   Compiling cfg-if v1.0.5
+   Compiling libc v0.2.191
+   Compiling rustversion v1.0.23
+   Compiling rand_core v0.10.1
+   Compiling proc-macro2 v1.0.107
+   Compiling getrandom v0.4.3
+   Compiling serde_core v1.0.229
+   Compiling autocfg v1.5.1
+   Compiling unicode-ident v1.0.27
+   Compiling quote v1.0.47
+   Compiling num-traits v0.2.19
+   Compiling encoding_rs v0.8.44
+   Compiling rustix v1.1.6
+   Compiling core_detect v1.0.0
+   Compiling bitflags v2.13.2
+   Compiling scopeguard v1.2.0
+   Compiling memchr v2.8.3
+   Compiling linux-raw-sys v0.12.1
+   Compiling multiversion_no_op v1.0.0
+   Compiling simdutf8 v0.1.5
+   Compiling zmij v1.0.23
+   Compiling syn v3.0.9
+   Compiling arraydeque v0.5.1
+   Compiling serde v1.0.229
+   Compiling fastrand v2.5.0
+   Compiling smallvec v1.16.5
+   Compiling once_cell v1.21.4
+   Compiling unicode-width v0.2.3
+   Compiling serde_json v1.0.154
+   Compiling anstyle v1.0.14
+   Compiling regex-syntax v0.8.11
+   Compiling serde_derive v1.0.229
+   Compiling annotate-snippets v0.12.17
+   Compiling tempfile v3.27.0
+   Compiling granit-parser v2.1.0
+   Compiling encoding_rs_io v0.1.8
+   Compiling aho-corasick v1.1.5
+   Compiling wait-timeout v0.2.1
+   Compiling itoa v1.0.19
+   Compiling cpufeatures v0.3.1
+   Compiling quick-error v1.2.3
+   Compiling bit-vec v0.10.1
+   Compiling fnv v1.0.7
+   Compiling rusty-fork v0.3.1
+   Compiling regex-automata v0.4.18
+   Compiling bit-set v0.11.1
+   Compiling chacha20 v0.10.2
+   Compiling serde-saphyr v2.1.1
+   Compiling rand v0.10.3
+   Compiling rand_xorshift v0.5.0
+   Compiling zeroize v1.9.1
+   Compiling unarray v0.1.4
+   Compiling proptest v1.12.0
+   Compiling rbit-workflow v0.1.5 (<GITR_SOURCE>/vendor/rbit-workflow)
+    Finished `test` profile [unoptimized] target(s) in 30.56s
+     Running unittests src/lib.rs (<GENERATED_ROOT>/vendor-target/debug/build/rbit-workflow/c5b8305858e02e55/out/rbit_workflow-c5b8305858e02e55)
+
+running 118 tests
+test builtins::tests::every_built_in_has_its_inputs ... ok
+test builtins::tests::everything_else_is_refused_with_advice ... ok
+test builtins::tests::names_and_aliases ... ok
+test builtins::tests::other_actions_resolve_to_what_the_runner_fetches ... ok
+test builtins::tests::with_inputs_are_checked ... ok
+test cron::tests::invalid_expressions ... ok
+test cron::tests::question_mark_only_in_day_fields ... ok
+test expr::lex::tests::numbers ... ok
+test cron::tests::calendar_arithmetic ... ok
+test error::tests::messages_show_their_location_and_stay_short ... ok
+test action::tests::inputs_merge_with_defaults ... ok
+test expr::parse::tests::refusals ... ok
+test expr::lex::tests::tokens ... ok
+test cron::tests::minimum_interval ... ok
+test expr::tests::hash_files_goes_through_the_hook ... ok
+test action::tests::javascript_actions ... ok
+test expr::lex::tests::refusals ... ok
+test action::tests::composite_actions ... ok
+test expr::parse::tests::trees ... ok
+test cron::tests::next_fire_times ... ok
+test expr::tests::partial_rendering_keeps_what_cannot_be_evaluated ... ok
+test expr::parse::tests::precedence_and_printing ... ok
+test expr::parse::tests::nesting_is_bounded ... ok
+test expr::tests::conditions ... ok
+test expr::tests::functions ... ok
+test expr::tests::refusals ... ok
+test action::tests::docker_actions_and_errors ... ok
+test glob::tests::bad_patterns_are_refused ... ok
+test glob::tests::search_paths_are_the_literal_starts_without_nested_ones ... ok
+test expr::tests::the_former_subset ... ok
+test glob::tests::wildcards_match_within_a_segment_and_globstars_across ... ok
+test glob::tests::the_last_matching_pattern_decides_and_directories_bring_their_contents ... ok
+test expr::tests::truthiness_and_text ... ok
+test glob::tests::walking_prunes_directories_that_cannot_match ... ok
+test expr::tests::status_functions_follow_the_status ... ok
+test expr::tests::literals_operators_and_coercion ... ok
+test glob::tests::windows_paths_and_case ... ok
+test limits::tests::deadlines ... ok
+test options::tests::only_named_volumes ... ok
+test options::tests::shaping_options_pass_and_those_that_give_the_host_do_not ... ok
+test expr::tests::single_expressions_keep_their_type ... ok
+test parse::tests::job_ids ... ok
+test parse::tests::every_key_is_typed ... ok
+test parse::tests::a_complete_workflow ... ok
+test parse::tests::other_actions_are_steps_the_runner_fetches ... ok
+test parse::tests::short_forms_of_on ... ok
+test parse::tests::permissions_forms ... ok
+test parse::tests::shells_and_amounts ... ok
+test parse::tests::expressions_are_checked_where_they_are_written ... ok
+test pattern::tests::invalid_patterns_name_every_problem ... ok
+test parse::tests::never_panics::on_arbitrary_bytes ... ok
+test parse::tests::errors_point_at_the_problem ... ok
+test pattern::tests::translation_matches_act ... ok
+test plan::tests::called_workflows_become_jobs_of_the_run ... ok
+test pattern::tests::negation_order_is_github_not_glob ... ok
+test expr::tests::properties::parsing_arbitrary_strings_never_panics ... ok
+test parse::tests::limits_are_enforced ... ok
+test parse::tests::unknown_and_unsupported_keys_are_errors ... ok
+test plan::tests::environments_are_named_when_planned_and_their_url_on_the_runner ... ok
+test plan::tests::go_formatting ... ok
+test plan::tests::every_field_is_filled ... ok
+test plan::tests::evaluated_matrices_are_checked ... ok
+test plan::tests::calls_nest_at_most_ten_levels_deep ... ok
+test plan::tests::concurrency_groups ... ok
+test plan::tests::names_and_labels ... ok
+test parse::tests::steps_do_exactly_one_thing ... ok
+test plan::tests::matrices_and_nesting_call_once_per_combination ... ok
+test plan::tests::matrix_limits ... ok
+test protocol::tests::artifact_names_never_walk_up ... ok
+test protocol::tests::endpoints_and_caps ... ok
+test protocol::tests::envelopes_are_forward_compatible_and_enums_closed ... ok
+test protocol::tests::golden_errors ... ok
+test protocol::tests::golden_poll_state_and_logs ... ok
+test protocol::tests::golden_registration ... ok
+test plan::tests::golden_templates ... ok
+test plan::tests::runs_on_refusals ... ok
+test protocol::tests::runner_validation ... ok
+test protocol::tests::secrets_never_appear_in_debug_output ... ok
+test plan::tests::run_names ... ok
+test protocol::tests::token_and_key_shapes ... ok
+test secret::tests::secrets_are_redacted_and_compared_by_value ... ok
+test secret::tests::secrets_serialise_as_their_value ... ok
+test spec::policy_tests::every_rule_must_allow_an_action ... ok
+test spec::policy_tests::a_restricted_spec_names_its_policy_and_an_open_one_does_not ... ok
+test spec::tests::called_jobs_have_keys_of_their_calls ... ok
+test spec::tests::secrets_never_appear_in_debug_output ... ok
+test spec::tests::golden_template_and_spec ... ok
+test spec::tests::permissions_convert_from_the_model ... ok
+test spec::tests::spec_validation ... ok
+test spec::tests::specs_are_strict ... ok
+test spec::tests::template_validation ... ok
+test trigger::tests::deletions_never_match ... ok
+test trigger::tests::dispatch_and_schedule ... ok
+test trigger::tests::dispatch_inputs ... ok
+test trigger::tests::changed_paths_are_computed_only_when_needed ... ok
+test plan::tests::matrix_expansion_table ... ok
+test trigger::tests::skip_markers ... ok
+test plan::tests::timeouts_flags_and_numbers ... ok
+test trigger::tests::repository_dispatch_matches_its_types ... ok
+test plan::tests::calls_are_checked_when_the_run_is_planned ... ok
+test trigger::tests::workflow_run_matches_name_type_and_branch ... ok
+test trigger::tests::workflow_run_and_repository_dispatch_are_checked ... ok
+test yaml::tests::errors_carry_their_location ... ok
+test yaml::tests::headers_in_front_of_a_scalar ... ok
+test yaml::tests::same_value_compares_data_like_go ... ok
+test yaml::tests::mappings_keep_order_locations_and_resolve_aliases ... ok
+test yaml::tests::scalars_keep_their_value_and_plain_spelling ... ok
+test protocol::tests::interval_poll_and_state_caps ... ok
+test trigger::tests::pull_request_matrix ... ok
+test pattern::tests::act_match_pattern_table ... ok
+test expr::tests::properties::printing_round_trips_trees ... ok
+test trigger::tests::push_filter_matrix ... ok
+test expr::tests::limits_are_errors ... ok
+test expr::tests::properties::evaluation_ends_within_the_budget ... ok
+test expr::tests::properties::parsing_never_panics ... ok
+test expr::tests::properties::printing_round_trips_text ... ok
+test yaml::tests::budgets_stop_hostile_documents ... ok
+test parse::tests::never_panics::on_yaml_like_text ... ok
+
+test result: ok. 118 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.21s
+
+     Running tests/conformance.rs (<GENERATED_ROOT>/vendor-target/debug/build/rbit-workflow/3a2522f2d824ceb2/out/conformance-3a2522f2d824ceb2)
+
+running 1 test
+test conformance ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+   Doc-tests rbit_workflow
+
+running 1 test
+test src/expr/mod.rs - expr (line 51) ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+all doctests ran in 0.26s; merged doctests compilation took 0.26s

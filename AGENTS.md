@@ -105,10 +105,10 @@ runtime qualification; preserve that distinction in reports and release gates.
 
 ## Repository layout
 
-- `rust/gitr` is the standalone Rust implementation. Its manifest does not link
-  upstream Git's C `gitcore` library.
-- The root currently retains upstream Git and its test corpus for compatibility
-  work. Do not describe this inherited source tree as an all-Rust repository.
+- Root `src`, `Cargo.toml` and `Cargo.lock` build the standalone Rust Gitr executable.
+- `crates/action-example` and `vendor/rbit-workflow` are isolated support packages.
+- Inherited C Git production/build/test sources were retired; recover them from
+  `bf628ff8c74da4ab03a4a99001edf6780d8d84a0`. Reference tests use installed Git.
 - `Documentation/gitr` records decisions, upstream reuse, qualification evidence,
   and remaining implementation work. Its `archive` is not an active build target.
 

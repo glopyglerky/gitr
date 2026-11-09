@@ -7,7 +7,7 @@ code-intelligence, multi-writer and HA product requirements are unchanged.
 
 ## Current implementation retained
 
-The standalone `rust/gitr` package pins **redb 4.5.0** in its manifest and
+The root `gitr` package pins **redb 4.5.0** in its manifest and
 lockfile. The catalog in `src/db.rs` and action storage in `src/actions.rs`
 already use redb. This selection requires no data conversion.
 
@@ -75,8 +75,8 @@ build files. This is a regression guard, not proof of storage correctness.
 ```sh
 python ci/gitr-redb-policy.py --self-test
 python ci/gitr-redb-policy.py
-lustr --engine rustc test --manifest-path rust/gitr/Cargo.toml --locked --all-targets
-lustr --engine rustc clippy --manifest-path rust/gitr/Cargo.toml --locked --all-targets -- -D warnings
+lustr --engine rustc test --manifest-path Cargo.toml --locked --all-targets
+lustr --engine rustc clippy --manifest-path Cargo.toml --locked --all-targets -- -D warnings
 ```
 
 Existing runtime and export code is preserved rather than replaced by the

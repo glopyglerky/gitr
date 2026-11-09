@@ -6,8 +6,8 @@ from pathlib import Path
 import subprocess
 import tempfile
 
-binary = Path("rust/gitr/target/debug/gitr" + (".exe" if os.name == "nt" else "")).resolve()
-wasm = Path("rust/gitr-action-example/target/wasm32-unknown-unknown/release/gitr_action_example.wasm").resolve()
+binary = (Path(os.environ.get("CARGO_TARGET_DIR", "target")) / ("debug/gitr" + (".exe" if os.name == "nt" else ""))).resolve()
+wasm = (Path(os.environ.get("GITR_EXAMPLE_TARGET_DIR", "crates/action-example/target")) / "wasm32-unknown-unknown/release/gitr_action_example.wasm").resolve()
 
 def run(args, cwd, data=None, ok=True):
     result = subprocess.run(args, cwd=cwd, input=data, capture_output=True, check=False, timeout=30)

@@ -12,8 +12,10 @@ actions and dependency workflows against immutable Git snapshots. Active develop
 lives on the default branch, [`master`](https://github.com/glopyglerky/gitr/tree/master).
 
 **Status: initial implementation. Gitr is not yet a complete Git replacement.**
-The new implementation is in [`rust/gitr`](rust/gitr). This fork also retains the
-upstream Git source and test corpus, so the entire repository is not all Rust.
+The Rust implementation is the root Cargo package. The inherited C Git build,
+production sources and unused upstream shell corpus have been retired from the
+working tree; their exact recovery point remains in Git history. The GitHub fork
+relationship is unchanged. Transitive native TLS code remains (see dependency limits).
 
 ## Implemented capabilities
 
@@ -48,45 +50,46 @@ profile is not a general-purpose build/deployment runner, standard MCP server,
 remote multi-tenant service, full forge, or complete GitHub Actions implementation.
 Unsupported commands and workflow execution features fail explicitly.
 
-The capabilities below describe checked-in implementation and linked qualification
-records. This documentation update does not rerun those builds or certify a release.
+The capabilities below describe checked-in implementation. The root migration
+was built and tested through produced BlueFe; see its linked qualification record.
+These checks do not certify complete Git parity or a public release.
 
 ## Source map
 
 | Path | Role |
 | --- | --- |
-| `rust/gitr/src/main.rs` | Gitr CLI entry point |
-| `rust/gitr/src/git.rs`, `git_write.rs` | Native Git operations and authoring |
-| `rust/gitr/src/lfs.rs`, `remote.rs`, `chunks.rs`, `assets.rs` | LFS and large assets |
-| `rust/gitr/src/db.rs`, `actions*.rs` | redb catalog, bounded Wasm jobs and optional API |
-| `rust/gitr/Cargo.toml` | Standalone Gitr build, separate workspace |
-| `rust/gitr-action-example`, `rust/vendor/rbit-workflow` | Example guest and retained workflow donor |
+| `src/main.rs` | Gitr CLI entry point |
+| `src/git.rs`, `git_write.rs` | Native Git operations and authoring |
+| `src/lfs.rs`, `remote.rs`, `chunks.rs`, `assets.rs` | LFS and large assets |
+| `src/db.rs`, `actions*.rs` | redb catalog, bounded Wasm jobs and optional API |
+| `Cargo.toml` | Default Gitr executable build |
+| `crates/action-example`, `vendor/rbit-workflow` | Example guest and retained workflow donor |
 | `Documentation/gitr` | Gitr decisions, compatibility limits and qualification |
-| Root C sources, `builtin`, `t`, `Makefile`, `meson.build` | Inherited Git reference implementation and tests |
-| Root `Cargo.toml`, `build.rs`, `src` | Inherited C-linked `gitcore`, not the Gitr binary |
+| `tests` | Self-contained differential fixtures using installed reference Git |
+| `Documentation/gitr/root-retirement.json` | Exact retired paths and recovery blob IDs |
 
-The [fork design and layout exceptions](Documentation/gitr/fork-design.md) explain
-why these paths remain and how to maintain this map. The inherited
-[Git README](UPSTREAM-README.md) is reference documentation.
+The [fork design and source retirement](Documentation/gitr/fork-design.md) explain
+the current boundaries and how to maintain this map. The inherited
+[Git README](UPSTREAM-README.md) is historical text for the retired tree.
 
 ## Build with Lustr
 
-Use Rust 1.99.1 and the compiler revision in
-[`lustr-toolchain.json`](rust/gitr/lustr-toolchain.json). From this repository root:
+Use the reviewed produced BlueFe bundle described in
+[`lustr-toolchain.json`](lustr-toolchain.json). `BLUEFE_ROOT` is an absolute path
+to a platform-matched bundle containing `bin/lustr`, `bin/cargo`, produced
+`bin/rustc`, produced `bin/rustdoc`, and native/Wasm standard libraries:
 
 ```sh
-git clone https://github.com/glopyglerky/lustr .gitr-ci/lustr-src
-git -C .gitr-ci/lustr-src checkout 62494e27717a64c8612b538409de27048fa6adc2
-rustup toolchain install 1.99.1 --profile minimal
-cargo +1.99.1 install --path .gitr-ci/lustr-src/tools/cargo-lust --locked
-rustup run 1.99.1 lustr --engine rustc build --manifest-path rust/gitr/Cargo.toml --locked --release
-rustup run 1.99.1 lustr --engine rustc test --manifest-path rust/gitr/Cargo.toml --locked
+"$BLUEFE_ROOT/bin/lustr" --bluefe-root "$BLUEFE_ROOT" build --locked --release
+"$BLUEFE_ROOT/bin/lustr" --bluefe-root "$BLUEFE_ROOT" test --locked --all-features --all-targets
 ```
 
-The executable is `rust/gitr/target/release/gitr`, or `gitr.exe` on Windows.
-The explicit `rustc` route uses Lustr's full-Rust Cargo coordinator. Native Lust
-does not currently compile arbitrary Gitoxide/redb dependencies. Cranelift needs
-Lustr's matching backend and compiler; see [qualification](Documentation/gitr/qualification.md).
+The default executable is `target/release/gitr` (`gitr.exe` on Windows).
+See [root migration qualification](Documentation/gitr/rust-root.md) for the
+portable bundle contract, actual Linux results, source retirement and limits.
+Native Lust does not compile this dependency graph. No matching Clippy/Cranelift
+is available; those routes are not accepted. macOS/Windows remain supported code
+paths requiring matching bundles and execution before acceptance.
 
 ## Try it
 
@@ -157,13 +160,13 @@ reintroduction into the active dependency manifests or migration paths.
 
 ## Run a database-resident Rust/Wasm action
 
-Build the [example Rust action](rust/gitr-action-example) for
+Build the [example Rust action](crates/action-example) for
 `wasm32-unknown-unknown` using the same pinned toolchain:
 
 ```sh
-rustup target add --toolchain 1.99.1 wasm32-unknown-unknown
-rustup run 1.99.1 lustr --engine rustc build --manifest-path rust/gitr-action-example/Cargo.toml --locked --release --target wasm32-unknown-unknown
-WASM_PATH="$(pwd)/rust/gitr-action-example/target/wasm32-unknown-unknown/release/gitr_action_example.wasm"
+# Bundle must include wasm32-unknown-unknown std.
+"$BLUEFE_ROOT/bin/lustr" --bluefe-root "$BLUEFE_ROOT" build --manifest-path crates/action-example/Cargo.toml --locked --release --target wasm32-unknown-unknown
+WASM_PATH="$(pwd)/crates/action-example/target/wasm32-unknown-unknown/release/gitr_action_example.wasm"
 gitr -C /path/to/repo actions install "$WASM_PATH"
 # The install response prints module_sha256:
 gitr -C /path/to/repo actions submit whitespace-policy MODULE_SHA256 --revision HEAD --path src/main.rs
@@ -191,17 +194,17 @@ for the measured tests and remaining restrictions.
 ## Durable dependency and matrix workflows
 
 Build with `--features workflows` to enable planning/submission of committed YAML.
-The complete [vendored Rbit workflow crate](rust/vendor/rbit-workflow) supplies
+The complete [vendored Rbit workflow crate](vendor/rbit-workflow) supplies
 parsing and matrix planning, with retained tests, notices and source provenance.
 Gitr keeps durable run/job authority in its existing redb database and executes
 only the explicitly supported Wasmi profile. No external database is required.
 
 ```sh
-rustup run 1.99.1 lustr --engine rustc build --manifest-path rust/gitr/Cargo.toml --locked --features workflows
-rust/gitr/target/debug/gitr -C /path/to/repo actions workflow plan checks --path .gitr/workflows/check.yml
-rust/gitr/target/debug/gitr -C /path/to/repo actions workflow submit checks --path .gitr/workflows/check.yml
-rust/gitr/target/debug/gitr -C /path/to/repo actions workflow run checks
-rust/gitr/target/debug/gitr -C /path/to/repo actions workflow status checks
+"$BLUEFE_ROOT/bin/lustr" --bluefe-root "$BLUEFE_ROOT" build --manifest-path Cargo.toml --locked --features workflows
+target/debug/gitr -C /path/to/repo actions workflow plan checks --path .gitr/workflows/check.yml
+target/debug/gitr -C /path/to/repo actions workflow submit checks --path .gitr/workflows/check.yml
+target/debug/gitr -C /path/to/repo actions workflow run checks
+target/debug/gitr -C /path/to/repo actions workflow status checks
 ```
 
 The supported execution profile is manual `workflow_dispatch`, static matrices,
@@ -228,9 +231,9 @@ for workflow planning and the local individual-action HTTP surface; no workflow
 submission endpoint or MCP transport is claimed.
 
 ```sh
-rustup run 1.99.1 lustr --engine rustc build --manifest-path rust/gitr/Cargo.toml --locked --features action-api
+"$BLUEFE_ROOT/bin/lustr" --bluefe-root "$BLUEFE_ROOT" build --manifest-path Cargo.toml --locked --features action-api
 export GITR_API_TOKEN="$(python3 -c 'import secrets; print(secrets.token_hex(32))')"
-rust/gitr/target/debug/gitr -C /path/to/repo actions serve --repository my-repository
+target/debug/gitr -C /path/to/repo actions serve --repository my-repository
 ```
 
 Startup prints the selected loopback endpoint. Every request requires the bearer

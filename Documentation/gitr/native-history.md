@@ -1,5 +1,9 @@
 # Native checkout-free Git authoring
 
+Current root layout and produced BlueFe qualification: [rust-root.md](rust-root.md).
+Compiler versions and measurements below retain their historical scope.
+
+
 ## Implemented and qualified on Linux
 
 `gitr mktree`, `gitr write-tree` and `gitr commit-tree` are part of the normal CLI.

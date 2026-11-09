@@ -2,7 +2,7 @@
 
 This is an initial working Rust implementation, not complete Git command parity.
 Unimplemented commands fail instead of silently invoking the C Git executable.
-The root Git source remains a reference implementation and test corpus.
+The reference Git is an external test oracle; its former source tree is preserved in Git history.
 
 ## Native Git commands
 
@@ -18,6 +18,7 @@ The root Git source remains a reference implementation and test corpus.
 | `rev-parse` | One revision; Git/common directory; worktree root; bare/worktree/object-format queries | Not the full Git argument language or shell quoting frontend |
 | `show-ref` | Sorted references, annotated tag IDs, optional HEAD/heads/tags | Subset of flags |
 | `log` | Full OID and subject; `--oneline`, `-n`, `--first-parent` | Compact Gitr format, not Git's full default log formatting |
+| `ls-tree` | Tree/commit listing, `-r`, `-z`, `--name-only`; raw paths and Git quoting | No pathspecs, prefix rewriting, `-t`, `-l`; 128 levels, 100,000 visited entries, 16 MiB per tree. Repository-root-relative output even from subdirectories. |
 | `ls-files` | Cached repository-relative paths, conflict stages, `-s`, `-z` | Sparse indexes and noncached modes unsupported |
 | `status` | Porcelain v1, staged/worktree changes, conflict stages, intent-to-add, individual untracked files | No rename detection. Rejects configured filters, submodule entries and sparse indexes. Compare with `git status --porcelain --no-renames --untracked-files=all`. |
 | `update-ref` | Fully qualified ref, new OID, mandatory expected old OID, ref lock and reflog | No force/delete/symbolic-ref operation. All-zero expected OID means strict creation. Requires local `user.name`/`user.email`; branch targets must be commits. |
@@ -110,7 +111,7 @@ code embeddings, resolved source graphs and GitQL integration remain work. See
 ## Build and dependency honesty
 
 Lustr's coordinator is pinned in
-[`lustr-toolchain.json`](../../rust/gitr/lustr-toolchain.json). The regular gate
+[`lustr-toolchain.json`](../../lustr-toolchain.json). The regular gate
 uses its explicit `rustc` engine. Native Lust does not currently compile arbitrary
 gix/redb dependencies. A separate recorded Cranelift run must use the matching
 reviewed backend and compiler; merely selecting a route is not a speed result.

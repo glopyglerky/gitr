@@ -59,9 +59,9 @@ power-loss simulation or multi-host partition/failover qualification.
 From the Gitr source root, with the pinned Lustr coordinator installed:
 
 ```sh
-rustup run 1.99.1 lustr --engine rustc build --manifest-path rust/gitr/Cargo.toml --locked --features action-api
+"$BLUEFE_ROOT/bin/lustr" --bluefe-root "$BLUEFE_ROOT" build --manifest-path Cargo.toml --locked --features action-api
 export GITR_API_TOKEN="$(python3 -c 'import secrets; print(secrets.token_hex(32))')"
-rust/gitr/target/debug/gitr -C /path/to/repository actions serve --repository my-repository
+target/debug/gitr -C /path/to/repository actions serve --repository my-repository
 ```
 
 The default listener is `127.0.0.1:0`, which selects an available local port.

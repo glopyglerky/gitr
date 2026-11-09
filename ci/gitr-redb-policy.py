@@ -8,7 +8,7 @@ import unittest
 
 RETIRED = (
     "rust/gitr-store/", "rust/gitr-surreal-probe/",
-    "rust/gitr/src/actions_remote.rs", "ci/gitr-store-", "ci/gitr-surreal-",
+    "src/actions_remote.rs", "ci/gitr-store-", "ci/gitr-surreal-",
     ".github/workflows/gitr-store-qualification.yml",
     ".github/workflows/gitr-surreal-qualification.yml",
 )
@@ -42,16 +42,16 @@ def validate_lock(value):
 
 def check(root):
     names = subprocess.check_output(
-        ["git", "ls-files", "-z", "--", "rust", "ci", ".github/workflows"], cwd=root
+        ["git", "ls-files", "-z", "--", "Cargo.toml", "Cargo.lock", "src", "crates", "vendor", "ci", ".github/workflows"], cwd=root
     ).decode("utf-8").split("\0")
     for name in filter(None, names):
         if name.startswith(RETIRED):
             raise ValueError(f"retired migration path is active: {name}")
         path = root / name
-        if name.startswith("rust/") and path.name in {"Cargo.toml", "Cargo.lock"}:
+        if path.name in {"Cargo.toml", "Cargo.lock"}:
             value = tomllib.loads(path.read_text(encoding="utf-8"))
             (validate_manifest if path.name == "Cargo.toml" else validate_lock)(value)
-    manifest = tomllib.loads((root / "rust/gitr/Cargo.toml").read_text(encoding="utf-8"))
+    manifest = tomllib.loads((root / "Cargo.toml").read_text(encoding="utf-8"))
     pin = manifest["dependencies"]["redb"]
     if isinstance(pin, dict):
         if pin.get("optional", False):
@@ -59,7 +59,7 @@ def check(root):
         pin = pin["version"]
     if not pin.startswith("="):
         raise ValueError("redb must retain an exact reviewed version pin")
-    lock = tomllib.loads((root / "rust/gitr/Cargo.lock").read_text(encoding="utf-8"))
+    lock = tomllib.loads((root / "Cargo.lock").read_text(encoding="utf-8"))
     versions = [p["version"] for p in lock["package"] if p["name"] == "redb"]
     if versions != [pin[1:]]:
         raise ValueError("redb manifest and lockfile pin disagree")

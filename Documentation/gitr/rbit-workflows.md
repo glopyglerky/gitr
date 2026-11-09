@@ -3,7 +3,7 @@
 ## Implemented; initial execution qualified on Linux
 
 The complete independent `rbit-workflow` crate is vendored at
-`rust/vendor/rbit-workflow`, from GitRbit/rbit revision
+`vendor/rbit-workflow`, from GitRbit/rbit revision
 `39f932a00b7aa35b324e06a9ff2343a57d4bed76`. Its 48 original files include source,
 tests and conformance fixtures. The final 55-file tree also retains both upstream
 license notices, the unmodified original manifest, per-file provenance, local
@@ -119,7 +119,7 @@ full forge/Actions compatibility and performance gains remain unproven here.
 With the pinned Lustr coordinator installed, from the Gitr source directory:
 
 ```sh
-rustup run 1.99.1 lustr --engine rustc build --manifest-path rust/gitr/Cargo.toml --locked --features workflows
+"$BLUEFE_ROOT/bin/lustr" --bluefe-root "$BLUEFE_ROOT" build --manifest-path Cargo.toml --locked --features workflows
 # Install a bounded Wasm module first; put its module_sha256 in committed YAML.
 gitr -C REPOSITORY actions workflow plan check --path .gitr/workflows/check.yml
 gitr -C REPOSITORY actions workflow submit check --path .gitr/workflows/check.yml
@@ -128,7 +128,7 @@ gitr -C REPOSITORY actions workflow status check
 gitr -C REPOSITORY actions workflow cancel check
 ```
 
-Use the resulting `rust/gitr/target/debug/gitr` executable directly or place it on
+Use the resulting `target/debug/gitr` executable directly or place it on
 PATH. Add `action-api` to the build features to start the separate optional local
 HTTP adapter. Lifecycle operations do not require the optional planner feature.
 

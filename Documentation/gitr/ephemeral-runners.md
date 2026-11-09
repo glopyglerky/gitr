@@ -95,7 +95,7 @@ separately before choosing production capacity or making performance claims.
 Existing commands do not change:
 
 ```sh
-rustup run 1.99.1 lustr --engine rustc build --manifest-path rust/gitr/Cargo.toml --locked --features workflows,action-api
+"$BLUEFE_ROOT/bin/lustr" --bluefe-root "$BLUEFE_ROOT" build --manifest-path Cargo.toml --locked --features workflows,action-api
 gitr -C REPOSITORY actions install MODULE.wasm
 gitr -C REPOSITORY actions run JOB_ID
 gitr -C REPOSITORY actions workflow run RUN_ID

@@ -4,14 +4,20 @@ on:
   push:
     branches: [master]
     paths:
-      - 'rust/**'
+      - 'Cargo.*'
+      - 'src/**'
+      - 'crates/**'
+      - 'vendor/**'
       - 'ci/gitr-*.py'
       - '.github/workflows/gitr-*.yml'
       - 'AGENTS.md'
       - 'Documentation/gitr/redb-decision.md'
   pull_request:
     paths:
-      - 'rust/**'
+      - 'Cargo.*'
+      - 'src/**'
+      - 'crates/**'
+      - 'vendor/**'
       - 'ci/gitr-*.py'
       - '.github/workflows/gitr-*.yml'
       - 'AGENTS.md'

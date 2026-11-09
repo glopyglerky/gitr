@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "repository": "glopyglerky/lustr",
+  "revision": "6339fbb104d6adda4be7e6be7dc637a6a9e5586b",
+  "manifest": "tools/cargo-lust/Cargo.toml",
+  "engine": "bluefe",
+  "bluefe": {
+    "repository": "glopyglerky/bluefe",
+    "produced_revision": "7005dc02c9fb6674380eade443022bbc04215276",
+    "version": "1.102.0-dev",
+    "llvm": "23.1.5",
+    "targets": [
+      "x86_64-unknown-linux-gnu",
+      "wasm32-unknown-unknown"
+    ]
+  },
+  "cargo": {
+    "version": "1.101.0-nightly",
+    "revision": "31d3246e0",
+    "origin": "unmodified stage0; not produced Cargo"
+  },
+  "engine_note": "Lustr --bluefe-root selects produced rustc/rustdoc and stage0 Cargo. Native Lust cannot compile arbitrary dependencies. No stock compiler fallback, matching Clippy or Cranelift acceptance."
+}

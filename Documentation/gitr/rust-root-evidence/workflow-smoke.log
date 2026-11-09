@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "<GITR_SOURCE>/ci/gitr-workflow-smoke.py", line 123, in <module>
+    plan = json.loads(command('plan','checks','--path','workflow.yml').stdout)
+                      ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<GITR_SOURCE>/ci/gitr-workflow-smoke.py", line 110, in command
+    def command(*args, ok=True): return native('workflow', *args, ok=ok)
+                                        ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<GITR_SOURCE>/ci/gitr-workflow-smoke.py", line 109, in native
+    def native(*args, ok=True): return call([str(GITR), 'actions', *args], root, True, ok)
+                                       ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<GITR_SOURCE>/ci/gitr-workflow-smoke.py", line 30, in call
+    raise AssertionError(result.stderr.decode(errors='replace')[:4000])
+AssertionError: error: unrecognized subcommand 'plan'
+
+Usage: gitr actions workflow [OPTIONS] <COMMAND>
+
+For more information, try '--help'.

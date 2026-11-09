@@ -1,0 +1,9 @@
+PASS authentication, scope, denied browser origin, typed/body limits and existing redb visibility
+PASS actual Rust/Wasm execution, immutable Git input and bidirectional native CLI/API interoperability
+PASS concurrent API submissions/runs publish one attempt and preserve idempotency
+PASS cancellation, changed-input conflicts and real failing guest publish no success artifact
+PASS native worker can be killed after its durable claim while API remains responsive
+PASS forced API restart preserves existing CLI and API jobs and verified artifact bytes
+PASS expired crashed-worker claim is reclaimed with a new generation; fuel trap has no artifact
+PASS Git remains intact and non-loopback listener is rejected
+GITR_REDB_ACTION_API_SMOKE=passed; local trusted-user profile; no MCP, remote authorization or multi-host HA claim

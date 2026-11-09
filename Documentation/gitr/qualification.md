@@ -1,5 +1,9 @@
 # Qualification
 
+Current root layout and produced BlueFe qualification: [rust-root.md](rust-root.md).
+Compiler versions and measurements below retain their historical scope.
+
+
 This document records checks actually run for the initial Rust implementation.
 It does not certify full Git compatibility, distributed HA, semantic code search,
 or a performance improvement.
@@ -98,10 +102,10 @@ implementation that addresses this instruction.
 With the pinned Lustr binary and the selected Rust toolchain on `PATH`:
 
 ```sh
-lustr --engine rustc fmt --manifest-path rust/gitr/Cargo.toml -- --check
-lustr --engine rustc test --manifest-path rust/gitr/Cargo.toml --locked --all-targets
-lustr --engine rustc clippy --manifest-path rust/gitr/Cargo.toml --locked --all-targets -- -D warnings
-lustr --engine rustc build --manifest-path rust/gitr/Cargo.toml --locked --release
+lustr --engine rustc fmt --manifest-path Cargo.toml -- --check
+lustr --engine rustc test --manifest-path Cargo.toml --locked --all-targets
+lustr --engine rustc clippy --manifest-path Cargo.toml --locked --all-targets -- -D warnings
+lustr --engine rustc build --manifest-path Cargo.toml --locked --release
 ```
 
 For a constrained build volume, set `CARGO_PROFILE_DEV_DEBUG=0`,

@@ -3,7 +3,7 @@
 ## Status
 
 An integration candidate is checked in under `rust/gitr-store`, with the native
-client in `rust/gitr/src/actions_remote.rs`. It is NOT active in the default Gitr
+client in `src/actions_remote.rs`. It is NOT active in the default Gitr
 command until the exact tested integration is committed. The dedicated workflow
 stages that integration locally, compiles it through pinned Lustr and validates
 real processes against SurrealDB 4.0.0 / SurrealKV 1.2.0. A dependency declaration

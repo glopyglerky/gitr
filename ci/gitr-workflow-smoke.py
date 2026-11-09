@@ -17,9 +17,9 @@ import threading
 import urllib.request
 
 EXE = '.exe' if os.name == 'nt' else ''
-GITR = Path('rust/gitr/target/debug/gitr' + EXE).resolve()
+GITR = (Path(os.environ.get('CARGO_TARGET_DIR', 'target')) / ('debug/gitr' + EXE)).resolve()
 OLD = Path('.gitr-ci/gitr-before' + EXE).resolve()
-WASM = Path('rust/gitr-action-example/target/wasm32-unknown-unknown/release/gitr_action_example.wasm').resolve()
+WASM = (Path(os.environ.get('GITR_EXAMPLE_TARGET_DIR', 'crates/action-example/target')) / 'wasm32-unknown-unknown/release/gitr_action_example.wasm').resolve()
 TOKEN = secrets.token_hex(32)
 ENV = {**os.environ, 'PATH':'', 'GITR_API_TOKEN':TOKEN}
 

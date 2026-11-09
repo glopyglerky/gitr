@@ -1,5 +1,9 @@
 # Database-resident action qualification
 
+Current root layout and produced BlueFe qualification: [rust-root.md](rust-root.md).
+Compiler versions and measurements below retain their historical scope.
+
+
 The standalone `gitr` executable now includes `actions install`, `submit`, `run`,
 `status`, `cancel`, `artifact` and `control`. The code and dependency lockfile were
 activated from the exact immutable blobs emitted by successful
@@ -66,10 +70,10 @@ external side effects are not covered by an exactly-once guarantee.
 With the pinned Lustr coordinator installed and Rust 1.99.1 selected:
 
 ```sh
-lustr --engine rustc test --manifest-path rust/gitr/Cargo.toml --locked --all-targets
-lustr --engine rustc clippy --manifest-path rust/gitr/Cargo.toml --locked --all-targets -- -D warnings
-rustup target add --toolchain 1.99.1 wasm32-unknown-unknown
-lustr --engine rustc build --manifest-path rust/gitr-action-example/Cargo.toml --locked --release --target wasm32-unknown-unknown
+lustr --engine rustc test --manifest-path Cargo.toml --locked --all-targets
+lustr --engine rustc clippy --manifest-path Cargo.toml --locked --all-targets -- -D warnings
+# Use a reviewed bundle including wasm32-unknown-unknown std.
+lustr --engine rustc build --manifest-path crates/action-example/Cargo.toml --locked --release --target wasm32-unknown-unknown
 python ci/gitr-actions-smoke.py
 ```
 

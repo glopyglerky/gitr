@@ -10,7 +10,7 @@ PIN = '39f932a00b7aa35b324e06a9ff2343a57d4bed76'
 origin = Path('.gitr-ci/rbit-src')
 assert subprocess.check_output(['git','-C',str(origin),'rev-parse','HEAD'],text=True).strip() == PIN
 source = origin/'crates/rbit-core'
-target = Path('rust/vendor/rbit-core')
+target = Path('vendor/rbit-core')
 assert not target.exists(), 'refuse to overwrite an existing donor import'
 original = []
 for path in sorted(source.rglob('*')):
@@ -82,23 +82,23 @@ def replace(name, old, new):
     assert text.count(old) == 1, (name,text.count(old),old[:80])
     path.write_text(text.replace(old,new))
 
-replace('rust/gitr/Cargo.toml','[features]\n','[features]\nforge = ["dep:rbit-core"]\n')
-replace('rust/gitr/Cargo.toml','[dependencies]\n','[dependencies]\nrbit-core = { path = "../vendor/rbit-core", optional = true }\n')
-p = Path('rust/gitr/src/actions.rs')
+replace('Cargo.toml','[features]\n','[features]\nforge = ["dep:rbit-core"]\n')
+replace('Cargo.toml','[dependencies]\n','[dependencies]\nrbit-core = { path = "vendor/rbit-core", optional = true }\n')
+p = Path('src/actions.rs')
 p.write_text(p.read_text()+'\n#[cfg(feature = "forge")]\n#[path = "actions_forge.rs"]\npub mod forge;\n')
-p = Path('rust/gitr/src/lib.rs')
+p = Path('src/lib.rs')
 p.write_text(p.read_text()+'\n#[cfg(feature = "forge")]\npub use actions::forge;\n')
-replace('rust/gitr/src/main.rs','enum Command {','''enum Command {
+replace('src/main.rs','enum Command {','''enum Command {
     /// Local forge records, exact-revision reviews and existing redb action checks.
     #[cfg(feature = "forge")]
     Forge {
         #[command(subcommand)]
         command: gitr::forge::Command,
     },''')
-replace('rust/gitr/src/main.rs','        Command::Actions { command } => actions::run(command),','''        Command::Actions { command } => actions::run(command),
+replace('src/main.rs','        Command::Actions { command } => actions::run(command),','''        Command::Actions { command } => actions::run(command),
         #[cfg(feature = "forge")]
         Command::Forge { command } => gitr::forge::run(command),''')
-replace('rust/gitr/src/actions_api.rs','async fn handle(State(api): State<Api>, request: HttpRequest<Body>) -> Response {','''enum EndpointOperation {
+replace('src/actions_api.rs','async fn handle(State(api): State<Api>, request: HttpRequest<Body>) -> Response {','''enum EndpointOperation {
     Action(Operation),
     #[cfg(feature = "forge")]
     Forge(forge::Request),
@@ -127,7 +127,7 @@ async fn handle_forge(State(api): State<Api>, request: HttpRequest<Body>) -> Res
     handle_endpoint(api,request,true).await
 }
 async fn handle_endpoint(api: Api, request: HttpRequest<Body>, is_forge: bool) -> Response {''')
-replace('rust/gitr/src/actions_api.rs','''    let operation: Operation = match serde_json::from_slice(&bytes) {
+replace('src/actions_api.rs','''    let operation: Operation = match serde_json::from_slice(&bytes) {
         Ok(value) => value,
         Err(_) => return error(StatusCode::BAD_REQUEST, "invalid_request"),
     };''','''    let operation = if is_forge {
@@ -146,8 +146,8 @@ replace('rust/gitr/src/actions_api.rs','''    let operation: Operation = match s
             Err(_) => return error(StatusCode::BAD_REQUEST, "invalid_request"),
         }
     };''')
-replace('rust/gitr/src/actions_api.rs','match offload(permit, move || api.perform(operation)).await {','match offload(permit, move || operation.perform(&api)).await {')
-replace('rust/gitr/src/actions_api.rs','''            axum::serve(listener, Router::new().route("/v1/actions", post(handle)).with_state(api)).await?;''','''            let router = Router::new().route("/v1/actions", post(handle));
+replace('src/actions_api.rs','match offload(permit, move || api.perform(operation)).await {','match offload(permit, move || operation.perform(&api)).await {')
+replace('src/actions_api.rs','''            axum::serve(listener, Router::new().route("/v1/actions", post(handle)).with_state(api)).await?;''','''            let router = Router::new().route("/v1/actions", post(handle));
             #[cfg(feature = "forge")]
             let router = router.route("/v1/forge",post(handle_forge));
             axum::serve(listener, router.with_state(api)).await?;''')
