@@ -41,7 +41,7 @@ use grit_lib::porcelain::checkout::{
     apply_index_file_mode, glob_matches, is_glob_pattern, remove_empty_parent_dirs,
     write_to_worktree,
 };
-use grit_lib::refs::{self, append_reflog};
+use grit_lib::refs::{self, append_reflog, CheckoutRefGuard, Ref};
 use grit_lib::repo::Repository;
 use grit_lib::rev_parse::{
     abbreviate_object_id, peel_to_tree, resolve_revision, resolve_revision_without_index_dwim,
@@ -479,11 +479,108 @@ macro_rules! checkout_eprintln {
     };
 }
 
+fn require_qualified_checkout_variant(operation: &str) -> Result<()> {
+    bail!("{operation} is unavailable until its ref, index and worktree transaction is qualified")
+}
+
+/// Acquire the real index lock before reading or changing checkout state. The
+/// existing index serializer stages into a private directory, then its bytes
+/// are published through this already-owned lock. A failed acquisition cannot
+/// leave worktree edits behind.
+struct CheckoutIndexGuard {
+    target: PathBuf,
+    lock_path: PathBuf,
+    file: Option<std::fs::File>,
+    owned: bool,
+}
+
+impl CheckoutIndexGuard {
+    fn acquire(repo: &Repository) -> Result<Self> {
+        let target = repo.index_path_for_env()?;
+        if target != repo.index_path() {
+            require_qualified_checkout_variant("checkout with an alternate GIT_INDEX_FILE")?;
+        }
+        let lock_path = refs::lock_path_for_ref(&target);
+        let file = std::fs::OpenOptions::new().write(true).create_new(true)
+            .open(&lock_path).with_context(|| format!("locking index '{}'", lock_path.display()))?;
+        let guard = Self { target, lock_path, file: Some(file), owned: true };
+        let config = ConfigSet::load(Some(&repo.git_dir), true)?;
+        let index = match std::fs::read(&guard.target) {
+            Ok(bytes) => Index::parse_with_algo(&bytes, repo.odb.hash_algo())?,
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => Index::new(),
+            Err(error) => return Err(error.into()),
+        };
+        if index.split_index_base_oid().is_some() || index.has_sparse_directory_placeholders()
+            || config.get_bool("core.splitIndex") == Some(Ok(true))
+            || config.get_bool("core.sparseCheckout") == Some(Ok(true))
+            || std::env::var_os("GIT_TEST_SPLIT_INDEX").is_some()
+        {
+            require_qualified_checkout_variant("checkout with a split or sparse index")?;
+        }
+        Ok(guard)
+    }
+
+    fn publish(mut self, repo: &Repository, index: &mut Index) -> Result<()> {
+        index.hash_algo = repo.odb.hash_algo();
+        if let Some(worktree) = repo.work_tree.as_deref() {
+            let previous_mtime = std::fs::metadata(&self.target).ok()
+                .and_then(|metadata| metadata.modified().ok())
+                .and_then(|modified| modified.duration_since(std::time::UNIX_EPOCH).ok())
+                .map(|duration| (duration.as_secs() as u32, duration.subsec_nanos()));
+            grit_lib::diff::smudge_racily_clean_entries(
+                &repo.odb, &repo.git_dir, index, worktree, previous_mtime,
+            );
+        }
+        let config = ConfigSet::load(Some(&repo.git_dir), true)?;
+        let skip_hash = config.get_bool("index.skipHash") == Some(Ok(true));
+        let parent = self.target.parent().context("index path has no parent")?;
+        let staging = tempfile::Builder::new().prefix("gitr-checkout-index-").tempdir_in(parent)?;
+        let staged_index = staging.path().join("index");
+        index.write_to_path(&staged_index, skip_hash)?;
+        let mut input = std::fs::File::open(staged_index)?;
+        let file = self.file.as_mut().context("checkout index lock was consumed")?;
+        std::io::copy(&mut input, file)?;
+        file.sync_all()?;
+        drop(self.file.take());
+        std::fs::rename(&self.lock_path, &self.target)?;
+        self.owned = false;
+        #[cfg(unix)]
+        std::fs::File::open(parent)?.sync_all()?;
+        let _ = run_hook(repo, "post-index-change", &["1", "0"], None);
+        Ok(())
+    }
+}
+
+impl Drop for CheckoutIndexGuard {
+    fn drop(&mut self) {
+        drop(self.file.take());
+        if self.owned { let _ = std::fs::remove_file(&self.lock_path); }
+    }
+}
+
 pub fn run(mut args: Args) -> Result<()> {
+    // Refuse unsupported input modes before consuming a pathspec file or
+    // waiting for stdin that cannot produce an executable checkout plan.
+    if args.pathspec_from_file.is_some() || args.pathspec_file_nul || args.patch {
+        require_qualified_checkout_variant("pathspec-file or patch checkout; use restore for supported path operations")?;
+    }
     QUIET.with(|q| q.set(args.quiet));
     RECURSE_SUBMODULES.with(|r| r.set(args.recurse_submodules));
     OVERWRITE_IGNORE.with(|o| o.set(args.overwrite_ignore));
     let repo = Repository::discover(None).context("not a git repository")?;
+    if repo.work_tree.is_none() {
+        bail!("this operation must be run in a work tree");
+    }
+    // This snapshot predates target resolution, filters, hooks and all
+    // worktree/index changes. Publication must validate this same state.
+    let checkout_head = resolve_head(&repo.git_dir)?;
+    if grit_lib::reftable::is_reftable_repo(&repo.git_dir) {
+        require_qualified_checkout_variant("checkout with reftable refs")?;
+    }
+    let checkout_config = ConfigSet::load(Some(&repo.git_dir), true)?;
+    if grit_lib::promisor::repo_treats_promisor_packs(&repo.git_dir, &checkout_config) {
+        require_qualified_checkout_variant("checkout in a promisor repository")?;
+    }
     if !args.recurse_submodules {
         let config = ConfigSet::load(Some(&repo.git_dir), true).unwrap_or_default();
         if config.get_bool("submodule.recurse") == Some(Ok(true)) {
@@ -763,6 +860,34 @@ pub fn run(mut args: Args) -> Result<()> {
         separator_at_end,
         args.switch_mode,
     );
+    if args.force_branch.is_some() || args.orphan.is_some() {
+        require_qualified_checkout_variant("force-reset or orphan branch checkout (-B/-C/--orphan)")?;
+    }
+    if args.recurse_submodules || branch_merge_wanted || args.merge {
+        require_qualified_checkout_variant("recursive or merge checkout (--recurse-submodules/-m)")?;
+    }
+    if args.track.is_some() || args.ignore_other_worktrees {
+        require_qualified_checkout_variant("tracking setup or --ignore-other-worktrees checkout")?;
+    }
+    if args.patch || args.pathspec_from_file.is_some() || args.ours || args.theirs
+        || args.no_overlay || args.overlay || args.ignore_skip_worktree_bits || !paths.is_empty()
+    {
+        require_qualified_checkout_variant("path or patch checkout; use restore for supported path operations")?;
+    }
+    if args.new_branch.is_some() && !args.no_track {
+        let auto = checkout_config.get("branch.autoSetupMerge").unwrap_or_default().to_ascii_lowercase();
+        let remote_start = target.as_deref().is_some_and(|start| {
+            upstream_suffix_info(start).is_some()
+                || start.starts_with("refs/remotes/") || start.starts_with("remotes/")
+                || refs::resolve_ref(&repo.git_dir, &format!("refs/remotes/{start}")).is_ok()
+                || (!start.contains('/') && refs::resolve_ref(
+                    &repo.git_dir, &format!("refs/remotes/{start}/HEAD"),
+                ).is_ok())
+        });
+        if auto == "always" || auto == "inherit" || remote_start {
+            require_qualified_checkout_variant("automatic tracking configuration; pass --no-track")?;
+        }
+    }
     let rest_positional_count = args.rest.iter().filter(|arg| arg.as_str() != "--").count();
 
     // Without `--`, `split_target_and_paths` treats the first token as tree-ish when there are
@@ -877,13 +1002,14 @@ pub fn run(mut args: Args) -> Result<()> {
             let effective_target = Some(start).or(pre_head_branch.as_deref());
             let result = create_and_switch_branch(
                 &repo,
+                &checkout_head,
                 new_branch_name,
                 Some(start),
                 switch_force,
                 args.create_reflog,
                 args.track.as_deref().or(Some("direct")),
             );
-            if result.is_ok() && !args.no_track {
+            if result.is_ok() && !args.no_track && args.track.is_some() {
                 // Upstream start points must copy tracking even when `branch.autoSetupMerge` is not
                 // `always` (Git behavior; t1507).
                 let track = args.track.as_deref().or(Some("direct"));
@@ -981,7 +1107,7 @@ pub fn run(mut args: Args) -> Result<()> {
             args.force,
             args.create_reflog,
         );
-        if result.is_ok() && !args.no_track {
+        if result.is_ok() && !args.no_track && args.track.is_some() {
             maybe_setup_tracking(
                 &repo,
                 force_branch_name,
@@ -1040,13 +1166,14 @@ pub fn run(mut args: Args) -> Result<()> {
         }
         let result = create_and_switch_branch(
             &repo,
+            &checkout_head,
             new_branch_name,
             target.as_deref(),
             switch_force,
             args.create_reflog,
             args.track.as_deref(),
         );
-        if result.is_ok() && !args.no_track {
+        if result.is_ok() && !args.no_track && args.track.is_some() {
             maybe_setup_tracking(
                 &repo,
                 new_branch_name,
@@ -1060,6 +1187,7 @@ pub fn run(mut args: Args) -> Result<()> {
     // Case 2: checkout [<tree-ish>] -- <paths>  (path restore)
     // Not applicable when --detach is set (paths incompatible with --detach)
     if !paths.is_empty() && !args.detach {
+        require_qualified_checkout_variant("path checkout; use restore for supported path operations")?;
         if !has_separator && !args.force {
             if let Some(ref t) = target {
                 let is_rev = resolve_revision(&repo, t).is_ok()
@@ -1095,6 +1223,7 @@ pub fn run(mut args: Args) -> Result<()> {
     if paths.is_empty() && !args.detach {
         if let Some(ref t) = target {
             if t == "." || t == "./" {
+                require_qualified_checkout_variant("path checkout; use restore for supported path operations")?;
                 return checkout_paths(
                     &repo,
                     None,
@@ -1115,13 +1244,15 @@ pub fn run(mut args: Args) -> Result<()> {
 
     // Case: checkout -f (no args) — force reset working tree to HEAD
     if args.force && target.is_none() && paths.is_empty() {
+        let _guard = CheckoutRefGuard::acquire(&repo.git_dir, &checkout_head, None)?;
         return force_reset_to_head(&repo);
     }
 
     // Bare `git checkout` with no positional arguments: Git's `switch_branches` defaults the
     // "new" branch to HEAD and merges the working tree (re-applies sparse-checkout when enabled).
     if paths.is_empty() && !args.detach && target.is_none() {
-        let head = resolve_head(&repo.git_dir)?;
+        let _guard = CheckoutRefGuard::acquire(&repo.git_dir, &checkout_head, None)?;
+        let head = checkout_head.clone();
         let tree_oid = match &head {
             HeadState::Branch { oid: Some(oid), .. } | HeadState::Detached { oid } => {
                 commit_to_tree(&repo, oid)?
@@ -1148,9 +1279,9 @@ pub fn run(mut args: Args) -> Result<()> {
         None => {
             if args.detach {
                 // `checkout --detach` with no target: detach at current HEAD
-                match resolve_head(&repo.git_dir)? {
+                match checkout_head.clone() {
                     HeadState::Branch { oid: Some(oid), .. } | HeadState::Detached { oid } => {
-                        return detach_head(&repo, &oid, switch_force);
+                        return detach_head_inner(&repo, &checkout_head, &oid, switch_force, false, None);
                     }
                     _ => bail!("cannot detach HEAD on unborn branch"),
                 }
@@ -1164,11 +1295,14 @@ pub fn run(mut args: Args) -> Result<()> {
         if let Ok(n) = target[3..target.len() - 1].parse::<usize>() {
             let prev = resolve_nth_previous_branch(&repo, n)?;
             let branch_ref = format!("refs/heads/{prev}");
-            if refs::resolve_ref(&repo.git_dir, &branch_ref).is_ok() {
+            let destination = checkout_branch_snapshot(&repo, &branch_ref)?;
+            if destination.is_some() {
                 return switch_branch(
                     &repo,
+                    &checkout_head,
                     &prev,
                     &branch_ref,
+                    destination.as_ref(),
                     switch_force,
                     args.ignore_other_worktrees,
                     branch_merge_wanted,
@@ -1176,7 +1310,7 @@ pub fn run(mut args: Args) -> Result<()> {
                 );
             }
             if let Ok(oid) = resolve_to_commit(&repo, &prev) {
-                return detach_head(&repo, &oid, switch_force);
+                return detach_head_inner(&repo, &checkout_head, &oid, switch_force, false, None);
             }
             bail!("error: previous branch '{}' not found", prev);
         }
@@ -1186,11 +1320,14 @@ pub fn run(mut args: Args) -> Result<()> {
     if target == "-" {
         let prev = resolve_previous_branch(&repo)?;
         let branch_ref = format!("refs/heads/{prev}");
-        if refs::resolve_ref(&repo.git_dir, &branch_ref).is_ok() {
+        let destination = checkout_branch_snapshot(&repo, &branch_ref)?;
+        if destination.is_some() {
             return switch_branch(
                 &repo,
+                &checkout_head,
                 &prev,
                 &branch_ref,
+                destination.as_ref(),
                 switch_force,
                 args.ignore_other_worktrees,
                 branch_merge_wanted,
@@ -1199,7 +1336,7 @@ pub fn run(mut args: Args) -> Result<()> {
         }
         // Not a branch — try as a commit (detached HEAD)
         if let Ok(oid) = resolve_to_commit(&repo, &prev) {
-            return detach_head(&repo, &oid, switch_force);
+            return detach_head_inner(&repo, &checkout_head, &oid, switch_force, false, None);
         }
         bail!("error: previous branch '{}' not found", prev);
     }
@@ -1207,10 +1344,11 @@ pub fn run(mut args: Args) -> Result<()> {
     // Handle "checkout HEAD" (and "@") — no-op when on a branch (don't detach)
     // But with -f, force-reset the working tree
     if (target == "HEAD" || target == "@") && !args.detach {
+        let _guard = CheckoutRefGuard::acquire(&repo.git_dir, &checkout_head, None)?;
         if args.force {
             return force_reset_to_head(&repo);
         }
-        let head = resolve_head(&repo.git_dir)?;
+        let head = checkout_head.clone();
         if let Some(oid) = head.oid() {
             let target_tree = commit_to_tree(&repo, oid)?;
             let index_empty = repo
@@ -1238,7 +1376,7 @@ pub fn run(mut args: Args) -> Result<()> {
             bail!("--detach does not take a path argument");
         }
         match resolve_to_commit(&repo, &target) {
-            Ok(oid) => return detach_head_explicit(&repo, &oid, switch_force),
+            Ok(oid) => return detach_head_explicit(&repo, &checkout_head, &oid, switch_force),
             Err(e) => bail!("cannot detach HEAD at '{}': {}", target, e),
         }
     }
@@ -1250,10 +1388,13 @@ pub fn run(mut args: Args) -> Result<()> {
             .with_context(|| format!("unknown upstream revision '{target}'"))?;
         if let Some(rest) = full.strip_prefix("refs/heads/") {
             let branch_ref = format!("refs/heads/{rest}");
+            let destination = checkout_branch_snapshot(&repo, &branch_ref)?;
             return switch_branch(
                 &repo,
+                &checkout_head,
                 rest,
                 &branch_ref,
+                destination.as_ref(),
                 switch_force,
                 args.ignore_other_worktrees,
                 branch_merge_wanted,
@@ -1263,7 +1404,7 @@ pub fn run(mut args: Args) -> Result<()> {
         if full.strip_prefix("refs/remotes/").is_some() {
             let oid = refs::resolve_ref(&repo.git_dir, &full)
                 .with_context(|| format!("cannot resolve '{full}'"))?;
-            return detach_head(&repo, &oid, switch_force);
+            return detach_head_inner(&repo, &checkout_head, &oid, switch_force, false, None);
         }
         bail!("cannot checkout upstream: unsupported ref '{full}'");
     }
@@ -1271,6 +1412,7 @@ pub fn run(mut args: Args) -> Result<()> {
     // `checkout --track origin/topic` (without `-b`): create local branch named `topic` (path
     // after the first `/` in the remote refspec) tracking the remote-tracking ref (t7201).
     if !args.detach && args.track.is_some() && args.new_branch.is_none() && paths.is_empty() {
+        require_qualified_checkout_variant("automatic remote-tracking branch creation")?;
         let mut spec = target.as_str();
         if let Some(s) = spec.strip_prefix("refs/remotes/") {
             spec = s;
@@ -1303,8 +1445,10 @@ pub fn run(mut args: Args) -> Result<()> {
                     );
                     return switch_branch(
                         &repo,
+                        &checkout_head,
                         &local_branch,
                         &local_ref,
+                        Some(&Ref::Direct(oid)),
                         switch_force,
                         args.ignore_other_worktrees,
                         branch_merge_wanted,
@@ -1317,7 +1461,8 @@ pub fn run(mut args: Args) -> Result<()> {
 
     // Try as a branch first
     let branch_ref = format!("refs/heads/{target}");
-    if !args.detach && refs::resolve_ref(&repo.git_dir, &branch_ref).is_ok() {
+    let destination = checkout_branch_snapshot(&repo, &branch_ref)?;
+    if !args.detach && destination.is_some() {
         // Warn if a tag with the same name also exists (ambiguous ref)
         let tag_ref = format!("refs/tags/{target}");
         if refs::resolve_ref(&repo.git_dir, &tag_ref).is_ok() {
@@ -1325,8 +1470,10 @@ pub fn run(mut args: Args) -> Result<()> {
         }
         return switch_branch(
             &repo,
+            &checkout_head,
             &target,
             &branch_ref,
+            destination.as_ref(),
             switch_force,
             args.ignore_other_worktrees,
             branch_merge_wanted,
@@ -1341,7 +1488,7 @@ pub fn run(mut args: Args) -> Result<()> {
             .unwrap_or_else(|| target.strip_prefix("tags/").unwrap_or(&target));
         let tag_ref = format!("refs/tags/{tag_name}");
         if let Ok(oid) = refs::resolve_ref(&repo.git_dir, &tag_ref) {
-            return detach_head(&repo, &oid, switch_force);
+            return detach_head_inner(&repo, &checkout_head, &oid, switch_force, false, None);
         }
     }
 
@@ -1382,6 +1529,7 @@ pub fn run(mut args: Args) -> Result<()> {
             }
         }
         if matching.len() == 1 {
+            require_qualified_checkout_variant("automatic remote-tracking branch creation; create a branch explicitly with -b and --no-track")?;
             if !has_separator {
                 if let Some(wt) = repo.work_tree.as_deref() {
                     let cwd = std::env::current_dir().unwrap_or_default();
@@ -1417,8 +1565,10 @@ pub fn run(mut args: Args) -> Result<()> {
             eprintln!("branch '{target}' set up to track '{remote_name}/{target}'.");
             return switch_branch(
                 &repo,
+                &checkout_head,
                 &target,
                 &new_branch_ref,
+                Some(&Ref::Direct(oid)),
                 switch_force,
                 args.ignore_other_worktrees,
                 branch_merge_wanted,
@@ -1473,9 +1623,9 @@ pub fn run(mut args: Args) -> Result<()> {
             // modifications via a three-way merge, matching Git's `merge_working_tree` (which runs
             // the same merge for branch and detached checkouts). `-f` discards local changes.
             let result = if branch_merge_wanted && !switch_force {
-                detach_head_with_merge(&repo, &oid, switch_force, &target)
+                detach_head_with_merge(&repo, &checkout_head, &oid, switch_force, &target)
             } else {
-                detach_head_with_label(&repo, &oid, switch_force, &target)
+                detach_head_with_label(&repo, &checkout_head, &oid, switch_force, &target)
             };
             if result.is_ok() && RECURSE_SUBMODULES.with(|r| r.get()) && target == "first" {
                 let _ = crate::commands::submodule::unset_linked_worktree_submodule_core_worktrees(
@@ -1485,6 +1635,7 @@ pub fn run(mut args: Args) -> Result<()> {
             result
         }
         Err(_) => {
+            require_qualified_checkout_variant("path checkout; use restore for supported path operations")?;
             // Fallback: try as a pathspec (git checkout <file> without --).
             // If the target looks like a tracked file, restore it from HEAD.
             let paths = vec![target.clone()];
@@ -2095,21 +2246,28 @@ fn remove_branch_state(git_dir: &Path) {
 }
 
 fn write_noop_checkout_index(repo: &Repository) -> Result<()> {
+    let guard = CheckoutIndexGuard::acquire(repo)?;
     let index_path = repo
         .index_path_for_env()
         .map_err(|e| anyhow::anyhow!("{e}"))?;
-    let mut index = repo
-        .load_index_at(&index_path)
-        .unwrap_or_else(|_| Index::new());
-    repo.write_index_at_with_post_index_change(&index_path, &mut index, true, false)
-        .context("writing index")?;
+    let mut index = repo.load_index_at(&index_path)?;
+    guard.publish(repo, &mut index).context("writing index")?;
     Ok(())
+}
+
+fn checkout_branch_snapshot(repo: &Repository, name: &str) -> Result<Option<Ref>> {
+    if check_refname_format(name, &RefNameOptions::default()).is_err() {
+        return Ok(None);
+    }
+    Ok(refs::read_ref_snapshot(&repo.git_dir, name)?)
 }
 
 fn switch_branch(
     repo: &Repository,
+    original_head: &HeadState,
     branch_name: &str,
     branch_ref: &str,
+    destination: Option<&Ref>,
     force: bool,
     ignore_other_worktrees: bool,
     branch_merge: bool,
@@ -2119,7 +2277,17 @@ fn switch_branch(
         bail!("this operation must be run in a work tree");
     }
 
-    let mut head = resolve_head(&repo.git_dir)?;
+    if branch_merge || RECURSE_SUBMODULES.with(|r| r.get()) {
+        require_qualified_checkout_variant("merge or recursive branch checkout")?;
+    }
+    let target_oid = match destination {
+        Some(Ref::Direct(oid)) => *oid,
+        _ => bail!("cannot resolve direct branch '{branch_name}'"),
+    };
+    let guard = CheckoutRefGuard::acquire(
+        &repo.git_dir, original_head, Some((branch_ref, destination)),
+    )?;
+    let mut head = original_head.clone();
     if head.oid().is_some_and(|oid| *oid == ObjectId::zero()) {
         head = HeadState::Invalid;
     }
@@ -2129,13 +2297,9 @@ fn switch_branch(
         if refname == branch_ref {
             checkout_eprintln!("Already on '{}'", branch_name);
             if force {
-                let target_oid = refs::resolve_ref(&repo.git_dir, branch_ref)
-                    .with_context(|| format!("cannot resolve branch '{branch_name}'"))?;
                 let target_tree = commit_to_tree(repo, &target_oid)?;
                 return force_reset_to_tree(repo, &target_tree);
             }
-            let target_oid = refs::resolve_ref(&repo.git_dir, branch_ref)
-                .with_context(|| format!("cannot resolve branch '{branch_name}'"))?;
             let target_tree = commit_to_tree(repo, &target_oid)?;
             let index_empty = repo
                 .load_index()
@@ -2167,6 +2331,7 @@ fn switch_branch(
                 .oid()
                 .copied()
                 .ok_or_else(|| anyhow::anyhow!("HEAD has no commit"))?;
+            drop(guard);
             run_post_checkout_hook(repo, Some(&tip), &tip, true)?;
             QUIET.with(|q| {
                 if !q.get() {
@@ -2183,7 +2348,7 @@ fn switch_branch(
         }
     }
 
-    if !force && !ignore_other_worktrees {
+    if !ignore_other_worktrees {
         if let Some(wt_path) =
             crate::commands::worktree_refs::branch_occupied_any_worktree(repo, branch_name)
         {
@@ -2230,9 +2395,6 @@ fn switch_branch(
             }
         }
     }
-
-    let target_oid = refs::resolve_ref(&repo.git_dir, branch_ref)
-        .with_context(|| format!("cannot resolve branch '{branch_name}'"))?;
 
     let old_head_commit = head.oid().copied();
 
@@ -2305,7 +2467,7 @@ fn switch_branch(
 
     // Update HEAD before appending the checkout reflog so `@{-1}` / `git switch -`
     // see the branch we are leaving as the previous checkout (matches Git).
-    std::fs::write(repo.git_dir.join("HEAD"), format!("ref: {branch_ref}\n"))?;
+    guard.publish(&Ref::Symbolic(branch_ref.to_owned()), None)?;
     // git checkout/switch tears down any in-progress cherry-pick/revert/merge after moving HEAD.
     remove_branch_state(&repo.git_dir);
 
@@ -2400,6 +2562,7 @@ fn validate_new_branch_name(name: &str) -> Result<()> {
 /// Create a new branch and switch to it.
 fn create_and_switch_branch(
     repo: &Repository,
+    original_head: &HeadState,
     name: &str,
     start: Option<&str>,
     force: bool,
@@ -2407,27 +2570,19 @@ fn create_and_switch_branch(
     track_mode: Option<&str>,
 ) -> Result<()> {
     validate_new_branch_name(name)?;
+    let branch_ref = format!("refs/heads/{name}");
+    let destination = refs::read_ref_snapshot(&repo.git_dir, &branch_ref)?;
+    if destination.is_some() {
+        bail!("a branch named '{name}' already exists");
+    }
+    let guard = CheckoutRefGuard::acquire(
+        &repo.git_dir, original_head, Some((&branch_ref, destination.as_ref())),
+    )?;
     if track_mode.is_some() {
         validate_track_start_for_new_branch(repo, start)?;
     }
-    // Check for HEAD.lock (another process is writing)
-    let head_lock = repo.git_dir.join("HEAD.lock");
-    if head_lock.exists() {
-        bail!(
-            "Unable to create '{}': The file exists.",
-            head_lock.display()
-        );
-    }
-
-    // Check the branch doesn't already exist
-    let branch_ref = format!("refs/heads/{name}");
-    if refs::resolve_ref(&repo.git_dir, &branch_ref).is_ok() {
-        eprintln!("fatal: a branch named '{name}' already exists");
-        std::process::exit(128);
-    }
-
     // Resolve start point (default: HEAD)
-    let head = resolve_head(&repo.git_dir)?;
+    let head = original_head.clone();
     let old_head_commit = head.oid().copied();
     let start_oid = match start {
         Some(s) => {
@@ -2448,7 +2603,7 @@ fn create_and_switch_branch(
                 Some(oid) => *oid,
                 None => {
                     // Unborn branch: just switch HEAD to the new branch name
-                    std::fs::write(repo.git_dir.join("HEAD"), format!("ref: {branch_ref}\n"))?;
+                    guard.publish(&Ref::Symbolic(branch_ref.clone()), None)?;
                     checkout_eprintln!("Switched to a new branch '{}'", name);
                     return Ok(());
                 }
@@ -2476,11 +2631,10 @@ fn create_and_switch_branch(
         )?;
     } else {
         write_noop_checkout_index(repo)?;
-        run_post_checkout_hook(repo, old_head_commit.as_ref(), &start_oid, true)?;
     }
 
     // Create the branch ref
-    refs::write_ref(&repo.git_dir, &branch_ref, &start_oid)?;
+    guard.publish(&Ref::Symbolic(branch_ref.clone()), Some((&branch_ref, &start_oid)))?;
 
     if refs::should_autocreate_reflog(&repo.git_dir, &branch_ref) || force_branch_reflog {
         let start_desc = start.map_or_else(|| "HEAD".to_owned(), str::to_owned);
@@ -2493,8 +2647,6 @@ fn create_and_switch_branch(
         );
     }
 
-    std::fs::write(repo.git_dir.join("HEAD"), format!("ref: {branch_ref}\n"))?;
-
     let old_oid = head.oid().copied().unwrap_or_else(ObjectId::zero);
     let from_desc = match &head {
         HeadState::Branch { short_name, .. } => short_name.clone(),
@@ -2504,9 +2656,7 @@ fn create_and_switch_branch(
     let msg = format!("checkout: moving from {} to {}", from_desc, name);
     write_checkout_reflog(repo, &head, &old_oid, &start_oid, &msg);
 
-    if head.oid() != Some(&start_oid) || force || worktree_is_empty {
-        run_post_checkout_hook(repo, old_head_commit.as_ref(), &start_oid, true)?;
-    }
+    run_post_checkout_hook(repo, old_head_commit.as_ref(), &start_oid, true)?;
 
     checkout_eprintln!("Switched to a new branch '{}'", name);
     Ok(())
@@ -2520,6 +2670,7 @@ fn force_create_and_switch_branch(
     force: bool,
     force_branch_reflog: bool,
 ) -> Result<()> {
+    require_qualified_checkout_variant("force-reset branch checkout (-B/-C)")?;
     validate_new_branch_name(name)?;
     let branch_ref = format!("refs/heads/{name}");
 
@@ -2682,6 +2833,7 @@ fn create_orphan_branch(
     start_point: Option<&str>,
     opts: CreateOrphanOptions,
 ) -> Result<()> {
+    require_qualified_checkout_variant("orphan branch checkout (--orphan)")?;
     validate_new_branch_name(name)?;
     let branch_ref = format!("refs/heads/{name}");
 
@@ -2795,6 +2947,8 @@ fn create_orphan_branch(
 /// Force-reset working tree to HEAD (`checkout -f` with no arguments).
 /// Force-reset the working tree and index to match a given tree object.
 fn force_reset_to_tree(repo: &Repository, target_tree: &ObjectId) -> Result<()> {
+    crate::path_safety::check_restore_tree(repo, *target_tree)?;
+    let index_guard = CheckoutIndexGuard::acquire(repo)?;
     let work_tree = match &repo.work_tree {
         Some(p) => p.clone(),
         None => bail!("this operation must be run in a work tree"),
@@ -2826,8 +2980,7 @@ fn force_reset_to_tree(repo: &Repository, target_tree: &ObjectId) -> Result<()> 
         )?;
     }
 
-    repo.write_index_with_post_index_change(&mut new_index, true, false)
-        .context("writing index")?;
+    index_guard.publish(repo, &mut new_index).context("writing index")?;
 
     trace2_emit_checkout_parallel_workers(checkout_parallel_worker_spawns(repo, work_units));
     if RECURSE_SUBMODULES.with(|r| r.get()) {
@@ -2839,12 +2992,14 @@ fn force_reset_to_tree(repo: &Repository, target_tree: &ObjectId) -> Result<()> 
 }
 
 fn force_reset_to_head(repo: &Repository) -> Result<()> {
+    let index_guard = CheckoutIndexGuard::acquire(repo)?;
     let head = resolve_head(&repo.git_dir)?;
     let head_oid = match head.oid() {
         Some(oid) => *oid,
         None => bail!("HEAD does not point to a commit"),
     };
     let target_tree = commit_to_tree(repo, &head_oid)?;
+    crate::path_safety::check_restore_tree(repo, target_tree)?;
 
     let work_tree = match &repo.work_tree {
         Some(p) => p.clone(),
@@ -2948,12 +3103,8 @@ fn force_reset_to_head(repo: &Repository) -> Result<()> {
     }
 
     // Write the new index
-    let index_path = repo
-        .index_path_for_env()
-        .map_err(|e| anyhow::anyhow!("{e}"))?;
     set_checkout_cache_tree(repo, &mut new_index)?;
-    repo.write_index_at_with_post_index_change(&index_path, &mut new_index, true, false)
-        .context("writing index")?;
+    index_guard.publish(repo, &mut new_index).context("writing index")?;
 
     trace2_emit_checkout_parallel_workers(checkout_parallel_worker_spawns(repo, work_units));
     if RECURSE_SUBMODULES.with(|r| r.get()) {
@@ -2976,32 +3127,39 @@ fn force_reset_to_head(repo: &Repository) -> Result<()> {
 }
 
 /// Detach HEAD at a specific commit.
-fn detach_head_explicit(repo: &Repository, oid: &ObjectId, force: bool) -> Result<()> {
-    detach_head_inner(repo, oid, force, true, None)
+fn detach_head_explicit(repo: &Repository, original_head: &HeadState, oid: &ObjectId, force: bool) -> Result<()> {
+    detach_head_inner(repo, original_head, oid, force, true, None)
 }
 
 /// Detach HEAD at `oid` (used by `bisect` and `checkout`).
 pub(crate) fn detach_head(repo: &Repository, oid: &ObjectId, force: bool) -> Result<()> {
-    detach_head_inner(repo, oid, force, false, None)
+    let original_head = resolve_head(&repo.git_dir)?;
+    detach_head_inner(repo, &original_head, oid, force, false, None)
 }
 
 fn detach_head_with_label(
     repo: &Repository,
+    original_head: &HeadState,
     oid: &ObjectId,
     force: bool,
     label: &str,
 ) -> Result<()> {
-    detach_head_inner(repo, oid, force, false, Some(label))
+    detach_head_inner(repo, original_head, oid, force, false, Some(label))
 }
 
 fn detach_head_inner(
     repo: &Repository,
+    original_head: &HeadState,
     oid: &ObjectId,
     force: bool,
     explicit: bool,
     label: Option<&str>,
 ) -> Result<()> {
-    let head = resolve_head(&repo.git_dir)?;
+    if RECURSE_SUBMODULES.with(|r| r.get()) {
+        require_qualified_checkout_variant("recursive checkout")?;
+    }
+    let guard = CheckoutRefGuard::acquire(&repo.git_dir, original_head, None)?;
+    let head = original_head.clone();
     let old_head_commit = head.oid().copied();
 
     let already_at_target = head.oid() == Some(oid);
@@ -3022,14 +3180,15 @@ fn detach_head_inner(
         )?;
     } else {
         write_noop_checkout_index(repo)?;
-        run_post_checkout_hook(repo, old_head_commit.as_ref(), oid, true)?;
     }
 
     if let HeadState::Detached { oid: old_detached } = head {
         print_detached_checkout_leave_message(repo, old_detached, *oid)?;
     }
 
-    // Write reflog entries
+    guard.publish(&Ref::Direct(*oid), None)?;
+
+    // Write reflog entries only after the expected-old publication succeeded.
     let old_oid = old_head_commit.unwrap_or_else(ObjectId::zero);
     let from_desc = match &head {
         HeadState::Branch { short_name, .. } => short_name.clone(),
@@ -3042,16 +3201,10 @@ fn detach_head_inner(
     let msg = format!("checkout: moving from {} to {}", from_desc, to_desc);
     write_checkout_reflog(repo, &head, &old_oid, oid, &msg);
 
-    // Write detached HEAD
-    std::fs::write(repo.git_dir.join("HEAD"), format!("{oid}\n"))?;
     // git checkout/switch tears down any in-progress cherry-pick/revert/merge after moving HEAD.
     remove_branch_state(&repo.git_dir);
 
-    if already_at_target && !force {
-        // post-checkout already ran for same-commit detach
-    } else {
-        run_post_checkout_hook(repo, old_head_commit.as_ref(), oid, true)?;
-    }
+    run_post_checkout_hook(repo, old_head_commit.as_ref(), oid, true)?;
 
     if explicit {
         print_detached_head_message_explicit(repo, oid)?;
@@ -3086,10 +3239,12 @@ fn detach_head_inner(
 /// during the merge/HEAD update fails.
 fn detach_head_with_merge(
     repo: &Repository,
+    original_head: &HeadState,
     oid: &ObjectId,
     force: bool,
     label: &str,
 ) -> Result<()> {
+    require_qualified_checkout_variant("merge checkout (-m)")?;
     let head = resolve_head(&repo.git_dir)?;
     let old_head_commit = head.oid().copied();
     let already_at_target = head.oid() == Some(oid);
@@ -3097,7 +3252,7 @@ fn detach_head_with_merge(
     // Nothing to merge if we are already sitting on the target commit and the user did not force a
     // rebuild; fall back to the plain detach so messages/reflog match.
     if already_at_target && !force {
-        return detach_head_with_label(repo, oid, force, label);
+        return detach_head_with_label(repo, original_head, oid, force, label);
     }
 
     let recurse = RECURSE_SUBMODULES.with(|r| r.get());
@@ -3213,6 +3368,8 @@ fn switch_to_tree(
     force: bool,
     recurse_submodules: bool,
 ) -> Result<()> {
+    crate::path_safety::check_restore_tree(repo, *target_tree_oid)?;
+    let index_guard = CheckoutIndexGuard::acquire(repo)?;
     let work_tree = match &repo.work_tree {
         Some(p) => p.clone(),
         None => return Ok(()),
@@ -3468,8 +3625,7 @@ fn switch_to_tree(
 
     // Write the new index
     set_checkout_cache_tree(repo, &mut new_index)?;
-    repo.write_index_at_with_post_index_change(&index_path, &mut new_index, true, false)
-        .context("writing index")?;
+    index_guard.publish(repo, &mut new_index).context("writing index")?;
 
     trace2_emit_checkout_parallel_workers(checkout_parallel_worker_spawns(repo, work_units));
     if recurse_submodules {

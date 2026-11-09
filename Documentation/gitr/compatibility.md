@@ -12,13 +12,22 @@ The default CLI calls the vendored Grit implementation in process. Gitr's
 implementations. `update-ref` retains the strict isolated implementation below.
 
 The imported dispatcher includes more than 140 handlers. Gitr enables core
-staging/commit, simple branch/tag, object and inspection operations. History and
+staging/commit, simple branch/tag, ordinary local branch checkout/switch, detached
+checkout, object and inspection operations. History and
 transport writers whose refs have not been migrated to locked expected-old
-publication fail explicitly before their handlers run, including checkout,
-switch, merge, rebase, cherry-pick, revert, reset, stash, clone, fetch, push, pull,
+publication fail explicitly before their handlers run, including
+merge, rebase, cherry-pick, revert, reset, stash, clone, fetch, push, pull,
 receive-pack and update-ref's donor variants. Branch rename/copy and recursive
 branch creation also fail before mutation. The precise gate is
 `vendor/grit/grit-git/src/write_safety.rs`.
+
+Checkout uses the files ref backend and locks the original HEAD, source and
+destination branches, then the index before changing files. New local branches
+and detached checkouts use the same expected-old checks. Reftable, split/sparse
+or alternate indexes, promisor repositories, recursive/merge/path/patch modes,
+force-reset branches, orphan branches and tracking setup remain unsupported.
+An I/O failure across worktree/index/ref publication does not have automatic
+cross-file rollback. `-f` does not override another worktree's branch occupancy.
 
 Inspection rejects configuration-supplied executable filters, textconv, external
 diff, fsmonitor, pagers and signature-verifier programs. Inspection aliases
@@ -29,7 +38,9 @@ the isolated profile, and explicit write operations retain user hooks/filters.
 
 The optional redb object store is selected with `gitr.redbObjects=true`. Raw
 `hash-object --no-filters` blobs and raw stdin use bounded-memory streaming;
-structured and attribute-converted inputs are limited to 64 MiB. Other donor
+hash-only regular files use one pass and reject length changes. Writes and
+unknown-length input use a temporary snapshot.
+Structured and attribute-converted inputs are limited to 64 MiB. Other donor
 object APIs still materialize complete objects. Read the [full import record](rust-git-import.md)
 for source provenance, storage boundaries and observed test results.
 

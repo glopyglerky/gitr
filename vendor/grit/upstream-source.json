@@ -642,7 +642,7 @@
       "upstream_path": "grit-lib/src/odb.rs",
       "path": "grit-lib/src/odb.rs",
       "upstream_sha256": "04a68896fd4fabe5360ceaed55b18553b7245b4638d81ff169ba914a97912fc8",
-      "local_sha256": "5a5b609ce541bd1ef40f8444f0ed1d951d02546d189ef4e4fe2573fd16396a35",
+      "local_sha256": "a98a3c898c5ec2161a5690f7cd669725294924cd7c5c538aecdff50c2503b79f",
       "modified": true
     },
     {
@@ -950,7 +950,7 @@
       "upstream_path": "grit-lib/src/refs.rs",
       "path": "grit-lib/src/refs.rs",
       "upstream_sha256": "573fe9855a49e23503b8b8ecad0c6224ed0a82732cff35dd4f562a0c3c657442",
-      "local_sha256": "7408b3433454fd02fede7e711789ed923e707d64f3031ebe93c9c7387029012f",
+      "local_sha256": "8e28e9a4b11d1600f1cea5e6d390019407d325c8ae389c9c41a6bbbf24503533",
       "modified": true
     },
     {
@@ -1272,8 +1272,8 @@
       "upstream_path": "grit-lib/src/write_tree.rs",
       "path": "grit-lib/src/write_tree.rs",
       "upstream_sha256": "c13b3e3562026e185694b1127e3f5d347191b27947b0a6bc8f2740133ed357cc",
-      "local_sha256": "c13b3e3562026e185694b1127e3f5d347191b27947b0a6bc8f2740133ed357cc",
-      "modified": false
+      "local_sha256": "3f583215ad1c72df12345ef9d04fa9d8a9a33224d87c5d7aee2f663da131e227",
+      "modified": true
     },
     {
       "upstream_path": "grit-lib/src/ws.rs",
@@ -1678,8 +1678,8 @@
       "upstream_path": "grit-git/src/commands/checkout.rs",
       "path": "grit-git/src/commands/checkout.rs",
       "upstream_sha256": "dfc7a745a0b06361a688ac2cd3f8b9cfff1ca1f5734057031b1244c8ef84d504",
-      "local_sha256": "dfc7a745a0b06361a688ac2cd3f8b9cfff1ca1f5734057031b1244c8ef84d504",
-      "modified": false
+      "local_sha256": "4449101833575c1507606a14e01fe1b68e27ad50d3045edc689c65f43e7e6fe1",
+      "modified": true
     },
     {
       "upstream_path": "grit-git/src/commands/checkout_index.rs",
@@ -1986,7 +1986,7 @@
       "upstream_path": "grit-git/src/commands/hash_object.rs",
       "path": "grit-git/src/commands/hash_object.rs",
       "upstream_sha256": "83f026eaf77573956c6f73cda2afac9f42124b3e06d34defa09bff81aab345c3",
-      "local_sha256": "f3a6f346951ab175940bec04594c0b2246dcec55fab527bcad3f56751778ee57",
+      "local_sha256": "ef4ccac756e0a59761047588151ecf097572b75ad4fc8ef92fff0ea5640e8a51",
       "modified": true
     },
     {
@@ -2329,7 +2329,7 @@
       "upstream_path": "grit-git/src/commands/push.rs",
       "path": "grit-git/src/commands/push.rs",
       "upstream_sha256": "b068b0115da8b2b92ec039fc04cb5376a7c52bdc2d97dab5006537b929233bb9",
-      "local_sha256": "8e9c1f1d13617cdcbbd716503c177737043cfcb8adee6f53ba5a3882883e529d",
+      "local_sha256": "9915027e017ca7b081d0d893f89eb17dfef8a2fdbaa0519d85a70e1ce797be66",
       "modified": true
     },
     {
@@ -2357,7 +2357,7 @@
       "upstream_path": "grit-git/src/commands/receive_pack.rs",
       "path": "grit-git/src/commands/receive_pack.rs",
       "upstream_sha256": "ef9d4f577080bb0a5922683ae845ed9b35f2a08916c3c83a9aca237233d47c55",
-      "local_sha256": "71c1813ebe15bbca45c1ee7f6c607a926c6f4facc2514894e7269b3052b342f0",
+      "local_sha256": "f2d224825de149fb2e6329c322d908d4f467edfaf2855c6fc24ff05786682489",
       "modified": true
     },
     {
@@ -2490,7 +2490,7 @@
       "upstream_path": "grit-git/src/commands/send_pack.rs",
       "path": "grit-git/src/commands/send_pack.rs",
       "upstream_sha256": "f5577b7a1fc7a8f9e37d55d0542d3b52192b1d679c1ab60060b0fd0c3a38fc85",
-      "local_sha256": "026f689d6463eac8efa27e26a4b1a25981eb16ee63350654c8eaa21ca14dfb13",
+      "local_sha256": "d8611c6c0c276b95fff7acbc7ea98bb8e93c6c3ff83ca17e65608e1b01c62000",
       "modified": true
     },
     {
@@ -2917,7 +2917,7 @@
       "upstream_path": "grit-git/src/main.rs",
       "path": "grit-git/src/main.rs",
       "upstream_sha256": "3e19e45b38f05bb1eef5d0cbe0f6f272fc2d6958acc48d6b49e2380753edd5e6",
-      "local_sha256": "d9ecad165739dc3a8e5df6bc4fe0d7ef463cb3087abfdb94036dd81ff114ae63",
+      "local_sha256": "10b49a42b34966f7a0230a1c36d7955ca39e2c6bc6f3b76d437dc2a511dbcc3f",
       "modified": true
     },
     {
@@ -3180,8 +3180,12 @@
       "local_sha256": "03c6a3a30bfcbd5f0686aa0cc24d87b8c9a568e79df18a1cfe17e19c76330437"
     },
     {
+      "path": "grit-git/src/commands/receive_pack_checked.rs",
+      "local_sha256": "5a6fd3743fbae4ea40f0f5791d411856b603895e5ecd262fc2931af4aabe4ce4"
+    },
+    {
       "path": "grit-git/src/path_safety.rs",
-      "local_sha256": "01e710ca072c57f881063a92294d7813b06f45530a99fb0318c15720b9c30e3b"
+      "local_sha256": "61a163d6c8dc59557868cc5b0c9643e8f037419ba4b963cc626a569f1001d98f"
     },
     {
       "path": "grit-git/src/read_safety.rs",
@@ -3189,7 +3193,15 @@
     },
     {
       "path": "grit-git/src/write_safety.rs",
-      "local_sha256": "6fd385f0510eb67e4b248eb8c25eaf3bce058601bdd6c1c48eaaf6236e5d4115"
+      "local_sha256": "a71b1ec6be3c8a0e41ac17e02db67673cbc2bf3ffc98c4e98d4b12674888c811"
+    },
+    {
+      "path": "grit-git/tests/checked_local_push.rs",
+      "local_sha256": "2c36c8a233dab1b5a05e447c1081a828267ad510af879a9f0572a42433f915cb"
+    },
+    {
+      "path": "grit-git/tests/checkout_ref_safety.rs",
+      "local_sha256": "47e60a91ef81df978e54727efd3677a20cf39ea90defc1f76f6a0268b9647506"
     },
     {
       "path": "grit-git/tests/native_boundary.rs",
@@ -3213,11 +3225,11 @@
     },
     {
       "path": "grit-lib/src/odb/streaming.rs",
-      "local_sha256": "d941bf7d043eebb56731e9b67270a1ae8d596f753261fb629585b198ad8d4535"
+      "local_sha256": "c44dc5ff440dd1be7bf222090243a4d17a9650ca5cf71a6943ab34dc0daffe29"
     },
     {
       "path": "grit-lib/src/refs/cas.rs",
-      "local_sha256": "a089c022dd9305e6ec80f94b7a174794f2147630ed816ba510ec476200d0583e"
+      "local_sha256": "ee603fbe2536effd3fbcb0e1510d26fe62eeebebfa09db37fc0701269694c9a0"
     },
     {
       "path": "grit-lib/tests/fixtures/credential_helper.rs",

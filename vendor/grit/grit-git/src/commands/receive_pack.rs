@@ -31,6 +31,9 @@ use grit_lib::pkt_line::{
     read_packet, write_flush, write_packet_raw, write_sideband_packet, Packet,
 };
 
+#[path = "receive_pack_checked.rs"]
+pub(crate) mod checked;
+
 /// Arguments for `grit receive-pack`.
 #[derive(Debug, ClapArgs)]
 #[command(about = "Receive pushed objects (server side)")]
@@ -50,6 +53,19 @@ pub struct Args {
 }
 
 pub fn run(args: Args) -> Result<()> {
+    let candidate = open_repo(&args.directory)?;
+    let candidate_config = ConfigSet::load(Some(&candidate.git_dir), true)?;
+    // The product may only enter the checked receiver. Keep the historical
+    // hook/non-bare implementation available to standalone donor conformance.
+    if crate::write_safety::is_product()
+        || checked::ensure_supported(&candidate, &candidate_config).is_ok()
+    {
+        return checked::run(args, candidate, candidate_config);
+    }
+    run_unqualified_donor(args)
+}
+
+fn run_unqualified_donor(args: Args) -> Result<()> {
     let repo = open_repo(&args.directory).with_context(|| {
         format!(
             "could not open repository at '{}'",
@@ -613,10 +629,14 @@ fn run_for_each_ref_lines(
 }
 
 fn advertise_refs_phase(repo: &Repository, extra_have: &HashSet<ObjectId>) -> Result<()> {
+    let cfg = ConfigSet::load(Some(&repo.git_dir), false).unwrap_or_default();
+    advertise_refs_with_config(repo, extra_have, &cfg)
+}
+
+fn advertise_refs_with_config(repo: &Repository, extra_have: &HashSet<ObjectId>, cfg: &ConfigSet) -> Result<()> {
     let stdout = io::stdout();
     let mut out = stdout.lock();
     let version = crate::version_string();
-    let cfg = ConfigSet::load(Some(&repo.git_dir), false).unwrap_or_default();
     let object_format = cfg
         .get("extensions.objectformat")
         .or_else(|| cfg.get("extensions.objectFormat"))
@@ -632,7 +652,7 @@ fn advertise_refs_phase(repo: &Repository, extra_have: &HashSet<ObjectId>) -> Re
         caps.push_str(" session-id=");
         caps.push_str(&sid);
     }
-    let hide = hide_refs::hide_ref_patterns_receive(&cfg);
+    let hide = hide_refs::hide_ref_patterns_receive(cfg);
 
     // `git receive-pack` does not advertise `HEAD`; it iterates only the ref store
     // (`refs_for_each_ref_ext` in `write_head_info`). Each local ref is advertised under its

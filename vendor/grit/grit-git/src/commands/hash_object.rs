@@ -342,6 +342,15 @@ fn hash_blob_stream(input: &mut dyn Read, odb: Option<&Odb>, algo: HashAlgo) -> 
 fn stream_path_if_unfiltered(path: &Path, kind: ObjectKind, unfiltered: bool, odb: Option<&Odb>, algo: HashAlgo) -> Result<bool> {
     if kind != ObjectKind::Blob || !unfiltered { return Ok(false); }
     let mut file = std::fs::File::open(path).with_context(|| format!("cannot read '{}'", path.display()))?;
-    println!("{}", hash_blob_stream(&mut file, odb, algo)?);
+    let metadata = file.metadata()?;
+    let oid = if odb.is_none() && metadata.is_file() {
+        // A hash-only regular file needs neither a temporary copy nor the
+        // secondary storage checksum. Count the bytes against the header and
+        // reject a concurrent resize instead of returning a mismatched hash.
+        Odb::hash_blob_sized(algo, &mut file, metadata.len())?
+    } else {
+        hash_blob_stream(&mut file, odb, algo)?
+    };
+    println!("{oid}");
     Ok(true)
 }

@@ -106,6 +106,121 @@ pub fn update_head_cas(
     }
 }
 
+/// Holds the files-backend authority needed for a branch checkout. The caller
+/// captures HEAD and the destination before resolving trees or changing the
+/// index/worktree; acquisition verifies those snapshots under exclusive locks.
+///
+/// This serializes cooperating ref writers, not arbitrary filesystem writes.
+/// New branch and HEAD publication still use separate durable file renames;
+/// this is not an atomic transaction over refs, index and worktree contents.
+pub struct CheckoutRefGuard {
+    git_dir: PathBuf,
+    expected_head: Ref,
+    head: RefLock,
+    branches: Vec<(String, Option<Ref>, RefLock)>,
+}
+
+impl CheckoutRefGuard {
+    pub fn acquire(
+        git_dir: &Path,
+        expected_head: &crate::state::HeadState,
+        destination: Option<(&str, Option<&Ref>)>,
+    ) -> Result<Self> {
+        use crate::state::HeadState;
+        if crate::reftable::is_reftable_repo(git_dir) {
+            return Err(Error::InvalidRef(
+                "checkout with reftable refs is unavailable until its transaction is qualified".into(),
+            ));
+        }
+        let mut expected_branches = std::collections::BTreeMap::new();
+        let raw_head = match expected_head {
+            HeadState::Branch { refname, oid, .. } => {
+                super::ensure_refname_safe_for_storage(refname)?;
+                expected_branches.insert(refname.clone(), oid.map(Ref::Direct));
+                Ref::Symbolic(refname.clone())
+            }
+            HeadState::Detached { oid } => Ref::Direct(*oid),
+            HeadState::Invalid => return Err(mismatch("HEAD")),
+        };
+        if let Some((name, expected)) = destination {
+            super::ensure_refname_safe_for_storage(name)?;
+            if !name.starts_with("refs/heads/") || matches!(expected, Some(Ref::Symbolic(_))) {
+                return Err(Error::InvalidRef(
+                    "checkout requires a direct local branch reference".into(),
+                ));
+            }
+            if let Some(previous) = expected_branches.get(name) {
+                if previous.as_ref() != expected {
+                    return Err(mismatch(name));
+                }
+            }
+            expected_branches.insert(name.to_owned(), expected.cloned());
+        }
+
+        // Commit publication acquires HEAD before its branch. Use the same
+        // order, then sort branch locks so overlapping checkouts are consistent.
+        let head = RefLock::acquire(git_dir.join("HEAD"))?;
+        if read_ref_snapshot(git_dir, "HEAD")?.as_ref() != Some(&raw_head) {
+            return Err(mismatch("HEAD"));
+        }
+        let mut branches = Vec::new();
+        for (name, expected) in expected_branches {
+            let (store, stored_name) = crate::worktree_ref::resolve_ref_storage(git_dir, &name);
+            let stored_name = crate::ref_namespace::storage_ref_name(&stored_name);
+            let lock = RefLock::acquire(store.join(stored_name))?;
+            if read_ref_snapshot(git_dir, &name)?.as_ref() != expected.as_ref() {
+                return Err(mismatch(&name));
+            }
+            if super::packed_ref_namespace_conflict(&store, &name)? {
+                return Err(Error::InvalidRef(format!(
+                    "cannot update ref '{name}': reference namespace conflict"
+                )));
+            }
+            branches.push((name, expected, lock));
+        }
+        Ok(Self { git_dir: git_dir.to_owned(), expected_head: raw_head, head, branches })
+    }
+
+    /// Publish HEAD, optionally creating one previously absent destination
+    /// branch. All lockfiles are already owned; no lock is reacquired between
+    /// validation and publication. Consume the guard before running hooks.
+    pub fn publish(mut self, new_head: &Ref, new_branch: Option<(&str, &ObjectId)>) -> Result<()> {
+        if let Ref::Symbolic(name) = new_head {
+            if !self.branches.iter().any(|(locked, _, _)| locked == name) {
+                return Err(Error::InvalidRef("checkout destination was not locked".into()));
+            }
+        }
+        if read_ref_snapshot(&self.git_dir, "HEAD")?.as_ref() != Some(&self.expected_head) {
+            return Err(mismatch("HEAD"));
+        }
+        for (name, expected, _) in &self.branches {
+            if read_ref_snapshot(&self.git_dir, name)?.as_ref() != expected.as_ref() {
+                return Err(mismatch(name));
+            }
+        }
+        let branch_index = if let Some((name, _)) = new_branch {
+            let index = self.branches.iter().position(|(locked, expected, _)| {
+                locked == name && expected.is_none()
+            }).ok_or_else(|| Error::InvalidRef("checkout new branch was not locked as absent".into()))?;
+            if new_head != &Ref::Symbolic(name.to_owned()) {
+                return Err(Error::InvalidRef("checkout new branch does not match HEAD".into()));
+            }
+            Some(index)
+        } else {
+            None
+        };
+        // Prepare both files first. Ordinary write/sync failures therefore
+        // leave both original refs intact. Rename failures can still occur
+        // between publications; files refs have no multi-file atomic rename.
+        self.head.prepare(new_head)?;
+        if let (Some(index), Some((_, oid))) = (branch_index, new_branch) {
+            self.branches[index].2.prepare(&Ref::Direct(*oid))?;
+            self.branches[index].2.commit()?;
+        }
+        self.head.commit()
+    }
+}
+
 struct RefLock {
     path: PathBuf,
     target: PathBuf,
@@ -125,6 +240,11 @@ impl RefLock {
     }
 
     fn publish(&mut self, value: &Ref) -> Result<()> {
+        self.prepare(value)?;
+        self.commit()
+    }
+
+    fn prepare(&mut self, value: &Ref) -> Result<()> {
         let content = match value {
             Ref::Direct(oid) => format!("{oid}\n"),
             Ref::Symbolic(target) => format!("ref: {target}\n"),
@@ -135,6 +255,10 @@ impl RefLock {
         } else {
             return Err(Error::InvalidRef("ref lock was already consumed".to_owned()));
         }
+        Ok(())
+    }
+
+    fn commit(&mut self) -> Result<()> {
         // Close before rename for Windows. Drop still cleans up after a failed
         // write/rename; it never removes another writer's lock after success.
         drop(self.file.take());

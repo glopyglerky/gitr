@@ -44,6 +44,18 @@ use redb_store::RedbObjectStore;
 
 type MemOdbOverlay = Arc<Mutex<Option<std::collections::HashMap<ObjectId, (ObjectKind, Vec<u8>)>>>>;
 
+/// Git can read the canonical empty tree without a stored object. That virtual
+/// lookup is not evidence that a writer has published the object for a commit.
+fn is_virtual_empty_tree(oid: &ObjectId) -> bool {
+    static SHA1: OnceLock<ObjectId> = OnceLock::new();
+    static SHA256: OnceLock<ObjectId> = OnceLock::new();
+    let identity = match oid.algo() {
+        HashAlgo::Sha1 => SHA1.get_or_init(|| hash_object_data_with(HashAlgo::Sha1, ObjectKind::Tree, b"")),
+        HashAlgo::Sha256 => SHA256.get_or_init(|| hash_object_data_with(HashAlgo::Sha256, ObjectKind::Tree, b"")),
+    };
+    oid == identity
+}
+
 /// Decompress a zlib-wrapped loose object payload from an open file.
 ///
 /// When the zlib wrapper advertises a preset dictionary (FDICT), `flate2` typically fails with a
@@ -558,14 +570,14 @@ impl Odb {
             Ok(None) => {}
             Err(_) => return false,
         }
-        const EMPTY_TREE: &str = "4b825dc642cb6eb9a060e54bf8d69288fbee4904";
-        if oid.to_hex() == EMPTY_TREE {
+        if is_virtual_empty_tree(oid) {
             return true;
         }
         exists_materialized_in_objects_dir(&self.objects_dir, oid)
     }
 
-    /// Check whether an object exists in the loose store or any pack file.
+    /// Check whether an object is available, including the virtual empty tree.
+    /// This lookup does not establish that an object has been physically written.
     #[must_use]
     pub fn exists(&self, oid: &ObjectId) -> bool {
         if self.overlay_read(oid).is_some() {
@@ -580,14 +592,15 @@ impl Odb {
             Ok(None) => {}
             Err(_) => return false,
         }
-        // The empty tree is a well-known object (no on-disk loose file). Git's
-        // canonical SHA-1 is `...8d69288fbee4904`. Other identities must exist
-        // in storage and must not be synthesized for a test-suite shortcut.
-        const EMPTY_TREE_CANON: &str = "4b825dc642cb6eb9a060e54bf8d69288fbee4904";
-        let hex = oid.to_hex();
-        if hex == EMPTY_TREE_CANON {
+        if is_virtual_empty_tree(oid) {
             return true;
         }
+        self.exists_in_files(oid)
+    }
+
+    /// Look only for stored loose/packed objects, including alternates. Writers
+    /// must use this rather than `exists`, which also exposes a virtual tree.
+    fn exists_in_files(&self, oid: &ObjectId) -> bool {
         if self.exists_in_dir(&self.objects_dir, oid) {
             return true;
         }
@@ -649,12 +662,6 @@ impl Odb {
     /// Returns `true` if an on-disk object was found and touched.
     #[must_use]
     pub fn freshen_object(&self, oid: &ObjectId) -> bool {
-        const EMPTY_TREE_CANON: &str = "4b825dc642cb6eb9a060e54bf8d69288fbee4904";
-        let hex = oid.to_hex();
-        if hex == EMPTY_TREE_CANON {
-            return false;
-        }
-
         let loose = self.object_path(oid);
         if loose.is_file() {
             return touch_path_mtime(&loose);
@@ -731,10 +738,9 @@ impl Odb {
                 return Ok(obj);
             }
         }
-        // The empty tree is a well-known virtual object — no storage needed.
-        const EMPTY_TREE_CANON: &str = "4b825dc642cb6eb9a060e54bf8d69288fbee4904";
-        let hex = oid.to_hex();
-        if hex == EMPTY_TREE_CANON {
+        // Read-only lookups can synthesize the canonical empty tree. A write
+        // still has to publish actual bytes before a commit may reference it.
+        if is_virtual_empty_tree(oid) {
             return Ok(crate::objects::Object {
                 kind: crate::objects::ObjectKind::Tree,
                 data: Vec::new(),
@@ -874,11 +880,11 @@ impl Odb {
 
         // When the in-memory overlay is active, keep the object in memory only (unless it is
         // already present on disk, in which case nothing new needs to be written anyway).
-        if self.overlay_active() && !self.exists(&oid) && self.overlay_store(oid, kind, data) {
+        if self.overlay_active() && !self.exists_in_files(&oid) && self.overlay_store(oid, kind, data) {
             return Ok(oid);
         }
 
-        if self.exists(&oid) {
+        if self.exists_in_files(&oid) {
             let _ = self.freshen_object(&oid);
             return Ok(oid);
         }
@@ -1031,7 +1037,7 @@ impl Odb {
             let _ = self.freshen_object(&oid);
             return Ok(oid);
         }
-        if self.exists(&oid) {
+        if self.exists_in_files(&oid) {
             let _ = self.freshen_object(&oid);
             return Ok(oid);
         }
@@ -1427,6 +1433,84 @@ mod tests {
         fs::create_dir_all(&objects).unwrap();
         fs::write(git_dir.join("config"), config).unwrap();
         (dir, git_dir, objects)
+    }
+
+    #[test]
+    fn empty_tree_writes_publish_physical_objects_for_both_hash_formats() {
+        for algo in [HashAlgo::Sha1, HashAlgo::Sha256] {
+            for writer in 0..5 {
+                let config = format!("[extensions]\nobjectformat={}\n[gitr]\nredbObjects=false\n", algo.name());
+                let (_dir, git_dir, objects) = git_dir_with_config(&config);
+                let odb = Odb::new(&objects).with_config_git_dir(git_dir);
+                let expected = odb.hash(ObjectKind::Tree, b"");
+                assert!(odb.exists(&expected));
+                assert!(!odb.exists_in_files(&expected));
+                let oid = match writer {
+                    0 => odb.write(ObjectKind::Tree, b""),
+                    1 => odb.write_raw(b"tree 0\0"),
+                    2 => odb.write_local(ObjectKind::Tree, b""),
+                    3 => odb.write_raw_local(b"tree 0\0"),
+                    _ => odb.write_loose_materialize(ObjectKind::Tree, b""),
+                }.unwrap();
+                assert_eq!(oid, expected);
+                let object = Odb::read_loose_verify_oid(&odb.object_path(&oid), &oid).unwrap();
+                assert_eq!(object.kind, ObjectKind::Tree);
+                assert!(object.data.is_empty());
+                assert!(odb.exists_in_files(&oid));
+            }
+        }
+    }
+
+    #[test]
+    fn empty_tree_hash_virtual_reads_and_memory_overlay_do_not_publish() {
+        for algo in [HashAlgo::Sha1, HashAlgo::Sha256] {
+            for redb in [false, true] {
+                let config = format!("[extensions]\nobjectformat={}\n[gitr]\nredbObjects={redb}\n", algo.name());
+                let (_dir, git_dir, objects) = git_dir_with_config(&config);
+                let odb = Odb::new(&objects).with_config_git_dir(git_dir.clone());
+                let oid = odb.hash(ObjectKind::Tree, b"");
+                assert!(odb.exists(&oid));
+                assert!(odb.exists_local(&oid));
+                let object = odb.read(&oid).unwrap();
+                assert_eq!(object.kind, ObjectKind::Tree);
+                assert!(object.data.is_empty());
+                assert!(!odb.exists_in_files(&oid));
+                assert_eq!(fs::read_dir(&objects).unwrap().count(), 0);
+                assert!(!git_dir.join("gitr").exists());
+
+                odb.enable_mem_overlay();
+                assert_eq!(odb.write(ObjectKind::Tree, b"").unwrap(), oid);
+                assert_eq!(odb.write_raw(b"tree 0\0").unwrap(), oid);
+                odb.disable_mem_overlay();
+                assert!(!odb.object_path(&oid).exists());
+                assert!(!git_dir.join("gitr").exists());
+            }
+        }
+    }
+
+    #[test]
+    fn empty_tree_writes_reuse_real_alternates_and_freshen_stored_bytes() {
+        for algo in [HashAlgo::Sha1, HashAlgo::Sha256] {
+            let config = format!("[extensions]\nobjectformat={}\n[gitr]\nredbObjects=false\n", algo.name());
+            let (_alternate, alternate_git, alternate_objects) = git_dir_with_config(&config);
+            let alternate = Odb::new(&alternate_objects).with_config_git_dir(alternate_git);
+            let oid = alternate.write_local(ObjectKind::Tree, b"").unwrap();
+            let path = alternate.object_path(&oid);
+            filetime::set_file_mtime(&path, filetime::FileTime::from_unix_time(1, 0)).unwrap();
+
+            let (_main, main_git, main_objects) = git_dir_with_config(&config);
+            fs::create_dir(main_objects.join("info")).unwrap();
+            fs::write(main_objects.join("info/alternates"), format!("{}\n", alternate_objects.display())).unwrap();
+            let main = Odb::new(&main_objects).with_config_git_dir(main_git);
+            assert!(main.exists_in_files(&oid));
+            assert_eq!(main.write(ObjectKind::Tree, b"").unwrap(), oid);
+            assert_eq!(main.write_raw(b"tree 0\0").unwrap(), oid);
+            assert!(!main.object_path(&oid).exists());
+            assert!(alternate.freshen_object(&oid));
+            let refreshed = filetime::FileTime::from_last_modification_time(&fs::metadata(&path).unwrap());
+            assert!(refreshed.unix_seconds() > 1);
+            assert!(Odb::read_loose_verify_oid(&path, &oid).unwrap().data.is_empty());
+        }
     }
 
     /// Zlib FLEVEL flag (upper two bits of the second header byte).

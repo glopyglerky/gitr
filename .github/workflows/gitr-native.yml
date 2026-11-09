@@ -2,7 +2,7 @@ name: Gitr native qualification with produced BlueFe
 
 on:
   push:
-    branches: [gitr/rust-upstream-import, master]
+    branches: [master]
   pull_request:
     branches: [master]
   workflow_dispatch:
@@ -16,13 +16,17 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  compiler:
+    uses: ./.github/workflows/gitr-bluefe-build.yml
   native:
+    needs: compiler
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     env:
-      # A missing or expired pinned artifact fails; there is no latest-run fallback.
-      GITR_BLUEFE_RUN_ID: "42583051848"
-      GITR_BLUEFE_ARTIFACT_ID: "13658239181"
+      # Use only this run's verified bundle, built from the exact source pins.
+      # The compiler job verifies cache hits and rebuilds if its cache is absent.
+      GITR_BLUEFE_RUN_ID: ${{ github.run_id }}
+      GITR_BLUEFE_ARTIFACT_ID: ${{ needs.compiler.outputs.artifact_id }}
       GITR_BLUEFE_DOWNLOAD: ${{ github.workspace }}/.gitr-ci/native-compiler-download
       BLUEFE_ROOT: ${{ github.workspace }}/.gitr-ci/native-produced-bluefe
       GITR_NATIVE_LOGS: ${{ github.workspace }}/.gitr-ci/native-logs
@@ -66,17 +70,22 @@ jobs:
       - name: Verify archive and produced compiler before application compilation
         run: '"${{ runner.temp }}/gitr-qualify-native" prepare "${{ runner.temp }}/gitr-bluefe-bundle-helper"'
       - name: Build all root features and targets through Lustr and BlueFe
+        id: build_root
         run: '"${{ runner.temp }}/gitr-qualify-native" build-root'
       - name: Run root tests through Lustr and BlueFe
         run: '"${{ runner.temp }}/gitr-qualify-native" test-root'
       - name: Run imported library and CLI tests through Lustr and BlueFe
+        if: ${{ !cancelled() && steps.build_root.outcome == 'success' }}
         # Includes redb, difftool, read-safety and reference CAS regressions.
         run: '"${{ runner.temp }}/gitr-qualify-native" test-vendor'
       - name: Verify imported source provenance through Lustr and BlueFe
+        if: ${{ !cancelled() && steps.build_root.outcome == 'success' }}
         run: '"${{ runner.temp }}/gitr-qualify-native" verify-import'
       - name: Check the redb storage policy through Lustr and BlueFe
+        if: ${{ !cancelled() && steps.build_root.outcome == 'success' }}
         run: '"${{ runner.temp }}/gitr-qualify-native" policy'
       - name: Audit repository source through Lustr and BlueFe
+        if: ${{ !cancelled() && steps.build_root.outcome == 'success' }}
         run: '"${{ runner.temp }}/gitr-qualify-native" audit'
       - name: Build measured release binary through Lustr and BlueFe
         # Measurement overrides only: opt-level 3, LTO off, 16 codegen units.

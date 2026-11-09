@@ -7,12 +7,18 @@
 
 #![allow(dead_code)] // test-tool and harness helpers not fully wired through dispatch
 
-use anyhow::{bail, Context, Result};
+use anyhow::{bail, Result};
+#[cfg(feature = "test-tools")]
+use anyhow::Context;
 use clap::{Args, Command, FromArgMatches, Parser};
+#[cfg(feature = "test-tools")]
 use grit_lib::git_path;
 use std::collections::{BTreeSet, HashSet};
+#[cfg(feature = "test-tools")]
 use std::fs;
-use std::io::{IsTerminal, Read, Write};
+use std::io::{IsTerminal, Write};
+#[cfg(feature = "test-tools")]
+use std::io::Read;
 use std::path::{Path, PathBuf};
 
 mod alias;

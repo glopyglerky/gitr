@@ -136,20 +136,26 @@ fn add_commit_log_status_diff_and_tag_are_git_compatible() {
 }
 
 #[test]
-fn branch_creation_and_native_commits_interoperate_with_git_checkout() {
+fn native_branch_checkout_and_switch_interoperate_with_git() {
     let temp = fixture();
     let root = temp.path();
     let base = commit(root, "base.txt", b"base\n", "base");
     native(root, &["branch", "topic"]);
     assert_eq!(text(reference(root, &["rev-parse", "topic"])), base);
-    // Checkout's complete source is imported but its ref transaction still
-    // needs migration. Reference Git prepares this branch for commit coverage.
-    reference(root, &["checkout", "topic"]);
+    native(root, &["checkout", "topic"]);
     let topic = commit(root, "topic.txt", b"topic\n", "topic");
     assert_eq!(text(reference(root, &["rev-parse", "topic^1"])), base);
     assert_eq!(text(reference(root, &["rev-parse", "main"])), base);
     compare(root, &["ls-tree", "-r", &topic]);
     compare(root, &["status", "--porcelain"]);
+    native(root, &["switch", "main"]);
+    assert!(!root.join("topic.txt").exists());
+    assert_eq!(text(reference(root, &["symbolic-ref", "HEAD"])), "refs/heads/main");
+    native(root, &["switch", "-c", "new-topic"]);
+    assert_eq!(text(reference(root, &["rev-parse", "new-topic"])), base);
+    native(root, &["checkout", "--detach", &topic]);
+    assert_eq!(fs::read(root.join("topic.txt")).unwrap(), b"topic\n");
+    assert_eq!(fs::read(root.join(".git/HEAD")).unwrap(), format!("{topic}\n").as_bytes());
     reference(root, &["fsck", "--strict"]);
 }
 
@@ -185,8 +191,7 @@ fn unqualified_history_writers_and_aliases_fail_before_mutation() {
     for args in [
         vec!["rebase", "main"], vec!["cherry-pick", "HEAD"],
         vec!["revert", "--no-edit", "HEAD"], vec!["stash", "push"],
-        vec!["reset", "--hard", "HEAD"], vec!["checkout", "-b", "unexpected"],
-        vec!["switch", "-c", "unexpected"], vec!["move-history"],
+        vec!["reset", "--hard", "HEAD"], vec!["move-history"],
         vec!["--native-git", "reset", "--hard", "HEAD"],
     ] {
         let result = output(root, &args, &[]);
@@ -247,6 +252,25 @@ fn stale_expected_old_update_ref_cannot_overwrite_a_new_commit() {
     let stale = output(root, &["update-ref", "refs/heads/main", &first, &first], &[]);
     assert!(!stale.status.success());
     assert_eq!(text(reference(root, &["rev-parse", "HEAD"])), next);
+}
+
+#[test]
+fn amending_a_detached_commit_preserves_the_branch_and_detached_head() {
+    let temp = fixture();
+    let root = temp.path();
+    let parent = commit(root, "file", b"parent\n", "parent");
+    let original = commit(root, "file", b"original\n", "original");
+    native(root, &["checkout", "--detach", &original]);
+    fs::write(root.join("file"), b"amended\n").unwrap();
+    native(root, &["add", "file"]);
+    native(root, &["commit", "--amend", "-q", "-m", "amended"]);
+    let amended = text(reference(root, &["rev-parse", "HEAD"]));
+    assert_ne!(amended, original);
+    assert_eq!(text(reference(root, &["rev-parse", "main"])), original);
+    assert_eq!(text(reference(root, &["rev-parse", "HEAD^1"])), parent);
+    assert_eq!(fs::read(root.join(".git/HEAD")).unwrap(), format!("{amended}\n").as_bytes());
+    assert_eq!(reference(root, &["show", "HEAD:file"]), b"amended\n");
+    reference(root, &["fsck", "--strict"]);
 }
 
 #[test]

@@ -166,12 +166,12 @@ pub struct Args {
     #[arg(long = "no-progress", action = clap::ArgAction::SetTrue)]
     pub no_progress: bool,
 
-    /// Receive-pack program on the remote (`--receive-pack` delegates to system `git push` for
-    /// protocol compatibility; native path may use wire protocol instead of file copy).
+    /// Receive-pack program on the remote (explicit custom programs are not part
+    /// of the initial checked local profile).
     #[arg(long = "receive-pack", value_name = "RECEIVE_PACK")]
     pub receive_pack: Option<String>,
 
-    /// Accepted for Git compatibility; forwarded when delegating to system `git push`.
+    /// Accepted by the donor; unsupported in the initial checked local profile.
     #[arg(long = "upload-pack", value_name = "PATH")]
     pub upload_pack: Option<String>,
 
@@ -721,6 +721,19 @@ pub fn run(mut args: Args) -> Result<()> {
             Vec::new()
         };
 
+    if crate::write_safety::is_product() {
+        ensure_checked_push_options(&args, &config, push_all, effective_mirror)?;
+        if urls.len() != 1 { bail!("checked local push currently requires exactly one push URL"); }
+        for url in &urls {
+            if url.contains("://") && !url.starts_with("file://")
+                || url.starts_with("ext::")
+                || crate::ssh_transport::is_configured_ssh_url(url)
+            {
+                bail!("checked push currently supports local repositories only; network authentication and transport are not yet qualified");
+            }
+        }
+    }
+
     // Push to each URL
     for url in &urls {
         push_to_url(
@@ -1074,9 +1087,9 @@ fn push_to_url(
         );
     } else if crate::ssh_transport::is_configured_ssh_url(url) {
         crate::protocol::check_protocol_allowed("ssh", Some(&repo.git_dir))?;
-        let spec = crate::ssh_transport::parse_ssh_url(url)?;
-        let Some(gd) = crate::ssh_transport::try_local_git_dir(&spec) else {
-            return push_to_ssh_url(
+        // An SSH URL always names its SSH endpoint. Never reinterpret an
+        // absolute remote path as a repository on this machine.
+        return push_to_ssh_url(
                 repo,
                 config,
                 args,
@@ -1088,12 +1101,10 @@ fn push_to_url(
                 push_refspecs_from_config,
                 cli_force_enabled,
             );
-        };
-        gd
     } else {
         crate::protocol::check_protocol_allowed("file", Some(&repo.git_dir))?;
-        if let Some(stripped) = url.strip_prefix("file://") {
-            PathBuf::from(stripped)
+        if url.starts_with("file://") {
+            url::Url::parse(url)?.to_file_path().map_err(|_| anyhow::anyhow!("file URL must name a local path"))?
         } else {
             PathBuf::from(url)
         }
@@ -1106,6 +1117,15 @@ fn push_to_url(
             remote_path.display()
         )
     })?;
+
+    if args.receive_pack.is_none() || is_default_receive_pack_program(args.receive_pack.as_deref()) {
+        ensure_checked_push_options(args, config, push_all, effective_mirror)?;
+        let remote_config = ConfigSet::load(Some(&remote_repo.git_dir), true)?;
+        crate::commands::receive_pack::checked::ensure_supported(&remote_repo, &remote_config)?;
+        let child = crate::commands::send_pack::spawn_receive_pack("git-receive-pack", &remote_path)?;
+        return push_over_receive_pack_child(child, "local", repo, config, args, url, remote_name,
+            current_branch, push_all, effective_mirror, push_refspecs_from_config, cli_force_enabled);
+    }
 
     // An explicit non-default `--receive-pack` program for a local-file push must actually run
     // that program and speak the real receive-pack protocol to it, so its exit status governs the
@@ -3112,8 +3132,25 @@ fn push_to_url(
     Ok(())
 }
 
-/// Whether the `--receive-pack` value names the default receive-pack program (so the in-process
-/// fast path is fine and no real subprocess handshake is needed).
+fn ensure_checked_push_options(args: &Args, config: &ConfigSet, push_all: bool, mirror: bool) -> Result<()> {
+    if args.atomic { bail!("atomic push is not implemented by the checked local profile"); }
+    if args.force_with_lease.is_some() || args.force_if_includes {
+        bail!("force-with-lease and force-if-includes are not yet qualified for checked local push");
+    }
+    if push_all || mirror || args.tags || args.follow_tags || args.prune || args.set_upstream
+        || args.signed.is_some() || !args.push_option.is_empty() || args.upload_pack.is_some()
+        || !args.recurse_submodules.is_empty()
+        || args.receive_pack.as_deref().is_some_and(|_| !is_default_receive_pack_program(args.receive_pack.as_deref()))
+    {
+        bail!("this push option is not yet supported by the checked local profile");
+    }
+    for key in ["push.autoSetupRemote", "push.followTags", "push.gpgSign", "push.recurseSubmodules", "push.pushOption", "push.useForceIfIncludes"] {
+        if config.get(key).is_some() { bail!("checked local push does not yet support {key}"); }
+    }
+    Ok(())
+}
+
+/// Whether `--receive-pack` names the native default receiver.
 fn is_default_receive_pack_program(receive_pack: Option<&str>) -> bool {
     match receive_pack {
         None => true,
@@ -4790,7 +4827,7 @@ fn push_to_ssh_url(
 /// over the child's stdin/stdout. `transport` labels the transport in error messages.
 #[allow(clippy::too_many_arguments)]
 fn push_over_receive_pack_child(
-    mut child: std::process::Child,
+    child: std::process::Child,
     transport: &str,
     repo: &Repository,
     config: &ConfigSet,
@@ -4803,11 +4840,12 @@ fn push_over_receive_pack_child(
     push_refspecs_from_config: &[String],
     cli_force_enabled: bool,
 ) -> Result<()> {
+    let mut child = PushChild(child);
     let mut stdout = child
         .stdout
         .take()
         .with_context(|| format!("{transport} receive-pack stdout"))?;
-    let stdin = child
+    let mut stdin = child
         .stdin
         .take()
         .with_context(|| format!("{transport} receive-pack stdin"))?;
@@ -5107,6 +5145,8 @@ fn push_over_receive_pack_child(
     }
 
     if updates.is_empty() {
+        grit_lib::pkt_line::write_flush(&mut stdin)?;
+        stdin.flush()?;
         drop(stdin);
         drop(stdout);
         let _ = child.wait();
@@ -5114,6 +5154,31 @@ fn push_over_receive_pack_child(
             println!("Everything up-to-date");
         }
         return Ok(());
+    }
+
+    // Capture tracking values before hooks, pack construction and transmission.
+    // A successful remote push must not overwrite a concurrent local fetch.
+    let mut tracking_plans = std::collections::BTreeMap::new();
+    let mut destinations = HashSet::new();
+    for update in &updates {
+        if transport == "local" && !update.remote_ref.starts_with("refs/heads/") {
+            bail!("checked local push currently supports branch refs only");
+        }
+        if !destinations.insert(update.remote_ref.clone()) {
+            bail!("multiple updates for ref '{}' are not allowed", update.remote_ref);
+        }
+        if update.remote_ref.starts_with("refs/tags/") && update.old_oid.is_some()
+            && update.new_oid.is_some() && !cli_force_enabled && !update.refspec_force
+        {
+            bail!("tag '{}' already exists; replacing it requires force", update.remote_ref);
+        }
+        if let Some(name) = grit_lib::branch_tracking::tracking_ref_for_remote_push_ref(&repo.git_dir, remote_name, &update.remote_ref) {
+            let expected = refs::read_ref_snapshot(&repo.git_dir, &name)?;
+            if matches!(expected, Some(refs::Ref::Symbolic(_))) {
+                bail!("checked push does not overwrite symbolic remote-tracking refs");
+            }
+            tracking_plans.insert(update.remote_ref.clone(), (name, expected));
+        }
     }
 
     if !args.no_verify {
@@ -5146,6 +5211,8 @@ fn push_over_receive_pack_child(
     }
 
     if args.dry_run {
+        grit_lib::pkt_line::write_flush(&mut stdin)?;
+        stdin.flush()?;
         drop(stdin);
         drop(stdout);
         let _ = child.wait();
@@ -5213,6 +5280,8 @@ fn push_over_receive_pack_child(
     // verdict below so the "To"/"[new branch]" lines are still emitted (t5543 atomic exit-code).
     let receive_pack_failed = !child_status.success();
 
+    validate_push_acknowledgements(&updates, &status.statuses)?;
+
     let status_by_ref: std::collections::HashMap<&str, &crate::http_push_smart::PushStatusEntry> =
         status
             .statuses
@@ -5268,7 +5337,11 @@ fn push_over_receive_pack_child(
         // status line is still rendered (the remote did write the ref) but the push is not
         // considered successful for tracking/upstream purposes.
         if !receive_pack_failed {
-            update_remote_tracking_ref(repo, remote_name, &update.remote_ref, update.new_oid)?;
+            if let Some((name, expected)) = tracking_plans.get(&update.remote_ref) {
+                let new = update.new_oid.map(refs::Ref::Direct);
+                refs::compare_and_swap_ref(&repo.git_dir, name, expected.as_ref(), new.as_ref())
+                    .with_context(|| format!("remote accepted {}, but local tracking ref {name} changed or could not be published", update.remote_ref))?;
+            }
             if update.remote_ref.starts_with("refs/heads/") {
                 if let Some(local_ref) = update.local_ref.as_deref() {
                     if let Some(local_branch) = local_ref.strip_prefix("refs/heads/") {
@@ -5356,6 +5429,47 @@ fn push_over_receive_pack_child(
     }
 
     Ok(())
+}
+
+fn validate_push_acknowledgements(updates: &[RefUpdate], statuses: &[crate::http_push_smart::PushStatusEntry]) -> Result<()> {
+    let expected: HashSet<_> = updates.iter().map(|update| update.remote_ref.as_str()).collect();
+    let mut seen = HashSet::new();
+    for status in statuses {
+        if !expected.contains(status.refname.as_str()) || !seen.insert(status.refname.as_str()) {
+            bail!("remote returned an unexpected or duplicate ref acknowledgement; tracking refs were not updated");
+        }
+    }
+    if seen != expected { bail!("remote omitted a ref acknowledgement; push result is unknown and tracking refs were not updated"); }
+    Ok(())
+}
+
+struct PushChild(std::process::Child);
+impl std::ops::Deref for PushChild {
+    type Target = std::process::Child;
+    fn deref(&self) -> &Self::Target { &self.0 }
+}
+impl std::ops::DerefMut for PushChild {
+    fn deref_mut(&mut self) -> &mut Self::Target { &mut self.0 }
+}
+impl Drop for PushChild {
+    fn drop(&mut self) {
+        // Error paths must not leave a receiver blocked on stdin or a zombie.
+        if self.0.try_wait().ok().flatten().is_none() { let _ = self.0.kill(); }
+        let _ = self.0.wait();
+    }
+}
+
+#[cfg(test)]
+mod checked_push_tests {
+    use super::*;
+    #[test]
+    fn every_sent_ref_requires_one_explicit_acknowledgement() {
+        let updates = vec![RefUpdate { remote_ref: "refs/heads/main".into(), ..Default::default() }];
+        let status = crate::http_push_smart::PushStatusEntry { refname: "refs/heads/main".into(), ok: true, message: None };
+        assert!(validate_push_acknowledgements(&updates, &[]).is_err());
+        validate_push_acknowledgements(&updates, std::slice::from_ref(&status)).unwrap();
+        assert!(validate_push_acknowledgements(&updates, &[status.clone(), status]).is_err());
+    }
 }
 
 /// Reject `branch.<empty>.{remote,pushremote,merge}` config (empty subsection).

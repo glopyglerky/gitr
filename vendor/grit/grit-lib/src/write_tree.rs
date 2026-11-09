@@ -564,4 +564,33 @@ mod tests {
         assert_eq!(bin_entries[0].name, b"run.sh");
         assert_eq!(bin_entries[0].mode, MODE_EXECUTABLE);
     }
+
+    #[test]
+    fn empty_index_publishes_its_tree_before_returning() {
+        for algo in [crate::objects::HashAlgo::Sha1, crate::objects::HashAlgo::Sha256] {
+            for redb in [false, true] {
+                let directory = TempDir::new().unwrap();
+                let git_dir = directory.path().join(".git");
+                let objects = git_dir.join("objects");
+                std::fs::create_dir_all(&objects).unwrap();
+                std::fs::write(git_dir.join("config"), format!(
+                    "[extensions]\nobjectformat={}\n[gitr]\nredbObjects={redb}\n", algo.name()
+                )).unwrap();
+                let odb = Odb::new(&objects).with_config_git_dir(git_dir);
+                let oid = write_tree_from_index(&odb, &Index::new(), "").unwrap();
+                assert_eq!(oid, odb.hash(ObjectKind::Tree, b""));
+                // Odb::read may synthesize this identity. Verify physical bytes
+                // so a commit cannot publish a tree that reference Git fsck lacks.
+                let object = Odb::read_loose_verify_oid(&odb.object_path(&oid), &oid).unwrap();
+                assert_eq!(object.kind, ObjectKind::Tree);
+                assert!(object.data.is_empty());
+                if redb {
+                    let store = crate::odb::redb_store::RedbObjectStore::open(
+                        odb.redb_object_path().unwrap().unwrap(), algo,
+                    ).unwrap();
+                    assert!(store.contains(&oid).unwrap());
+                }
+            }
+        }
+    }
 }

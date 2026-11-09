@@ -4,7 +4,7 @@ Independently maintained Git fork, owned at
 [glopyglerky/gitr](https://github.com/glopyglerky/gitr), with verified fork parent
 [git/git](https://github.com/git/git).
 
-[![Gitr Rust qualification](https://github.com/glopyglerky/gitr/actions/workflows/gitr-rust.yml/badge.svg?branch=master)](https://github.com/glopyglerky/gitr/actions/workflows/gitr-rust.yml)
+[![Native Git qualification with produced BlueFe](https://github.com/glopyglerky/gitr/actions/workflows/gitr-native.yml/badge.svg?branch=master)](https://github.com/glopyglerky/gitr/actions/workflows/gitr-native.yml)
 
 A Rust Git implementation with verified large-file storage, game-asset chunk
 reuse, a transactional repository graph and vector catalog, and bounded Rust/Wasm
@@ -26,8 +26,10 @@ relationship is unchanged. Transitive native TLS code remains (see dependency li
 ## Implemented capabilities
 
 - In-process Rust Git commands from the vendored Grit engine, including staging,
-  commits, simple branches/tags, object plumbing and repository inspection.
-  Commit, branch and tag publication checks the expected value under its lock.
+  commits, simple branches/tags, ordinary local branch checkout/switch, detached
+  checkout, object plumbing and repository inspection. Reference publication
+  checks the expected value under its lock; checkout also locks the index before
+  changing worktree files.
 - The earlier isolated Gitoxide profile remains available with `--isolated-git`.
   The default `update-ref` route retains that profile's strict compare-and-swap.
 - An opt-in redb 4.5 object store, with exact SHA-1/SHA-256 identities, atomic
@@ -54,7 +56,7 @@ relationship is unchanged. Transitive native TLS code remains (see dependency li
 - Builds and tests through a pinned version of [Lustr](https://github.com/glopyglerky/lustr).
 
 Learned semantic embeddings, resolved call graphs and distributed HA remain work.
-The clone/fetch/push, checkout, merge/rebase and other history-writing algorithms
+The clone/fetch/push, advanced checkout, merge/rebase and other history-writing algorithms
 are now checked in; their default Gitr command routes remain disabled pending
 the remaining reference-transaction migration and qualification. `commit-tree`
 creates a commit object without moving refs. Local redb multi-process writers serialize

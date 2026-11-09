@@ -39,7 +39,7 @@ fn utf8_path<'a>(path: &'a Path, context: &str) -> Result<&'a str> {
 }
 
 pub(crate) fn check(command: &str, args: &[String]) -> Result<()> {
-    if !crate::write_safety::is_product() || !matches!(command, "add" | "rm" | "mv" | "restore" | "commit") {
+    if !crate::write_safety::is_product() || !matches!(command, "add" | "rm" | "mv" | "restore" | "commit" | "checkout" | "switch") {
         return Ok(());
     }
     if args.len() == 1 && matches!(args[0].as_str(), "-h" | "--help" | "--help-all") {

@@ -24,7 +24,7 @@ use crate::objects::ObjectId;
 use crate::pack;
 
 mod cas;
-pub use cas::{compare_and_swap_ref, read_ref_snapshot, update_head_cas};
+pub use cas::{compare_and_swap_ref, read_ref_snapshot, update_head_cas, CheckoutRefGuard};
 
 /// A symbolic or direct reference.
 #[derive(Debug, Clone, PartialEq, Eq)]

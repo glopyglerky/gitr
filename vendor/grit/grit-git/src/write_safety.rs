@@ -16,7 +16,7 @@ pub(crate) fn is_product() -> bool { GITR_PRODUCT.load(Ordering::Relaxed) }
 pub(crate) fn product_version() -> Option<&'static str> { GITR_VERSION.get().copied() }
 
 const PENDING_REFERENCE_MIGRATION: &[&str] = &[
-    "am", "backfill", "bisect", "checkout", "switch", "cherry-pick", "revert",
+    "am", "backfill", "bisect", "cherry-pick", "revert",
     "clone", "fast-import", "fetch", "fetch-pack", "push", "send-pack", "pull",
     "merge", "notes", "rebase", "receive-pack", "replace", "replay", "history",
     "reset", "stash", "submodule", "symbolic-ref", "update-ref", "worktree",
@@ -51,7 +51,7 @@ mod tests {
         assert!(check_operation("remote", &["remove".into(), "origin".into()]).is_err());
         assert!(check_operation("remote", &["--verbose".into(), "remove".into(), "origin".into()]).is_err());
         assert!(check_operation("reflog", &["expire".into(), "--all".into()]).is_err());
-        for command in ["commit", "branch", "tag", "log", "status", "hash-object"] { check_operation(command, &[]).unwrap(); }
+        for command in ["commit", "branch", "checkout", "switch", "tag", "log", "status", "hash-object"] { check_operation(command, &[]).unwrap(); }
         check_operation("remote", &["get-url".into(), "origin".into()]).unwrap();
     }
 }

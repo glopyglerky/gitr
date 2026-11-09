@@ -477,7 +477,7 @@ pub(crate) fn spawn_receive_pack(receive_cmd: &str, remote_path: &Path) -> Resul
     let remote_path = remote_path
         .canonicalize()
         .unwrap_or_else(|_| remote_path.to_path_buf());
-    let remote_str = remote_path.to_string_lossy();
+    let remote_str = remote_path.to_str().context("receive-pack path must be UTF-8")?;
     let client_proto = protocol_wire::effective_client_protocol_version();
     let is_default_receive_pack = {
         let t = receive_cmd.trim();
@@ -510,7 +510,7 @@ pub(crate) fn spawn_receive_pack(receive_cmd: &str, remote_path: &Path) -> Resul
         let script = format!(
             "{} {}",
             receive_cmd.trim_end(),
-            shell_single_quote(&remote_str)
+            shell_single_quote(remote_str)
         );
         let mut c = Command::new("sh");
         strip_trace2_env(&mut c);
@@ -533,7 +533,7 @@ pub(crate) fn spawn_receive_pack(receive_cmd: &str, remote_path: &Path) -> Resul
             cmd.env(k, v);
         }
         cmd.arg("receive-pack")
-            .arg(remote_str.as_ref())
+            .arg(remote_str)
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .stderr(Stdio::inherit());

@@ -1,9 +1,11 @@
 name: Gitr hosted produced BlueFe
 
 on:
-  push:
-    branches: [gitr/rust-upstream-import, master]
-    paths: [ci/bluefe_bundle.rs, .github/workflows/gitr-bluefe-build.yml]
+  workflow_call:
+    outputs:
+      artifact_id:
+        description: Verified compiler bundle produced for this workflow run
+        value: ${{ jobs.qualify.outputs.artifact_id }}
   workflow_dispatch:
 
 permissions:
@@ -17,6 +19,8 @@ jobs:
   qualify:
     runs-on: ubuntu-24.04
     timeout-minutes: 180
+    outputs:
+      artifact_id: ${{ steps.bundle_artifact.outputs.artifact-id }}
     env:
       BLUEFE_ROOT: ${{ github.workspace }}/.gitr-ci/gitr-produced-bluefe
       BLUEFE_SOURCE: ${{ github.workspace }}/.ci-bluefe
@@ -69,6 +73,7 @@ jobs:
       - name: Archive the self-contained Linux compiler bundle
         run: '"${{ runner.temp }}/gitr-bluefe-bundle-helper" archive'
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        id: bundle_artifact
         with:
           name: gitr-bluefe-7005dc02-lustr-6339fbb1-ubuntu24-x86_64
           path: |

@@ -45,13 +45,51 @@ fn snapshot(input: &mut dyn Read) -> Result<(File, u64)> {
     Ok((file, size))
 }
 
+fn hash_sized<D: Digest + Default>(input: &mut dyn Read, size: u64) -> Result<ObjectId> {
+    let mut digest = D::new();
+    digest.update(format!("blob {size}\0").as_bytes());
+    let mut remaining = size;
+    let mut buffer = [0u8; BUFFER];
+    while remaining != 0 {
+        let limit = remaining.min(BUFFER as u64) as usize;
+        let count = match input.read(&mut buffer[..limit]) {
+            Err(error) if error.kind() == io::ErrorKind::Interrupted => continue,
+            result => result?,
+        };
+        if count == 0 {
+            return Err(Error::CorruptObject("blob became shorter while hashing".into()));
+        }
+        digest.update(&buffer[..count]);
+        remaining -= count as u64;
+    }
+    loop {
+        match input.read(&mut buffer[..1]) {
+            Err(error) if error.kind() == io::ErrorKind::Interrupted => continue,
+            Ok(0) => break,
+            Ok(_) => return Err(Error::CorruptObject("blob became longer while hashing".into())),
+            Err(error) => return Err(error.into()),
+        }
+    }
+    ObjectId::from_bytes(digest.finalize().as_slice())
+}
+
 impl Odb {
     /// Hash an unfiltered blob with fixed-size buffers. Spooling takes a stable
     /// snapshot so stdin and concurrently resized files get the correct header.
     pub fn hash_blob_stream(algo: HashAlgo, input: &mut dyn Read) -> Result<ObjectId> {
         let (mut file, size) = snapshot(input)?;
-        let result = digests(algo, &mut raw_blob(&mut file, size)?)?;
-        Ok(result.0)
+        Self::hash_blob_sized(algo, &mut file, size)
+    }
+
+    /// Hash a known-length blob in one pass with fixed-size buffers. A reader
+    /// shorter or longer than the header is rejected, so no incorrect object
+    /// identity is returned after a concurrent resize. This does not publish
+    /// objects or promise a snapshot of a concurrently edited regular file.
+    pub fn hash_blob_sized(algo: HashAlgo, input: &mut dyn Read, size: u64) -> Result<ObjectId> {
+        match algo {
+            HashAlgo::Sha1 => hash_sized::<Sha1>(input, size),
+            HashAlgo::Sha256 => hash_sized::<Sha256>(input, size),
+        }
     }
 
     /// Durably publish a canonical blob using bounded source buffers. redb is
@@ -139,6 +177,21 @@ fn verify_mirror(path: &std::path::Path, snapshot: &mut File, size: u64, oid: &O
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn sized_hash_rejects_length_changes_and_matches_snapshot_hashing() {
+        for algo in [HashAlgo::Sha1, HashAlgo::Sha256] {
+            for bytes in [Vec::new(), b"hello\n".to_vec(), vec![0xa5; BUFFER * 2 + 17]] {
+                let size = bytes.len() as u64;
+                let expected = Odb::hash_blob_stream(algo, &mut bytes.as_slice()).unwrap();
+                assert_eq!(Odb::hash_blob_sized(algo, &mut bytes.as_slice(), size).unwrap(), expected);
+                assert!(Odb::hash_blob_sized(algo, &mut bytes.as_slice(), size + 1).is_err());
+                if size != 0 {
+                    assert!(Odb::hash_blob_sized(algo, &mut bytes.as_slice(), size - 1).is_err());
+                }
+            }
+        }
+    }
+
     #[test]
     fn streaming_blob_matches_git_hash_and_rejects_a_corrupt_mirror() {
         for algo in [HashAlgo::Sha1, HashAlgo::Sha256] {

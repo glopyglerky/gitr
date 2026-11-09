@@ -85,7 +85,8 @@ development target. It exposes unconverted donor paths and must not be presented
 as the qualified Gitr product or a way around its storage/ref authority.
 
 Core enabled paths include object plumbing, staging, ordinary commits, simple
-branch creation/deletion, lightweight/annotated tags, and inspection. New checked
+branch creation/deletion, local branch checkout/switch, detached checkout,
+lightweight/annotated tags, and inspection. New checked
 ref APIs capture the original value before computing a change and compare it
 while holding the same lock that protects publication. Unborn refs require
 absence; detached HEAD is locked; reftable comparisons reload under the stack
@@ -93,11 +94,21 @@ lock. Detached `commit --amend` remains detached.
 
 The remaining history and transport writers still contain unconditional legacy
 publication paths. Gitr rejects them before their handlers mutate a repository:
-checkout/switch, merge/rebase, cherry-pick/revert, reset/stash, clone/fetch/push/pull,
+merge/rebase, cherry-pick/revert, reset/stash, clone/fetch/push/pull,
 receive-pack, several import/maintenance/ref commands, branch rename/copy and
 recursive branch creation. The exact list and permitted read-only variants are
 in `vendor/grit/grit-git/src/write_safety.rs` and the branch entry checks. Their
 implementation source is retained for the next transaction migration.
+
+Ordinary checkout holds the original HEAD and sorted source/destination branch
+locks while computing and publishing the change. It acquires the real index
+lock before changing worktree files, stages the new index privately, and runs
+`post-checkout` after ref publication. `post-index-change` retains its earlier
+index-publication timing while ref locks remain held. Existing local branches,
+new local branches and detached HEAD use this path. Advanced checkout modes,
+reftable, promisor repositories and split/sparse/alternate indexes fail explicitly.
+Separate index, new-branch and HEAD renames do not provide rollback of arbitrary
+I/O failures across all files. A worktree is not a database transaction.
 
 Ref/reflog/config changes are not yet one cross-file atomic transaction. A
 single locked ref update does not prove distributed consensus or multi-ref
@@ -163,8 +174,12 @@ redb's committed-page integrity check, which can rebuild allocator bookkeeping
 and requires write access; it is not a byte-for-byte read-only file operation.
 Shared handles cache this open cost within one process.
 
-Raw blob hashing/writing snapshots its input to a temporary file and streams
-through fixed buffers. Database inserts, duplicate verification and loose-file
+Raw blob writes and unknown-length hashing snapshot input to a temporary file
+and stream through fixed buffers. Hash-only regular files use their opened
+file's length and one pass, without a temporary copy or secondary storage hash;
+short or extra input is rejected before returning an identity. This does not
+promise an atomic snapshot of concurrent same-length edits.
+Database inserts, duplicate verification and loose-file
 publication likewise stream that snapshot. The snapshot stabilizes the length
 for unknown-length stdin and concurrently resized inputs. Structured or filtered
 `hash-object` inputs are limited to 64 MiB pending streaming conversion.
@@ -200,6 +215,14 @@ streaming, ref races, detached HEAD, forged signatures, unsafe helper settings,
 aliases and non-UTF-8 argument rejection. The default CLI tests remove Git and
 shell executables from its PATH; reference Git runs separately as the oracle.
 Tests that verify explicit rejection are not counted as implemented parity.
+
+The reusable compiler workflow runs first. Its cache key includes the complete
+source pins and build-helper hash; every cache hit is verified again. A missing
+cache causes a rebuild from those pins. The application job consumes only the
+artifact ID returned by that same run and verifies its archive, file inventory,
+source identity and executable smoke tests. Artifact retention therefore does
+not make future qualification depend on a month-old download or a latest-run
+fallback.
 
 Observed run links, pass/fail counts and benchmark measurements belong in the
 qualification evidence record. Configuration alone is not a successful run.
