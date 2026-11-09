@@ -5,7 +5,7 @@ use super::*;
 use serde_json::json;
 
 /// Deterministic hexadecimal with no dependency on platform debug formatting.
-fn encode_hex(bytes: &[u8]) -> String {
+pub(super) fn encode_hex(bytes: &[u8]) -> String {
     let mut out = String::with_capacity(bytes.len() * 2);
     for byte in bytes {
         use std::fmt::Write as _;
@@ -13,12 +13,12 @@ fn encode_hex(bytes: &[u8]) -> String {
     }
     out
 }
-fn line(out: &mut impl Write, value: &impl Serialize) -> Result<()> {
+pub(super) fn line(out: &mut impl Write, value: &impl Serialize) -> Result<()> {
     serde_json::to_writer(&mut *out, value)?;
     out.write_all(b"\n")?;
     Ok(())
 }
-fn mix_record(hasher: &mut Sha256, kind: &[u8], key: &[u8], value: &[u8]) {
+pub(super) fn mix_record(hasher: &mut Sha256, kind: &[u8], key: &[u8], value: &[u8]) {
     // Length framing makes the digest unambiguous between distinct records.
     hasher.update(kind);
     hasher.update((key.len() as u64).to_be_bytes());
@@ -38,6 +38,7 @@ impl ActionDb {
             tx.open_table(META)?.get("schema")?.map(|v| v.value()) == Some(1),
             "unsupported action schema"
         );
+        let workflow_export = workflow::export_preflight(&tx)?;
         let objects = tx.open_table(OBJECTS)?;
         let jobs = tx.open_table(JOBS)?;
         let mut hash = Sha256::new();
@@ -56,7 +57,7 @@ impl ActionDb {
                 "action job identifier does not match its key"
             );
             ensure!(
-                job.spec.profile == PROFILE,
+                job.spec.profile == PROFILE || job.spec.profile == workflow::MANAGED_PROFILE,
                 "unknown action execution profile"
             );
             ensure!(
@@ -67,6 +68,7 @@ impl ActionDb {
                 (job.status == Status::Passed) == job.artifact_sha256.is_some(),
                 "action receipt has inconsistent successful artifact state"
             );
+            workflow::verify_export_job(&tx, &job)?;
             for reference in [
                 Some(job.spec.module_sha256.as_str()),
                 Some(job.spec.input_sha256.as_str()),
@@ -87,7 +89,11 @@ impl ActionDb {
         }
         line(
             out,
-            &json!({"kind":"header","format":"gitr-action-export-v1","schema":1}),
+            &if workflow_export {
+                json!({"kind":"header","format":"gitr-action-export-v2","schema":1,"workflow_schema":1})
+            } else {
+                json!({"kind":"header","format":"gitr-action-export-v1","schema":1})
+            },
         )?;
 
         for row in objects.iter()? {
@@ -122,13 +128,12 @@ impl ActionDb {
                 .checked_add(1)
                 .context("export job counter overflow")?;
         }
-        line(
-            out,
-            &json!({
-                "kind":"end", "objects":object_count, "jobs":job_count,
-                "sha256":encode_hex(&hash.finalize())
-            }),
-        )?;
+        let workflow_count = workflow::export_records(&tx, out, &mut hash)?;
+        let mut footer = json!({"kind":"end","objects":object_count,"jobs":job_count,"sha256":encode_hex(&hash.finalize())});
+        if workflow_export {
+            footer["workflows"] = workflow_count.into();
+        }
+        line(out, &footer)?;
         Ok(())
     }
 }

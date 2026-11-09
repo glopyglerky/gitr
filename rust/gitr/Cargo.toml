@@ -13,9 +13,11 @@ publish = false
 
 [features]
 default = []
+workflows = ["dep:rbit-workflow"]
 action-api = ["dep:axum", "dep:tokio", "dep:subtle"]
 
 [dependencies]
+rbit-workflow = { path = "../vendor/rbit-workflow", optional = true }
 anyhow = "1.0"
 clap = { version = "4.6", features = ["derive"] }
 fastcdc = "=5.0.0"

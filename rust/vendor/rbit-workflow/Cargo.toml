@@ -1,0 +1,34 @@
+[package]
+name = "rbit-workflow"
+version = "0.1.5"
+edition = "2024"
+rust-version = "1.94"
+license = "MIT OR Apache-2.0"
+description = "Vendored complete Rbit workflow planner with Gitr deadline hardening"
+repository = "https://github.com/GitRbit/rbit"
+publish = false
+
+[workspace]
+
+[dependencies]
+regex-automata = "0.4"
+serde = { version = "1.0", features = ["derive"] }
+serde-saphyr = { version = "2.0", default-features = false, features = ["deserialize"] }
+serde_json = "1.0"
+zeroize = "1.9"
+
+[dev-dependencies]
+proptest = "1"
+
+[lints.rust]
+unsafe_code = "forbid"
+missing_debug_implementations = "warn"
+rust_2018_idioms = { level = "warn", priority = -1 }
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+module_name_repetitions = "allow"
+missing_errors_doc = "allow"
+missing_panics_doc = "allow"
+must_use_candidate = "allow"

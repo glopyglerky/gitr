@@ -37,6 +37,11 @@ const META: TableDefinition<&str, u64> = TableDefinition::new("actions.meta.v1")
 
 #[derive(Debug, Subcommand)]
 pub enum Command {
+    /// Durable multi-job Wasm workflows; planning requires the workflows feature.
+    Workflow {
+        #[command(subcommand)]
+        command: workflow::Command,
+    },
     /// Opt-in authenticated local HTTP API over the same redb action database.
     #[cfg(feature = "action-api")]
     Serve {
@@ -338,13 +343,17 @@ impl ActionDb {
         let now = clock()?; // Read the trusted host clock after acquiring the writer.
         let mut job = read_job(&tx, id)?;
         ensure!(
-            job.spec.profile == PROFILE,
+            job.spec.profile == PROFILE || job.spec.profile == workflow::MANAGED_PROFILE,
             "action requires a different runtime profile"
         );
         match job.status {
             Status::Queued => (),
             Status::Running if job.lease_until_ms.is_some_and(|until| now >= until) => (),
             _ => return Ok(None),
+        }
+        if !workflow::claim_allowed(&tx, &job, now)? {
+            tx.commit()?;
+            return Ok(None);
         }
         job.attempt = job
             .attempt
@@ -370,6 +379,7 @@ impl ActionDb {
             job.status = Status::Cancelled;
             job.lease_until_ms = None;
             write_job(&tx, &job)?;
+            workflow::after_change(&tx, &job)?;
             tx.commit()?;
         }
         Ok(job)
@@ -426,8 +436,9 @@ impl ActionDb {
             }
         }
         job.lease_until_ms = None;
-        // Artifact and terminal receipt become visible together, or neither does.
+        // Artifact, receipt and workflow propagation become visible together.
         write_job(&tx, &job)?;
+        workflow::after_change(&tx, &job)?;
         tx.commit()?;
         Ok(job)
     }
@@ -726,6 +737,9 @@ fn print_json(value: &impl Serialize) -> Result<()> {
 }
 pub fn run(command: Command) -> Result<()> {
     let repo = crate::git::discover()?;
+    if let Command::Workflow { command } = command {
+        return workflow::run(&repo, command);
+    }
     #[cfg(feature = "action-api")]
     if let Command::Serve { listen, repository } = command {
         return http::serve(&repo, listen, &repository);
@@ -765,6 +779,7 @@ pub fn run(command: Command) -> Result<()> {
         Command::Export => db.export(&mut io::stdout().lock()),
         #[cfg(feature = "action-api")]
         Command::Serve { .. } => unreachable!("handled above"),
+        Command::Workflow { .. } => unreachable!("handled above"),
         Command::Control => unreachable!("handled above"),
     }
 }
@@ -779,3 +794,6 @@ mod tests;
 #[cfg(feature = "action-api")]
 #[path = "actions_api.rs"]
 mod http;
+
+#[path = "actions_workflow.rs"]
+pub mod workflow;

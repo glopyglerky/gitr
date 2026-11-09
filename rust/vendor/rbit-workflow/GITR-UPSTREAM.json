@@ -1,0 +1,210 @@
+{
+  "schema_version": 1,
+  "repository": "GitRbit/rbit",
+  "revision": "39f932a00b7aa35b324e06a9ff2343a57d4bed76",
+  "imported_scope": "complete crates/rbit-workflow source, tests and fixtures",
+  "license_expression": "MIT OR Apache-2.0",
+  "selected_integration_grant": "MIT",
+  "retained_root_notices": [
+    "LICENSE-MIT",
+    "LICENSE-APACHE"
+  ],
+  "changes": [
+    "resolve Cargo workspace inheritance into standalone manifest",
+    "make overflowing Deadline::after budgets expire; retain regression in upstream tests"
+  ],
+  "source_files": [
+    {
+      "path": "Cargo.toml",
+      "source_sha256": "064e2a58598613f73320efc74f3c6983d1d56c0bd0a6d2d1abab3f57c53b817c"
+    },
+    {
+      "path": "src/action.rs",
+      "source_sha256": "5d483fc94518e5a349b8f4a9bb03a7cd2507fce0122c26c1bcb8e6d2e329dabf"
+    },
+    {
+      "path": "src/builtins.rs",
+      "source_sha256": "67a025ca678dd00d392baa8cc26198e7a2be826f3c7a23aa20933355c7663ea7"
+    },
+    {
+      "path": "src/cron.rs",
+      "source_sha256": "449455654676d0df564fe2059119e86e9807541eb77c8149b384288bdd0127b8"
+    },
+    {
+      "path": "src/error.rs",
+      "source_sha256": "87dc2d6b2e1c189c69c6933219de55f736385468e1097e10b9bcd2460700b28d"
+    },
+    {
+      "path": "src/expr/eval.rs",
+      "source_sha256": "398b9949ca5016d0545c6ce34fc67dc9d463f02e60e8b0f71bfe4c3b3535ea43"
+    },
+    {
+      "path": "src/expr/functions.rs",
+      "source_sha256": "184aa14360d16062f592cdf0a9ebb42c431ccf67f6fde9992a38cf8e7218c28d"
+    },
+    {
+      "path": "src/expr/lex.rs",
+      "source_sha256": "0053282cb79e7ab794d2830c0554bc11f1b32b4b7e83cd8853e1ea4d0f0fde7a"
+    },
+    {
+      "path": "src/expr/mod.rs",
+      "source_sha256": "c8cd3e915d4d42be5808be686a69f156fc0e223e97dcb9e9ae75651a154d9aae"
+    },
+    {
+      "path": "src/expr/parse.rs",
+      "source_sha256": "8564e4afc8ab13bf0e399cbd24080484b5128e53e99233aa664b59e88de5504e"
+    },
+    {
+      "path": "src/glob.rs",
+      "source_sha256": "4e7a2c1d143bcb6c4d5e3ede0de213f67ed8756ffd71b75b25219e6a9f6847e5"
+    },
+    {
+      "path": "src/lib.rs",
+      "source_sha256": "98f248a40f3258d54bee0c5a1cdf9801467e3f996999a72115a974016fca9553"
+    },
+    {
+      "path": "src/limits.rs",
+      "source_sha256": "7d28659521461b272d1dc7c4697bfe6a7252ec4d98e263e720456a46990b5a6a"
+    },
+    {
+      "path": "src/model.rs",
+      "source_sha256": "5de878410dfcbc755d1414c7280939a925422bae724fd3ce41597cb9b1620713"
+    },
+    {
+      "path": "src/options.rs",
+      "source_sha256": "7a6669a4a49c0ff6309576cf58ad1076126585603835836dfaa454dd2d3837a2"
+    },
+    {
+      "path": "src/parse.rs",
+      "source_sha256": "fb667cf418ca98998e32c2450268071ca2530e77e15fe088e91fef665d8c231b"
+    },
+    {
+      "path": "src/pattern.rs",
+      "source_sha256": "16ae73fb6773e8d2498220a767eb20b5c57c740f3c6457261f28ae6752884d49"
+    },
+    {
+      "path": "src/plan.rs",
+      "source_sha256": "00daea81cf0c4d7d144994194c5ef17e716a45651dc68da435df4bd5778f36ba"
+    },
+    {
+      "path": "src/protocol.rs",
+      "source_sha256": "f7653bd8c38f8e62a35d791694688f2094e7813182ac7c30ebe334b9ee7dae10"
+    },
+    {
+      "path": "src/secret.rs",
+      "source_sha256": "f5a79b02cd52182f559f4f18bce8cb4742c10961a52871ed7f99fb1b83acf8f1"
+    },
+    {
+      "path": "src/spec.rs",
+      "source_sha256": "7fe698d4944270fba4e7c9305105a07d3c20462ea318ab5747210dcbf01704c8"
+    },
+    {
+      "path": "src/trigger.rs",
+      "source_sha256": "5f671f89b6c5901170db921176b4e2f2fd6391d0a0a26a35a22366aba48c0bc6"
+    },
+    {
+      "path": "src/yaml.rs",
+      "source_sha256": "07fb3d0088d60c284a528f7b549fe63d06673c909ae4acef90e7cc46b760070f"
+    },
+    {
+      "path": "tests/conformance/README.md",
+      "source_sha256": "fbab43ede24ec63489dc101bda53028a7e6f8856813442430112f9c3b4d7e9a7"
+    },
+    {
+      "path": "tests/conformance/concurrency_run_name.json",
+      "source_sha256": "b17d58477da79319896d5041474c423c3f953bcbf0be7d1c7abb448fada1f0a7"
+    },
+    {
+      "path": "tests/conformance/dispatch_schedule.json",
+      "source_sha256": "d0035f9363c8cfb8158cab0860effcd15d13433064e3afdfba1f8953b6c1aa68"
+    },
+    {
+      "path": "tests/conformance/expressions.json",
+      "source_sha256": "d9feac1523070b7a69099f3f4b774b524e1109eeee90fb724746f86eff346df4"
+    },
+    {
+      "path": "tests/conformance/known_failures.txt",
+      "source_sha256": "2546e6dc6e739aa3179a57d3a7900b7e12e11a12c117b722c533b202b4da1f2a"
+    },
+    {
+      "path": "tests/conformance/matrix_plan.json",
+      "source_sha256": "849c29f9ab80d7345e87b1f2f357b1ba69f6246fe10cf3b7305d449e93667c37"
+    },
+    {
+      "path": "tests/conformance/parse_load.json",
+      "source_sha256": "35127998bd2731cb642f3ebee020a09246a01e1b89cd8e25714b7cf655a5b2c9"
+    },
+    {
+      "path": "tests/conformance/triggers.json",
+      "source_sha256": "3ade172f6c2484c1f956a006bb2fcd8c702c53a497f3603895df8787408935f6"
+    },
+    {
+      "path": "tests/conformance.rs",
+      "source_sha256": "c8ce49d2bf184b8ae504b2ffa34f5055ad25f4db230cab7863597efd5af81f9c"
+    },
+    {
+      "path": "tests/golden/continue_on_error_expr.in.yaml",
+      "source_sha256": "ef88087a62d2e706829743678fdac43359779d7ea75431115f59fa9c898040ad"
+    },
+    {
+      "path": "tests/golden/continue_on_error_expr.out.json",
+      "source_sha256": "a813f5bfdb85b1c0626f207fe756ea05a8cf8fbcd93a0b9d164ecdd6e62e46ae"
+    },
+    {
+      "path": "tests/golden/has_needs.in.yaml",
+      "source_sha256": "ddf9eadcc8766bca850ca9451c1e77636d1f3f30e0928d290ceb23b1022262d6"
+    },
+    {
+      "path": "tests/golden/has_needs.out.json",
+      "source_sha256": "519d8be5d517bfb1c372caff22a4e4f6145a256eba4cb960794262bb85960bc2"
+    },
+    {
+      "path": "tests/golden/include_exclude.in.yaml",
+      "source_sha256": "d9a0fc2670aa13839ffe3954c7486d2ddbafe53d88dd4b5270eb3d177c712a7a"
+    },
+    {
+      "path": "tests/golden/include_exclude.out.json",
+      "source_sha256": "6ea47fb208e2b65ab0426e5eebfb69858381d4be2272eaf8e27d60ae9dbfbd3a"
+    },
+    {
+      "path": "tests/golden/job_name_with_matrix.in.yaml",
+      "source_sha256": "53f15416d1411bff1f77c81845c2f01736a90ce38e7f3f1a5c68223f16753fea"
+    },
+    {
+      "path": "tests/golden/job_name_with_matrix.out.json",
+      "source_sha256": "1fc5b38febbbdb6de9f93efcbd36000e8493a23beb1b5602c8f7ba5cd879b6ad"
+    },
+    {
+      "path": "tests/golden/job_template.json",
+      "source_sha256": "db73f4810eb6428ec849071d9b8944ce9f024704d4912388d059874d59943be6"
+    },
+    {
+      "path": "tests/golden/multiple_jobs.in.yaml",
+      "source_sha256": "9e66458b7b38480222c77a0943915089137ef385b567b3494d06e7b71c71c6e3"
+    },
+    {
+      "path": "tests/golden/multiple_jobs.out.json",
+      "source_sha256": "733629c7c7aed5f1c1a0a05e01e23f12c8e49823a02a6730b0d64e9fd6a19cb1"
+    },
+    {
+      "path": "tests/golden/multiple_matrix.in.yaml",
+      "source_sha256": "518ef2fc5ed5414af89c5b8a62c249759bb06709a6a04d67b1ed3b4bc41b4f6f"
+    },
+    {
+      "path": "tests/golden/multiple_matrix.out.json",
+      "source_sha256": "86fc638c9178d2f19381d32a4f50ee7989532c6c2fc5cfff6f1deebae3a6a2a7"
+    },
+    {
+      "path": "tests/golden/poll_response.json",
+      "source_sha256": "3374c3ea913010f59cda0a1ef1fec0bd6629c246e3d664422eac44c92278c656"
+    },
+    {
+      "path": "tests/golden/prefixed_newline.in.yaml",
+      "source_sha256": "f0636fd99d9d3676492923f2e5e15a0e6f372012436f2bfcd9439b5b71da042f"
+    },
+    {
+      "path": "tests/golden/prefixed_newline.out.json",
+      "source_sha256": "a844a20a819318a95ae6adb0a9e73bd3fa19073850b478df25c5f73d8118a944"
+    }
+  ]
+}
