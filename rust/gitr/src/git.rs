@@ -4,6 +4,9 @@
 //! read, but includes, global configuration, helper programs and fsmonitor hooks are
 //! not enabled. No production operation in this module launches `git`.
 
+#[path = "git_write.rs"]
+mod write;
+
 use std::{
     collections::{BTreeMap, BTreeSet},
     ffi::OsString,
@@ -23,6 +26,8 @@ use gix::{
 /// Supported native Git commands. Flatten this enum into the application CLI.
 #[derive(Debug, Subcommand)]
 pub enum Command {
+    #[command(flatten)]
+    Write(write::Command),
     /// Initialize a new repository (initial branch defaults to main).
     Init(Init),
     /// Hash exact input bytes, optionally writing a Git object. Filters are never run.
@@ -227,6 +232,7 @@ pub fn run(command: Command) -> Result<()> {
     let stdout = io::stdout();
     let mut out = stdout.lock();
     match command {
+        Command::Write(command) => write::run(command, &mut out),
         Command::Init(args) => init(args, &mut out),
         Command::HashObject(args) => hash_object(args, &mut out),
         Command::CatFile(args) => cat_file(args, &mut out),

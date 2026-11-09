@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "repository": "glopyglerky/gitr",
+  "tested_base_commit": "53d9f16dfe1dad8151a664c6b425d4bf28fe21fa",
+  "prepared_by": "ci/gitr-native-history-prepare.py at tested_base_commit, followed by rustfmt",
+  "workflow_run_id": 42541753408,
+  "job_id": 128918003599,
+  "run_url": "https://github.com/glopyglerky/gitr/actions/runs/42541753408",
+  "test_log_completed_utc": "2026-11-09T00:46:23Z",
+  "platform": "ubuntu-24.04",
+  "lustr_revision": "62494e27717a64c8612b538409de27048fa6adc2",
+  "lustr_engine": "rustc",
+  "rust_version": "1.99.1",
+  "reference_git": "2.56.0",
+  "database": "redb 4.5.0",
+  "gitoxide": "gix 0.90.0",
+  "manifest_and_lockfile_unchanged": true,
+  "default_profile_rust_tests_passed": 96,
+  "action_api_profile_rust_tests_passed": 99,
+  "overlapping_profile_executions_not_unique_test_count": true,
+  "new_native_authoring_unit_tests": 3,
+  "new_native_authoring_integration_tests": 12,
+  "controlled_process_helper_ignored_per_suite": 1,
+  "controlled_process_helper_invoked_by_parent_tests": true,
+  "strict_clippy_action_api_all_targets": "passed",
+  "backend_policy_self_tests_passed": 5,
+  "backend_policy": "passed; redb remains selected, no active Surreal-family dependency",
+  "end_to_end": {
+    "formats": ["sha1", "sha256"],
+    "native_execution_path": "empty PATH for every Gitr authoring/index/action command",
+    "pipeline": ["hash-object", "mktree", "commit-tree", "guarded update-ref", "db index", "db search", "actions install", "actions submit", "actions run", "actions artifact"],
+    "commit_and_blob_provenance": "matched exact native-created object IDs",
+    "action_artifact": "matched exact committed source bytes",
+    "source_checkout_and_index": "not created by checkout-free pipeline",
+    "git_fsck_strict": "passed"
+  },
+  "tested_blobs": [
+    {"path":"rust/gitr/src/git.rs","git_blob":"a0c0c7b7692c4a9acf4d2013e6deb10583d14d06","sha256":"72fd620b51416820e9e72b9250696c8fc4a27a3d5e230100e4169cb8e6e15182"},
+    {"path":"rust/gitr/src/git_write.rs","git_blob":"2c8ad7c07a73ef7c8434dab2a7322666b7c8aeb5","sha256":"6ecc3ed9c0c8fb2aba3d5026983bcf97a0418055eddf9a681fb5079b1eceb463"},
+    {"path":"rust/gitr/tests/native_history.rs","git_blob":"2f5bcf97332533d2f3e57a3bab362aa893dc640b","sha256":"11dbc3514544df75f873cdafb3e0150aa985de26af9cc5df3f7150d5a658290d"}
+  ],
+  "not_proven_by_this_run": [
+    "native authoring on Windows or macOS",
+    "complete porcelain add/commit/checkout or merge/rebase behavior",
+    "native GitHub clone/fetch/push roundtrip",
+    "all Git flags, message encodings, sparse/split indexes or signer support",
+    "whole-process memory limits, power-loss durability or multi-host HA",
+    "resolved code intelligence parity or performance improvement",
+    "full forge, MCP or GitHub Actions compatibility"
+  ]
+}

@@ -73,7 +73,10 @@ pub fn run(command: Command, out: &mut impl Write) -> Result<()> {
 fn bounded_read(input: impl Read, limit: usize) -> Result<Vec<u8>> {
     let mut bytes = Vec::new();
     input.take(limit as u64 + 1).read_to_end(&mut bytes)?;
-    ensure!(bytes.len() <= limit, "input exceeds the supported byte limit");
+    ensure!(
+        bytes.len() <= limit,
+        "input exceeds the supported byte limit"
+    );
     Ok(bytes)
 }
 
@@ -102,7 +105,10 @@ fn mode_kind(mode: u32) -> Result<Kind> {
 
 fn validate_target(repo: &gix::Repository, mode: u32, id: ObjectId) -> Result<()> {
     let kind = mode_kind(mode)?;
-    ensure!(id.kind() == repo.object_hash(), "object ID hash format mismatch");
+    ensure!(
+        id.kind() == repo.object_hash(),
+        "object ID hash format mismatch"
+    );
     ensure!(!id.is_null(), "null tree entry object ID");
     // Gitlinks refer to objects in a DIFFERENT repository. They may be absent
     // locally. If present, reject a demonstrably wrong object type.
@@ -151,14 +157,20 @@ fn mktree(repo: &gix::Repository, bytes: &[u8], nul: bool) -> Result<ObjectId> {
     if !bytes.is_empty() {
         for line in body.split(|byte| *byte == delimiter) {
             ensure!(entries.len() < MAX_ENTRIES, "too many tree entries");
-            let tab = line.iter().position(|b| *b == b'\t')
+            let tab = line
+                .iter()
+                .position(|b| *b == b'\t')
                 .context("tree record requires a tab before the filename")?;
             let header: Vec<_> = line[..tab].split(|b| *b == b' ').collect();
-            ensure!(header.len() == 3 && header.iter().all(|s| !s.is_empty()),
-                "expected mode, type and object ID in each tree record");
+            ensure!(
+                header.len() == 3 && header.iter().all(|s| !s.is_empty()),
+                "expected mode, type and object ID in each tree record"
+            );
             let mode_text = std::str::from_utf8(header[0])?;
-            ensure!(mode_text.len() <= 6 && mode_text.bytes().all(|b| (b'0'..=b'7').contains(&b)),
-                "invalid octal tree mode");
+            ensure!(
+                mode_text.len() <= 6 && mode_text.bytes().all(|b| (b'0'..=b'7').contains(&b)),
+                "invalid octal tree mode"
+            );
             let mode = u32::from_str_radix(mode_text, 8)?;
             let expected_type: &[u8] = match mode_kind(mode)? {
                 Kind::Blob => b"blob",
@@ -166,10 +178,15 @@ fn mktree(repo: &gix::Repository, bytes: &[u8], nul: bool) -> Result<ObjectId> {
                 Kind::Commit => b"commit",
                 Kind::Tag => unreachable!("mode_kind never produces tags"),
             };
-            ensure!(header[1] == expected_type, "declared tree entry type disagrees with mode");
+            ensure!(
+                header[1] == expected_type,
+                "declared tree entry type disagrees with mode"
+            );
             let name = &line[tab + 1..];
-            ensure!(nul || !name.starts_with(b"\""),
-                "quoted filenames are not supported; use mktree -z with literal path bytes");
+            ensure!(
+                nul || !name.starts_with(b"\""),
+                "quoted filenames are not supported; use mktree -z with literal path bytes"
+            );
             component(name)?;
             ensure!(names.insert(name.to_vec()), "duplicate tree entry name");
             let id = ObjectId::from_hex(header[2])?;
@@ -191,18 +208,38 @@ fn write_tree(repo: &gix::Repository) -> Result<ObjectId> {
     let index = repo.index_or_empty()?;
     index.verify_integrity()?;
     index.verify_entries()?;
-    ensure!(!index.is_sparse(), "sparse-index write-tree is not implemented");
-    ensure!(index.link().is_none(), "split-index write-tree is not implemented");
-    ensure!(index.entries().len() <= MAX_ENTRIES, "too many index entries");
+    ensure!(
+        !index.is_sparse(),
+        "sparse-index write-tree is not implemented"
+    );
+    ensure!(
+        index.link().is_none(),
+        "split-index write-tree is not implemented"
+    );
+    ensure!(
+        index.entries().len() <= MAX_ENTRIES,
+        "too many index entries"
+    );
     let mut directories = vec![Directory::default()];
     let mut path_bytes = 0usize;
     for item in index.entries() {
-        ensure!(item.stage_raw() == 0, "cannot write a tree from an unmerged index");
+        ensure!(
+            item.stage_raw() == 0,
+            "cannot write a tree from an unmerged index"
+        );
         let path = item.path(&index).as_bytes();
-        path_bytes = path_bytes.checked_add(path.len()).context("path byte overflow")?;
-        ensure!(path_bytes <= MAX_INPUT, "index paths exceed the supported byte limit");
+        path_bytes = path_bytes
+            .checked_add(path.len())
+            .context("path byte overflow")?;
+        ensure!(
+            path_bytes <= MAX_INPUT,
+            "index paths exceed the supported byte limit"
+        );
         let components: Vec<_> = path.split(|b| *b == b'/').collect();
-        ensure!(components.len() <= MAX_DEPTH, "index path nesting exceeds the limit");
+        ensure!(
+            components.len() <= MAX_DEPTH,
+            "index path nesting exceeds the limit"
+        );
         for part in &components {
             component(part)?;
         }
@@ -211,12 +248,17 @@ fn write_tree(repo: &gix::Repository) -> Result<ObjectId> {
             continue;
         }
         let mode = item.mode.bits();
-        ensure!(mode != 0o040000, "directory entries require sparse-index support");
+        ensure!(
+            mode != 0o040000,
+            "directory entries require sparse-index support"
+        );
         validate_target(repo, mode, item.id)?;
         let mut current = 0;
         for part in &components[..components.len() - 1] {
-            ensure!(!directories[current].files.contains_key(*part),
-                "index has a file/directory path conflict");
+            ensure!(
+                !directories[current].files.contains_key(*part),
+                "index has a file/directory path conflict"
+            );
             current = if let Some(child) = directories[current].children.get(*part) {
                 *child
             } else {
@@ -227,10 +269,17 @@ fn write_tree(repo: &gix::Repository) -> Result<ObjectId> {
             };
         }
         let name = *components.last().context("missing index filename")?;
-        ensure!(!directories[current].children.contains_key(name),
-            "index has a file/directory path conflict");
-        ensure!(directories[current].files.insert(name.to_vec(), (mode, item.id)).is_none(),
-            "duplicate index path");
+        ensure!(
+            !directories[current].children.contains_key(name),
+            "index has a file/directory path conflict"
+        );
+        ensure!(
+            directories[current]
+                .files
+                .insert(name.to_vec(), (mode, item.id))
+                .is_none(),
+            "duplicate index path"
+        );
     }
     // Children are allocated after parents. Bottom-up processing avoids recursive
     // traversal or dependence on the index's cached TREE extension.
@@ -242,7 +291,11 @@ fn write_tree(repo: &gix::Repository) -> Result<ObjectId> {
             entries.push(entry(name.clone(), *mode, *id)?);
         }
         for (name, child) in &dir.children {
-            entries.push(entry(name.clone(), 0o040000, ids[*child].context("missing child tree")?)?);
+            entries.push(entry(
+                name.clone(),
+                0o040000,
+                ids[*child].context("missing child tree")?,
+            )?);
         }
         ids[position] = Some(store_tree(repo, entries)?);
     }
@@ -255,8 +308,10 @@ fn message(args: &CommitTree) -> Result<Vec<u8>> {
         for part in &args.messages {
             // Plumbing -m separates nonempty accumulated content with one newline
             // and terminates nonempty paragraphs. No porcelain comment cleanup.
-            ensure!(out.len().saturating_add(part.len()).saturating_add(2) <= MAX_MESSAGE,
-                "commit message exceeds 1 MiB");
+            ensure!(
+                out.len().saturating_add(part.len()).saturating_add(2) <= MAX_MESSAGE,
+                "commit message exceeds 1 MiB"
+            );
             if !out.is_empty() {
                 out.push(b'\n');
             }
@@ -278,48 +333,77 @@ fn message(args: &CommitTree) -> Result<Vec<u8>> {
 
 fn commit_tree(repo: &gix::Repository, args: CommitTree) -> Result<ObjectId> {
     ensure!(args.parents.len() <= MAX_PARENTS, "too many commit parents");
-    let tree = repo.rev_parse_single(gix::path::os_str_into_bstr(&args.tree)?)?.detach();
-    ensure!(repo.find_header(tree)?.kind() == Kind::Tree, "commit-tree requires a tree object");
+    let tree = repo
+        .rev_parse_single(gix::path::os_str_into_bstr(&args.tree)?)?
+        .detach();
+    ensure!(
+        repo.find_header(tree)?.kind() == Kind::Tree,
+        "commit-tree requires a tree object"
+    );
     let mut parents = Vec::new();
     let mut seen = BTreeSet::new();
     for parent in &args.parents {
-        let id = repo.rev_parse_single(gix::path::os_str_into_bstr(parent)?)?.detach();
-        ensure!(repo.find_header(id)?.kind() == Kind::Commit,
-            "commit-tree -p requires a direct commit object; peel tags explicitly");
+        let id = repo
+            .rev_parse_single(gix::path::os_str_into_bstr(parent)?)?
+            .detach();
+        ensure!(
+            repo.find_header(id)?.kind() == Kind::Commit,
+            "commit-tree -p requires a direct commit object; peel tags explicitly"
+        );
         if seen.insert(id) {
             parents.push(id);
         }
     }
     let bytes = message(&args)?;
-    ensure!(!bytes.contains(&0), "NUL bytes are not supported in commit messages");
-    let text = std::str::from_utf8(&bytes).context("commit-tree currently requires UTF-8 messages")?;
+    ensure!(
+        !bytes.contains(&0),
+        "NUL bytes are not supported in commit messages"
+    );
+    let text =
+        std::str::from_utf8(&bytes).context("commit-tree currently requires UTF-8 messages")?;
     let config = repo.config_snapshot();
     ensure!(
         !config.try_boolean("commit.gpgSign")?.unwrap_or(false),
         "commit signing is configured but not implemented; refusing an unsigned commit"
     );
     if let Some(encoding) = config.string("i18n.commitEncoding") {
-        ensure!(encoding.as_bytes().eq_ignore_ascii_case(b"utf-8"),
-            "non-UTF-8 commit encoding is not implemented");
+        ensure!(
+            encoding.as_bytes().eq_ignore_ascii_case(b"utf-8"),
+            "non-UTF-8 commit encoding is not implemented"
+        );
     }
     // No anonymous fallback identities or signing helper execution.
-    let author = repo.author().transpose()?.context("repository-local author identity is required")?;
-    let committer = repo.committer().transpose()?.context("repository-local committer identity is required")?;
+    let author = repo
+        .author()
+        .transpose()?
+        .context("repository-local author identity is required")?;
+    let committer = repo
+        .committer()
+        .transpose()?
+        .context("repository-local committer identity is required")?;
     for identity in [author, committer] {
         for field in [identity.name, identity.email] {
-            ensure!(!field.is_empty() && !field.as_bytes().iter().any(|b| b"\0\r\n<>".contains(b)),
-                "commit identity contains empty or unsafe header fields");
+            ensure!(
+                !field.is_empty() && !field.as_bytes().iter().any(|b| b"\0\r\n<>".contains(b)),
+                "commit identity contains empty or unsafe header fields"
+            );
         }
     }
-    Ok(repo.new_commit_as(committer, author, text, tree, parents)?.id)
+    Ok(repo
+        .new_commit_as(committer, author, text, tree, parents)?
+        .id)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     fn args(parts: &[&str]) -> CommitTree {
-        CommitTree { tree: "HEAD".into(), parents: Vec::new(),
-            messages: parts.iter().map(|s| (*s).to_owned()).collect(), file: None }
+        CommitTree {
+            tree: "HEAD".into(),
+            parents: Vec::new(),
+            messages: parts.iter().map(|s| (*s).to_owned()).collect(),
+            file: None,
+        }
     }
     #[test]
     fn message_paragraphs_match_plumbing_not_porcelain_cleanup() {
