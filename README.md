@@ -4,7 +4,7 @@
 
 A Rust Git implementation with verified large-file storage, game-asset chunk
 reuse, a transactional repository graph and vector catalog, and bounded Rust/Wasm
-actions against immutable Git snapshots. Active development
+actions and dependency workflows against immutable Git snapshots. Active development
 lives on the default branch, [`master`](https://github.com/glopyglerky/gitr/tree/master).
 
 **Status: initial implementation. Gitr is not yet a complete Git replacement.**
@@ -27,6 +27,9 @@ upstream Git source and test corpus, so the entire repository is not all Rust.
 - Content-addressed Wasm action modules, immutable committed-source inputs,
   idempotent job submissions, durable fenced worker claims, and atomic
   artifact/receipt publication in the local database.
+- Optional committed-YAML workflow planning using the complete vendored Rbit
+  workflow crate, with durable dependencies, matrix limits, failure propagation
+  and cancellation enforced by the same redb worker claims.
 - An optional authenticated local HTTP action API over the same redb database
   and execution methods as the CLI; no external database server or data migration.
 - Builds and tests through a pinned version of [Lustr](https://github.com/glopyglerky/lustr).
@@ -36,9 +39,10 @@ clone/fetch/push, add/porcelain-commit/checkout and complete merge/rebase suppor
 remain work. `commit-tree` creates a commit object; it is not the full porcelain
 `commit` command or a content merge. Local redb multi-process writers serialize
 transactions; that is not distributed consensus. The first search model uses
-lexical feature hashing, not a trained code model. The action runner is not yet a
-DAG scheduler, standard MCP server, remote multi-tenant service, full forge, or
-GitHub Actions compatibility implementation. Unsupported Git commands fail explicitly.
+lexical feature hashing, not a trained code model. The bounded Wasm workflow
+profile is not a general-purpose build/deployment runner, standard MCP server,
+remote multi-tenant service, full forge, or complete GitHub Actions implementation.
+Unsupported commands and workflow execution features fail explicitly.
 
 ## Build with Lustr
 
@@ -159,12 +163,44 @@ memory limits do not impose a hard whole-process memory or wall-time budget.
 See [action execution evidence](Documentation/gitr/actions-qualification.md)
 for the measured tests and remaining restrictions.
 
+## Durable dependency and matrix workflows
+
+Build with `--features workflows` to enable planning/submission of committed YAML.
+The complete [vendored Rbit workflow crate](rust/vendor/rbit-workflow) supplies
+parsing and matrix planning, with retained tests, notices and source provenance.
+Gitr keeps durable run/job authority in its existing redb database and executes
+only the explicitly supported Wasmi profile. No external database is required.
+
+```sh
+rustup run 1.99.1 lustr --engine rustc build --manifest-path rust/gitr/Cargo.toml --locked --features workflows
+rust/gitr/target/debug/gitr -C /path/to/repo actions workflow plan checks --path .gitr/workflows/check.yml
+rust/gitr/target/debug/gitr -C /path/to/repo actions workflow submit checks --path .gitr/workflows/check.yml
+rust/gitr/target/debug/gitr -C /path/to/repo actions workflow run checks
+rust/gitr/target/debug/gitr -C /path/to/repo actions workflow status checks
+```
+
+The supported execution profile is manual `workflow_dispatch`, static matrices,
+`needs`, `max-parallel`, `fail-fast`, and one installed `gitr/wasm@v1` module per
+job using `runs-on: gitr-wasmi-v1`. See the [YAML example, bounds and executed
+evidence](Documentation/gitr/rbit-workflows.md). Shell/JavaScript/Docker actions,
+secret environments, arbitrary conditions and deployment capabilities are rejected,
+not silently emulated. The driver returns when other workers hold remaining work;
+it is not a background scheduler daemon.
+
+Dependency and cancellation gates remain active even without the optional planner
+feature. Direct CLI/HTTP action execution cannot bypass them. Older executables
+refuse managed workflow jobs instead of ignoring the new ownership metadata.
+Workflow exports use v2 to include exact plans and ownership; standalone-only
+exports remain v1. Existing databases and standalone actions are preserved.
+
 ## Optional local action API
 
 Build with `--features action-api` to add `gitr actions serve`. The default CLI
 build does not enable this feature and ordinary commands never start a listener.
 The API uses the same action records as native CLI processes, not a replacement
-datastore or in-memory session state.
+datastore or in-memory session state. Combine `--features workflows,action-api`
+for workflow planning and the local individual-action HTTP surface; no workflow
+submission endpoint or MCP transport is claimed.
 
 ```sh
 rustup run 1.99.1 lustr --engine rustc build --manifest-path rust/gitr/Cargo.toml --locked --features action-api
@@ -187,6 +223,7 @@ the configured Linux/macOS/Windows matrix.
 - [Compatibility matrix and exact limits](Documentation/gitr/compatibility.md)
 - [Executed qualification](Documentation/gitr/qualification.md)
 - [Native tree/commit authoring and end-to-end redb actions](Documentation/gitr/native-history.md)
+- [Rbit workflows, transaction gates and execution evidence](Documentation/gitr/rbit-workflows.md)
 - [Selected redb backend](Documentation/gitr/redb-decision.md)
 - [Repository database, multi-writer and HA design](Documentation/gitr/architecture.md)
 - [Git, Lore and asset upstream catalog](Documentation/gitr/upstreams.md)
@@ -200,8 +237,9 @@ The authored Rust package currently declares GPL-2.0-only. The project owner
 has authorized a different license for code they control where lawful to enable
 the best product; existing declarations require a scoped provenance review before
 changing. See the [license assessment](Documentation/gitr/research/2026-11-08-upstream-survey/licensing-review.md).
-Upstream licenses remain intact. Gitoxide uses its MIT alternative; no libgit2 or
-inherited C Git library is linked into this package. TLS currently uses rustls
+Upstream licenses remain intact. Gitoxide and the vendored Rbit workflow crate use
+their offered MIT alternatives; both Rbit license notices are retained. No libgit2
+or inherited C Git library is linked into this package. TLS currently uses rustls
 with ring, whose cryptographic implementation includes native code. See the
 catalog before incorporating differently licensed upstream source.
 

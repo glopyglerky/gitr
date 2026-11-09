@@ -1,8 +1,10 @@
 # Implementation map
 
-Keep work on GitHub's default branch, `master`. Commit incremental validated improvements there; record incomplete requirements honestly. Each entry needs executable evidence before being marked
-complete. The user's goal is the full Git-compatible Rust system, including game
-assets and the repository database, not an indefinitely growing research catalog.
+Keep work on GitHub's default branch, `master`. Commit incremental validated
+improvements there; record incomplete requirements honestly. Each entry needs
+executable evidence before being marked complete. The user's goal is the full
+Git-compatible Rust system, including game assets and the repository database,
+not an indefinitely growing research catalog.
 
 ## Working initial implementation
 
@@ -16,17 +18,24 @@ assets and the repository database, not an indefinitely growing research catalog
 - redb commit snapshots, automatic lexical feature vectors and factual Git graph.
 - Stored Wasmi actions with immutable committed input, idempotent jobs, fenced
   local claims, atomic artifact/receipt publication and verified read-only export.
+- Complete vendored Rbit workflow planner with a bounded Wasm execution adapter:
+  immutable committed YAML, durable DAG dependencies, matrix limits/fail-fast,
+  atomic run/job/ownership publication and cancellation fencing. Claim gates are
+  shared by CLI/API and default builds; old workers refuse managed jobs. Exports
+  retain workflow ownership. This is not general shell/JS/Docker Actions support.
 - Optional authenticated local HTTP action API sharing the existing redb state
   with CLI processes; restart and crashed-worker recovery qualified on Linux.
 - Pinned Lustr build/test workflow and differential/reference Git qualification.
 
 Consult [qualification](qualification.md) for executed results and
 [compatibility](compatibility.md) for actual command limits. The
-[native authoring evidence](native-history.md) includes a complete tested route
-from native-created commit through redb indexing to verified Wasm output, without
-a Git subprocess or source checkout in that route. This is not complete porcelain
-or network Git parity. The [forge/runtime contract](forge-runtime-plan.md) retains
-the full integrated-product acceptance gates.
+[native authoring evidence](native-history.md) includes a tested route from a
+native-created commit through redb indexing to verified Wasm output, without a
+Git subprocess or source checkout in that route. The
+[Rbit workflow evidence](rbit-workflows.md) adds actual committed-YAML matrix/DAG
+execution, concurrency and exports. Neither closes complete porcelain/network
+Git parity or full CI/CD. The [forge/runtime contract](forge-runtime-plan.md)
+retains the integrated-product acceptance gates.
 
 ## Next deliverable: a native everyday Git workflow
 
@@ -63,14 +72,40 @@ and lock binary assets, switch branches, recover interruption, and publish with
 ordinary Git clients retaining exact bytes. Measure transfer volume and SSD writes
 on repeated edits and on compressed assets, where dedup may not help.
 
+## Next deliverable: forge and general-purpose workflow execution
+
+Build on the complete Rbit import and qualified Wasm DAG, not a second scheduler.
+Add revisioned forge entities/reviews/checks and protected-ref policy bound to the
+exact commit/module evaluation. Add official stateless MCP and authenticated API
+adapters over shared typed services; the current action HTTP endpoint is local
+trusted-user control and has no workflow submission route or remote user roles.
+
+Extend workflow triggers, conditions, outputs, multiple steps and reusable calls
+with explicit compatibility tests. Broader native builds, shell/JS/Docker actions,
+network access and secret use require separately isolated capability-controlled
+workers, durable outbox/idempotency contracts for external effects, lease renewal
+and hard resource limits. Import appropriate upstream modules/tests rather than
+silently treating these as Wasmi capabilities. Preserve mandatory readiness and
+ownership checks even when a binary lacks the optional planning dependency.
+
+Implement verified export restoration into a new empty store with provenance,
+rollback and format-version checks. A checksummed export alone is not a proven
+restore facility. Upgrade and downgrade tests must prevent older binaries from
+executing jobs or exporting snapshots while ignoring newer authority metadata.
+
+Acceptance: a scoped user submits a change; trusted policy schedules its exact
+commit, executes dependencies under the permitted worker profile, records checks,
+and authorizes publication only for that evaluated revision. Cancellation, failed
+jobs, stale approvals and duplicate requests cannot publish success or leak secrets.
+
 ## Next deliverable: resolved code relationships and learned vectors
 
 Keep the existing lexical fallback available. Add reviewed local model providers
 with pinned weights, tokenizers and model licenses. Key embeddings by content,
-span, model and preprocessing identity. Evaluate GitQL data-provider integration
-for relational queries, rust-analyzer for Rust symbol/call resolution, and SCIP or
-language-server sources for other languages. Separate inferred and unresolved
-edges from verified relationships.
+span, model and preprocessing identity. Evaluate GitQL data-provider integration,
+Syntext indexing, Basemind maintained graph crates/rules, rust-analyzer for Rust
+resolution, and SCIP/language-server sources. Separate inferred and unresolved
+edges from verified relationships; an empty/failed parse is not proof of no uses.
 
 Index incrementally by changed blob IDs; handle deletions and branch moves without
 stale results. Add a worktree overlay with a separate identity if live edits are
