@@ -2,6 +2,12 @@
 
 Inspected 2026-11-08. This is evidence and a proposed reuse policy, not a claim that gitr implements these capabilities. Exact observed upstream heads are in `upstream-snapshot.json`. Selected critical source files were reread at those commit IDs and their blob hashes matched the initial reads.
 
+The later [broad upstream and fork survey](research/2026-11-08-upstream-survey/README.md)
+adds 476 candidates, explicit inspection levels, useful fork deltas and whole-component
+reuse priorities. It incorporates the owner's authorization to choose a suitable
+license for controlled code where lawful; see the [scoped license review](research/2026-11-08-upstream-survey/licensing-review.md).
+The findings below remain pinned to their original snapshots.
+
 ## Recommended direction
 
 Use gitoxide/gix as the native Git engine. Keep ordinary Git objects, references, packs, repository layouts and Git LFS pointer semantics interoperable with GitHub. Build workflow improvements and a binary asset service above that engine. Borrow Lore's storage architecture where useful; replacing Git's object and transport formats with Lore's formats would lose direct GitHub interoperability.

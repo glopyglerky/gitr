@@ -74,6 +74,22 @@ is not automatically compatibility with JavaScript, Docker or shell actions.
 Native everyday Git completion remains a delivery track alongside the forge;
 do not replace implementation with an indefinitely growing research catalog.
 
+## Licensing and upstream reuse
+
+The user authorizes choosing a different license for Gitr-controlled code where
+lawful when that enables the best product. Do not exclude Apache, GPL or AGPL
+donors solely because the current Rust manifest declares GPL-2.0-only. Assess
+their code quality and integration fit, then select a compatible composition.
+
+Preserve the inherited Git GPLv2-only scope and all donor notices and obligations.
+Before changing existing license declarations, record file-level source origin,
+copyright/relicensing authority and the resolved build/release composition.
+Commit authorship or a separate Rust directory alone does not establish those
+rights. For new independently authored reusable Rust components, MIT OR
+Apache-2.0 is a practical default; selected donor terms may require another scope.
+The broad donor catalog and scoped license assessment are in
+`Documentation/gitr/research/2026-11-08-upstream-survey`.
+
 ## Repository layout
 
 - `rust/gitr` is the standalone Rust implementation. Its manifest does not link

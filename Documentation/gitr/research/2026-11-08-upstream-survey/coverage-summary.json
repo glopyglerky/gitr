@@ -1,0 +1,258 @@
+{
+  "schema_version": 1,
+  "survey_date": "2026-11-08",
+  "survey_timezone": "America/Denver",
+  "generated_at_utc": "2026-11-09T00:56:00+00:00",
+  "gitr_evidence_base": "69a16ea1506d8efa20dff0e559b5716dc95743bd",
+  "candidate_summary": {
+    "unique_candidates": 476,
+    "track_assessment_rows_before_deduplication": 485,
+    "multi_track_candidates": 9,
+    "github_repository_candidates": 470,
+    "repository_url_candidates_all_hosts": 473,
+    "project_or_documentation_candidates": 3,
+    "candidates_by_host": {
+      "ambient.liw.fi": 1,
+      "codeberg.org": 1,
+      "docs.rs": 1,
+      "github.com": 470,
+      "gitlab.com": 1,
+      "radicle-ci.liw.fi": 1,
+      "tangled.org": 1
+    },
+    "per_track_counts": {
+      "name": 296,
+      "forge": 64,
+      "storage": 96,
+      "core": 29
+    },
+    "strongest_recorded_evidence_categories": {
+      "discovery_only": 2,
+      "fork_comparison": 8,
+      "manifest_license_or_documentation": 54,
+      "metadata_only": 288,
+      "metadata_or_search": 54,
+      "readme_or_project_documentation": 8,
+      "selected_source_files": 62
+    },
+    "any_selected_source_file_evidence": 62,
+    "any_fork_comparison_evidence": 8
+  },
+  "discovery_summary": {
+    "definition": "Noisy GitHub repository identities returned by repository-search pages recorded in the four ledgers. This count is not the candidate count and not the number of source audits.",
+    "recorded_github_search_pages": 106,
+    "distinct_github_query_strings": 66,
+    "sum_of_per_track_distinct_query_counts": 66,
+    "result_rows_including_repeats": 5925,
+    "unique_discovery_repository_identities": 4227,
+    "github_candidate_identities_appearing_in_discovery_results": 383,
+    "discovery_identities_without_a_candidate_record": 3844,
+    "github_candidates_without_a_recorded_search_hit": 87,
+    "page_count_definition": "Logged query/page records, including empty final pages. Repository metadata, file reads, branch lookups, fork comparisons and web lookups do not count as search pages.",
+    "query_count_definition": "Exact distinct query strings; case-insensitive owner/repo identity deduplication across all result lists. No claim that broad searches were exhausted.",
+    "web_search_count_limitation": "Web searches and cross-host discovery supplemented the work; only storage and core ledgers enumerate web-query batches. Their counts are not a complete measure of web research across tracks."
+  },
+  "tracks": {
+    "name": {
+      "inventory": "name-search.json",
+      "report": "name-search.md",
+      "query_ledger": "name-search-query-ledger.json",
+      "source_date_label": "2026-11-08",
+      "candidate_count": 296,
+      "github_search_page_records": 42,
+      "distinct_github_query_strings": 15,
+      "github_result_rows_including_repeats": 3078,
+      "unique_discovery_repository_identities": 1620,
+      "raw_inspection_labels": {
+        "manifest_tree_license_inspected": 8,
+        "metadata_only": 264,
+        "readme_only": 1,
+        "source_sample_inspected": 23
+      },
+      "normalized_evidence_categories": {
+        "manifest_license_or_documentation": 8,
+        "metadata_only": 264,
+        "readme_or_project_documentation": 1,
+        "selected_source_files": 23
+      },
+      "recorded_web_query_batches": 0,
+      "recorded_individual_web_queries": 0,
+      "web_query_count_scope": "Only explicit web_queries entries in this ledger; absent entries do not mean no web searches occurred.",
+      "coverage_limits": [
+        "GitHub hyphen-tokenized rs-git and git-rs queries each reached 1,000-result cap; cannot assert exhaustion.",
+        "Broad r_git query intentionally stopped after first page; exact git_rs/name-family queries separately paginated.",
+        "Primary language filter can omit mixed-language repositories. Supplemental web and cross-link discovery mitigates but cannot prove global completeness.",
+        "codeberg.org and git.sr.ht retrieval denied by robots.txt in web tool; searched results but no independent code inspection there."
+      ]
+    },
+    "forge": {
+      "inventory": "forge-ci.json",
+      "report": "forge-ci.md",
+      "query_ledger": "forge-ci-queries.json",
+      "source_date_label": "2026-11-09",
+      "candidate_count": 64,
+      "github_search_page_records": 28,
+      "distinct_github_query_strings": 22,
+      "github_result_rows_including_repeats": 1546,
+      "unique_discovery_repository_identities": 1364,
+      "raw_inspection_labels": {
+        "diff": 5,
+        "discovery-only": 1,
+        "license-and-manifest": 2,
+        "license-and-readme": 1,
+        "manifest": 5,
+        "manifest-and-readme": 1,
+        "manifest-and-tree": 3,
+        "metadata": 24,
+        "official-docs": 3,
+        "readme": 1,
+        "source": 18
+      },
+      "normalized_evidence_categories": {
+        "discovery_only": 1,
+        "fork_comparison": 5,
+        "manifest_license_or_documentation": 11,
+        "metadata_only": 24,
+        "readme_or_project_documentation": 5,
+        "selected_source_files": 18
+      },
+      "recorded_web_query_batches": 0,
+      "recorded_individual_web_queries": 0,
+      "web_query_count_scope": "Only explicit web_queries entries in this ledger; absent entries do not mean no web searches occurred.",
+      "coverage_limits": [
+        "Public indexed material only; no universal exhaustive internet claim.",
+        "Forge query and name-focused narrower queries paginated to exhaustion where logged. Broad hosting query bounded at 4x100 and broad server/CI queries at 100; many results are noisy forks.",
+        "GitHub /forks endpoint rejected by connector; used fork:true name queries, parent/source metadata and targeted comparisons.",
+        "Codeberg/sourcehut direct crawling blocked by robots; GitHub mirror or official docs substituted when available.",
+        "Canonical Radicle broker source view redirected in a loop; current docs read, source pin/license verification pending."
+      ]
+    },
+    "storage": {
+      "inventory": "storage-search.json",
+      "report": "storage-search.md",
+      "query_ledger": "storage-search-ledger.json",
+      "source_date_label": "2026-11-08 America/Denver",
+      "candidate_count": 96,
+      "github_search_page_records": 20,
+      "distinct_github_query_strings": 20,
+      "github_result_rows_including_repeats": 535,
+      "unique_discovery_repository_identities": 525,
+      "raw_inspection_labels": {
+        "discovery-only": 1,
+        "manifest-or-readme": 25,
+        "metadata-or-search": 55,
+        "primary-readme": 1,
+        "selected-source-files": 14
+      },
+      "normalized_evidence_categories": {
+        "discovery_only": 1,
+        "manifest_license_or_documentation": 25,
+        "metadata_or_search": 55,
+        "readme_or_project_documentation": 1,
+        "selected_source_files": 14
+      },
+      "recorded_web_query_batches": 6,
+      "recorded_individual_web_queries": 22,
+      "web_query_count_scope": "Only explicit web_queries entries in this ledger; absent entries do not mean no web searches occurred.",
+      "coverage_limits": [
+        "GitHub /forks endpoint requests were rejected by connector URL allowlist. Used fork-inclusive search and per-repository parent metadata instead.",
+        "This category pass used first 100 search results per query, not exhaustive pagination of broad code-search/LFS families. Queries with 100 results are explicitly capped.",
+        "Codeberg and git.sr.ht sources were robots-blocked by web retrieval; no direct source claims made.",
+        "Similar names and README attributions alone are not GitHub fork-parent proof.",
+        "No donor repository was built or benchmarked in this research pass. Source findings are selected-file review, not full audit."
+      ]
+    },
+    "core": {
+      "inventory": "core-vcs.json",
+      "report": "core-vcs.md",
+      "query_ledger": "core-search-ledger.json",
+      "source_date_label": "2026-11-08",
+      "candidate_count": 29,
+      "github_search_page_records": 16,
+      "distinct_github_query_strings": 9,
+      "github_result_rows_including_repeats": 766,
+      "unique_discovery_repository_identities": 765,
+      "raw_inspection_labels": {
+        "branch-reference-and-author-documentation": 1,
+        "fork-compare": 3,
+        "manifest-or-documentation": 11,
+        "metadata-only": 7,
+        "selected-source": 7
+      },
+      "normalized_evidence_categories": {
+        "fork_comparison": 3,
+        "manifest_license_or_documentation": 11,
+        "metadata_only": 7,
+        "readme_or_project_documentation": 1,
+        "selected_source_files": 7
+      },
+      "recorded_web_query_batches": 6,
+      "recorded_individual_web_queries": 18,
+      "web_query_count_scope": "Only explicit web_queries entries in this ledger; absent entries do not mean no web searches occurred.",
+      "coverage_limits": [
+        "Gitoxide fork name query paginated until an empty page; returned search identities are not a guarantee of all fork network members or nondefault branches.",
+        "Scion discovery includes unrelated game-engine/networking repositories; candidates were triaged rather than treating every result as a VCS.",
+        "Initial GitHub API reads returned 404 for OpenCSGs/scion and the incorrect feder-cr/gitai URL. OpenCSGs/scion remains inaccessible. TreeYard's README supplied feder-cr/git-ai, whose successful metadata read identifies Go and NOASSERTION; source and license text remain unreviewed. The failed URL and corrected lookup are preserved in repository_lookups.",
+        "Codeberg gitore page was inaccessible via web tool. GitLab RustUtils project loaded only basic metadata. Current Pijul Nest source views exposed directories but empty file bodies; raw endpoint returned unsupported octet-stream. Official published libpijul package source was used for its manifest and marked version-specific.",
+        "Only selected source paths and fork default-head comparisons were inspected. No full upstream builds, benchmark reproductions or exhaustive security audits were performed."
+      ]
+    }
+  },
+  "inspection_normalization": {
+    "label_mapping": {
+      "source_sample_inspected": "selected_source_files",
+      "source": "selected_source_files",
+      "selected-source-files": "selected_source_files",
+      "selected-source": "selected_source_files",
+      "diff": "fork_comparison",
+      "fork-compare": "fork_comparison",
+      "manifest_tree_license_inspected": "manifest_license_or_documentation",
+      "manifest": "manifest_license_or_documentation",
+      "manifest-and-tree": "manifest_license_or_documentation",
+      "manifest-and-readme": "manifest_license_or_documentation",
+      "license-and-manifest": "manifest_license_or_documentation",
+      "manifest-or-readme": "manifest_license_or_documentation",
+      "manifest-or-documentation": "manifest_license_or_documentation",
+      "readme_only": "readme_or_project_documentation",
+      "readme": "readme_or_project_documentation",
+      "license-and-readme": "readme_or_project_documentation",
+      "primary-readme": "readme_or_project_documentation",
+      "official-docs": "readme_or_project_documentation",
+      "branch-reference-and-author-documentation": "readme_or_project_documentation",
+      "metadata_only": "metadata_only",
+      "metadata": "metadata_only",
+      "metadata-only": "metadata_only",
+      "metadata-or-search": "metadata_or_search",
+      "discovery-only": "discovery_only"
+    },
+    "ordered_categories_for_display": [
+      "discovery_only",
+      "metadata_or_search",
+      "metadata_only",
+      "readme_or_project_documentation",
+      "manifest_license_or_documentation",
+      "fork_comparison",
+      "selected_source_files"
+    ],
+    "limits": "The strongest evidence category is an organizing heuristic, not an audit score or readiness claim. selected_source_files includes build-script evidence; storage reviewed 13 runtime/interface candidates and one build.rs candidate."
+  },
+  "notes": [
+    "Candidate identities are deduplicated by host and repository URL; GitHub owner/repo is case-insensitive. Non-GitHub paths retain their case. Distinct forks and explicitly distinct historical repositories remain separate.",
+    "A candidate inventory includes metadata-only leads and excluded or behavioral-reference projects. Inclusion is not an import recommendation or source audit.",
+    "Licenses, snapshots, inspection labels, and recommendations remain separate in each track assessment. No single aggregate license is inferred. Core metadata-license values can be overridden by source conclusions in core-vcs.md.",
+    "The strongest evidence category is an organizing heuristic, not an audit score or readiness claim. selected_source_files includes build-script evidence; storage reviewed 13 runtime/interface candidates and one build.rs candidate.",
+    "All source tracks report that they did not execute upstream builds, tests, or benchmarks. Upstream performance and completeness claims were not independently reproduced.",
+    "Three candidate entries are project/documentation surfaces rather than repository URLs; count the combined inventory as candidates, not repositories.",
+    "The original Gitr evidence base is retained. The catalog does not assert that Gitr's current master still equals that inspected base."
+  ],
+  "input_sha256": {
+    "name-search.json": "6224dd891d940e0b02e9bde621cfa49dfa9fa4419d7653a30e11d62665ef4246",
+    "name-search-query-ledger.json": "8913e45fbbbe9a3a08a7d0424ec6c6a076d39e6ee7c5f06ab5507c70cf9a6e00",
+    "forge-ci.json": "614c475c7233bff0bc1863e07c1db19168f876bddac2d653d4a889db3d3d82ea",
+    "forge-ci-queries.json": "bd5034515433cd57cbee328968a93bbd4a0ce54c00a0b57c05e44ce1b9c13aac",
+    "storage-search.json": "a659deaab6d94a49c3247b2b79ea99787ac59a0ed46227034fe63df06c85f252",
+    "storage-search-ledger.json": "e4207e7c2124c9e44244b726e84feee2d5a6b4a564d280bab6dc7e8ae27d5af0",
+    "core-vcs.json": "6da351a375628fe37bd4cf7702ff70eabab067f873a473e1d39d12d7f8863a51",
+    "core-search-ledger.json": "d3f133a076bfb1c1bbcf7239dadf96aa07adaf3c30f4c44fb29b4be895048d19"
+  }
+}

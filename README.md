@@ -190,12 +190,16 @@ the configured Linux/macOS/Windows matrix.
 - [Selected redb backend](Documentation/gitr/redb-decision.md)
 - [Repository database, multi-writer and HA design](Documentation/gitr/architecture.md)
 - [Git, Lore and asset upstream catalog](Documentation/gitr/upstreams.md)
+- [Broad Rust upstream, fork and wholesale reuse survey](Documentation/gitr/research/2026-11-08-upstream-survey/README.md)
 - [Rust database and retrieval comparison](Documentation/gitr/database-research.md)
 - [Closest similar projects: Libra, Git-vdb, GitQL and Codebase Memory](Documentation/gitr/similar-projects.md)
 - [Libra component review and native push integration plan](Documentation/gitr/libra-integration.md)
 - [Next implementation work and acceptance gates](Documentation/gitr/roadmap.md)
 
-The authored Rust package is GPL-2.0-only, following this fork's Git license.
+The authored Rust package currently declares GPL-2.0-only. The project owner
+has authorized a different license for code they control where lawful to enable
+the best product; existing declarations require a scoped provenance review before
+changing. See the [license assessment](Documentation/gitr/research/2026-11-08-upstream-survey/licensing-review.md).
 Upstream licenses remain intact. Gitoxide uses its MIT alternative; no libgit2 or
 inherited C Git library is linked into this package. TLS currently uses rustls
 with ring, whose cryptographic implementation includes native code. See the
