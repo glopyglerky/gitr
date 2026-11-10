@@ -1,0 +1,11 @@
+{
+  "package": "rit",
+  "version": "0.2.0",
+  "repository": "https://github.com/glopyglerky/rit",
+  "default_run": "rit",
+  "binaries": [
+    "git",
+    "rit",
+    "scalar"
+  ]
+}

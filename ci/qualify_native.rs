@@ -1,6 +1,6 @@
 //! Hosted native qualification through the verified produced BlueFe/Lustr bundle.
 //! This dependency-free coordinator may be compiled by stock Rust. It never
-//! invokes that compiler or its Cargo to build Gitr or an application dependency.
+//! invokes that compiler or its Cargo to build Rit or an application dependency.
 #![forbid(unsafe_code)]
 
 use std::collections::BTreeSet;
@@ -17,8 +17,8 @@ use std::time::{Instant, SystemTime, UNIX_EPOCH};
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 const BLUEFE: &str = "7005dc02c9fb6674380eade443022bbc04215276";
 const LUSTR: &str = "6339fbb104d6adda4be7e6be7dc637a6a9e5586b";
-const ARCHIVE: &str = "gitr-produced-bluefe.tar.gz";
-const DIGEST: &str = "gitr-produced-bluefe.tar.gz.sha256";
+const ARCHIVE: &str = "rit-produced-bluefe.tar.gz";
+const DIGEST: &str = "rit-produced-bluefe.tar.gz.sha256";
 const ORACLE_GIT: &str = "e9019fcafe0040228b8631c30f97ae1adb61bcdc";
 
 struct Context {
@@ -42,8 +42,8 @@ impl Context {
         let context = Self {
             workspace: path_env("GITHUB_WORKSPACE")?,
             bundle: path_env("BLUEFE_ROOT")?,
-            download: path_env("GITR_BLUEFE_DOWNLOAD")?,
-            logs: path_env("GITR_NATIVE_LOGS")?,
+            download: path_env("RIT_BLUEFE_DOWNLOAD")?,
+            logs: path_env("RIT_NATIVE_LOGS")?,
             target: path_env("CARGO_TARGET_DIR")?,
         };
         for path in [&context.bundle, &context.download, &context.logs, &context.target] {
@@ -213,7 +213,7 @@ fn checked_archive_members(archive: &Path, logs: &Path) -> Result<()> {
 }
 
 fn prepare(context: &Context, verifier: &Path) -> Result<()> {
-    let run = env::var("GITR_BLUEFE_RUN_ID")?.parse::<u64>()?;
+    let run = env::var("RIT_BLUEFE_RUN_ID")?.parse::<u64>()?;
     if run == 0 {
         return Err("pin the successful compiler artifact run before qualification".into());
     }
@@ -248,11 +248,11 @@ fn prepare(context: &Context, verifier: &Path) -> Result<()> {
     let proof = format!(
         "bluefe={BLUEFE}\nlustr={LUSTR}\nengine=rustc\nartifact_run={run}\narchive_sha256={actual}\nmanifest_sha256={}\nbundle={}\napplication_commit={}\nartifact_id={}\n",
         checksum(&context.bundle.join("SHA256SUMS"))?, context.bundle.display(),
-        env::var("GITHUB_SHA")?, env::var("GITR_BLUEFE_ARTIFACT_ID")?,
+        env::var("GITHUB_SHA")?, env::var("RIT_BLUEFE_ARTIFACT_ID")?,
     );
     fs::write(context.logs.join("bundle-verified.txt"), proof)?;
     fs::write(context.logs.join("reference-git-version.txt"),
-        output(Command::new(path_env("GITR_REFERENCE_GIT")?).arg("--version"))?)?;
+        output(Command::new(path_env("RIT_REFERENCE_GIT")?).arg("--version"))?)?;
     for name in ["source-provenance.txt", "rustc-version.txt", "cargo-version.txt"] {
         fs::copy(context.bundle.join(name), context.logs.join(name))?;
     }
@@ -275,16 +275,16 @@ fn require_verified_bundle(context: &Context) -> Result<()> {
 
 fn build_oracle(context: &Context) -> Result<()> {
     // The C Git source is a pinned external test oracle. It is never linked
-    // into Gitr or copied into the committed product source.
-    let source = context.workspace.join(".gitr-ci/reference-git-source");
-    let prefix = context.workspace.join(".gitr-ci/reference-git");
+    // into Rit or copied into the committed product source.
+    let source = context.workspace.join(".rit-ci/reference-git-source");
+    let prefix = context.workspace.join(".rit-ci/reference-git");
     let executable = prefix.join("bin/git");
     if output(Command::new("git").arg("-C").arg(&source).args(["rev-parse", "HEAD"]))?.trim()
         != ORACLE_GIT
     {
         return Err("reference Git checkout is not the pinned v2.55.0 commit".into());
     }
-    for name in ["GITR_REFERENCE_GIT", "SLEY_TEST_GIT"] {
+    for name in ["RIT_REFERENCE_GIT", "SLEY_TEST_GIT"] {
         if path_env(name)? != executable {
             return Err(format!("{name} must select the installed pinned test oracle").into());
         }
@@ -292,7 +292,7 @@ fn build_oracle(context: &Context) -> Result<()> {
     let prefix_argument = format!("prefix={}", prefix.display());
     logged(context, "build-oracle-install", Command::new("make").arg("-C").arg(&source)
         // Git's Makefile links target/release/libgitcore.a relative to its
-        // own source. Do not leak Gitr's application target into this build.
+        // own source. Do not leak Rit's application target into this build.
         .env("CARGO_TARGET_DIR", source.join("target"))
         .env("RUSTUP_TOOLCHAIN", "1.99.1")
         .args(["-j2", "USE_LIBPCRE2=1", "NO_TCLTK=YesPlease", "NO_GETTEXT=YesPlease",
@@ -333,12 +333,12 @@ fn application(context: &Context, phase: &str) -> Result<()> {
     if root.chars().any(char::is_whitespace) {
         return Err("compiler path must not contain whitespace in RUSTDOCFLAGS".into());
     }
-    let mut paths = vec![context.bundle.join("bin"), context.workspace.join(".gitr-ci/reference-git/bin")];
+    let mut paths = vec![context.bundle.join("bin"), context.workspace.join(".rit-ci/reference-git/bin")];
     paths.extend(env::split_paths(&env::var_os("PATH").unwrap_or_default()));
     let mut command = Command::new(context.bundle.join("bin/lustr"));
     // A fresh fixture parent prevents donor PID/counter temp names from being
     // reused after an interrupted run or across separate test phases.
-    let temporary = context.workspace.join(".gitr-ci/native-temp").join(format!("{phase}-{}",
+    let temporary = context.workspace.join(".rit-ci/native-temp").join(format!("{phase}-{}",
         SystemTime::now().duration_since(UNIX_EPOCH)?.as_nanos()));
     fs::create_dir_all(&temporary)?;
     command.current_dir(&context.workspace)
@@ -393,7 +393,7 @@ fn application(context: &Context, phase: &str) -> Result<()> {
                 "--test", "rev_list", "--test", "rev_list_path_parents", "--no-fail-fast"])
                 // New command fixtures can exercise the actual root executable
                 // while retaining their standalone donor-workspace test route.
-                .env("GITR_TEST_BIN", context.target.join("debug/gitr"));
+                .env("RIT_TEST_BIN", context.target.join("debug/rit"));
         }
         "verify-import" => {
             command.args(["run", "--example", "verify_import", "--locked"]);
@@ -403,7 +403,7 @@ fn application(context: &Context, phase: &str) -> Result<()> {
         }
         "build-release" => {
             command.args(["build", "--manifest-path", "Cargo.toml", "--locked",
-                "--all-features", "--release", "--bin", "gitr"])
+                "--all-features", "--release", "--bin", "rit"])
                 .env("CARGO_PROFILE_RELEASE_OPT_LEVEL", "3")
                 .env("CARGO_PROFILE_RELEASE_LTO", "false")
                 .env("CARGO_PROFILE_RELEASE_CODEGEN_UNITS", "16")
@@ -417,27 +417,27 @@ fn application(context: &Context, phase: &str) -> Result<()> {
 fn benchmark(context: &Context) -> Result<()> {
     require_verified_bundle(context)?;
     require_passed(context, &["build-oracle", "test-root", "test-vendor", "test-vendor-cli", "verify-import", "policy", "audit", "build-release"])?;
-    let helper = context.target.join("gitr-benchmark-native");
+    let helper = context.target.join("rit-benchmark-native");
     logged(context, "compile-benchmark-helper", Command::new(context.bundle.join("bin/rustc"))
         .current_dir(&context.workspace)
         .arg("--sysroot").arg(&context.bundle)
         .args(["--edition=2024", "-C", "opt-level=3", "-C", "debuginfo=0",
             "ci/benchmark_native.rs", "-o"])
         .arg(&helper))?;
-    let executable = context.target.join("release/gitr");
-    let reference = path_env("GITR_REFERENCE_GIT")?;
+    let executable = context.target.join("release/rit");
+    let reference = path_env("RIT_REFERENCE_GIT")?;
     if !reference.is_file() {
         return Err("missing absolute reference Git executable".into());
     }
     fs::write(context.logs.join("benchmark-build.txt"), format!(
-        "engine=rustc\nbluefe={BLUEFE}\nlustr={LUSTR}\nprofile=release\nopt-level=3\nlto=false\ncodegen-units=16\ndebug=0\nfeatures=all\nrepository-default-release-lto=thin\ngitr-sha256={}\nreference-git-sha256={}\n",
+        "engine=rustc\nbluefe={BLUEFE}\nlustr={LUSTR}\nprofile=release\nopt-level=3\nlto=false\ncodegen-units=16\ndebug=0\nfeatures=all\nrepository-default-release-lto=thin\nrit-sha256={}\nreference-git-sha256={}\n",
         checksum(&executable)?, checksum(&reference)?,
     ))?;
     logged(context, "benchmark-native", Command::new(helper)
-        .arg("--gitr").arg(executable)
+        .arg("--rit").arg(executable)
         .arg("--git").arg(reference)
         .arg("--compiler-root").arg(&context.bundle)
-        .arg("--fixture").arg(context.workspace.join(".gitr-ci/native-benchmark-fixture"))
+        .arg("--fixture").arg(context.workspace.join(".rit-ci/native-benchmark-fixture"))
         .arg("--output").arg(context.logs.join("benchmarks"))
         .env("CARGO_PROFILE_RELEASE_OPT_LEVEL", "3")
         .env("CARGO_PROFILE_RELEASE_LTO", "false")

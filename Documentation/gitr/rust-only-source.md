@@ -8,8 +8,9 @@ solely to obtain a Rust-only file count does not establish Git parity.
 
 ## Active implementation
 
-`src/` is a small Rust entrypoint into the Rust Sley engine and CLI under
-`vendor/sley/crates`. Build, import-verification, and qualification coordinators
+`src/` builds the `rit`, `git`, and `scalar` entrypoints into the Rust Sley engine
+and CLI under `vendor/sley/crates`. Build, import-verification, and qualification
+coordinators
 are Rust. The C Git implementation is not restored or linked. Reference Git is
 an external test oracle and never a hidden production fallback.
 

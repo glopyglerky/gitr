@@ -88,12 +88,13 @@ impl Repository {
             "oracle {args:?}: {}",
             String::from_utf8_lossy(&expected.stderr)
         );
-        let binary = std::env::var_os("GITR_TEST_BIN")
+        let binary = std::env::var_os("RIT_TEST_BIN")
+            .or_else(|| std::env::var_os("GITR_TEST_BIN"))
             .map(PathBuf::from)
             .unwrap_or_else(|| PathBuf::from(sley_testkit::sley_bin!()));
         assert!(
             binary.is_absolute(),
-            "GITR_TEST_BIN must be an absolute path"
+            "RIT_TEST_BIN must be an absolute path"
         );
         let actual = self.output_with_env(binary, args, true, environment);
         assert_eq!(

@@ -1,8 +1,11 @@
-# Gitr
+# Rit
 
-Gitr assembles an upstream Rust implementation of Git before adding database,
+Rit assembles an upstream Rust implementation of Git before adding database,
 forge, or performance extensions. Active development is on
-[`master`](https://github.com/glopyglerky/gitr/tree/master).
+[`master`](https://github.com/glopyglerky/rit/tree/master). The project was renamed
+from Gitr to Rit; see the [rename record](Documentation/rit/rename.md) for the
+current executable and CI names. Historical reports and archived source remain
+under `Documentation/gitr` with the names used when they were recorded.
 
 **The default executable now uses the Sley engine and Git-compatible frontend.
 Full Git parity is not complete or certified.**
@@ -10,12 +13,12 @@ Full Git parity is not complete or certified.**
 The import pins [HeddleCo/sley](https://github.com/HeddleCo/sley) at
 [`a71654f50de24b3c750f0df5f1829db7342491f6`](https://github.com/HeddleCo/sley/tree/a71654f50de24b3c750f0df5f1829db7342491f6),
 workspace version 0.13.0. Its coherent engine crates, command implementation,
-and Rust tests are kept under `vendor/sley`. Gitr calls that implementation in
+and Rust tests are kept under `vendor/sley`. Rit calls that implementation in
 process. It does not silently delegate unsupported commands to installed C Git.
 
 ## What this integration establishes
 
-The local qualification exercises the actual `gitr` binary with Git absent from
+The local qualification exercises the actual `rit` binary with Git absent from
 its `PATH`. It covers initialization, staging, commits, branches, merge, rebase,
 stash, worktrees, local clone/fetch/push/pull, and checked reference updates in
 SHA-1 and SHA-256 repositories. It also checks merge-conflict abort and raw Unix
@@ -41,7 +44,7 @@ lists for path-limited revision history. It retains results from ten upstream
 scripts in both object formats, including the remaining failures and skips.
 
 The upstream README reports an exact conformance floor of **557 of 891 selected
-Git 2.55.0 test scripts**. That is upstream evidence, not Gitr's measured result.
+Git 2.55.0 test scripts**. That is upstream evidence, not Rit's measured result.
 The pinned Git source contains **1,046 numbered test scripts**. Sley's manifest
 excludes 155 from its 891-script selection, so even passing that entire selection
 would not establish full Git coverage. We do not turn a passing assertion count
@@ -59,17 +62,20 @@ does not compile this complete dependency graph.
 lustr build --locked
 lustr test --locked --all-features --all-targets
 
-target/debug/gitr -C /path/to/repository status --porcelain=v1
-target/debug/gitr -C /path/to/repository log --oneline -n 10
-target/debug/gitr clone /path/to/source /path/to/clone
+target/debug/rit -C /path/to/repository status --porcelain=v1
+target/debug/rit -C /path/to/repository log --oneline -n 10
+target/debug/rit clone /path/to/source /path/to/clone
 ```
 
-The same entrypoint builds as `gitr` and `git`, with a `scalar` companion.
+The same entrypoint builds as `rit` and `git`, with a `scalar` companion.
 No command above replaces the Git installed on your computer. Keep the generated
 `git` binary separate while qualification is incomplete.
 
-`GITR_REFERENCE_GIT` selects an absolute reference Git path for root tests.
-Selected donor conformance tests require `SLEY_TEST_GIT` to point to Git 2.55.x.
+`RIT_REFERENCE_GIT` selects an absolute reference Git path for root tests.
+`RIT_TEST_BIN` selects the actual Rit executable for selected donor regression
+tests. The legacy `GITR_REFERENCE_GIT` and `GITR_TEST_BIN` settings are accepted
+when the corresponding `RIT_` setting is absent. Selected donor conformance
+tests require `SLEY_TEST_GIT` to point to Git 2.55.x.
 The native qualification workflow builds the exact Git 2.55.0 oracle outside
 tracked source and uses the pinned produced BlueFe bundle through Lustr.
 Local Lustr/rustc checks and hosted BlueFe checks are recorded separately.
@@ -94,7 +100,7 @@ this Git-first frontend. Redb remains the selected future database.
 
 | Path | Purpose |
 | --- | --- |
-| `src/lib.rs`, `src/main.rs`, `src/bin` | Thin Gitr, Git, and Scalar entrypoints |
+| `src/lib.rs`, `src/main.rs`, `src/bin` | Thin Rit, Git, and Scalar entrypoints |
 | `vendor/sley/crates` | Imported Git engine, frontend, and Rust tests |
 | `vendor/sley/NOTICE.md`, `Documentation/gitr/sley-import.json` | Upstream identity, file origins, exclusions, and local patches |
 | `tests/git_workflows.rs` | Product workflows with no Git executable on candidate PATH |
@@ -107,7 +113,7 @@ as the product implementation or bundled as a fallback.
 
 ## Licensing and non-Rust boundaries
 
-Gitr-controlled code is available under MIT OR Apache-2.0. Sley declares
+Rit-controlled code is available under MIT OR Apache-2.0. Sley declares
 Apache-2.0. Historical Grit's GPL-2.0-only CLI is retained as source but is no
 longer linked into the default executable. Donor licenses are not rewritten.
 See [LICENSE](LICENSE) and the [license map](Documentation/gitr/licensing.md).

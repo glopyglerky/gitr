@@ -39,15 +39,17 @@ impl Drop for TempDir {
 }
 
 fn candidate() -> String {
-    match std::env::var("GITR_TEST_BIN") {
-        Ok(path) => {
+    match std::env::var_os("RIT_TEST_BIN")
+        .or_else(|| std::env::var_os("GITR_TEST_BIN"))
+    {
+        Some(path) => {
             assert!(
                 Path::new(&path).is_absolute(),
-                "GITR_TEST_BIN must be absolute"
+                "RIT_TEST_BIN must be absolute"
             );
-            path
+            path.into_string().expect("RIT_TEST_BIN must be UTF-8")
         }
-        Err(_) => sley_testkit::sley_bin!().to_owned(),
+        None => sley_testkit::sley_bin!().to_owned(),
     }
 }
 

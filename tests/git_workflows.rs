@@ -22,12 +22,13 @@ impl Repo {
         let empty_path = temp.path().join("empty-path");
         fs::create_dir_all(&path).unwrap();
         fs::create_dir_all(&empty_path).unwrap();
-        let oracle = std::env::var_os("GITR_REFERENCE_GIT")
+        let oracle = std::env::var_os("RIT_REFERENCE_GIT")
+            .or_else(|| std::env::var_os("GITR_REFERENCE_GIT"))
             .map(PathBuf::from)
             .unwrap_or_else(|| PathBuf::from("/usr/bin/git"));
         assert!(
             oracle.is_absolute() && oracle.is_file(),
-            "set GITR_REFERENCE_GIT to an absolute reference binary"
+            "set RIT_REFERENCE_GIT to an absolute reference binary"
         );
         let repo = Self {
             temp,
@@ -75,7 +76,7 @@ impl Repo {
     }
 
     fn native(&self, args: &[&str]) -> Output {
-        self.command(env!("CARGO_BIN_EXE_gitr"), &self.path)
+        self.command(env!("CARGO_BIN_EXE_rit"), &self.path)
             .args(args)
             .output()
             .unwrap()
@@ -195,7 +196,7 @@ fn native_clone_fetch_push_and_reference_compare_and_swap() {
         let second = r.commit("file", "second\n", "second");
         r.git(&["push", "origin", "main"]);
         Repo::success(
-            r.command(env!("CARGO_BIN_EXE_gitr"), &cloned)
+            r.command(env!("CARGO_BIN_EXE_rit"), &cloned)
                 .args(["pull", "--ff-only"])
                 .output()
                 .unwrap(),
@@ -254,7 +255,7 @@ fn native_frontend_preserves_non_utf8_arguments() {
             let filename = OsStr::from_bytes(name);
             fs::write(r.path.join(filename), b"raw path\n").unwrap();
             Repo::success(
-                r.command(env!("CARGO_BIN_EXE_gitr"), &r.path)
+                r.command(env!("CARGO_BIN_EXE_rit"), &r.path)
                     .args([OsStr::new("add"), OsStr::new("--"), filename])
                     .output()
                     .unwrap(),

@@ -1,8 +1,8 @@
-Gitr licensing
-==============
+Rit licensing
+=============
 
 Effective 2026-11-10, the repository owner offers the copyright-controlled
-Gitr contributions identified in Documentation/gitr/license-scope.json under
+Rit contributions identified in Documentation/gitr/license-scope.json under
 either of the following licenses, at the recipient's option:
 
   * MIT, in LICENSE-MIT
@@ -44,7 +44,7 @@ Historical grit-git and the deferred database/forge prototype are outside its
 dependency graph. Their GPL-2.0-only terms still apply to their retained source;
 this source migration does not relicense those files.
 
-Gitr-controlled entrypoint contributions remain MIT OR Apache-2.0. Distribution
+Rit-controlled entrypoint contributions remain MIT OR Apache-2.0. Distribution
 of the active executable must retain Sley's Apache-2.0 terms and all applicable
 dependency notices. The whole source repository is not uniformly permissive:
 inherited Git, historical Grit and archived material retain their existing terms.

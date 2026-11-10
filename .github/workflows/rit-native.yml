@@ -1,4 +1,4 @@
-name: Gitr native qualification with produced BlueFe
+name: Rit native qualification with produced BlueFe
 
 on:
   push:
@@ -12,12 +12,12 @@ permissions:
   actions: read
 
 concurrency:
-  group: gitr-native-${{ github.event.pull_request.number || github.ref }}
+  group: rit-native-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
   compiler:
-    uses: ./.github/workflows/gitr-bluefe-build.yml
+    uses: ./.github/workflows/rit-bluefe-build.yml
   native:
     needs: compiler
     runs-on: ubuntu-24.04
@@ -25,24 +25,24 @@ jobs:
     env:
       # Use only this run's verified bundle, built from the exact source pins.
       # The compiler job verifies cache hits and rebuilds if its cache is absent.
-      GITR_BLUEFE_RUN_ID: ${{ github.run_id }}
-      GITR_BLUEFE_ARTIFACT_ID: ${{ needs.compiler.outputs.artifact_id }}
-      GITR_BLUEFE_DOWNLOAD: ${{ github.workspace }}/.gitr-ci/native-compiler-download
-      BLUEFE_ROOT: ${{ github.workspace }}/.gitr-ci/native-produced-bluefe
-      GITR_NATIVE_LOGS: ${{ github.workspace }}/.gitr-ci/native-logs
-      CARGO_TARGET_DIR: ${{ github.workspace }}/.gitr-ci/native-target
+      RIT_BLUEFE_RUN_ID: ${{ github.run_id }}
+      RIT_BLUEFE_ARTIFACT_ID: ${{ needs.compiler.outputs.artifact_id }}
+      RIT_BLUEFE_DOWNLOAD: ${{ github.workspace }}/.rit-ci/native-compiler-download
+      BLUEFE_ROOT: ${{ github.workspace }}/.rit-ci/native-produced-bluefe
+      RIT_NATIVE_LOGS: ${{ github.workspace }}/.rit-ci/native-logs
+      CARGO_TARGET_DIR: ${{ github.workspace }}/.rit-ci/native-target
       # The existing bundle verifier rejects runtime links into these build paths.
       BLUEFE_SOURCE: ${{ github.workspace }}/.ci-bluefe
       LUSTR_SOURCE: ${{ github.workspace }}/.ci-lustr
-      BLUEFE_BUILD_DIR: ${{ github.workspace }}/.gitr-ci/gitr-bluefe-build
-      LUSTR_BUILD_DIR: ${{ github.workspace }}/.gitr-ci/gitr-lustr-build
+      BLUEFE_BUILD_DIR: ${{ github.workspace }}/.rit-ci/rit-bluefe-build
+      LUSTR_BUILD_DIR: ${{ github.workspace }}/.rit-ci/rit-lustr-build
       CARGO_BUILD_JOBS: "2"
       CARGO_PROFILE_DEV_DEBUG: "0"
       CARGO_PROFILE_TEST_DEBUG: "0"
       CARGO_INCREMENTAL: "0"
       RUST_TEST_THREADS: "2"
-      GITR_REFERENCE_GIT: ${{ github.workspace }}/.gitr-ci/reference-git/bin/git
-      SLEY_TEST_GIT: ${{ github.workspace }}/.gitr-ci/reference-git/bin/git
+      RIT_REFERENCE_GIT: ${{ github.workspace }}/.rit-ci/reference-git/bin/git
+      SLEY_TEST_GIT: ${{ github.workspace }}/.rit-ci/reference-git/bin/git
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -52,7 +52,7 @@ jobs:
         with:
           repository: git/git
           ref: e9019fcafe0040228b8631c30f97ae1adb61bcdc
-          path: .gitr-ci/reference-git-source
+          path: .rit-ci/reference-git-source
           persist-credentials: false
       - name: Install external Git oracle build dependencies
         # Keep HTTP and PCRE2 enabled in the reference used for qualification.
@@ -63,63 +63,63 @@ jobs:
       - name: Prepare orchestration compiler
         run: rustup toolchain install 1.99.1 --profile minimal
       - name: Compile bundle verifier
-        run: rustup run 1.99.1 rustc --edition=2024 ci/bluefe_bundle.rs -o "${{ runner.temp }}/gitr-bluefe-bundle-helper"
+        run: rustup run 1.99.1 rustc --edition=2024 ci/bluefe_bundle.rs -o "${{ runner.temp }}/rit-bluefe-bundle-helper"
       - name: Compile native qualification coordinator
-        run: rustup run 1.99.1 rustc --edition=2024 ci/qualify_native.rs -o "${{ runner.temp }}/gitr-qualify-native"
+        run: rustup run 1.99.1 rustc --edition=2024 ci/qualify_native.rs -o "${{ runner.temp }}/rit-qualify-native"
       - name: Compile archive validator tests with the orchestration compiler
-        run: rustup run 1.99.1 rustc --edition=2024 --test ci/qualify_native.rs -o "${{ runner.temp }}/gitr-qualify-native-tests"
+        run: rustup run 1.99.1 rustc --edition=2024 --test ci/qualify_native.rs -o "${{ runner.temp }}/rit-qualify-native-tests"
       - name: Test archive validation before downloading the compiler
-        run: '"${{ runner.temp }}/gitr-qualify-native-tests"'
+        run: '"${{ runner.temp }}/rit-qualify-native-tests"'
       - name: Build and verify the external Git 2.55.0 test oracle
-        run: '"${{ runner.temp }}/gitr-qualify-native" build-oracle'
+        run: '"${{ runner.temp }}/rit-qualify-native" build-oracle'
       - name: Download the pinned produced compiler bundle
         # Official actions/download-artifact v4.3.0, pinned to its release commit.
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
-          artifact-ids: ${{ env.GITR_BLUEFE_ARTIFACT_ID }}
+          artifact-ids: ${{ env.RIT_BLUEFE_ARTIFACT_ID }}
           merge-multiple: true
           repository: ${{ github.repository }}
-          run-id: ${{ env.GITR_BLUEFE_RUN_ID }}
+          run-id: ${{ env.RIT_BLUEFE_RUN_ID }}
           github-token: ${{ github.token }}
-          path: ${{ env.GITR_BLUEFE_DOWNLOAD }}
+          path: ${{ env.RIT_BLUEFE_DOWNLOAD }}
       - name: Verify archive and produced compiler before application compilation
-        run: '"${{ runner.temp }}/gitr-qualify-native" prepare "${{ runner.temp }}/gitr-bluefe-bundle-helper"'
+        run: '"${{ runner.temp }}/rit-qualify-native" prepare "${{ runner.temp }}/rit-bluefe-bundle-helper"'
       - name: Build all root features and targets through Lustr and BlueFe
         id: build_root
-        run: '"${{ runner.temp }}/gitr-qualify-native" build-root'
+        run: '"${{ runner.temp }}/rit-qualify-native" build-root'
       - name: Run root tests through Lustr and BlueFe
-        run: '"${{ runner.temp }}/gitr-qualify-native" test-root'
+        run: '"${{ runner.temp }}/rit-qualify-native" test-root'
       - name: Run selected Sley engine library tests through Lustr and BlueFe
         if: ${{ !cancelled() && steps.build_root.outcome == 'success' }}
         # Includes checked reference publication and corrupt-graph repack tests.
         # Full upstream Git conformance requires the external pinned harness.
-        run: '"${{ runner.temp }}/gitr-qualify-native" test-vendor'
+        run: '"${{ runner.temp }}/rit-qualify-native" test-vendor'
       - name: Run native archive, commit-summary, and revision-history tests
         if: ${{ !cancelled() && steps.build_root.outcome == 'success' }}
-        run: '"${{ runner.temp }}/gitr-qualify-native" test-vendor-cli'
+        run: '"${{ runner.temp }}/rit-qualify-native" test-vendor-cli'
       - name: Verify imported source provenance through Lustr and BlueFe
         if: ${{ !cancelled() && steps.build_root.outcome == 'success' }}
-        run: '"${{ runner.temp }}/gitr-qualify-native" verify-import'
+        run: '"${{ runner.temp }}/rit-qualify-native" verify-import'
       - name: Check Git-first composition and retained redb policy through Lustr and BlueFe
         if: ${{ !cancelled() && steps.build_root.outcome == 'success' }}
-        run: '"${{ runner.temp }}/gitr-qualify-native" policy'
+        run: '"${{ runner.temp }}/rit-qualify-native" policy'
       - name: Audit repository source through Lustr and BlueFe
         if: ${{ !cancelled() && steps.build_root.outcome == 'success' }}
-        run: '"${{ runner.temp }}/gitr-qualify-native" audit'
+        run: '"${{ runner.temp }}/rit-qualify-native" audit'
       - name: Build measured release binary through Lustr and BlueFe
         # Measurement overrides only: opt-level 3, LTO off, 16 codegen units.
         # Cargo.toml's default thin-LTO release profile is unchanged.
-        run: '"${{ runner.temp }}/gitr-qualify-native" build-release'
+        run: '"${{ runner.temp }}/rit-qualify-native" build-release'
       - name: Verify outputs and benchmark the release binary against reference Git
         timeout-minutes: 10
-        run: '"${{ runner.temp }}/gitr-qualify-native" benchmark'
+        run: '"${{ runner.temp }}/rit-qualify-native" benchmark'
       - name: Preserve qualification logs and exact dependency locks
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: gitr-native-qualification-${{ github.run_id }}-${{ github.run_attempt }}
+          name: rit-native-qualification-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
-            ${{ env.GITR_NATIVE_LOGS }}
+            ${{ env.RIT_NATIVE_LOGS }}
             Cargo.lock
             vendor/sley/Cargo.lock
           if-no-files-found: warn

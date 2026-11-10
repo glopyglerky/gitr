@@ -147,7 +147,7 @@ pub const fn materialized_helper_provenance() -> &'static [HelperProvenance] {
 /// the shared directory concurrently.
 pub fn materialize_git_i18n_helpers() -> io::Result<PathBuf> {
     let dir = env::temp_dir().join(format!(
-        "sley-git-compat-i18n-gitr-native-v3-{}",
+        "sley-git-compat-i18n-rit-native-v3-{}",
         env!("CARGO_PKG_VERSION")
     ));
     materialize_git_i18n_helpers_in(&dir)?;
@@ -158,7 +158,7 @@ fn materialize_git_i18n_helpers_in(dir: &Path) -> io::Result<()> {
     let parent = dir.parent().unwrap_or_else(|| Path::new("."));
     fs::create_dir_all(parent)?;
     let lock_path = env::temp_dir().join(format!(
-        ".sley-git-compat-i18n-gitr-native-v3-{}.materialize.lock",
+        ".sley-git-compat-i18n-rit-native-v3-{}.materialize.lock",
         env!("CARGO_PKG_VERSION")
     ));
     // An OS lock is released even if a materializing process exits abruptly.

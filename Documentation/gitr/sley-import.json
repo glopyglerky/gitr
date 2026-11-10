@@ -38,8 +38,8 @@
     },
     {
       "path": "NOTICE.md",
-      "sha256": "dda77bff2368904a5a2fff339ef294ea711c2a27b28f789549f68d616d791bd9",
-      "origin": "Gitr import provenance notice, authored for this integration."
+      "sha256": "3ffb3270b72ce1be7aa4c7438dabc8513d67b5a716e6944bf24399f457a1ef2b",
+      "origin": "Gitr import provenance notice, authored for this integration. Record the project rename to Rit and the retained test-setting compatibility alias."
     },
     {
       "path": "PARITY.md",
@@ -515,10 +515,10 @@
     },
     {
       "path": "crates/sley-cli/src/commands/filter_branch.rs",
-      "sha256": "6cfbced5da2a919d877aec37d1270b7ff558045e4747f619be18705280294fc2",
+      "sha256": "dae715f9cc21b31a92a7953d88027ded8f0a0d866e0fbf708337525257c3c453",
       "upstream_blob": "90e4a791ba175e14063f86ab51ecff03572233f7",
       "upstream_sha256": "714cc09d2722726e287ab88d9e085a64ee1b706e1ebd1f44b51f8141718d9eab",
-      "change": "Exclude unresolved embedded inherited shell source; refuse filter-branch explicitly before mutation."
+      "change": "Exclude unresolved embedded inherited shell source; refuse filter-branch explicitly before mutation. Rename product-facing refusal diagnostics to Rit."
     },
     {
       "path": "crates/sley-cli/src/commands/for_each_ref.rs",
@@ -1305,8 +1305,8 @@
     },
     {
       "path": "crates/sley-cli/tests/archive_remote.rs",
-      "sha256": "905c0a52676424a98ffe5f2fc15aff188047ba8034e1cb8eaaef6d72ede2a419",
-      "origin": "Independently authored Gitr archive interoperability and failure regressions with explicitly configured generated test-service shims; MIT OR Apache-2.0."
+      "sha256": "acffaa404277528cf505da6b301d251873f11e56366c8f0d1079c166ab0e2bd4",
+      "origin": "Independently authored Gitr archive interoperability and failure regressions with explicitly configured generated test-service shims; MIT OR Apache-2.0. Prefer RIT_TEST_BIN for product tests and retain GITR_TEST_BIN as a fallback when absent."
     },
     {
       "path": "crates/sley-cli/tests/bisect.rs",
@@ -1400,8 +1400,8 @@
     },
     {
       "path": "crates/sley-cli/tests/commit_large_blob.rs",
-      "sha256": "67f8cb083f0e62891002e74c28a74f5b7007b3fa7d13db6cff2059f97c0504a3",
-      "origin": "Independently authored Gitr differential tests for oversized commit summaries, threshold validation, binary/text attributes, and strict corruption diagnostics. MIT OR Apache-2.0."
+      "sha256": "4e9e7fc9a23a114337c6b46b5bffdcbcc2523b866f8953cd3428c873655272c5",
+      "origin": "Independently authored Gitr differential tests for oversized commit summaries, threshold validation, binary/text attributes, and strict corruption diagnostics. MIT OR Apache-2.0. Prefer RIT_TEST_BIN with a GITR_TEST_BIN fallback and rename the test fixture directory prefix to rit."
     },
     {
       "path": "crates/sley-cli/tests/commit_merge.rs",
@@ -1477,8 +1477,8 @@
     },
     {
       "path": "crates/sley-cli/tests/filter_branch_unavailable.rs",
-      "sha256": "bd163d0975db3dbc1640a4a76c7914d1e43d7ac7357986d42dd79553c35becdb",
-      "origin": "Gitr regression for explicit filter-branch refusal before mutation, under Apache-2.0."
+      "sha256": "f50110df1c97626e15872b52c3f83d4cb52e33b176c3263c459c284c57c12a2a",
+      "origin": "Gitr regression for explicit filter-branch refusal before mutation, under Apache-2.0. Rename the locally authored test fixture directory prefix to rit."
     },
     {
       "path": "crates/sley-cli/tests/filters.rs",
@@ -1795,8 +1795,8 @@
     },
     {
       "path": "crates/sley-cli/tests/rev_list_path_parents.rs",
-      "sha256": "f95faec6a8f42c58c0cdc0069e94e99eee3d312a55d0bcafd84af58c2dee442a",
-      "origin": "Independently authored Gitr differential tests for path-limited revision parent rewriting, first-parent merges, and explicit or shallow boundaries. MIT OR Apache-2.0."
+      "sha256": "ae4a60b06525aa501dd1b6313473e58c6e91ce2932f806b1c4a5221fa1f07023",
+      "origin": "Independently authored Gitr differential tests for path-limited revision parent rewriting, first-parent merges, and explicit or shallow boundaries. MIT OR Apache-2.0. Prefer RIT_TEST_BIN for product tests and retain GITR_TEST_BIN as a fallback when absent."
     },
     {
       "path": "crates/sley-cli/tests/rev_parse.rs",
@@ -1806,8 +1806,8 @@
     },
     {
       "path": "crates/sley-cli/tests/rev_parse_pseudo_names.rs",
-      "sha256": "9e8b4eaafda194f85960532a41a1bafe5e2bec18c872bb3dfc3a07175546b19c",
-      "origin": "Independently authored Gitr differential reference-selector tests against an external pinned Git oracle; MIT OR Apache-2.0."
+      "sha256": "ad6a8b61f816abe447b4d2491066c196195ae98ecf9f7d5a43918b673b874901",
+      "origin": "Independently authored Gitr differential reference-selector tests against an external pinned Git oracle; MIT OR Apache-2.0. Prefer RIT_TEST_BIN for product tests and retain GITR_TEST_BIN as a fallback when absent."
     },
     {
       "path": "crates/sley-cli/tests/rm.rs",
@@ -2430,10 +2430,10 @@
     },
     {
       "path": "crates/sley-i18n/src/lib.rs",
-      "sha256": "1f998dccb9552fd206327d97f7d65d38fac97c47488f58949dc1796975953d40",
+      "sha256": "c20588c4cce2bfd6f15879c844faf5bf5ab28b343ca53cc13a4188b90936a025",
       "upstream_blob": "cdc1cbe4ead00273928ad3319333e4b87b0e4421",
       "upstream_sha256": "31d045566c4753c34c3ae2354c701bb285976b9cf816593498596a367cd93da7",
-      "change": "Exclude unresolved inherited shell i18n library; retain native dispatch wrappers, add upload-archive adapter and isolated helper-cache generation."
+      "change": "Exclude unresolved inherited shell i18n library; retain native dispatch wrappers, add upload-archive adapter and isolated helper-cache generation. Rename both the native helper cache and its materialization lock to Rit."
     },
     {
       "path": "crates/sley-index/Cargo.toml",

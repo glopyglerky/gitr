@@ -34,7 +34,8 @@ fn binary_pattern_file_and_stdin_preserve_nul_and_unicode_bytes() {
     let temp = tempfile::tempdir().unwrap();
     let root = temp.path();
     fs::create_dir(root.join("empty-path")).unwrap();
-    let oracle = std::env::var_os("GITR_REFERENCE_GIT")
+    let oracle = std::env::var_os("RIT_REFERENCE_GIT")
+        .or_else(|| std::env::var_os("GITR_REFERENCE_GIT"))
         .map(std::path::PathBuf::from)
         .unwrap_or_else(|| "/usr/bin/git".into());
     assert!(oracle.is_absolute() && oracle.is_file());
@@ -73,7 +74,7 @@ fn binary_pattern_file_and_stdin_preserve_nul_and_unicode_bytes() {
             let expected = run(&oracle, root, &args, input);
             assert!(expected.status.success(), "oracle: {expected:?}");
             assert_eq!(expected.stdout, b"literal\n");
-            let actual = run(Path::new(env!("CARGO_BIN_EXE_gitr")), root, &args, input);
+            let actual = run(Path::new(env!("CARGO_BIN_EXE_rit")), root, &args, input);
             assert!(actual.status.success(), "candidate: {actual:?}");
             assert_eq!(actual.stdout, expected.stdout, "{mode} {source}");
             assert_eq!(actual.stderr, expected.stderr, "{mode} {source}");

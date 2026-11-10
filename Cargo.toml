@@ -1,17 +1,17 @@
 [package]
-name = "gitr"
+name = "rit"
 version = "0.2.0"
 edition = "2024"
 rust-version = "1.99.1"
 license-file = "LICENSE"
 description = "Native Rust Git implementation assembled from upstream engines"
-repository = "https://github.com/glopyglerky/gitr"
+repository = "https://github.com/glopyglerky/rit"
 publish = false
-default-run = "gitr"
+default-run = "rit"
 
 [workspace]
 # The pinned external Git oracle has its own standalone Rust support crate.
-exclude = ["vendor/sley", "vendor/grit", "vendor/rbit-workflow", "xtask", "crates/action-example", "crates/test-support", "Documentation/gitr/archive", ".gitr-ci/reference-git-source"]
+exclude = ["vendor/sley", "vendor/grit", "vendor/rbit-workflow", "xtask", "crates/action-example", "crates/test-support", "Documentation/gitr/archive", ".rit-ci/reference-git-source", ".gitr-ci/reference-git-source"]
 
 [features]
 default = []
@@ -27,7 +27,7 @@ sha2 = "0.11"
 tempfile = "3.27"
 
 [[bin]]
-name = "gitr"
+name = "rit"
 path = "src/main.rs"
 
 [[bin]]

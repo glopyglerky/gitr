@@ -1,8 +1,8 @@
-# Gitr development contract
+# Rit development contract
 
 ## Current priority and canonical branch
 
-Gitr is Matt Mayhugh's Git-compatible Rust implementation. Active work belongs
+Rit is Matt Mayhugh's Git-compatible Rust implementation. Active work belongs
 on the default branch, `master`; commit tested, reviewable changes there when
 safe. The owner's current instruction is full Git behavior first, assembled
 from reusable upstream Rust source, then database and performance improvements.
@@ -11,7 +11,7 @@ turn to a concrete, finishable change, with evidence and a commit.
 
 The active engine is the pinned Sley import. Preserve its coherent crate layout,
 Git-compatible CLI implementation, and useful tests. The CLI currently contains
-real command behavior; do not discard it as presentation-only code. Gitr's
+real command behavior; do not discard it as presentation-only code. Rit's
 entrypoints must execute the engine, not merely inventory it.
 
 Full Git parity is an acceptance goal, not the current status. A command name,
@@ -31,7 +31,7 @@ reorganization. Later integration must preserve exact Git identities, durability
 compare-and-swap, idempotency, worker fencing, atomic receipts and artifact
 publication, bounded-memory payloads, and independently verifiable exports.
 
-Do not activate SurrealDB, SurrealKV, or SurrealDS. Keep Gitr independently
+Do not activate SurrealDB, SurrealKV, or SurrealDS. Keep Rit independently
 installable without mandatory Omnidia services. Search indexes are rebuildable
 and revision-addressed; embeddings never identify Git objects or decide merges.
 Retain the eventual self-contained Git, forge, CI/CD, Wasm action, and stateless
@@ -47,7 +47,7 @@ current SHA-256, exclusions, local patches, dependency locks, license declaratio
 and qualification. Keep donor updates reviewable. Preserve every donor notice;
 modifying imported code does not relicense it.
 
-New independently authored Gitr code uses MIT OR Apache-2.0. Sley remains
+New independently authored Rit code uses MIT OR Apache-2.0. Sley remains
 Apache-2.0. Historical Grit's GPL-2.0-only CLI must remain outside this executable's
 dependency graph. The root license file describes the mixed source repository;
 no permissive label overrides inherited Git/Grit material. Do not copy private

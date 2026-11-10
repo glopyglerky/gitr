@@ -90,8 +90,8 @@ fn build() -> Result<()> {
     let lustr_checkout = path_env("LUSTR_SOURCE")?;
     // Keep Cargo's workspace discovery outside the application's workspace.
     // Only these fresh checkouts on the ephemeral hosted runner are relocated.
-    let source = path_env("RUNNER_TEMP")?.join("gitr-bluefe-source");
-    let lustr = path_env("RUNNER_TEMP")?.join("gitr-lustr-source");
+    let source = path_env("RUNNER_TEMP")?.join("rit-bluefe-source");
+    let lustr = path_env("RUNNER_TEMP")?.join("rit-lustr-source");
     if source.exists() || lustr.exists() {
         return Err("refusing to replace an existing compiler checkout".into());
     }
@@ -117,7 +117,7 @@ fn build() -> Result<()> {
     let config = format!(
         "change-id = \"ignore\"\n[build]\nbuild-dir = \"{build_str}\"\nbuild = \"{HOST}\"\nhost = [\"{HOST}\"]\ntarget = [\"{HOST}\", \"{TARGET}\"]\nsubmodules = true\ndocs = false\nextended = false\njobs = 2\n[rust]\ndownload-rustc = false\nchannel = \"dev\"\nomit-git-hash = false\ndebuginfo-level = 0\nincremental = false\nlto = \"off\"\nlld = true\n[llvm]\ndownload-ci-llvm = true\nassertions = false\n"
     );
-    let config_path = build.join("gitr-bootstrap.toml");
+    let config_path = build.join("rit-bootstrap.toml");
     fs::write(&config_path, &config)?;
     run(Command::new(source.join("x"))
         .current_dir(&source)
@@ -231,7 +231,7 @@ fn verify() -> Result<()> {
         }
         run(Command::new(root.join("bin").join(tool)).arg("--version"))?;
     }
-    let scratch = path_env("RUNNER_TEMP")?.join("gitr-bluefe-smoke");
+    let scratch = path_env("RUNNER_TEMP")?.join("rit-bluefe-smoke");
     fs::create_dir_all(&scratch)?;
     let source = scratch.join("smoke.rs");
     fs::write(&source, "fn main() { assert_eq!(std::hint::black_box(2) + 2, 4); }\n#[test] fn arithmetic() { main(); }\n")?;
@@ -248,9 +248,9 @@ fn verify() -> Result<()> {
 
 fn archive() -> Result<()> {
     let root = path_env("BLUEFE_ROOT")?;
-    let archive = path_env("RUNNER_TEMP")?.join("gitr-produced-bluefe.tar.gz");
+    let archive = path_env("RUNNER_TEMP")?.join("rit-produced-bluefe.tar.gz");
     run(Command::new("tar").args(["--sort=name", "-C"]).arg(&root).arg("-czf").arg(&archive).arg("."))?;
-    fs::write(archive.with_extension("gz.sha256"), format!("{}  gitr-produced-bluefe.tar.gz\n", checksum(&archive)?))?;
+    fs::write(archive.with_extension("gz.sha256"), format!("{}  rit-produced-bluefe.tar.gz\n", checksum(&archive)?))?;
     Ok(())
 }
 

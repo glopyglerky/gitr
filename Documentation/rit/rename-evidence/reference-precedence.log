@@ -1,0 +1,12 @@
+command=['/workspace/scratch/161a1b7c00ce/tooling/lustr/target/release/lustr', '--engine', 'rustc', 'test', '--locked', '--test', 'grep_patterns']
+target=/workspace/scratch/161a1b7c00ce/tooling/gitr-target
+tmpdir=/tmp/rit-rename-root-8w2k819j
+   Compiling rit v0.2.0 (/workspace/scratch/717c1db38a84/gitr)
+    Finished `test` profile [unoptimized] target(s) in 0.70s
+     Running tests/grep_patterns.rs (/workspace/scratch/161a1b7c00ce/tooling/gitr-target/debug/deps/grep_patterns-70332518aabee418)
+
+running 1 test
+test binary_pattern_file_and_stdin_preserve_nul_and_unicode_bytes ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+

@@ -69,12 +69,13 @@ impl Repository {
 
     fn assert_matches(&self, args: &[&str]) -> Vec<u8> {
         let expected = self.git(args);
-        let binary = std::env::var_os("GITR_TEST_BIN")
+        let binary = std::env::var_os("RIT_TEST_BIN")
+            .or_else(|| std::env::var_os("GITR_TEST_BIN"))
             .map(PathBuf::from)
             .unwrap_or_else(|| PathBuf::from(sley_testkit::sley_bin!()));
         assert!(
             binary.is_absolute(),
-            "GITR_TEST_BIN must be an absolute path"
+            "RIT_TEST_BIN must be an absolute path"
         );
         let actual = self.output(binary, args, true);
         assert_eq!(

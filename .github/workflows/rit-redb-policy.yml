@@ -1,0 +1,20 @@
+name: Rit Git-first composition and retained redb policy
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  storage-policy:
+    # Existing self-hosted runners retain their provisioned label.
+    runs-on: [self-hosted, linux, gitr-bluefe]
+    env:
+      CARGO_BUILD_JOBS: 2
+      CARGO_TARGET_DIR: ${{ github.workspace }}/.rit-ci/rit-policy-target
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Test Rust storage guard
+        run: '"${{ vars.RIT_BLUEFE_ROOT || vars.GITR_BLUEFE_ROOT }}/bin/lustr" --bluefe-root "${{ vars.RIT_BLUEFE_ROOT || vars.GITR_BLUEFE_ROOT }}" test --manifest-path xtask/Cargo.toml --locked'
+      - name: Check active Git engine and retained database manifest pins
+        run: '"${{ vars.RIT_BLUEFE_ROOT || vars.GITR_BLUEFE_ROOT }}/bin/lustr" --bluefe-root "${{ vars.RIT_BLUEFE_ROOT || vars.GITR_BLUEFE_ROOT }}" run --manifest-path xtask/Cargo.toml --locked -- policy'

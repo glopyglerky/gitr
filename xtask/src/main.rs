@@ -314,7 +314,7 @@ fn main() -> ExitCode {
         Some("policy") => policy(Path::new(".")),
         Some("qualify") => qualify(),
         Some("audit") => audit(),
-        _ => Err("usage: gitr-xtask policy|qualify|audit".into()),
+        _ => Err("usage: rit-xtask policy|qualify|audit".into()),
     };
     match result {
         Ok(()) => ExitCode::SUCCESS,

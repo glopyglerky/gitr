@@ -9,7 +9,7 @@ fn rejected_filter_branch_preserves_repository_and_executes_no_helpers() {
     use std::time::{SystemTime, UNIX_EPOCH};
 
     let root = std::env::temp_dir().join(format!(
-        "gitr-filter-unavailable-{}-{}",
+        "rit-filter-unavailable-{}-{}",
         std::process::id(),
         SystemTime::now()
             .duration_since(UNIX_EPOCH)

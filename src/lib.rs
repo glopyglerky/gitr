@@ -8,11 +8,11 @@ use std::{ffi::OsString, path::Path, process::ExitCode};
 /// Run the standard Git interface, including installed `git-*` helper names.
 pub fn main() -> ExitCode {
     let mut invocation = std::env::args_os();
-    let executable = invocation.next().unwrap_or_else(|| OsString::from("gitr"));
+    let executable = invocation.next().unwrap_or_else(|| OsString::from("rit"));
     let basename = Path::new(&executable)
         .file_stem()
         .and_then(|name| name.to_str())
-        .unwrap_or("gitr");
+        .unwrap_or("rit");
     let mut args: Vec<String> = invocation.map(sley_cli::argv_string_from_os).collect();
     let result = if basename == "scalar" {
         sley_cli::run_scalar(args)

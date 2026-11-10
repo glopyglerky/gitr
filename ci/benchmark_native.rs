@@ -19,7 +19,7 @@ const SAMPLES: usize = 7;
 const SEED: u64 = 0x4255_4c4b_4749_5452;
 
 struct Context {
-    gitr: PathBuf,
+    rit: PathBuf,
     git: PathBuf,
     compiler: PathBuf,
     fixture: PathBuf,
@@ -46,7 +46,7 @@ struct Sample {
 struct Summary {
     workload: &'static str,
     git_median_ns: u128,
-    gitr_median_ns: u128,
+    rit_median_ns: u128,
 }
 
 fn json(value: &str) -> String {
@@ -73,12 +73,12 @@ fn text_path(path: &Path) -> Result<&str> {
 fn parse() -> Result<Context> {
     let arguments: Vec<_> = env::args_os().skip(1).collect();
     if arguments.len() != 10 {
-        return Err("usage: benchmark-native --gitr /exe --git /exe --compiler-root /bundle --fixture /fresh-dir --output /fresh-dir".into());
+        return Err("usage: benchmark-native --rit /exe --git /exe --compiler-root /bundle --fixture /fresh-dir --output /fresh-dir".into());
     }
     let mut values = std::collections::BTreeMap::new();
     for pair in arguments.chunks_exact(2) {
         let name = pair[0].to_str().ok_or("invalid option name")?;
-        if !matches!(name, "--gitr" | "--git" | "--compiler-root" | "--fixture" | "--output")
+        if !matches!(name, "--rit" | "--git" | "--compiler-root" | "--fixture" | "--output")
             || values.insert(name, PathBuf::from(&pair[1])).is_some()
         {
             return Err("unknown or duplicate benchmark option".into());
@@ -86,20 +86,20 @@ fn parse() -> Result<Context> {
     }
     let mut take = |name: &str| values.remove(name).ok_or_else(|| format!("missing {name}"));
     let context = Context {
-        gitr: take("--gitr")?.canonicalize()?,
+        rit: take("--rit")?.canonicalize()?,
         git: take("--git")?.canonicalize()?,
         compiler: take("--compiler-root")?.canonicalize()?,
         fixture: take("--fixture")?,
         output: take("--output")?,
     };
-    for path in [&context.gitr, &context.git, &context.compiler, &context.fixture, &context.output] {
+    for path in [&context.rit, &context.git, &context.compiler, &context.fixture, &context.output] {
         if !path.is_absolute() || path.components().any(|part| part == std::path::Component::ParentDir) {
             return Err("benchmark paths must be absolute without parent traversal".into());
         }
         text_path(path)?;
     }
-    if !context.gitr.is_file() || !context.git.is_file() || context.gitr == context.git {
-        return Err("benchmark requires distinct existing Gitr and reference Git executables".into());
+    if !context.rit.is_file() || !context.git.is_file() || context.rit == context.git {
+        return Err("benchmark requires distinct existing Rit and reference Git executables".into());
     }
     if context.fixture.exists() || context.output.exists() {
         return Err("benchmark fixture and output must be fresh directories".into());
@@ -165,7 +165,7 @@ fn fixture(context: &Context) -> Result<(PathBuf, PathBuf)> {
         ("core.fsmonitor", "false"), ("core.untrackedCache", "false"),
         ("gc.auto", "0"), ("maintenance.auto", "false"),
         ("commit.gpgSign", "false"), ("tag.gpgSign", "false"),
-        ("color.ui", "false"), ("gitr.redbObjects", "false"),
+        ("color.ui", "false"),
     ] {
         git(context, &repository, &["config", key, value])?;
     }
@@ -182,9 +182,9 @@ fn fixture(context: &Context) -> Result<(PathBuf, PathBuf)> {
     for index in 0..COMMITS {
         let mut create = command(&context.git, &repository);
         create.args(["commit-tree", &tree, "-m", &format!("benchmark commit {index:04}")])
-            .env("GIT_AUTHOR_NAME", "Gitr Native Benchmark")
+            .env("GIT_AUTHOR_NAME", "Rit Native Benchmark")
             .env("GIT_AUTHOR_EMAIL", "benchmark@example.invalid")
-            .env("GIT_COMMITTER_NAME", "Gitr Native Benchmark")
+            .env("GIT_COMMITTER_NAME", "Rit Native Benchmark")
             .env("GIT_COMMITTER_EMAIL", "benchmark@example.invalid")
             .env("GIT_AUTHOR_DATE", format!("{} +0000", 1_700_000_000 + index))
             .env("GIT_COMMITTER_DATE", format!("{} +0000", 1_700_000_000 + index));
@@ -236,7 +236,7 @@ fn capture_metadata(context: &Context) -> Result<()> {
     fs::create_dir_all(context.output.join("hardware"))?;
     fs::create_dir_all(context.output.join("outputs"))?;
     for (name, executable, argument) in [
-        ("gitr", context.gitr.clone(), "--version"),
+        ("rit", context.rit.clone(), "--version"),
         ("reference-git", context.git.clone(), "--version"),
         ("produced-rustc", context.compiler.join("bin/rustc"), "-vV"),
         ("lustr", context.compiler.join("bin/lustr"), "--version"),
@@ -253,10 +253,10 @@ fn capture_metadata(context: &Context) -> Result<()> {
         }
     }
     let metadata = format!(
-        "{{\"format_version\":1,\"application_commit\":{},\"github_run\":{},\"gitr\":{},\"reference_git\":{},\"compiler_bundle\":{},\"os\":{},\"architecture\":{},\"available_parallelism\":{},\"profile\":{{\"name\":\"release\",\"opt_level\":3,\"lto\":false,\"codegen_units\":16,\"debug\":0,\"all_features\":true,\"note\":\"CI measurement overrides; repository default release LTO remains thin\"}},\"environment\":{{\"cleared\":true,\"PATH\":\"\",\"LC_ALL\":\"C\",\"LANG\":\"C\",\"TZ\":\"UTC\",\"GIT_CONFIG_NOSYSTEM\":\"1\",\"GIT_CONFIG_GLOBAL\":\"/dev/null\",\"GIT_TERMINAL_PROMPT\":\"0\",\"GIT_OPTIONAL_LOCKS\":\"0\",\"GIT_PAGER\":\"\",\"PAGER\":\"\"}},\"timing\":\"Instant wall time including process startup and captured stdout/stderr; comparison and artifact writes excluded\",\"cache_policy\":\"No cache drops. Verification runs precede one warmup per executable, then seven alternating measurement rounds. Shared fixture and OS page cache are warm.\",\"redb_measured\":false,\"peak_rss_measured\":false,\"limitations\":\"Selected SHA-1 read workloads on a shared hosted Linux runner; no universal speed or memory claim; reference Git uses its packaged build configuration.\"}}\n",
+        "{{\"format_version\":2,\"application_commit\":{},\"github_run\":{},\"rit\":{},\"reference_git\":{},\"compiler_bundle\":{},\"os\":{},\"architecture\":{},\"available_parallelism\":{},\"profile\":{{\"name\":\"release\",\"opt_level\":3,\"lto\":false,\"codegen_units\":16,\"debug\":0,\"all_features\":true,\"note\":\"CI measurement overrides; repository default release LTO remains thin\"}},\"environment\":{{\"cleared\":true,\"PATH\":\"\",\"LC_ALL\":\"C\",\"LANG\":\"C\",\"TZ\":\"UTC\",\"GIT_CONFIG_NOSYSTEM\":\"1\",\"GIT_CONFIG_GLOBAL\":\"/dev/null\",\"GIT_TERMINAL_PROMPT\":\"0\",\"GIT_OPTIONAL_LOCKS\":\"0\",\"GIT_PAGER\":\"\",\"PAGER\":\"\"}},\"timing\":\"Instant wall time including process startup and captured stdout/stderr; comparison and artifact writes excluded\",\"cache_policy\":\"No cache drops. Verification runs precede one warmup per executable, then seven alternating measurement rounds. Shared fixture and OS page cache are warm.\",\"redb_measured\":false,\"peak_rss_measured\":false,\"limitations\":\"Selected SHA-1 read workloads on a shared hosted Linux runner; no universal speed or memory claim; reference Git uses its packaged build configuration.\"}}\n",
         json(&env::var("GITHUB_SHA").unwrap_or_else(|_| "unknown".into())),
         json(&env::var("GITHUB_RUN_ID").unwrap_or_else(|_| "local".into())),
-        json(text_path(&context.gitr)?), json(text_path(&context.git)?),
+        json(text_path(&context.rit)?), json(text_path(&context.git)?),
         json(text_path(&context.compiler)?), json(env::consts::OS), json(env::consts::ARCH),
         std::thread::available_parallelism().map_or(0, usize::from),
     );
@@ -339,18 +339,18 @@ fn execute(context: &Context) -> Result<()> {
         }
         fs::write(context.output.join("outputs").join(format!("{}.expected.stdout", workload.name)), &expected.stdout)?;
         fs::write(context.output.join("outputs").join(format!("{}.expected.stderr", workload.name)), &expected.stderr)?;
-        let actual = invoke(&context.gitr)?;
+        let actual = invoke(&context.rit)?;
         matching_output(context, workload.name, &actual, &expected)?;
-        fs::write(context.output.join("outputs").join(format!("{}.gitr-verified.stdout", workload.name)), &actual.stdout)?;
+        fs::write(context.output.join("outputs").join(format!("{}.rit-verified.stdout", workload.name)), &actual.stdout)?;
         commands.push(format!("{{\"workload\":{},\"arguments\":[{},{}]}}", json(workload.name),
             json("--no-pager"), workload.arguments.iter().map(|value| {
                 value.to_str().map(json).ok_or("non-UTF8 benchmark argument")
             }).collect::<std::result::Result<Vec<_>, _>>()?.join(",")));
         fs::write(context.output.join("commands.json"), format!("[{}]\n", commands.join(",\n")))?;
         for iteration in 0..=SAMPLES {
-            let order = if (iteration + workload_index) % 2 == 0 { ["git", "gitr"] } else { ["gitr", "git"] };
+            let order = if (iteration + workload_index) % 2 == 0 { ["git", "rit"] } else { ["rit", "git"] };
             for (position, engine) in order.into_iter().enumerate() {
-                let executable = if engine == "git" { &context.git } else { &context.gitr };
+                let executable = if engine == "git" { &context.git } else { &context.rit };
                 let started = Instant::now();
                 let actual = invoke(executable)?;
                 let elapsed_ns = started.elapsed().as_nanos();
@@ -368,22 +368,22 @@ fn execute(context: &Context) -> Result<()> {
         summaries.push(Summary {
             workload: workload.name,
             git_median_ns: median(&samples, workload.name, "git")?,
-            gitr_median_ns: median(&samples, workload.name, "gitr")?,
+            rit_median_ns: median(&samples, workload.name, "rit")?,
         });
     }
-    let mut markdown = String::from("## Native command benchmark\n\nRelease build with opt-level 3, LTO off and 16 codegen units. The repository's default release profile still uses thin LTO. Exact exit status, stdout and stderr matched reference Git before timing and for every sample.\n\n| Workload | Git median ms | Gitr median ms | Gitr / Git |\n|---|---:|---:|---:|\n");
+    let mut markdown = String::from("## Native command benchmark\n\nRelease build with opt-level 3, LTO off and 16 codegen units. The repository's default release profile still uses thin LTO. Exact exit status, stdout and stderr matched reference Git before timing and for every sample.\n\n| Workload | Git median ms | Rit median ms | Rit / Git |\n|---|---:|---:|---:|\n");
     let mut records = Vec::new();
     for summary in &summaries {
         let git_ms = summary.git_median_ns as f64 / 1_000_000.0;
-        let gitr_ms = summary.gitr_median_ns as f64 / 1_000_000.0;
-        let ratio = gitr_ms / git_ms;
-        markdown.push_str(&format!("| {} | {git_ms:.3} | {gitr_ms:.3} | {ratio:.3} |\n", summary.workload));
-        records.push(format!("{{\"workload\":{},\"git_median_ms\":{git_ms:.6},\"gitr_median_ms\":{gitr_ms:.6},\"gitr_over_git\":{ratio:.6}}}", json(summary.workload)));
+        let rit_ms = summary.rit_median_ns as f64 / 1_000_000.0;
+        let ratio = rit_ms / git_ms;
+        markdown.push_str(&format!("| {} | {git_ms:.3} | {rit_ms:.3} | {ratio:.3} |\n", summary.workload));
+        records.push(format!("{{\"workload\":{},\"git_median_ms\":{git_ms:.6},\"rit_median_ms\":{rit_ms:.6},\"rit_over_git\":{ratio:.6}}}", json(summary.workload)));
     }
-    markdown.push_str("\nA ratio above 1 means Gitr was slower. Each executable had one warmup and seven measured invocations per workload; order alternated. Verification and warmups populated the shared OS page cache. Timings include process startup and output capture. The fixture has 1,000 tracked files, 20 modified files, 10 untracked files, and 200 linear commits sharing one tree. These are SHA-1 reads from ordinary Git loose objects. Redb performance and peak memory were not measured. Hosted runner contention and the packaged Git build can affect these results.\n");
+    markdown.push_str("\nA ratio above 1 means Rit was slower. Each executable had one warmup and seven measured invocations per workload; order alternated. Verification and warmups populated the shared OS page cache. Timings include process startup and output capture. The fixture has 1,000 tracked files, 20 modified files, 10 untracked files, and 200 linear commits sharing one tree. These are SHA-1 reads from ordinary Git loose objects. Redb performance and peak memory were not measured. Hosted runner contention and the packaged Git build can affect these results.\n");
     fs::write(context.output.join("summary.md"), &markdown)?;
     fs::write(context.output.join("results.json"), format!(
-        "{{\"format_version\":1,\"complete\":true,\"warmups_per_engine\":1,\"samples_per_engine\":{SAMPLES},\"ratio_definition\":\"gitr_median / git_median; greater than one means slower\",\"summaries\":[{}]}}\n", records.join(",\n")))?;
+        "{{\"format_version\":2,\"complete\":true,\"warmups_per_engine\":1,\"samples_per_engine\":{SAMPLES},\"ratio_definition\":\"rit_median / git_median; greater than one means slower\",\"summaries\":[{}]}}\n", records.join(",\n")))?;
     print!("{markdown}");
     if let Some(path) = env::var_os("GITHUB_STEP_SUMMARY") {
         OpenOptions::new().create(true).append(true).open(path)?.write_all(markdown.as_bytes())?;
@@ -397,7 +397,7 @@ fn run() -> Result<()> {
     let result = execute(&context);
     if let Err(error) = &result {
         fs::write(context.output.join("results.json"), format!(
-            "{{\"format_version\":1,\"complete\":false,\"error\":{}}}\n", json(&error.to_string())))?;
+            "{{\"format_version\":2,\"complete\":false,\"error\":{}}}\n", json(&error.to_string())))?;
     }
     result
 }

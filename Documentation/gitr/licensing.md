@@ -1,10 +1,13 @@
-# Gitr licensing and upstream imports
+# Rit licensing and upstream imports
+
+The project is now named Rit. Historical decisions below retain the Gitr name
+used at their recorded revisions; the rename changes no license grant.
 
 ## Current Sley composition
 
 The active root now links the pinned Apache-2.0 Sley engine and frontend. It no
 longer links the historical GPL-2.0-only Grit CLI. This is an actual dependency
-composition change, not a relabeling of inherited code. Gitr-owned entrypoints
+composition change, not a relabeling of inherited code. Rit-owned entrypoints
 remain MIT OR Apache-2.0, and Sley files and local adaptations remain Apache-2.0.
 All dependency obligations still apply. The old Grit and Git source material
 retains its original terms in the repository and history.
@@ -22,7 +25,7 @@ not the new Sley executable.**
 ## Historical decision
 
 Decision date: 2026-11-10. Source baseline:
-[`12fd77f5ed2e3f3ed6cc983c52ad7aa452ccd521`](https://github.com/glopyglerky/gitr/tree/12fd77f5ed2e3f3ed6cc983c52ad7aa452ccd521).
+[`12fd77f5ed2e3f3ed6cc983c52ad7aa452ccd521`](https://github.com/glopyglerky/rit/tree/12fd77f5ed2e3f3ed6cc983c52ad7aa452ccd521).
 
 ## Effective change
 
@@ -66,9 +69,9 @@ document governs the current project contribution grant.
 
 ## Why the executable still has a GPLv2-only constraint
 
-The baseline [root manifest](https://github.com/glopyglerky/gitr/blob/12fd77f5ed2e3f3ed6cc983c52ad7aa452ccd521/Cargo.toml#L21-L27)
+The baseline [root manifest](https://github.com/glopyglerky/rit/blob/12fd77f5ed2e3f3ed6cc983c52ad7aa452ccd521/Cargo.toml#L21-L27)
 unconditionally depends on `grit-git`, and
-[`src/main.rs`](https://github.com/glopyglerky/gitr/blob/12fd77f5ed2e3f3ed6cc983c52ad7aa452ccd521/src/main.rs#L188)
+[`src/main.rs`](https://github.com/glopyglerky/rit/blob/12fd77f5ed2e3f3ed6cc983c52ad7aa452ccd521/src/main.rs#L188)
 calls its Rust entry point in the same process. The `--isolated-git` option
 selects a runtime path, not a separate link composition.
 
@@ -117,7 +120,7 @@ change a license label.
 
 ## Maintaining the scope
 
-New independently authored reusable Gitr code should declare
+New independently authored reusable Rit code should declare
 `SPDX-License-Identifier: MIT OR Apache-2.0`, or use an equivalent explicit
 package/scope declaration. Contributors must have authority to make the stated
 grant. Preserve a donor's actual license when modifying imported material;

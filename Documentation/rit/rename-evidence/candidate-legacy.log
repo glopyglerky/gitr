@@ -1,0 +1,13 @@
+command=['/workspace/scratch/161a1b7c00ce/tooling/lustr/target/release/lustr', '--engine', 'rustc', 'test', '--manifest-path', 'vendor/sley/Cargo.toml', '--locked', '-p', 'sley-cli', '--test', 'rev_list_path_parents']
+target=/workspace/scratch/161a1b7c00ce/tooling/sley-target
+tmpdir=/tmp/gitr-coverage-vendor-7rmvzlz3
+    Finished `test` profile [unoptimized] target(s) in 0.10s
+     Running tests/rev_list_path_parents.rs (/workspace/scratch/161a1b7c00ce/tooling/sley-target/debug/deps/rev_list_path_parents-eaa8ac5f9b6a7b9c)
+
+running 3 tests
+test simplified_merge_keeps_selected_parent_branches_and_explicit_boundary ... ok
+test simplified_path_history_prunes_ancestors_before_directory_creation ... ok
+test simplified_path_history_retains_root_that_changes_the_selected_directory ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s
+

@@ -1,0 +1,39 @@
+[
+  {
+    "binary": "rit",
+    "arguments": [
+      "--version"
+    ],
+    "status": 0,
+    "stdout": "git version 2.55.0\n",
+    "stderr": ""
+  },
+  {
+    "binary": "git",
+    "arguments": [
+      "--version"
+    ],
+    "status": 0,
+    "stdout": "git version 2.55.0\n",
+    "stderr": ""
+  },
+  {
+    "binary": "scalar",
+    "arguments": [
+      "list"
+    ],
+    "status": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "binary": "rit",
+    "arguments": [
+      "filter-branch",
+      "--help"
+    ],
+    "status": 129,
+    "stdout": "",
+    "stderr": "usage: git filter-branch [options] [--] [revision-list]\nfilter-branch is unavailable in this Rit build; its native replacement is not qualified\n"
+  }
+]
