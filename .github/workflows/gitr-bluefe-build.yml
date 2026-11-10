@@ -1,0 +1,83 @@
+name: Gitr hosted produced BlueFe
+
+on:
+  workflow_call:
+    outputs:
+      artifact_id:
+        description: Verified compiler bundle produced for this workflow run
+        value: ${{ jobs.qualify.outputs.artifact_id }}
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gitr-produced-bluefe-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    outputs:
+      artifact_id: ${{ steps.bundle_artifact.outputs.artifact-id }}
+    env:
+      BLUEFE_ROOT: ${{ github.workspace }}/.gitr-ci/gitr-produced-bluefe
+      BLUEFE_SOURCE: ${{ github.workspace }}/.ci-bluefe
+      LUSTR_SOURCE: ${{ github.workspace }}/.ci-lustr
+      BLUEFE_BUILD_DIR: ${{ github.workspace }}/.gitr-ci/gitr-bluefe-build
+      LUSTR_BUILD_DIR: ${{ github.workspace }}/.gitr-ci/gitr-lustr-build
+      CARGO_TARGET_DIR: ${{ github.workspace }}/.gitr-ci/gitr-qualification-target
+      CARGO_BUILD_JOBS: 2
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      # This stock compiler builds only the dependency-free orchestration helper.
+      # It never compiles Gitr, its dependencies, or the produced BlueFe source.
+      - name: Prepare orchestration compiler
+        run: rustup toolchain install 1.99.1 --profile minimal
+      - name: Compile Rust orchestration helper
+        run: rustup run 1.99.1 rustc --edition=2024 ci/bluefe_bundle.rs -o "${{ runner.temp }}/gitr-bluefe-bundle-helper"
+      - uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830
+        id: toolchain-cache
+        with:
+          path: ${{ env.BLUEFE_ROOT }}
+          key: gitr-bluefe-ubuntu24-x64-7005dc02c9fb6674380eade443022bbc04215276-lustr-6339fbb104d6adda4be7e6be7dc637a6a9e5586b-${{ hashFiles('ci/bluefe_bundle.rs') }}
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        if: steps.toolchain-cache.outputs.cache-hit != 'true'
+        with:
+          repository: glopyglerky/blueFe
+          ref: 7005dc02c9fb6674380eade443022bbc04215276
+          path: .ci-bluefe
+          filter: blob:none
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        if: steps.toolchain-cache.outputs.cache-hit != 'true'
+        with:
+          repository: glopyglerky/lustr
+          ref: 6339fbb104d6adda4be7e6be7dc637a6a9e5586b
+          path: .ci-lustr
+          persist-credentials: false
+      - name: Build and assemble exact produced compiler
+        if: steps.toolchain-cache.outputs.cache-hit != 'true'
+        run: '"${{ runner.temp }}/gitr-bluefe-bundle-helper" build'
+      - name: Verify bundle bytes, compiler identity, sysroots and execution
+        run: '"${{ runner.temp }}/gitr-bluefe-bundle-helper" verify'
+      - uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830
+        if: steps.toolchain-cache.outputs.cache-hit != 'true'
+        with:
+          path: ${{ env.BLUEFE_ROOT }}
+          key: ${{ steps.toolchain-cache.outputs.cache-primary-key }}
+      - name: Archive the self-contained Linux compiler bundle
+        run: '"${{ runner.temp }}/gitr-bluefe-bundle-helper" archive'
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        id: bundle_artifact
+        with:
+          name: gitr-bluefe-7005dc02-lustr-6339fbb1-ubuntu24-x86_64
+          path: |
+            ${{ runner.temp }}/gitr-produced-bluefe.tar.gz
+            ${{ runner.temp }}/gitr-produced-bluefe.tar.gz.sha256
+          compression-level: 0
+          retention-days: 30

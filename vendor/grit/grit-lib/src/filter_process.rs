@@ -1,0 +1,804 @@
+//! Long-running Git filter protocol (`filter.<name>.process`), matching `git-filter` v2.
+//!
+//! See Git's `convert.c` (`apply_multi_file_filter`) and `sub-process.c` (handshake).
+
+use std::collections::{HashMap, HashSet};
+use std::io::{Read, Write};
+use std::process::{Child, ChildStdin, ChildStdout, Command, Stdio};
+use std::sync::{Arc, Mutex, OnceLock};
+
+use crate::objects::ObjectId;
+use crate::refs;
+use crate::repo::Repository;
+
+/// Max data bytes per pkt-line payload (Git `LARGE_PACKET_DATA_MAX`).
+const LARGE_PACKET_DATA_MAX: usize = 65520 - 4;
+
+const CAP_CLEAN: u32 = 1 << 0;
+const CAP_SMUDGE: u32 = 1 << 1;
+const CAP_DELAY: u32 = 1 << 2;
+
+/// Optional metadata sent with smudge (ref, treeish, blob hex).
+#[derive(Debug, Clone, Default)]
+pub struct FilterSmudgeMeta {
+    pub ref_name: Option<String>,
+    pub treeish_hex: Option<String>,
+    pub blob_hex: Option<String>,
+}
+
+/// Smudge metadata for path-only checkouts (`git checkout -- <paths>`): `blob=` only.
+#[must_use]
+pub fn smudge_meta_blob_only(blob_hex: &str) -> FilterSmudgeMeta {
+    FilterSmudgeMeta {
+        blob_hex: Some(blob_hex.to_string()),
+        ..Default::default()
+    }
+}
+
+/// Smudge metadata with `treeish=` only (e.g. `git reset --hard <commit>` / `git merge` checkout).
+#[must_use]
+pub fn smudge_meta_treeish_only(treeish_hex: &str, blob_hex: &str) -> FilterSmudgeMeta {
+    FilterSmudgeMeta {
+        treeish_hex: Some(treeish_hex.to_string()),
+        blob_hex: Some(blob_hex.to_string()),
+        ..Default::default()
+    }
+}
+
+/// Process-smudge metadata for `git reset --hard <ref>` (t0021): `ref=` when the spec names a ref.
+#[must_use]
+pub fn smudge_meta_for_reset(
+    repo: &Repository,
+    commit_spec: &str,
+    resolved_commit: &ObjectId,
+    blob_hex: &str,
+) -> FilterSmudgeMeta {
+    let tip_hex = resolved_commit.to_string();
+    let mut meta = FilterSmudgeMeta {
+        treeish_hex: Some(tip_hex.clone()),
+        blob_hex: Some(blob_hex.to_string()),
+        ..Default::default()
+    };
+    let arg_lower = commit_spec.to_ascii_lowercase();
+    let is_full_hex = arg_lower.len() == 40 && arg_lower.chars().all(|c| c.is_ascii_hexdigit());
+    if is_full_hex && arg_lower == tip_hex.to_ascii_lowercase() {
+        meta.ref_name = None;
+        return meta;
+    }
+    let mut candidates: Vec<String> = Vec::new();
+    if commit_spec == "HEAD" || commit_spec.starts_with("refs/") {
+        candidates.push(commit_spec.to_string());
+    } else {
+        candidates.push(format!("refs/heads/{commit_spec}"));
+        candidates.push(format!("refs/tags/{commit_spec}"));
+        candidates.push(commit_spec.to_string());
+    }
+    for name in candidates {
+        if let Ok(oid) = refs::resolve_ref(&repo.git_dir, &name) {
+            if oid == *resolved_commit {
+                meta.ref_name = Some(name);
+                break;
+            }
+        }
+    }
+    meta
+}
+
+/// Process-smudge metadata for `git archive` (matches Git / t0021).
+///
+/// `tree_ish_arg` is the user's argument (`main`, full commit hex, or tree hex).
+/// `resolved_tip` is the OID `archive` resolved; `tip_is_commit` is true when that object is a commit.
+#[must_use]
+pub fn smudge_meta_for_archive(
+    repo: &Repository,
+    tree_ish_arg: &str,
+    resolved_tip: &ObjectId,
+    tip_is_commit: bool,
+    blob_hex: &str,
+) -> FilterSmudgeMeta {
+    let mut meta = FilterSmudgeMeta {
+        blob_hex: Some(blob_hex.to_string()),
+        ..Default::default()
+    };
+    if !tip_is_commit {
+        meta.treeish_hex = Some(resolved_tip.to_string());
+        return meta;
+    }
+    let tip_hex = resolved_tip.to_string();
+    meta.treeish_hex = Some(tip_hex.clone());
+    let arg_lower = tree_ish_arg.to_ascii_lowercase();
+    let is_full_hex = arg_lower.len() == 40 && arg_lower.chars().all(|c| c.is_ascii_hexdigit());
+    if is_full_hex && arg_lower == tip_hex.to_ascii_lowercase() {
+        meta.ref_name = None;
+        return meta;
+    }
+    if let Ok(oid) = refs::resolve_ref(&repo.git_dir, tree_ish_arg) {
+        if oid == *resolved_tip {
+            meta.ref_name = Some(tree_ish_arg.to_string());
+            return meta;
+        }
+    }
+    let heads = format!("refs/heads/{tree_ish_arg}");
+    if let Ok(oid) = refs::resolve_ref(&repo.git_dir, &heads) {
+        if oid == *resolved_tip {
+            meta.ref_name = Some(heads);
+        }
+    }
+    meta
+}
+
+pub fn smudge_meta_for_checkout(repo: &Repository, blob_hex: &str) -> FilterSmudgeMeta {
+    let mut meta = FilterSmudgeMeta {
+        blob_hex: Some(blob_hex.to_string()),
+        ..Default::default()
+    };
+    let Ok(content) = std::fs::read_to_string(repo.git_dir.join("HEAD")) else {
+        return meta;
+    };
+    let content = content.trim();
+    if let Some(sym) = content.strip_prefix("ref: ") {
+        let sym = sym.trim();
+        meta.ref_name = Some(sym.to_string());
+        if let Ok(oid) = refs::resolve_ref(&repo.git_dir, sym) {
+            meta.treeish_hex = Some(oid.to_string());
+        }
+    } else if content.len() == 40 {
+        if let Ok(oid) = ObjectId::from_hex(content) {
+            meta.treeish_hex = Some(oid.to_string());
+        }
+    }
+    meta
+}
+
+struct RunningFilter {
+    #[allow(dead_code)]
+    child: Child,
+    stdin: Option<ChildStdin>,
+    stdout: Option<ChildStdout>,
+    caps: u32,
+}
+
+fn process_registry() -> &'static Mutex<HashMap<String, Arc<Mutex<RunningFilter>>>> {
+    static REG: OnceLock<Mutex<HashMap<String, Arc<Mutex<RunningFilter>>>>> = OnceLock::new();
+    REG.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
+fn disabled_process_filters() -> &'static Mutex<HashSet<String>> {
+    static DISABLED: OnceLock<Mutex<HashSet<String>>> = OnceLock::new();
+    DISABLED.get_or_init(|| Mutex::new(HashSet::new()))
+}
+
+/// Stop using a process filter for the rest of this process.
+///
+/// Git treats `status=abort` from a long-running filter as a request to skip all later paths for
+/// that filter driver.
+pub fn disable_process_filter(cmd: &str) {
+    if let Ok(mut disabled) = disabled_process_filters().lock() {
+        disabled.insert(cmd.to_string());
+    }
+    remove_process_filter(cmd);
+}
+
+fn process_filter_is_disabled(cmd: &str) -> bool {
+    disabled_process_filters()
+        .lock()
+        .ok()
+        .is_some_and(|disabled| disabled.contains(cmd))
+}
+
+fn remove_process_filter(cmd: &str) {
+    if let Ok(mut reg) = process_registry().lock() {
+        reg.remove(cmd);
+    }
+}
+
+fn process_transport_error(err: &str) -> bool {
+    !err.starts_with("filter status:") && !err.starts_with("filter tail status:")
+}
+
+fn set_packet_header(len: usize, out: &mut [u8; 4]) {
+    const HEX: &[u8; 16] = b"0123456789abcdef";
+    out[0] = HEX[(len >> 12) & 0xf];
+    out[1] = HEX[(len >> 8) & 0xf];
+    out[2] = HEX[(len >> 4) & 0xf];
+    out[3] = HEX[len & 0xf];
+}
+
+fn write_packet(stdin: &mut ChildStdin, payload: &[u8]) -> std::io::Result<()> {
+    if payload.len() > LARGE_PACKET_DATA_MAX {
+        return Err(std::io::Error::other("filter packet payload too large"));
+    }
+    let total = payload.len() + 4;
+    let mut hdr = [0u8; 4];
+    set_packet_header(total, &mut hdr);
+    stdin.write_all(&hdr)?;
+    stdin.write_all(payload)?;
+    stdin.flush()?;
+    Ok(())
+}
+
+fn write_packet_line(stdin: &mut ChildStdin, line: &str) -> std::io::Result<()> {
+    let mut s = line.to_string();
+    if !s.ends_with('\n') {
+        s.push('\n');
+    }
+    write_packet(stdin, s.as_bytes())
+}
+
+fn write_flush(stdin: &mut ChildStdin) -> std::io::Result<()> {
+    stdin.write_all(b"0000")?;
+    stdin.flush()
+}
+
+fn read_exact<R: Read>(r: &mut R, buf: &mut [u8]) -> std::io::Result<()> {
+    let mut off = 0;
+    while off < buf.len() {
+        let n = r.read(&mut buf[off..])?;
+        if n == 0 {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::UnexpectedEof,
+                "unexpected EOF reading pkt-line",
+            ));
+        }
+        off += n;
+    }
+    Ok(())
+}
+
+fn read_packet_header(stdout: &mut ChildStdout) -> std::io::Result<Option<[u8; 4]>> {
+    let mut hdr = [0u8; 4];
+    let mut off = 0usize;
+    while off < 4 {
+        let n = stdout.read(&mut hdr[off..])?;
+        if n == 0 {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::UnexpectedEof,
+                "unexpected EOF reading pkt-line",
+            ));
+        }
+        off += n;
+    }
+    Ok(Some(hdr))
+}
+
+fn read_packet_payload(stdout: &mut ChildStdout) -> std::io::Result<Option<Vec<u8>>> {
+    let Some(hdr) = read_packet_header(stdout)? else {
+        return Ok(None);
+    };
+    let hex = std::str::from_utf8(&hdr)
+        .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))?;
+    let total = usize::from_str_radix(hex, 16).map_err(|_| {
+        std::io::Error::new(std::io::ErrorKind::InvalidData, "invalid pkt-line header")
+    })?;
+    if total == 0 {
+        return Ok(None);
+    }
+    if total < 4 {
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::InvalidData,
+            "invalid pkt-line length",
+        ));
+    }
+    let len = total - 4;
+    let mut payload = vec![0u8; len];
+    read_exact(stdout, &mut payload)?;
+    Ok(Some(payload))
+}
+
+fn read_packet_line(stdout: &mut ChildStdout) -> std::io::Result<Option<String>> {
+    let Some(payload) = read_packet_payload(stdout)? else {
+        return Ok(None);
+    };
+    let s = String::from_utf8_lossy(&payload).into_owned();
+    Ok(Some(s.trim_end_matches('\n').to_string()))
+}
+
+/// Read pkt-lines until flush; updates `acc` only when a `status=` line appears (matches Git
+/// `subprocess_read_status` — if the segment is empty, `acc` is left unchanged).
+fn read_status(stdout: &mut ChildStdout, acc: &mut String) -> std::io::Result<()> {
+    while let Some(line) = read_packet_line(stdout)? {
+        if let Some(rest) = line.strip_prefix("status=") {
+            *acc = rest.to_string();
+        }
+    }
+    Ok(())
+}
+
+fn read_packetized(stdout: &mut ChildStdout) -> std::io::Result<Vec<u8>> {
+    let mut out = Vec::new();
+    while let Some(chunk) = read_packet_payload(stdout)? {
+        out.extend_from_slice(&chunk);
+    }
+    Ok(out)
+}
+
+fn handshake(stdout: &mut ChildStdout, stdin: &mut ChildStdin) -> std::io::Result<u32> {
+    // Match Git's test-tool rot13-filter: client sends only `version=2` before the first flush.
+    write_packet_line(stdin, "git-filter-client")?;
+    write_packet_line(stdin, "version=2")?;
+    write_flush(stdin)?;
+
+    // Match Git `sub-process.c` `handshake_version` error format
+    // (`error("Unexpected line '%s', expected %s-server", ...)`), so callers can recognize a
+    // non-filter subprocess (t0021 "invalid process filter must fail").
+    let server = read_packet_line(stdout)?;
+    let server_line = server.as_deref().unwrap_or("<flush packet>");
+    if server_line != "git-filter-server" {
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::InvalidData,
+            format!("Unexpected line '{server_line}', expected git-filter-server"),
+        ));
+    }
+    let Some(ver_line) = read_packet_line(stdout)? else {
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::InvalidData,
+            "Unexpected line '<flush packet>', expected version",
+        ));
+    };
+    let ver = ver_line
+        .strip_prefix("version=")
+        .ok_or_else(|| std::io::Error::new(std::io::ErrorKind::InvalidData, "expected version="))?;
+    if ver != "2" {
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::InvalidData,
+            format!("unsupported filter protocol version {ver}"),
+        ));
+    }
+    if read_packet_line(stdout)?.is_some() {
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::InvalidData,
+            "expected flush after version",
+        ));
+    }
+
+    write_packet_line(stdin, "capability=clean")?;
+    write_packet_line(stdin, "capability=smudge")?;
+    write_packet_line(stdin, "capability=delay")?;
+    write_flush(stdin)?;
+
+    let mut caps = 0u32;
+    while let Some(line) = read_packet_line(stdout)? {
+        if let Some(name) = line.strip_prefix("capability=") {
+            match name {
+                "clean" => caps |= CAP_CLEAN,
+                "smudge" => caps |= CAP_SMUDGE,
+                "delay" => caps |= CAP_DELAY,
+                _ => {}
+            }
+        }
+    }
+
+    Ok(caps)
+}
+
+fn spawn_running(cmd: &str) -> std::io::Result<RunningFilter> {
+    let mut child = Command::new("sh")
+        .arg("-c")
+        .arg(cmd)
+        // Upstream tests isolate `HOME` to the trash dir; if the parent shell exports
+        // `GIT_CONFIG_GLOBAL` to a host file, nested `git`/`grit` inside long-running
+        // filters would ignore `$HOME/.gitconfig` and miss `test_config_global` entries
+        // (t2082 delayed checkout).
+        .env_remove("GIT_CONFIG_GLOBAL")
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::inherit())
+        .spawn()?;
+
+    let mut stdin = child
+        .stdin
+        .take()
+        .ok_or_else(|| std::io::Error::other("filter process missing stdin"))?;
+    let mut stdout = child
+        .stdout
+        .take()
+        .ok_or_else(|| std::io::Error::other("filter process missing stdout"))?;
+
+    let caps = handshake(&mut stdout, &mut stdin)?;
+
+    Ok(RunningFilter {
+        child,
+        stdin: Some(stdin),
+        stdout: Some(stdout),
+        caps,
+    })
+}
+
+/// Ensure the long-running filter for `cmd` is running (handshake complete).
+pub fn ensure_process_filter_started(cmd: &str) -> Result<(), String> {
+    ensure_started(cmd)
+}
+
+fn ensure_started(cmd: &str) -> Result<(), String> {
+    let mut reg = process_registry()
+        .lock()
+        .map_err(|_| "filter registry poisoned".to_string())?;
+    use std::collections::hash_map::Entry;
+    match reg.entry(cmd.to_string()) {
+        Entry::Occupied(_) => Ok(()),
+        Entry::Vacant(v) => {
+            let rf = spawn_running(cmd).map_err(|e| e.to_string())?;
+            v.insert(Arc::new(Mutex::new(rf)));
+            Ok(())
+        }
+    }
+}
+
+fn write_packetized(stdin: &mut ChildStdin, data: &[u8]) -> std::io::Result<()> {
+    let mut off = 0usize;
+    while off < data.len() {
+        let end = (off + LARGE_PACKET_DATA_MAX).min(data.len());
+        write_packet(stdin, &data[off..end])?;
+        off = end;
+    }
+    Ok(())
+}
+
+/// Run clean via long-running filter `cmd` for `path` and `input`.
+pub fn apply_process_clean(cmd: &str, path: &str, input: &[u8]) -> Result<Vec<u8>, String> {
+    if process_filter_is_disabled(cmd) {
+        return Ok(input.to_vec());
+    }
+    ensure_started(cmd)?;
+    let arc = {
+        let reg = process_registry()
+            .lock()
+            .map_err(|_| "filter registry poisoned".to_string())?;
+        reg.get(cmd)
+            .cloned()
+            .ok_or_else(|| "filter process not registered".to_string())?
+    };
+    let mut rf = arc
+        .lock()
+        .map_err(|_| "filter process mutex poisoned".to_string())?;
+    if rf.caps & CAP_CLEAN == 0 {
+        return Err("filter process does not support clean".to_string());
+    }
+    let mut stdin = rf
+        .stdin
+        .take()
+        .ok_or_else(|| "filter stdin missing".to_string())?;
+    let mut stdout = rf
+        .stdout
+        .take()
+        .ok_or_else(|| "filter stdout missing".to_string())?;
+
+    let result = (|| {
+        write_packet_line(&mut stdin, "command=clean").map_err(|e| e.to_string())?;
+        write_packet_line(&mut stdin, &format!("pathname={path}")).map_err(|e| e.to_string())?;
+        write_flush(&mut stdin).map_err(|e| e.to_string())?;
+        write_packetized(&mut stdin, input).map_err(|e| e.to_string())?;
+        write_flush(&mut stdin).map_err(|e| e.to_string())?;
+
+        let mut st = String::new();
+        read_status(&mut stdout, &mut st).map_err(|e| e.to_string())?;
+        if st != "success" {
+            return Err(format!("filter status: {st}"));
+        }
+        let out = read_packetized(&mut stdout).map_err(|e| e.to_string())?;
+        read_status(&mut stdout, &mut st).map_err(|e| e.to_string())?;
+        if st != "success" {
+            return Err(format!("filter tail status: {st}"));
+        }
+        Ok(out)
+    })();
+
+    rf.stdin = Some(stdin);
+    rf.stdout = Some(stdout);
+    result
+}
+
+/// One path deferred by a process filter that returned `status=delayed` (Git `delayed_checkout`).
+#[derive(Debug, Clone)]
+pub struct DelayedProcessCheckoutEntry {
+    /// `filter.<name>.process` command line.
+    pub filter_cmd: String,
+    pub path: String,
+    pub smudge_meta: FilterSmudgeMeta,
+}
+
+/// Paths waiting for `list_available_blobs` / retry smudge (Git `finish_delayed_checkout`).
+#[derive(Debug, Default)]
+pub struct DelayedProcessCheckout {
+    pub entries: Vec<DelayedProcessCheckoutEntry>,
+}
+
+impl DelayedProcessCheckout {
+    /// Record a delayed smudge; the file must be written after [`Self::finish`].
+    pub fn push_delayed(
+        &mut self,
+        filter_cmd: String,
+        path: String,
+        smudge_meta: FilterSmudgeMeta,
+    ) {
+        self.entries.push(DelayedProcessCheckoutEntry {
+            filter_cmd,
+            path,
+            smudge_meta,
+        });
+    }
+
+    /// Complete delayed checkouts: query filters for available paths and materialize each file.
+    ///
+    /// Matches Git `finish_delayed_checkout` (entry.c): keep a list of the filters that delayed at
+    /// least one path, and repeatedly ask each filter `list_available_blobs` until it returns an
+    /// empty list (one final empty query per filter, which the t0021 log expects). A path the
+    /// filter reports that we never delayed is the "is now available ... has not been delayed
+    /// earlier" error (t0021 invalid file); any path still pending once every filter is done is the
+    /// "was not filtered properly" error (t0021 missing file).
+    ///
+    /// Like Git, every such error is reported to stderr in the `error: ...` format as it is found
+    /// (not bundled into one bubbled-up message), and the call returns
+    /// [`DelayedCheckoutError`] so the caller can exit non-zero without re-printing. Git's
+    /// `error("external filter '%s' ...")` quotes the filter command, and a buggy filter that
+    /// offers an undelayed path is dropped immediately (it is not queried again).
+    ///
+    /// `convert_retry` matches Git `CE_RETRY`: empty blob through ident/encoding/eol then a
+    /// second smudge without `can-delay` (filter returns cached output).
+    pub fn finish(
+        &mut self,
+        mut convert_retry: impl FnMut(&str, &FilterSmudgeMeta) -> Result<Vec<u8>, String>,
+        mut write_out: impl FnMut(&str, &[u8]) -> Result<(), String>,
+    ) -> Result<(), DelayedCheckoutError> {
+        // Active filters: every distinct filter command that delayed at least one path. Filters are
+        // removed once they report no more available blobs (matching Git `dco->filters`).
+        let mut filters: Vec<String> = Vec::new();
+        for e in &self.entries {
+            if !filters.contains(&e.filter_cmd) {
+                filters.push(e.filter_cmd.clone());
+            }
+        }
+
+        let mut had_error = false;
+
+        while !filters.is_empty() {
+            let mut still_active: Vec<String> = Vec::new();
+            for cmd in std::mem::take(&mut filters) {
+                let available = match list_available_blobs(&cmd) {
+                    Ok(paths) => paths,
+                    Err(_) => {
+                        // Filter reported an error: drop it and do not query it again.
+                        had_error = true;
+                        continue;
+                    }
+                };
+                if available.is_empty() {
+                    // Filter is done; remove it from the active list.
+                    continue;
+                }
+                let mut drop_filter = false;
+                for path in available {
+                    let Some(pos) = self
+                        .entries
+                        .iter()
+                        .position(|e| e.filter_cmd == cmd && e.path == path)
+                    else {
+                        // The filter offered a path we never delayed (or already wrote). Match
+                        // Git: report it and stop querying this (likely buggy) filter.
+                        eprintln!(
+                            "error: external filter '{cmd}' signaled that '{path}' is now \
+available although it has not been delayed earlier"
+                        );
+                        had_error = true;
+                        drop_filter = true;
+                        continue;
+                    };
+                    let entry = self.entries.swap_remove(pos);
+                    let data = convert_retry(&entry.path, &entry.smudge_meta)
+                        .map_err(DelayedCheckoutError::Transport)?;
+                    write_out(&entry.path, &data).map_err(DelayedCheckoutError::Transport)?;
+                }
+                // Keep querying this filter until it returns an empty list, unless it just sent us
+                // an undelayed path (Git drops such a filter from the active list).
+                if !drop_filter {
+                    still_active.push(cmd);
+                }
+            }
+            filters = still_active;
+        }
+
+        // Any path the filters never made available was not filtered properly.
+        for entry in &self.entries {
+            eprintln!("error: '{}' was not filtered properly", entry.path);
+            had_error = true;
+        }
+        self.entries.clear();
+
+        if had_error {
+            return Err(DelayedCheckoutError::Reported);
+        }
+        Ok(())
+    }
+}
+
+/// Failure from [`DelayedProcessCheckout::finish`].
+#[derive(Debug)]
+pub enum DelayedCheckoutError {
+    /// One or more per-path errors were already printed to stderr in Git's `error: ...` format;
+    /// the caller should exit non-zero without printing anything further.
+    Reported,
+    /// A transport/conversion error (not a per-path filter error) with a message to bubble up.
+    Transport(String),
+}
+
+impl std::fmt::Display for DelayedCheckoutError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            DelayedCheckoutError::Reported => f.write_str("delayed checkout failed"),
+            DelayedCheckoutError::Transport(msg) => f.write_str(msg),
+        }
+    }
+}
+
+impl std::error::Error for DelayedCheckoutError {}
+
+/// True when `cmd` is running (or can be started) and advertises the `delay` capability.
+pub fn process_filter_supports_delay(cmd: &str) -> bool {
+    if cmd.is_empty() {
+        return false;
+    }
+    if process_filter_is_disabled(cmd) {
+        return false;
+    }
+    if ensure_process_filter_started(cmd).is_err() {
+        return false;
+    }
+    let Ok(reg) = process_registry().lock() else {
+        return false;
+    };
+    let Some(arc) = reg.get(cmd) else {
+        return false;
+    };
+    let Ok(rf) = arc.lock() else {
+        return false;
+    };
+    (rf.caps & CAP_DELAY) != 0
+}
+
+fn list_available_blobs(cmd: &str) -> Result<Vec<String>, String> {
+    ensure_started(cmd)?;
+    let arc = {
+        let reg = process_registry()
+            .lock()
+            .map_err(|_| "filter registry poisoned".to_string())?;
+        reg.get(cmd)
+            .cloned()
+            .ok_or_else(|| "filter process not registered".to_string())?
+    };
+    let mut rf = arc
+        .lock()
+        .map_err(|_| "filter process mutex poisoned".to_string())?;
+    if rf.caps & CAP_DELAY == 0 {
+        return Err("filter does not support delay".to_string());
+    }
+    let mut stdin = rf
+        .stdin
+        .take()
+        .ok_or_else(|| "filter stdin missing".to_string())?;
+    let mut stdout = rf
+        .stdout
+        .take()
+        .ok_or_else(|| "filter stdout missing".to_string())?;
+
+    let result = (|| {
+        write_packet_line(&mut stdin, "command=list_available_blobs").map_err(|e| e.to_string())?;
+        write_flush(&mut stdin).map_err(|e| e.to_string())?;
+        let mut paths = Vec::new();
+        loop {
+            let line = read_packet_line(&mut stdout).map_err(|e| e.to_string())?;
+            let Some(line) = line else {
+                break;
+            };
+            if let Some(p) = line.strip_prefix("pathname=") {
+                paths.push(p.to_string());
+            }
+        }
+        let mut st = String::new();
+        read_status(&mut stdout, &mut st).map_err(|e| e.to_string())?;
+        if st != "success" {
+            return Err(format!("list_available_blobs status: {st}"));
+        }
+        Ok(paths)
+    })();
+
+    rf.stdin = Some(stdin);
+    rf.stdout = Some(stdout);
+    result
+}
+
+/// Run smudge via long-running filter.
+///
+/// When `can_delay` is true and the filter returns `status=delayed`, returns `Ok(None)` after
+/// recording is left to the caller ([`DelayedProcessCheckout`]).
+pub fn apply_process_smudge(
+    cmd: &str,
+    path: &str,
+    input: &[u8],
+    meta: Option<&FilterSmudgeMeta>,
+    can_delay: bool,
+) -> Result<Option<Vec<u8>>, String> {
+    if process_filter_is_disabled(cmd) {
+        return Ok(Some(input.to_vec()));
+    }
+    ensure_started(cmd)?;
+    let arc = {
+        let reg = process_registry()
+            .lock()
+            .map_err(|_| "filter registry poisoned".to_string())?;
+        reg.get(cmd)
+            .cloned()
+            .ok_or_else(|| "filter process not registered".to_string())?
+    };
+    let mut rf = arc
+        .lock()
+        .map_err(|_| "filter process mutex poisoned".to_string())?;
+    let caps = rf.caps;
+    let mut stdin = rf
+        .stdin
+        .take()
+        .ok_or_else(|| "filter stdin missing".to_string())?;
+    let mut stdout = rf
+        .stdout
+        .take()
+        .ok_or_else(|| "filter stdout missing".to_string())?;
+
+    let result = (|| {
+        if caps & CAP_SMUDGE == 0 {
+            return Ok(Some(input.to_vec()));
+        }
+        write_packet_line(&mut stdin, "command=smudge").map_err(|e| e.to_string())?;
+        write_packet_line(&mut stdin, &format!("pathname={path}")).map_err(|e| e.to_string())?;
+        if let Some(m) = meta {
+            if let Some(r) = &m.ref_name {
+                write_packet_line(&mut stdin, &format!("ref={r}")).map_err(|e| e.to_string())?;
+            }
+            if let Some(t) = &m.treeish_hex {
+                write_packet_line(&mut stdin, &format!("treeish={t}"))
+                    .map_err(|e| e.to_string())?;
+            }
+            if let Some(b) = &m.blob_hex {
+                write_packet_line(&mut stdin, &format!("blob={b}")).map_err(|e| e.to_string())?;
+            }
+        }
+        if can_delay && (caps & CAP_DELAY) != 0 {
+            write_packet_line(&mut stdin, "can-delay=1").map_err(|e| e.to_string())?;
+        }
+        write_flush(&mut stdin).map_err(|e| e.to_string())?;
+        write_packetized(&mut stdin, input).map_err(|e| e.to_string())?;
+        write_flush(&mut stdin).map_err(|e| e.to_string())?;
+
+        let mut st = String::new();
+        read_status(&mut stdout, &mut st).map_err(|e| e.to_string())?;
+        if st == "delayed" {
+            if !can_delay {
+                return Err("unexpected delayed status from filter".to_string());
+            }
+            return Ok(None);
+        }
+        if st != "success" {
+            return Err(format!("filter status: {st}"));
+        }
+        let out = read_packetized(&mut stdout).map_err(|e| e.to_string())?;
+        read_status(&mut stdout, &mut st).map_err(|e| e.to_string())?;
+        if st != "success" {
+            return Err(format!("filter tail status: {st}"));
+        }
+        Ok(Some(out))
+    })();
+
+    if result
+        .as_ref()
+        .err()
+        .is_some_and(|e| process_transport_error(e))
+    {
+        drop(stdin);
+        drop(stdout);
+        drop(rf);
+        remove_process_filter(cmd);
+        return result;
+    }
+
+    rf.stdin = Some(stdin);
+    rf.stdout = Some(stdout);
+    result
+}

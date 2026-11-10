@@ -1,5 +1,6 @@
-//! Reference Git is a fixture/oracle only. Native authoring runs with an empty
-//! PATH in end-to-end tests to catch accidental subprocess fallback.
+//! Retained isolated-gix authoring and redb action qualification. The default
+//! Git CLI is tested independently in native_porcelain.rs. Reference Git is a
+//! fixture/oracle only; authoring uses an empty PATH to catch C Git fallback.
 use gitr_test_support::{guest, Guest};
 use std::{
     ffi::OsStr,
@@ -11,7 +12,10 @@ use std::{
 use tempfile::TempDir;
 
 fn command(program: impl AsRef<OsStr>, cwd: &Path, args: &[&str]) -> Command {
-    let mut cmd = Command::new(program);
+    let mut cmd = Command::new(program.as_ref());
+    if program.as_ref() == OsStr::new(env!("CARGO_BIN_EXE_gitr")) {
+        cmd.arg("--isolated-git");
+    }
     cmd.current_dir(cwd)
         .args(args)
         .env("GIT_CONFIG_NOSYSTEM", "1")

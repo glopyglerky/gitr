@@ -1,0 +1,109 @@
+name: Gitr native qualification with produced BlueFe
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: gitr-native-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  compiler:
+    uses: ./.github/workflows/gitr-bluefe-build.yml
+  native:
+    needs: compiler
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    env:
+      # Use only this run's verified bundle, built from the exact source pins.
+      # The compiler job verifies cache hits and rebuilds if its cache is absent.
+      GITR_BLUEFE_RUN_ID: ${{ github.run_id }}
+      GITR_BLUEFE_ARTIFACT_ID: ${{ needs.compiler.outputs.artifact_id }}
+      GITR_BLUEFE_DOWNLOAD: ${{ github.workspace }}/.gitr-ci/native-compiler-download
+      BLUEFE_ROOT: ${{ github.workspace }}/.gitr-ci/native-produced-bluefe
+      GITR_NATIVE_LOGS: ${{ github.workspace }}/.gitr-ci/native-logs
+      CARGO_TARGET_DIR: ${{ github.workspace }}/.gitr-ci/native-target
+      # The existing bundle verifier rejects runtime links into these build paths.
+      BLUEFE_SOURCE: ${{ github.workspace }}/.ci-bluefe
+      LUSTR_SOURCE: ${{ github.workspace }}/.ci-lustr
+      BLUEFE_BUILD_DIR: ${{ github.workspace }}/.gitr-ci/gitr-bluefe-build
+      LUSTR_BUILD_DIR: ${{ github.workspace }}/.gitr-ci/gitr-lustr-build
+      CARGO_BUILD_JOBS: "2"
+      CARGO_PROFILE_DEV_DEBUG: "0"
+      CARGO_PROFILE_TEST_DEBUG: "0"
+      CARGO_INCREMENTAL: "0"
+      RUST_TEST_THREADS: "2"
+      GITR_REFERENCE_GIT: /usr/bin/git
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      # Stock Rust compiles only these two dependency-free orchestration files.
+      - name: Prepare orchestration compiler
+        run: rustup toolchain install 1.99.1 --profile minimal
+      - name: Compile bundle verifier
+        run: rustup run 1.99.1 rustc --edition=2024 ci/bluefe_bundle.rs -o "${{ runner.temp }}/gitr-bluefe-bundle-helper"
+      - name: Compile native qualification coordinator
+        run: rustup run 1.99.1 rustc --edition=2024 ci/qualify_native.rs -o "${{ runner.temp }}/gitr-qualify-native"
+      - name: Compile archive validator tests with the orchestration compiler
+        run: rustup run 1.99.1 rustc --edition=2024 --test ci/qualify_native.rs -o "${{ runner.temp }}/gitr-qualify-native-tests"
+      - name: Test archive validation before downloading the compiler
+        run: '"${{ runner.temp }}/gitr-qualify-native-tests"'
+      - name: Download the pinned produced compiler bundle
+        # Official actions/download-artifact v4.3.0, pinned to its release commit.
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          artifact-ids: ${{ env.GITR_BLUEFE_ARTIFACT_ID }}
+          merge-multiple: true
+          repository: ${{ github.repository }}
+          run-id: ${{ env.GITR_BLUEFE_RUN_ID }}
+          github-token: ${{ github.token }}
+          path: ${{ env.GITR_BLUEFE_DOWNLOAD }}
+      - name: Verify archive and produced compiler before application compilation
+        run: '"${{ runner.temp }}/gitr-qualify-native" prepare "${{ runner.temp }}/gitr-bluefe-bundle-helper"'
+      - name: Build all root features and targets through Lustr and BlueFe
+        id: build_root
+        run: '"${{ runner.temp }}/gitr-qualify-native" build-root'
+      - name: Run root tests through Lustr and BlueFe
+        run: '"${{ runner.temp }}/gitr-qualify-native" test-root'
+      - name: Run imported library and CLI tests through Lustr and BlueFe
+        if: ${{ !cancelled() && steps.build_root.outcome == 'success' }}
+        # Includes redb, difftool, read-safety and reference CAS regressions.
+        run: '"${{ runner.temp }}/gitr-qualify-native" test-vendor'
+      - name: Verify imported source provenance through Lustr and BlueFe
+        if: ${{ !cancelled() && steps.build_root.outcome == 'success' }}
+        run: '"${{ runner.temp }}/gitr-qualify-native" verify-import'
+      - name: Check the redb storage policy through Lustr and BlueFe
+        if: ${{ !cancelled() && steps.build_root.outcome == 'success' }}
+        run: '"${{ runner.temp }}/gitr-qualify-native" policy'
+      - name: Audit repository source through Lustr and BlueFe
+        if: ${{ !cancelled() && steps.build_root.outcome == 'success' }}
+        run: '"${{ runner.temp }}/gitr-qualify-native" audit'
+      - name: Build measured release binary through Lustr and BlueFe
+        # Measurement overrides only: opt-level 3, LTO off, 16 codegen units.
+        # Cargo.toml's default thin-LTO release profile is unchanged.
+        run: '"${{ runner.temp }}/gitr-qualify-native" build-release'
+      - name: Verify outputs and benchmark the release binary against reference Git
+        timeout-minutes: 10
+        run: '"${{ runner.temp }}/gitr-qualify-native" benchmark'
+      - name: Preserve qualification logs and exact dependency locks
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: gitr-native-qualification-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ env.GITR_NATIVE_LOGS }}
+            Cargo.lock
+            vendor/grit/Cargo.lock
+          if-no-files-found: warn
+          include-hidden-files: true
+          retention-days: 14
+          compression-level: 6

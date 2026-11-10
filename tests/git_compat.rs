@@ -1,5 +1,6 @@
-//! Differential tests use C Git only as an independent fixture/oracle.
-//! The production Git module must not invoke it.
+//! Differential tests for the retained isolated gix profile. The default
+//! imported Git CLI is qualified separately in native_porcelain.rs.
+//! C Git is only an independent fixture/oracle.
 use std::{
     ffi::OsStr,
     fs,
@@ -10,7 +11,10 @@ use std::{
 use tempfile::TempDir;
 
 fn command(program: impl AsRef<OsStr>, cwd: &Path, args: &[&str]) -> Command {
-    let mut cmd = Command::new(program);
+    let mut cmd = Command::new(program.as_ref());
+    if program.as_ref() == OsStr::new(env!("CARGO_BIN_EXE_gitr")) {
+        cmd.arg("--isolated-git");
+    }
     cmd.current_dir(cwd)
         .args(args)
         .env("GIT_CONFIG_NOSYSTEM", "1")

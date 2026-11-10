@@ -1,3 +1,5 @@
+mod native_cli;
+
 use anyhow::{Context, Result, ensure};
 use clap::{Args, Parser, Subcommand};
 use gitr::{actions, assets, chunks, db, git, lfs, remote};
@@ -175,14 +177,17 @@ enum LfsCommand {
 
 fn main() -> std::process::ExitCode {
     // The worker never parses repository options, discovers Git or opens redb.
-    let args: Vec<_> = std::env::args_os().collect();
+    let mut args: Vec<_> = std::env::args_os().collect();
     if args.len() == 2 && args[1] == actions::runner::WORKER_ARGUMENT {
         return match actions::runner::worker_stdio() {
             Ok(()) => std::process::ExitCode::SUCCESS,
             Err(_) => std::process::ExitCode::FAILURE,
         };
     }
-    match run(Cli::parse()) {
+    if native_cli::select(&mut args) {
+        grit_git::gitr_main_entry(env!("CARGO_PKG_VERSION"));
+    }
+    match run(Cli::parse_from(args)) {
         Ok(()) => std::process::ExitCode::SUCCESS,
         Err(error) => {
             if error
