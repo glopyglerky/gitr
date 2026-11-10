@@ -1,0 +1,28 @@
+{
+  "recorded_at": "2026-11-10T13:07:57.994393+00:00",
+  "kind": "final independent snapshot failure-path probes",
+  "checks": 88,
+  "passed": 88,
+  "failures": [],
+  "exit_code": 0,
+  "formats": [
+    "sha1",
+    "sha256"
+  ],
+  "candidate": "/workspace/scratch/161a1b7c00ce/tooling/gitr-target/debug/rit",
+  "candidate_sha256": "6f47a11a21d484b724dd2a9350f97c36a9214b9c051f9626222ef0c5aa04b91c",
+  "probe_script": "/workspace/scratch/717c1db38a84/snapshot_independent_review.py",
+  "probe_script_sha256": "c8376c2e24a200e569b6bb15bef8d988dfa23f3696eaf904ea3b433b9b6d6785",
+  "source_sha256": {
+    "src/snapshot.rs": "61d8e6a5b7aa6be60722f5dfa31ff13c1afcbadc643a494803a5085e2ffb9cd6",
+    "src/snapshot_cli.rs": "4e203b02c0b448d15041820809541bb85752271f230114d42008faa04c323830",
+    "src/lib.rs": "a10e9504ad0770ca482f3f6c0c18bddeaf64ed5423753d048b3d9cb8b58e06bf"
+  },
+  "spec_review": "Pass for the agreed bounded local canonical snapshot reader. No remaining blocking finding after environment guards and selector validation fixes.",
+  "limitations": [
+    "Not full Git conformance",
+    "No retention lease",
+    "No process memory or execution-time bound",
+    "No checkout filters, VFS mount, writable overlay, worker runtime, redb activation, or remote storage"
+  ]
+}

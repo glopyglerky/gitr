@@ -6,6 +6,11 @@ This is a research assessment and proposed later architecture. It does not
 activate a database, replace the selected redb backend, or change the priority
 of full native Git compatibility.
 
+The subsequent [snapshot reader implementation](snapshot-reader.md) delivers
+the first local source-read interface over the existing Git object store.
+The database, writable overlay, retention, and worker layers discussed here
+remain proposed work.
+
 ## Recommendation
 
 Build a Git-aware repository service from existing storage and execution

@@ -1,0 +1,53 @@
+{
+  "command": "lustr --engine rustc run --manifest-path xtask/Cargo.toml --locked -- audit",
+  "exit_code": 0,
+  "inventory_source": "Git index with implementation, tests, documentation, and validation evidence staged; this summary was generated afterward.",
+  "tracked_paths": 1819,
+  "class_counts": {
+    "declarative/data": 193,
+    "notice/metadata": 20,
+    "prose/evidence": 487,
+    "rust": 523,
+    "rust/compatibility-fixtures": 596
+  },
+  "changed_source_and_lock_entries": [
+    {
+      "mode": "100644",
+      "blob": "88cc5e4683d8606bcd96f67482a65032b813cb2e",
+      "class": "declarative/data",
+      "path": "Cargo.lock"
+    },
+    {
+      "mode": "100644",
+      "blob": "fbc6e778eeb1962125ca0eaeee8b5a95bd52f69e",
+      "class": "declarative/data",
+      "path": "Cargo.toml"
+    },
+    {
+      "mode": "100644",
+      "blob": "9d38c9a5bb46d42e104b5bb457f0aba4e5e4a1df",
+      "class": "rust",
+      "path": "src/lib.rs"
+    },
+    {
+      "mode": "100644",
+      "blob": "09ae159d62b5b69e20e1c3fe820030534b551ff1",
+      "class": "rust",
+      "path": "src/snapshot.rs"
+    },
+    {
+      "mode": "100644",
+      "blob": "afe3a64a09b4ab65feaf2eb520b2643b94e9c2dc",
+      "class": "rust",
+      "path": "src/snapshot_cli.rs"
+    },
+    {
+      "mode": "100644",
+      "blob": "b316d78a543f5ede6d31adb2b1fc1da724c12017",
+      "class": "rust",
+      "path": "tests/snapshots.rs"
+    }
+  ],
+  "full_stdout_sha256": "fb36d937d090767bb35d30c9d848df592109c2fd4d252c34554dbdf91d698fee",
+  "note": "Extension classification is an inventory, not proof that files contain no embedded programs. Donor composition and hashes are checked separately."
+}

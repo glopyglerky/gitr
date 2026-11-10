@@ -5,6 +5,9 @@
 
 use std::{ffi::OsString, path::Path, process::ExitCode};
 
+pub mod snapshot;
+mod snapshot_cli;
+
 /// Run the standard Git interface, including installed `git-*` helper names.
 pub fn main() -> ExitCode {
     let mut invocation = std::env::args_os();
@@ -13,7 +16,22 @@ pub fn main() -> ExitCode {
         .file_stem()
         .and_then(|name| name.to_str())
         .unwrap_or("rit");
-    let mut args: Vec<String> = invocation.map(sley_cli::argv_string_from_os).collect();
+    let raw_args: Vec<OsString> = invocation.collect();
+    // An explicit Rit-only option keeps Git command names, aliases, and helper
+    // dispatch unchanged. Preserve OsString until the snapshot path is decoded.
+    if basename == "rit" && raw_args.first().is_some_and(|arg| arg == "--rit-snapshot") {
+        return match snapshot_cli::run(&raw_args[1..]) {
+            Ok(()) => ExitCode::SUCCESS,
+            Err(error) => {
+                eprintln!("rit snapshot: {error}");
+                ExitCode::from(128)
+            }
+        };
+    }
+    let mut args: Vec<String> = raw_args
+        .into_iter()
+        .map(sley_cli::argv_string_from_os)
+        .collect();
     let result = if basename == "scalar" {
         sley_cli::run_scalar(args)
     } else {

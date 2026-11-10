@@ -1,0 +1,131 @@
+{
+  "schema": 1,
+  "project": "Rit",
+  "repository": "https://github.com/glopyglerky/rit",
+  "recorded_at": "2026-11-10T13:08:55.769479+00:00",
+  "baseline_commit": "c57d3c2c854ccd611738c80c87edae37f5ecdc7d",
+  "scope": "Read-only canonical committed-source API and explicit Rit CLI over existing Sley loose/pack objects; no database, retention lease, checkout, worker, or expanded Git conformance claim.",
+  "local_compiler": {
+    "lustr_revision": "6339fbb104d6adda4be7e6be7dc637a6a9e5586b",
+    "engine": "rustc",
+    "rust_version": "1.99.1",
+    "rust_commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
+    "application_cargo_build_jobs": 4,
+    "rust_test_threads": 2,
+    "dev_debug": 0,
+    "test_debug": 0,
+    "incremental": false
+  },
+  "reference_git": {
+    "version": "2.55.0",
+    "commit": "e9019fcafe0040228b8631c30f97ae1adb61bcdc",
+    "sha256": "bb7047c1ae5ed48d5cf47084595e7a3be4463ecd177df81ead8bfdba41d7a036"
+  },
+  "candidate": {
+    "binary": "/workspace/scratch/161a1b7c00ce/tooling/gitr-target/debug/rit",
+    "profile": "test/dev, all root features and targets",
+    "sha256": "6f47a11a21d484b724dd2a9350f97c36a9214b9c051f9626222ef0c5aa04b91c",
+    "source_sha256": {
+      "Cargo.toml": "731ba29251c40901a8694486f283079c1bfb48881f5a2456e25f844002a8bd7e",
+      "Cargo.lock": "0a2d797250593312eb281ac377e01b17514fc583e10e202f54a968ea1d51fa24",
+      "src/lib.rs": "a10e9504ad0770ca482f3f6c0c18bddeaf64ed5423753d048b3d9cb8b58e06bf",
+      "src/snapshot.rs": "61d8e6a5b7aa6be60722f5dfa31ff13c1afcbadc643a494803a5085e2ffb9cd6",
+      "src/snapshot_cli.rs": "4e203b02c0b448d15041820809541bb85752271f230114d42008faa04c323830",
+      "tests/snapshots.rs": "5de7b6c04b54a52377d11b7dfc019713e8923c14d9f2d01d889d22f9f7adc486"
+    }
+  },
+  "local_tests": {
+    "root": {
+      "passed": 18,
+      "failed": 0,
+      "log": "root-tests.log",
+      "command": "lustr --engine rustc test --locked --all-features --all-targets --no-fail-fast",
+      "breakdown": {
+        "snapshot_unit": 2,
+        "snapshot_integration": 11,
+        "existing_git_workflows_and_grep": 5
+      }
+    },
+    "targeted_snapshot": {
+      "passed": 11,
+      "failed": 0,
+      "log": "snapshot-tests.log",
+      "command": "lustr --engine rustc test --locked --test snapshots",
+      "formats": [
+        "sha1",
+        "sha256"
+      ],
+      "candidate_PATH": "empty fixture directory"
+    },
+    "independent": {
+      "passed": 88,
+      "failed": 0,
+      "record": "independent-review.json",
+      "formats": [
+        "sha1",
+        "sha256"
+      ],
+      "candidate_PATH": "empty fixture directory",
+      "qualification": "One-off independent runtime probes; retained root Rust regressions are the hosted-CI suite."
+    }
+  },
+  "review": {
+    "standards": {
+      "blocking_findings": 0,
+      "final_findings": 0
+    },
+    "spec": {
+      "blocking_findings": 0,
+      "final_findings": 0,
+      "resolved": [
+        "Reject ambient lower-level storage overrides",
+        "Verify before tag/commit traversal and reject duplicate or misplaced selectors",
+        "Permit exactly 32 symbolic-reference hops, reject 33"
+      ]
+    }
+  },
+  "qualification": {
+    "import_verification": {
+      "passed": true,
+      "log": "import-verification.log",
+      "imported_files": 680,
+      "adapted_files": 36,
+      "added_files": 11,
+      "note": "No vendored sources changed in this slice."
+    },
+    "policy": {
+      "passed": true,
+      "log": "policy.log"
+    },
+    "inventory": {
+      "record": "audit-summary.json"
+    },
+    "format_and_diff_checks": {
+      "passed": true,
+      "files": [
+        "src/lib.rs",
+        "src/snapshot.rs",
+        "src/snapshot_cli.rs",
+        "tests/snapshots.rs"
+      ]
+    }
+  },
+  "intermediate_failure": {
+    "log": "initial-fixture-failure.log",
+    "passed": 9,
+    "failed": 1,
+    "cause": "Test fixture attempted to overwrite a read-only loose-object file after fs::copy preserved its permissions. Fixed by unlinking before corrupt replacement; final suites pass."
+  },
+  "hosted_bluefe": {
+    "workflow": ".github/workflows/rit-native.yml",
+    "status": "Separate post-publication Actions gate; consult the run for the exact published commit. No local BlueFe execution is claimed."
+  },
+  "limitations": [
+    "No retention lease or protection against concurrent pruning",
+    "No streaming, strict process memory limit, deadline, or cancellation",
+    "Raw blob bytes only; no checkout filters, LFS hydration, or promised-object fetch",
+    "No writable overlay, mounted VFS, worker runtime, redb activation, or remote storage",
+    "Linux qualification only; no new Windows/macOS execution or performance certification",
+    "Full Git parity remains unfinished"
+  ]
+}

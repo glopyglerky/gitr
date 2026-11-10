@@ -91,6 +91,29 @@ The native qualification workflow builds the exact Git 2.55.0 oracle outside
 tracked source and uses the pinned produced BlueFe bundle through Lustr.
 Local Lustr/rustc checks and hosted BlueFe checks are recorded separately.
 
+## Read a committed source snapshot
+
+The explicit Rit extension reads a committed tree directly from the existing
+Git object store, without materializing a checkout:
+
+```sh
+rit --rit-snapshot inspect --repo /path/to/repository --revision HEAD
+rit --rit-snapshot list --repo /path/to/repository --revision HEAD --path src
+rit --rit-snapshot read --repo /path/to/repository --revision HEAD --path src/main.rs
+```
+
+Use the commit ID returned by `inspect` for later CLI calls that must keep the
+same revision. The public `rit::snapshot::Snapshot` Rust API resolves once and
+keeps that identity across reads. Metadata commands return JSON; `read` returns
+verified raw blob bytes. `--path-hex` preserves arbitrary Git path bytes.
+
+This implements the source reader described in the
+[snapshot implementation record](Documentation/rit/snapshot-reader.md).
+It is a local read interface, with no retention lease, writable overlay, mounted
+filesystem, or active database. Symlinks return target bytes, checkout filters
+are not applied, and unavailable objects fail. See the record for size limits
+and the four ambient storage variables that must be unset.
+
 ## Delivery order
 
 1. Establish native Git behavior and interoperability against a pinned oracle.
