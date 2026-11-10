@@ -11,7 +11,7 @@ reuse, a transactional repository graph and vector catalog, and bounded Rust/Was
 actions and dependency workflows against immutable Git snapshots. Active development
 lives on the default branch, [`master`](https://github.com/glopyglerky/gitr/tree/master).
 
-**Status: the full historical Grit Rust package family is imported and integrated;
+**Status: the historical Grit Rust CLI, library and test support are imported;
 100% Git parity and a general speed advantage are not established.**
 The default executable builds the imported Rust CLI together with Gitr's redb
 storage, catalog and actions. Source coverage and enabled product operations are

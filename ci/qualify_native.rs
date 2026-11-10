@@ -326,11 +326,11 @@ fn application(context: &Context, phase: &str) -> Result<()> {
             command.args(["build", "--manifest-path", "Cargo.toml", "--locked", "--all-features", "--all-targets"]);
         }
         "test-root" => {
-            command.args(["test", "--manifest-path", "Cargo.toml", "--locked", "--all-features", "--all-targets"]);
+            command.args(["test", "--manifest-path", "Cargo.toml", "--locked", "--all-features", "--all-targets", "--no-fail-fast"]);
         }
         "test-vendor" => {
             command.args(["test", "--manifest-path", "vendor/grit/Cargo.toml", "--locked",
-                "--workspace", "--all-features", "--all-targets"]);
+                "--workspace", "--all-features", "--all-targets", "--no-fail-fast"]);
         }
         "verify-import" => {
             command.args(["run", "--example", "verify_import", "--locked"]);

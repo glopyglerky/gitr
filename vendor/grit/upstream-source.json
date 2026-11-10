@@ -1846,8 +1846,8 @@
       "upstream_path": "grit-git/src/commands/diff_files.rs",
       "path": "grit-git/src/commands/diff_files.rs",
       "upstream_sha256": "aa1729385494c5e9704076bb73429d6a97eb1ff516a3450aed8f9b3e0b1bf71d",
-      "local_sha256": "aa1729385494c5e9704076bb73429d6a97eb1ff516a3450aed8f9b3e0b1bf71d",
-      "modified": false
+      "local_sha256": "44fdb639ec477436ed7bbb49aca5091a4e47156ef30f450215c68df7c3e8519e",
+      "modified": true
     },
     {
       "upstream_path": "grit-git/src/commands/diff_index.rs",
@@ -3181,7 +3181,7 @@
     },
     {
       "path": "grit-git/src/commands/receive_pack_checked.rs",
-      "local_sha256": "5a6fd3743fbae4ea40f0f5791d411856b603895e5ecd262fc2931af4aabe4ce4"
+      "local_sha256": "662f38618d0b5af62fea5ab36333de490b7cf97ac5734bdfc887a64589f31208"
     },
     {
       "path": "grit-git/src/path_safety.rs",
@@ -3229,7 +3229,7 @@
     },
     {
       "path": "grit-lib/src/refs/cas.rs",
-      "local_sha256": "ee603fbe2536effd3fbcb0e1510d26fe62eeebebfa09db37fc0701269694c9a0"
+      "local_sha256": "721c88a7a24a27ab50a64c2e8fc5a1785bcbe8fa43321e27b3fd8c4fa31b7f67"
     },
     {
       "path": "grit-lib/tests/fixtures/credential_helper.rs",

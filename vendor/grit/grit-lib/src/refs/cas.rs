@@ -61,7 +61,7 @@ pub fn compare_and_swap_ref(
         return Err(mismatch(refname));
     }
     if let Some(value) = new_value {
-        if super::packed_ref_namespace_conflict(&store, refname)? {
+        if super::packed_ref_namespace_conflict(&store, &name)? {
             return Err(Error::InvalidRef(format!(
                 "cannot update ref '{refname}': reference namespace conflict"
             )));
@@ -92,7 +92,9 @@ pub fn update_head_cas(
         HeadState::Detached { oid } => Ref::Direct(*oid),
         HeadState::Invalid => return Err(mismatch("HEAD")),
     };
-    if read_ref_snapshot(git_dir, "HEAD")?.as_ref() != Some(&expected_head) {
+    // resolve_head captures the worktree's raw HEAD. Compare that same file,
+    // not the separate namespaced HEAD used by generic ref lookups.
+    if super::read_ref_file(&lock.target)? != expected_head {
         return Err(mismatch("HEAD"));
     }
     let value = Ref::Direct(*new_oid);
@@ -160,18 +162,18 @@ impl CheckoutRefGuard {
         // Commit publication acquires HEAD before its branch. Use the same
         // order, then sort branch locks so overlapping checkouts are consistent.
         let head = RefLock::acquire(git_dir.join("HEAD"))?;
-        if read_ref_snapshot(git_dir, "HEAD")?.as_ref() != Some(&raw_head) {
+        if super::read_ref_file(&head.target)? != raw_head {
             return Err(mismatch("HEAD"));
         }
         let mut branches = Vec::new();
         for (name, expected) in expected_branches {
             let (store, stored_name) = crate::worktree_ref::resolve_ref_storage(git_dir, &name);
             let stored_name = crate::ref_namespace::storage_ref_name(&stored_name);
-            let lock = RefLock::acquire(store.join(stored_name))?;
+            let lock = RefLock::acquire(store.join(&stored_name))?;
             if read_ref_snapshot(git_dir, &name)?.as_ref() != expected.as_ref() {
                 return Err(mismatch(&name));
             }
-            if super::packed_ref_namespace_conflict(&store, &name)? {
+            if super::packed_ref_namespace_conflict(&store, &stored_name)? {
                 return Err(Error::InvalidRef(format!(
                     "cannot update ref '{name}': reference namespace conflict"
                 )));
@@ -190,7 +192,7 @@ impl CheckoutRefGuard {
                 return Err(Error::InvalidRef("checkout destination was not locked".into()));
             }
         }
-        if read_ref_snapshot(&self.git_dir, "HEAD")?.as_ref() != Some(&self.expected_head) {
+        if super::read_ref_file(&self.head.target)? != self.expected_head {
             return Err(mismatch("HEAD"));
         }
         for (name, expected, _) in &self.branches {
@@ -385,5 +387,98 @@ mod tests {
         compare_and_swap_ref(dir.path(), "refs/heads/main", Some(&next), None).unwrap();
         assert_eq!(read_ref_snapshot(dir.path(), "refs/heads/main").unwrap(), None);
         assert!(!fs::read_to_string(dir.path().join("packed-refs")).unwrap().contains("refs/heads/main"));
+    }
+
+    #[test]
+    fn namespace_conflicts_use_storage_names() {
+        // GIT_NAMESPACE affects every ref lookup in the process. Isolate it
+        // from parallel tests instead of changing the test runner's environment.
+        let output = std::process::Command::new(std::env::current_exe().unwrap())
+            .args([
+                "--ignored", "--exact",
+                "refs::cas::tests::namespace_conflicts_fixture", "--nocapture",
+            ])
+            .env("GIT_NAMESPACE", "tenant")
+            .output().unwrap();
+        assert!(output.status.success(), "{}\n{}",
+            String::from_utf8_lossy(&output.stdout), String::from_utf8_lossy(&output.stderr));
+        assert!(String::from_utf8_lossy(&output.stdout).contains("Gitr namespace conflicts verified"),
+            "the isolated namespace fixture did not execute");
+    }
+
+    #[test]
+    #[ignore = "isolated namespace fixture invoked by namespace_conflicts_use_storage_names"]
+    fn namespace_conflicts_fixture() {
+        let prefix = crate::ref_namespace::ref_storage_prefix().unwrap();
+        assert_eq!(prefix, "refs/namespaces/tenant/");
+        for descendant in [false, true] {
+            let dir = repository(false);
+            let logical = if descendant { "refs/tags/release" } else { "refs/tags/release/child" };
+            let blocker = if descendant { "refs/tags/release/child" } else { "refs/tags/release" };
+            let packed = format!("{} {prefix}{blocker}\n", oid(1));
+            fs::write(dir.path().join("packed-refs"), &packed).unwrap();
+            let result = compare_and_swap_ref(dir.path(), logical, None, Some(&Ref::Direct(oid(2))));
+            assert!(matches!(result, Err(Error::InvalidRef(ref message)) if message.contains("namespace conflict")),
+                "namespaced packed refs must prevent parent/child conflicts: {result:?}");
+            assert_eq!(fs::read_to_string(dir.path().join("packed-refs")).unwrap(), packed);
+            assert!(read_ref_snapshot(dir.path(), logical).unwrap().is_none());
+            assert!(!dir.path().join(format!("{prefix}{logical}.lock")).exists());
+        }
+
+        let dir = repository(false);
+        let packed = format!("{} refs/tags/release/child\n", oid(1));
+        fs::write(dir.path().join("packed-refs"), &packed).unwrap();
+        let new = Ref::Direct(oid(2));
+        compare_and_swap_ref(dir.path(), "refs/tags/release", None, Some(&new)).unwrap();
+        assert_eq!(read_ref_snapshot(dir.path(), "refs/tags/release").unwrap(), Some(new));
+        assert_eq!(fs::read_to_string(dir.path().join("packed-refs")).unwrap(), packed);
+
+        let dir = repository(false);
+        let namespaced_head = dir.path().join(format!("{prefix}HEAD"));
+        fs::create_dir_all(namespaced_head.parent().unwrap()).unwrap();
+        fs::write(&namespaced_head, format!("{}\n", oid(9))).unwrap();
+        fs::write(dir.path().join("HEAD"), format!("{}\n", oid(1))).unwrap();
+        let packed = format!("{} {prefix}refs/heads/release/child\n", oid(1));
+        fs::write(dir.path().join("packed-refs"), &packed).unwrap();
+        let result = CheckoutRefGuard::acquire(
+            dir.path(), &crate::state::HeadState::Detached { oid: oid(1) },
+            Some(("refs/heads/release", None)),
+        );
+        assert!(matches!(result, Err(Error::InvalidRef(ref message)) if message.contains("namespace conflict")),
+            "checkout must reject a namespaced packed descendant");
+        assert_eq!(fs::read_to_string(dir.path().join("packed-refs")).unwrap(), packed);
+        assert_eq!(super::super::read_ref_file(&dir.path().join("HEAD")).unwrap(), Ref::Direct(oid(1)));
+        assert_eq!(read_ref_snapshot(dir.path(), "HEAD").unwrap(), Some(Ref::Direct(oid(9))));
+        assert!(read_ref_snapshot(dir.path(), "refs/heads/release").unwrap().is_none());
+        assert!(!dir.path().join("HEAD.lock").exists());
+        assert!(!dir.path().join(format!("{prefix}refs/heads/release.lock")).exists());
+
+        // A matching namespaced HEAD must never authorize overwriting a stale
+        // worktree HEAD. The specialized guards own the raw HEAD.lock.
+        let old_head = crate::state::resolve_head(dir.path()).unwrap();
+        fs::write(&namespaced_head, format!("{}\n", oid(1))).unwrap();
+        fs::write(dir.path().join("HEAD"), format!("{}\n", oid(2))).unwrap();
+        assert!(update_head_cas(dir.path(), &old_head, &oid(3)).is_err());
+        assert!(CheckoutRefGuard::acquire(dir.path(), &old_head, None).is_err());
+        assert_eq!(super::super::read_ref_file(&dir.path().join("HEAD")).unwrap(), Ref::Direct(oid(2)));
+        assert_eq!(read_ref_snapshot(dir.path(), "HEAD").unwrap(), Some(Ref::Direct(oid(1))));
+
+        // A valid raw HEAD snapshot succeeds even when the namespaced HEAD
+        // differs, and publication must leave that namespaced ref untouched.
+        let current_head = crate::state::resolve_head(dir.path()).unwrap();
+        update_head_cas(dir.path(), &current_head, &oid(3)).unwrap();
+        assert_eq!(super::super::read_ref_file(&dir.path().join("HEAD")).unwrap(), Ref::Direct(oid(3)));
+        assert_eq!(read_ref_snapshot(dir.path(), "HEAD").unwrap(), Some(Ref::Direct(oid(1))));
+
+        // The final checkout comparison also uses the exact locked file.
+        fs::write(&namespaced_head, format!("{}\n", oid(3))).unwrap();
+        let current_head = crate::state::resolve_head(dir.path()).unwrap();
+        let guard = CheckoutRefGuard::acquire(dir.path(), &current_head, None).unwrap();
+        fs::write(dir.path().join("HEAD"), format!("{}\n", oid(4))).unwrap();
+        assert!(guard.publish(&Ref::Direct(oid(5)), None).is_err());
+        assert_eq!(super::super::read_ref_file(&dir.path().join("HEAD")).unwrap(), Ref::Direct(oid(4)));
+        assert_eq!(read_ref_snapshot(dir.path(), "HEAD").unwrap(), Some(Ref::Direct(oid(3))));
+        assert!(!dir.path().join("HEAD.lock").exists());
+        println!("Gitr namespace conflicts verified");
     }
 }

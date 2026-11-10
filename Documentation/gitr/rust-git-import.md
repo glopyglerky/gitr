@@ -34,6 +34,22 @@ The earlier [upstream survey](research/2026-11-08-upstream-survey/README.md) and
 candidate evidence. This change imports an implementation instead of adding
 another source-only catalog.
 
+A source recheck on 2026-11-09 retained this choice. Gitoxide's
+[current capability list](https://github.com/GitoxideLabs/gitoxide/blob/e2743fe28ef61f06585f68ec65e0e9033931e729/crate-status.md)
+still lists push and history workflow orchestration as unfinished.
+`cNameHitch/gitr` retains
+[ignored known-gap parity tests](https://github.com/cNameHitch/gitr/blob/e7a45704365bcbd4f9f6a5d83c4df07efcd5c59d/crates/git-cli/tests/parity_flags_tier1_gaps.rs),
+[installed-Git local transports](https://github.com/cNameHitch/gitr/blob/e7a45704365bcbd4f9f6a5d83c4df07efcd5c59d/crates/git-transport/src/local.rs)
+and installed-Git submodule commands. Current
+[Jujutsu remote operations](https://github.com/jj-vcs/jj/blob/caf05e3bd8fc172615cf34b0ffc3f13567e54bbe/docs/config.md)
+also invoke Git. These are useful implementations to study, but none supplies
+verified complete native CLI parity by copying its source.
+
+The imported family is specifically `grit-lib`, `grit-git` and
+`grit-test-support`. Other historical Grit workspace packages, including its
+HTTP server and protocol service packages, are outside this import. Their
+presence upstream is not a claim that Gitr includes or qualifies those services.
+
 ## Source and license composition
 
 `vendor/grit` includes `grit-lib`, `grit-git`, `grit-test-support`, their complete

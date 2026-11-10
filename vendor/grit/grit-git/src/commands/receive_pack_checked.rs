@@ -9,6 +9,7 @@ use grit_lib::objects::{ObjectId, ObjectKind};
 use grit_lib::odb::Odb;
 use grit_lib::refs::{self, Ref};
 use grit_lib::repo::Repository;
+use sha1::{Digest, Sha1};
 use std::collections::HashSet;
 use std::io::{self, Read};
 
@@ -39,11 +40,11 @@ pub(crate) fn ensure_supported(repo: &Repository, config: &ConfigSet) -> Result<
             bail!("checked receive-pack refuses configured {event} hooks until quarantine hook semantics are qualified");
         }
     }
-    for key in ["core.alternateRefsCommand", "receive.procReceiveRefs", "receive.certNonceSeed", "receive.denyDeleteCurrent", "receive.fsckObjects", "receive.shallowUpdate"] {
+    for key in ["core.alternateRefsCommand", "receive.procReceiveRefs", "receive.certNonceSeed", "receive.denyDeleteCurrent", "receive.fsckObjects", "transfer.fsckObjects", "receive.shallowUpdate"] {
         if config.get(key).is_some() { bail!("checked receive-pack does not yet support {key}"); }
     }
-    if config.entries().iter().any(|entry| entry.key.starts_with("receive.fsck.")) {
-        bail!("checked receive-pack does not yet support receive.fsck policies");
+    if config.entries().iter().any(|entry| entry.key.starts_with("receive.fsck.") || entry.key.starts_with("fsck.")) {
+        bail!("checked receive-pack does not yet support configured fsck policies");
     }
     Ok(())
 }
@@ -68,6 +69,7 @@ fn read_commands(input: &mut impl Read) -> Result<(Vec<Update>, bool)> {
     loop {
         let mut header = [0u8; 4];
         input.read_exact(&mut header).context("truncated receive-pack command header")?;
+        if !header.iter().all(u8::is_ascii_hexdigit) { bail!("invalid receive-pack command header"); }
         let len = usize::from_str_radix(std::str::from_utf8(&header)?, 16)?;
         if len == 0 { break; }
         if !(5..=65520).contains(&len) { bail!("invalid receive-pack command length"); }
@@ -75,7 +77,9 @@ fn read_commands(input: &mut impl Read) -> Result<(Vec<Update>, bool)> {
         if total > 1024 * 1024 || updates.len() >= MAX_COMMANDS { bail!("receive-pack command budget exceeded"); }
         let mut data = vec![0u8; len - 4];
         input.read_exact(&mut data)?;
-        let text = std::str::from_utf8(&data).context("receive-pack ref names must be UTF-8")?.trim_end_matches('\n');
+        let text = std::str::from_utf8(&data).context("receive-pack ref names must be UTF-8")?;
+        let text = text.strip_suffix('\n').unwrap_or(text);
+        if text.contains(['\n', '\r']) { bail!("receive-pack command contains an embedded newline"); }
         let (line, caps) = text.split_once('\0').map_or((text, None), |(line, caps)| (line, Some(caps)));
         if let Some(caps) = caps {
             if !updates.is_empty() { bail!("capabilities are only permitted on the first command"); }
@@ -94,9 +98,8 @@ fn read_commands(input: &mut impl Read) -> Result<(Vec<Update>, bool)> {
         let old = parse_oid(fields[0])?;
         let new = parse_oid(fields[1])?;
         let name = fields[2];
-        if !name.starts_with("refs/heads/") || !grit_lib::check_ref_format::receive_pack_refname_ok(name, new.is_none()) {
-            bail!("checked receive-pack currently accepts valid refs/heads/ branch names only");
-        }
+        // Ref-name policy is reported per command below, before any ref-store
+        // access. Malformed framing or non-UTF-8 still aborts the whole request.
         if !names.insert(name.to_owned()) { bail!("duplicate receive-pack ref command: {name}"); }
         updates.push(Update { old, new, name: name.to_owned() });
     }
@@ -159,7 +162,12 @@ fn execute(repo: &Repository, config: &ConfigSet, updates: &[Update], pack: &[u8
     let mut failures = Vec::with_capacity(updates.len());
     for update in updates {
         let expected = update.old.map(Ref::Direct);
-        let reason = if grit_lib::hide_refs::ref_is_hidden(&update.name, &grit_lib::ref_namespace::storage_ref_name(&update.name), &hidden) {
+        let reason = if !grit_lib::check_ref_format::receive_pack_refname_ok(&update.name, update.new.is_none()) {
+            diag.line(&format!("error: refusing to update funny ref '{}' remotely", update.name));
+            Some("funny refname".to_owned())
+        } else if !update.name.starts_with("refs/heads/") {
+            Some("checked receive-pack currently supports branch refs only".to_owned())
+        } else if grit_lib::hide_refs::ref_is_hidden(&update.name, &grit_lib::ref_namespace::storage_ref_name(&update.name), &hidden) {
             Some("hidden ref".to_owned())
         } else if refs::read_ref_snapshot(&repo.git_dir, &update.name)?.as_ref() != expected.as_ref() {
             Some("stale expected old value".to_owned())
@@ -226,10 +234,17 @@ fn execute(repo: &Repository, config: &ConfigSet, updates: &[Update], pack: &[u8
 // in unpack_objects after this resource preflight.
 fn validate_pack_budget(pack: &[u8]) -> Result<()> {
     if pack.len() < 32 || &pack[..4] != b"PACK" { bail!("invalid pack header"); }
+    let version = u32::from_be_bytes(pack[4..8].try_into()?);
+    if version != 2 && version != 3 { bail!("unsupported pack version {version}"); }
+    let payload_end = pack.len() - 20;
+    if Sha1::digest(&pack[..payload_end]).as_slice() != &pack[payload_end..] {
+        bail!("pack trailing checksum mismatch");
+    }
     let count = u32::from_be_bytes(pack[8..12].try_into()?);
     if count > MAX_OBJECTS { bail!("checked receive-pack exceeds 10000 objects"); }
     let mut pos = 12usize;
     let mut expanded = 0u64;
+    let mut object_offsets = HashSet::new();
     for _ in 0..count {
         let object_offset = pos;
         let mut byte = *pack.get(pos).context("truncated pack entry")?; pos += 1;
@@ -254,7 +269,9 @@ fn validate_pack_budget(pack: &[u8]) -> Result<()> {
                     first = false;
                     if value & 128 == 0 { break; }
                 }
-                if distance == 0 || distance > object_offset { bail!("invalid delta base offset"); }
+                if distance == 0 || object_offset.checked_sub(distance).is_none_or(|base| !object_offsets.contains(&base)) {
+                    bail!("invalid delta base offset");
+                }
             },
             7 => { pos = pos.checked_add(20).context("delta offset overflow")?; },
             _ => bail!("invalid packed object kind"),
@@ -280,6 +297,7 @@ fn validate_pack_budget(pack: &[u8]) -> Result<()> {
             expanded = expanded.checked_add(result).context("delta expansion overflow")?;
         }
         if expanded > MAX_EXPANDED { bail!("checked receive-pack expansion exceeds 128 MiB"); }
+        object_offsets.insert(object_offset);
     }
     if pos.checked_add(20) != Some(pack.len()) { bail!("pack trailer length mismatch"); }
     Ok(())
@@ -323,6 +341,7 @@ fn validate_delta_budget(delta: &[u8]) -> Result<u64> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::io::Write;
     fn packet(value: &[u8]) -> Vec<u8> {
         let mut bytes = format!("{:04x}", value.len() + 4).into_bytes();
         bytes.extend_from_slice(value); bytes.extend_from_slice(b"0000"); bytes
@@ -348,6 +367,108 @@ mod tests {
         assert_eq!(validate_delta_budget(&[1, 1, 1, b'x']).unwrap(), 1);
         assert!(validate_delta_budget(&[1, 1, 2, b'x', b'y']).is_err());
         assert!(validate_delta_budget(&[0x80, 0x80, 4, 1, 0x80]).is_err());
+    }
+
+    #[test]
+    fn command_parser_requires_hex_headers_and_single_line_commands() {
+        assert!(read_commands(&mut &b"+000"[..]).is_err());
+        let command = format!("{} {} refs/heads/main", "0".repeat(40), "1".repeat(40));
+        for suffix in ["\n\n", "\r\n", "\0agent=example\nquiet"] {
+            assert!(read_commands(&mut &packet(format!("{command}{suffix}").as_bytes())[..]).is_err());
+        }
+        assert!(read_commands(&mut &packet(format!("{command}\n").as_bytes())[..]).is_ok());
+    }
+
+    fn pack_objects(objects: &[(u8, &[u8])]) -> Vec<u8> {
+        let mut pack = b"PACK".to_vec();
+        pack.extend_from_slice(&2u32.to_be_bytes());
+        pack.extend_from_slice(&(objects.len() as u32).to_be_bytes());
+        for (kind, data) in objects {
+            let mut size = data.len();
+            let mut byte = (*kind << 4) | (size as u8 & 15);
+            size >>= 4;
+            if size != 0 { byte |= 128; }
+            pack.push(byte);
+            while size != 0 {
+                byte = size as u8 & 127;
+                size >>= 7;
+                if size != 0 { byte |= 128; }
+                pack.push(byte);
+            }
+            let mut encoder = flate2::write::ZlibEncoder::new(Vec::new(), flate2::Compression::default());
+            encoder.write_all(data).unwrap();
+            pack.extend(encoder.finish().unwrap());
+        }
+        let checksum = Sha1::digest(&pack);
+        pack.extend_from_slice(&checksum);
+        pack
+    }
+
+    fn object_id(kind: &str, data: &[u8]) -> ObjectId {
+        let mut hash = Sha1::new();
+        hash.update(format!("{kind} {}\0", data.len()).as_bytes());
+        hash.update(data);
+        ObjectId::from_bytes(&hash.finalize()).unwrap()
+    }
+
+    fn bare_repo() -> (tempfile::TempDir, Repository, ConfigSet) {
+        let root = tempfile::tempdir().unwrap();
+        std::fs::create_dir_all(root.path().join("objects")).unwrap();
+        std::fs::create_dir_all(root.path().join("refs/heads")).unwrap();
+        std::fs::write(root.path().join("HEAD"), b"ref: refs/heads/main\n").unwrap();
+        std::fs::write(root.path().join("config"), b"[core]\nrepositoryformatversion = 0\nbare = true\n[gitr]\nredbObjects = true\n").unwrap();
+        let repo = Repository::open(root.path(), None).unwrap();
+        let config = ConfigSet::load(Some(&repo.git_dir), true).unwrap();
+        (root, repo, config)
+    }
+
+    #[test]
+    fn pack_preflight_checks_version_and_checksum_before_unpacking() {
+        let pack = pack_objects(&[(3, b"payload")]);
+        validate_pack_budget(&pack).unwrap();
+        let mut corrupted = pack.clone();
+        *corrupted.last_mut().unwrap() ^= 1;
+        assert!(validate_pack_budget(&corrupted).unwrap_err().to_string().contains("checksum"));
+        let mut version = pack;
+        version[7] = 4;
+        assert!(validate_pack_budget(&version).unwrap_err().to_string().contains("version"));
+    }
+
+    #[test]
+    fn rejected_quarantine_never_publishes_objects_refs_or_redb() {
+        let (_root, repo, config) = bare_repo();
+        let missing_tree = "1".repeat(40);
+        let commit = format!("tree {missing_tree}\nauthor Test <test@example.invalid> 1 +0000\ncommitter Test <test@example.invalid> 1 +0000\n\nmissing tree\n");
+        let oid = object_id("commit", commit.as_bytes());
+        let pack = pack_objects(&[(1, commit.as_bytes())]);
+        let updates = [Update { old: None, new: Some(oid), name: "refs/heads/main".into() }];
+        assert!(execute(&repo, &config, &updates, &pack, &mut DiagSink::new(false)).is_err());
+        assert_eq!(refs::read_ref_snapshot(&repo.git_dir, "refs/heads/main").unwrap(), None);
+        assert!(!repo.git_dir.join("gitr/objects.redb").exists());
+        assert!(std::fs::read_dir(repo.odb.objects_dir()).unwrap().next().is_none());
+    }
+
+    #[test]
+    fn checked_publication_uses_redb_and_preserves_current_branch_and_stale_refs() {
+        let (_root, repo, config) = bare_repo();
+        let tree = object_id("tree", b"");
+        let commit = format!("tree {tree}\nauthor Test <test@example.invalid> 1 +0000\ncommitter Test <test@example.invalid> 1 +0000\n\ninitial\n");
+        let oid = object_id("commit", commit.as_bytes());
+        let pack = pack_objects(&[(2, b""), (1, commit.as_bytes())]);
+        let updates = [Update { old: None, new: Some(oid), name: "refs/heads/main".into() }];
+        let outcomes = execute(&repo, &config, &updates, &pack, &mut DiagSink::new(false)).unwrap();
+        assert!(outcomes[0].reject_reason.is_none());
+        assert!(repo.git_dir.join("gitr/objects.redb").is_file());
+        assert_eq!(repo.odb.read(&oid).unwrap().data, commit.as_bytes());
+        assert_eq!(refs::read_ref_snapshot(&repo.git_dir, "refs/heads/main").unwrap(), Some(Ref::Direct(oid)));
+
+        let stale = execute(&repo, &config, &updates, &[], &mut DiagSink::new(false)).unwrap();
+        assert_eq!(stale[0].reject_reason.as_deref(), Some("stale expected old value"));
+        let deletes = [Update { old: Some(oid), new: None, name: "refs/heads/main".into() }];
+        let refused = execute(&repo, &config, &deletes, &[], &mut DiagSink::new(false)).unwrap();
+        assert_eq!(refused[0].reject_reason.as_deref(), Some("deletion of the current branch prohibited"));
+        assert_eq!(refs::read_ref_snapshot(&repo.git_dir, "refs/heads/main").unwrap(), Some(Ref::Direct(oid)));
+        assert!(!std::fs::read_dir(repo.odb.objects_dir()).unwrap().any(|entry| entry.unwrap().file_name().to_string_lossy().starts_with("incoming-gitr-")));
     }
 }
 

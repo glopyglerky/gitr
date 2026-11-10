@@ -2190,27 +2190,75 @@ mod stat_fast_path_tests {
         }
     }
 
-    /// When stat and mode match the index, `read_worktree_info_fast` must not read file bytes
-    /// (stat-only fast path). Removing read permission after indexing must still yield `Unchanged`.
+    /// Matching, non-racy metadata must skip file reads even when the file is unreadable.
     #[test]
     fn stat_matching_regular_file_skips_content_hash() {
         let tmp = TempDir::new().expect("tempdir");
         let repo = init_repository(tmp.path(), false, "main", None, "files").expect("init repo");
         let file = tmp.path().join("file.txt");
         fs::write(&file, b"hello").expect("write file");
+        // chmod changes ctime. Capture the index metadata afterward so this
+        // fixture really has matching stat data and exercises the fast path.
+        fs::set_permissions(&file, fs::Permissions::from_mode(0o000)).expect("chmod");
         let meta = fs::symlink_metadata(&file).expect("metadata");
         let oid = Odb::hash_object_data(ObjectKind::Blob, b"hello");
         let entry = index_entry_from_metadata(&meta, oid);
         // Index file mtime after entry mtime => entry is not racy-clean.
         let index_mtime = Some((entry.mtime_sec.saturating_add(60), 0));
-
-        fs::set_permissions(&file, fs::Permissions::from_mode(0o000)).expect("chmod");
+        assert!(stat_matches(&entry, &meta));
+        assert!(!index_entry_is_racy(&entry, index_mtime));
 
         let status = read_worktree_info_fast(&repo, tmp.path(), &file, &entry, index_mtime)
             .expect("probe worktree");
         assert!(
             matches!(status, WorktreeStatus::Unchanged),
             "stat fast path must not read file contents"
+        );
+    }
+
+    #[test]
+    fn mismatching_ctime_reads_content() {
+        let tmp = TempDir::new().expect("tempdir");
+        let repo = init_repository(tmp.path(), false, "main", None, "files").expect("init repo");
+        let file = tmp.path().join("file.txt");
+        fs::write(&file, b"hello").expect("write file");
+        let meta = fs::symlink_metadata(&file).expect("metadata");
+        let actual_oid = Odb::hash_object_data(ObjectKind::Blob, b"hello");
+        let stale_oid = Odb::hash_object_data(ObjectKind::Blob, b"older");
+        let mut entry = index_entry_from_metadata(&meta, stale_oid);
+        // Make only ctime differ without relying on filesystem clock precision.
+        entry.ctime_nsec = (entry.ctime_nsec + 1) % 1_000_000_000;
+        let index_mtime = Some((entry.mtime_sec.saturating_add(60), 0));
+        assert!(!stat_matches(&entry, &meta));
+        assert!(!index_entry_is_racy(&entry, index_mtime));
+
+        let status = read_worktree_info_fast(&repo, tmp.path(), &file, &entry, index_mtime)
+            .expect("probe worktree");
+        assert!(
+            matches!(status, WorktreeStatus::Modified(MODE_REGULAR, oid) if oid == actual_oid),
+            "changed ctime must force hashing instead of reusing the stale index OID"
+        );
+    }
+
+    #[test]
+    fn matching_racy_metadata_reads_content() {
+        let tmp = TempDir::new().expect("tempdir");
+        let repo = init_repository(tmp.path(), false, "main", None, "files").expect("init repo");
+        let file = tmp.path().join("file.txt");
+        fs::write(&file, b"hello").expect("write file");
+        let meta = fs::symlink_metadata(&file).expect("metadata");
+        let actual_oid = Odb::hash_object_data(ObjectKind::Blob, b"hello");
+        let stale_oid = Odb::hash_object_data(ObjectKind::Blob, b"older");
+        let entry = index_entry_from_metadata(&meta, stale_oid);
+        let index_mtime = Some((entry.mtime_sec, entry.mtime_nsec));
+        assert!(stat_matches(&entry, &meta));
+        assert!(index_entry_is_racy(&entry, index_mtime));
+
+        let status = read_worktree_info_fast(&repo, tmp.path(), &file, &entry, index_mtime)
+            .expect("probe worktree");
+        assert!(
+            matches!(status, WorktreeStatus::Modified(MODE_REGULAR, oid) if oid == actual_oid),
+            "racy metadata must force hashing instead of reusing the stale index OID"
         );
     }
 }
