@@ -1,0 +1,64 @@
+command=['/workspace/scratch/161a1b7c00ce/tooling/lustr/target/release/lustr', '--engine', 'rustc', 'test', '--manifest-path', 'vendor/sley/Cargo.toml', '--locked', '-p', 'sley-cli', '--test', 'commit_large_blob', '--test', 'commit', '--', '--nocapture']
+target=/workspace/scratch/161a1b7c00ce/tooling/sley-target
+tmpdir=/tmp/gitr-coverage-vendor-r_xo6faz
+   Compiling sley-diff-merge v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-diff-merge)
+   Compiling sley-rev v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-rev)
+   Compiling sley-submodule v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-submodule)
+   Compiling sley-worktree v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-worktree)
+   Compiling sley-fsck v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-fsck)
+   Compiling sley-ref-filter v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-ref-filter)
+   Compiling sley-remote v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-remote)
+   Compiling sley-hooks v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-hooks)
+   Compiling sley-archive v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-archive)
+   Compiling sley-pretty v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-pretty)
+   Compiling sley-gc v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-gc)
+   Compiling sley-sequencer v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-sequencer)
+   Compiling sley-notes v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-notes)
+   Compiling sley-testkit v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-testkit)
+   Compiling sley v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley)
+   Compiling sley-cli v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-cli)
+    Finished `test` profile [unoptimized] target(s) in 29.37s
+     Running tests/commit.rs (/workspace/scratch/161a1b7c00ce/tooling/sley-target/debug/deps/commit-13586585e1a3d6b6)
+
+running 23 tests
+test commit_allow_empty_matches_upstream_git_objects ... ok
+test commit_all_stages_tracked_changes_like_upstream_git_objects ... ok
+test commit_amend_with_pathspec_matches_upstream_git ... ok
+test commit_author_and_date_options_match_upstream_git_objects ... ok
+test commit_amend_matches_upstream_git_objects ... ok
+test commit_clean_index_requires_allow_empty_like_upstream_git ... ok
+test commit_cleanup_whitespace_option_and_config_preserve_comments ... ok
+test commit_commentchar_auto_switch_and_exhausted ... ok
+test commit_empty_message_errors_match_upstream_git ... ok
+test commit_fixup_matches_upstream_git_objects ... ok
+test commit_identity_falls_back_to_global_gitconfig_like_upstream_git ... ok
+test commit_message_option_errors_match_upstream_git ... ok
+test commit_pathspec_pre_commit_sees_selected_worktree_content ... ok
+test commit_reedit_message_matches_upstream_git_objects_when_editor_is_noop ... ok
+test commit_reuse_message_matches_upstream_git_objects ... ok
+test commit_signoff_empty_message_places_sob_on_third_line ... ok
+test commit_squash_matches_upstream_git_objects ... ok
+test commit_status_preview_modes_match_upstream_git ... ok
+test commit_tree_argument_errors_match_upstream_git ... ok
+test commit_tree_duplicate_parent_matches_upstream_git ... ok
+test commit_tree_file_messages_match_upstream_git ... ok
+test pre_commit_hook_sees_prefix_and_command_line_author ... ok
+test commit_file_messages_match_upstream_git_objects ... ok
+
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.99s
+
+     Running tests/commit_large_blob.rs (/workspace/scratch/161a1b7c00ce/tooling/sley-target/debug/deps/commit_large_blob-b67ae8084f801078)
+
+running 9 tests
+test forced_text_overrides_size_classification_without_running_textconv ... ok
+test gitlink_summaries_keep_synthetic_text_at_zero_threshold ... ok
+test invalid_big_file_threshold_is_rejected_before_committing ... ok
+test metadata_probe_preserves_malformed_header_and_wrong_type_diagnostics ... ok
+test ordinary_incomplete_blob_still_fails_full_read ... ok
+test configured_big_file_threshold_boundaries_match_git ... ok
+test oversized_blob_add_mode_change_and_delete_summaries_match_git ... ok
+test symlink_summaries_keep_the_existing_content_path ... ok
+test summary_does_not_compile_patch_regexes_or_run_patch_commands ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.09s
+

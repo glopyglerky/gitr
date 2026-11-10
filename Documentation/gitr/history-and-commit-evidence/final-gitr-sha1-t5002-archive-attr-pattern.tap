@@ -1,0 +1,21 @@
+ok 1 - setup
+ok 2 - git archive
+ok 3 -  archive/ignored does not exist
+ok 4 -  archive/not-ignored-dir/ignored does not exist
+ok 5 -  archive/not-ignored-dir/ignored-only-if-dir exists
+ok 6 -  archive/not-ignored-dir/ exists
+ok 7 -  archive/ignored-only-if-dir/ does not exist
+ok 8 -  archive/ignored-ony-if-dir/ignored-by-ignored-dir does not exist
+ok 9 -  archive/ignored-without-slash/ does not exist
+ok 10 -  archive/ignored-without-slash/foo does not exist
+ok 11 -  archive/wildcard-without-slash/ does not exist
+ok 12 -  archive/wildcard-without-slash/foo does not exist
+ok 13 -  archive/deep/and/slashless/ does not exist
+ok 14 -  archive/deep/and/slashless/foo does not exist
+ok 15 -  archive/deep/with/wildcard/ does not exist
+ok 16 -  archive/deep/with/wildcard/foo does not exist
+ok 17 -  archive/one-level-lower/ does not exist
+ok 18 -  archive/one-level-lower/two-levels-lower/ignored-only-if-dir/ does not exist
+ok 19 -  archive/one-level-lower/two-levels-lower/ignored-ony-if-dir/ignored-by-ignored-dir does not exist
+# passed all 19 test(s)
+1..19

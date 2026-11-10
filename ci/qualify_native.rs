@@ -381,14 +381,16 @@ fn application(context: &Context, phase: &str) -> Result<()> {
                 "-p", "sley-index", "-p", "sley-refs", "-p", "sley-odb",
                 "-p", "sley-pack", "-p", "sley-protocol", "-p", "sley-worktree",
                 "-p", "sley-pathspec", "-p", "sley-i18n", "-p", "sley-archive",
-                "-p", "sley-rev", "-p", "sley-remote"]);
+                "-p", "sley-rev", "-p", "sley-remote", "-p", "sley-diff-merge"]);
         }
         "test-vendor-cli" => {
             require_passed(context, &["build-oracle"])?;
             command.args(["test", "--manifest-path", "vendor/sley/Cargo.toml", "--locked",
                 "-p", "sley-cli", "--test", "archive", "--test", "archive_remote",
                 "--test", "upload_archive", "--test", "filter_branch_unavailable",
-                "--test", "rev_parse", "--test", "rev_parse_pseudo_names", "--no-fail-fast"])
+                "--test", "rev_parse", "--test", "rev_parse_pseudo_names",
+                "--test", "commit", "--test", "commit_large_blob",
+                "--test", "rev_list", "--test", "rev_list_path_parents", "--no-fail-fast"])
                 // New command fixtures can exercise the actual root executable
                 // while retaining their standalone donor-workspace test route.
                 .env("GITR_TEST_BIN", context.target.join("debug/gitr"));

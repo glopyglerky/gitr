@@ -249,6 +249,26 @@ impl UserdiffResolver {
             .map(|value| value.as_bytes().to_vec())
     }
 
+    /// Resolve only the binary/text attribute for stat-only rendering. Hunk
+    /// patterns, word regexes, textconv, and external commands are irrelevant
+    /// to a commit summary and must not be compiled or initialized here.
+    pub(crate) fn binary_for_path(&self, path: &[u8]) -> Option<bool> {
+        let attributes = self.attributes.as_ref()?;
+        let state = attributes
+            .attributes_for_path(path, &[b"diff".to_vec()], false)
+            .into_iter()
+            .next()?
+            .state?;
+        match state {
+            sley_worktree::AttributeState::Set => Some(false),
+            sley_worktree::AttributeState::Unset => Some(true),
+            sley_worktree::AttributeState::Value(name) => {
+                let name = std::str::from_utf8(&name).ok()?;
+                self.config.as_ref()?.get_bool("diff", Some(name), "binary")
+            }
+        }
+    }
+
     /// Resolve the driver for `path`, or `None` when the `diff` attribute is
     /// unspecified (default behaviour). Fatal pattern errors propagate.
     pub(crate) fn driver_for_path(&self, path: &[u8]) -> Result<Option<Rc<ResolvedDriver>>> {

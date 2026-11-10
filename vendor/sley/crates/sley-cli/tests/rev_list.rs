@@ -244,6 +244,10 @@ fn rev_list_linear_history_matches_upstream_git() {
             &root,
             &[
                 "-c",
+                "user.name=Example User",
+                "-c",
+                "user.email=example@example.invalid",
+                "-c",
                 "i18n.commitEncoding=ISO-8859-1",
                 "commit-tree",
                 &tree,

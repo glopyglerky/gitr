@@ -1,0 +1,44 @@
+ok 1 - setup
+ok 2 - log --full-history --topo-order
+ok 3 - log --full-history
+ok 4 - log --full-history --date-order
+ok 5 - log --full-history --author-date-order
+ok 6 - log --full-history -- file
+ok 7 - log --full-history --topo-order -- file
+ok 8 - log --full-history --date-order -- file
+ok 9 - log --full-history --author-date-order -- file
+ok 10 - log --simplify-merges -- file
+ok 11 - log --simplify-merges --topo-order -- file
+ok 12 - log --simplify-merges --date-order -- file
+ok 13 - log --simplify-merges --author-date-order -- file
+ok 14 - log -- file
+ok 15 - log --topo-order -- file
+ok 16 - log --date-order -- file
+ok 17 - log --author-date-order -- file
+ok 18 - log --first-parent -- another-file
+ok 19 - log --first-parent --topo-order -- another-file
+ok 20 - log --first-parent L
+ok 21 - log --exclude-first-parent-only F ^L
+ok 22 - log F ^L
+ok 23 - log L ^F
+ok 24 - log --exclude-first-parent-only L ^F
+ok 25 - log --exclude-first-parent-only --first-parent L ^F
+ok 26 - log --full-history E -- lost
+ok 27 - full history simplification without parent
+ok 28 - --full-diff is not affected by --parents
+ok 29 - setup rebuild repo
+ok 30 - log -- file
+ok 31 - log --show-pulls -- file
+ok 32 - log --full-history --topo-order -- file
+ok 33 - log --simplify-merges --topo-order --show-pulls -- file
+ok 34 - log --simplify-merges --topo-order -- file
+ok 35 - log --first-parent -- file
+ok 36 - log --first-parent --show-pulls -- file
+ok 37 - log --topo-order --ancestry-path A..HEAD -- file
+ok 38 - log --topo-order --show-pulls --ancestry-path A..HEAD -- file
+ok 39 - log --topo-order --full-history --ancestry-path A..HEAD -- file
+ok 40 - log --topo-order --simplify-merges --ancestry-path A..HEAD -- file
+ok 41 - log --topo-order --simplify-merges --show-pulls --ancestry-path A..HEAD -- file
+ok 42 - log --graph --simplify-merges --show-pulls
+# passed all 42 test(s)
+1..42

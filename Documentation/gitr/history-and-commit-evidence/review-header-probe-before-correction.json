@@ -1,0 +1,242 @@
+[
+  {
+    "format": "sha1",
+    "case": "invalid-zlib",
+    "program": "baseline",
+    "code": 1,
+    "stdout": "[main (root-commit) 320eccac1c61] invalid-zlib\n",
+    "stderr": "error: inflate: data stream error (incorrect header check)\nerror: inflate: data stream error (incorrect header check)\ngit: invalid object: unable to unpack 88f1d710e2b184191a7d9bb3e024ce417de80894 header\n"
+  },
+  {
+    "format": "sha1",
+    "case": "invalid-zlib",
+    "program": "current",
+    "code": 1,
+    "stdout": "[main (root-commit) 320eccac1c61] invalid-zlib\n",
+    "stderr": "error: inflate: data stream error (incorrect header check)\nerror: inflate: data stream error (incorrect header check)\nerror: inflate: data stream error (incorrect header check)\nerror: inflate: data stream error (incorrect header check)\nsley: invalid object: unable to unpack 88f1d710e2b184191a7d9bb3e024ce417de80894 header\n"
+  },
+  {
+    "format": "sha1",
+    "case": "invalid-zlib",
+    "program": "oracle",
+    "code": 0,
+    "stdout": "[main (root-commit) 320eccac1c61] invalid-zlib\n 1 file changed, 1 insertion(+)\n create mode 100644 file\n",
+    "stderr": ""
+  },
+  {
+    "format": "sha1",
+    "case": "unknown-method",
+    "program": "baseline",
+    "code": 1,
+    "stdout": "[main (root-commit) 5bc8fdeeb1f6] unknown-method\n",
+    "stderr": "error: inflate: data stream error (unknown compression method)\nerror: inflate: data stream error (unknown compression method)\ngit: invalid object: unable to unpack 88f1d710e2b184191a7d9bb3e024ce417de80894 header\n"
+  },
+  {
+    "format": "sha1",
+    "case": "unknown-method",
+    "program": "current",
+    "code": 1,
+    "stdout": "[main (root-commit) 5bc8fdeeb1f6] unknown-method\n",
+    "stderr": "error: inflate: data stream error (unknown compression method)\nerror: inflate: data stream error (unknown compression method)\nerror: inflate: data stream error (unknown compression method)\nerror: inflate: data stream error (unknown compression method)\nsley: invalid object: unable to unpack 88f1d710e2b184191a7d9bb3e024ce417de80894 header\n"
+  },
+  {
+    "format": "sha1",
+    "case": "unknown-method",
+    "program": "oracle",
+    "code": 0,
+    "stdout": "[main (root-commit) 5bc8fdeeb1f6] unknown-method\n 1 file changed, 1 insertion(+)\n create mode 100644 file\n",
+    "stderr": ""
+  },
+  {
+    "format": "sha1",
+    "case": "bad-size",
+    "program": "baseline",
+    "code": 1,
+    "stdout": "[main (root-commit) 1fa28d6c2143] bad-size\n",
+    "stderr": "git: invalid object: invalid object size\n"
+  },
+  {
+    "format": "sha1",
+    "case": "bad-size",
+    "program": "current",
+    "code": 1,
+    "stdout": "[main (root-commit) 1fa28d6c2143] bad-size\n",
+    "stderr": "sley: invalid object: invalid object size\n"
+  },
+  {
+    "format": "sha1",
+    "case": "bad-size",
+    "program": "oracle",
+    "code": 0,
+    "stdout": "[main (root-commit) 1fa28d6c2143] bad-size\n 1 file changed, 1 insertion(+)\n create mode 100644 file\n",
+    "stderr": ""
+  },
+  {
+    "format": "sha1",
+    "case": "overlong-header",
+    "program": "baseline",
+    "code": 1,
+    "stdout": "[main (root-commit) 76853429b375] overlong-header\n",
+    "stderr": "git: invalid object: header for 88f1d710e2b184191a7d9bb3e024ce417de80894 too long, exceeds 32 bytes\n"
+  },
+  {
+    "format": "sha1",
+    "case": "overlong-header",
+    "program": "current",
+    "code": 1,
+    "stdout": "[main (root-commit) 76853429b375] overlong-header\n",
+    "stderr": "sley: invalid object: header for 88f1d710e2b184191a7d9bb3e024ce417de80894 too long, exceeds 32 bytes\n"
+  },
+  {
+    "format": "sha1",
+    "case": "overlong-header",
+    "program": "oracle",
+    "code": 0,
+    "stdout": "[main (root-commit) 76853429b375] overlong-header\n 1 file changed, 1 insertion(+)\n create mode 100644 file\n",
+    "stderr": ""
+  },
+  {
+    "format": "sha1",
+    "case": "wrong-type",
+    "program": "baseline",
+    "code": 1,
+    "stdout": "[main (root-commit) f0aa4227d8e4] wrong-type\n",
+    "stderr": "git: invalid object: diff expected blob object 88f1d710e2b184191a7d9bb3e024ce417de80894\n"
+  },
+  {
+    "format": "sha1",
+    "case": "wrong-type",
+    "program": "current",
+    "code": 1,
+    "stdout": "[main (root-commit) f0aa4227d8e4] wrong-type\n",
+    "stderr": "sley: invalid object: diff expected blob object 88f1d710e2b184191a7d9bb3e024ce417de80894\n"
+  },
+  {
+    "format": "sha1",
+    "case": "wrong-type",
+    "program": "oracle",
+    "code": 0,
+    "stdout": "[main (root-commit) f0aa4227d8e4] wrong-type\n 1 file changed, 1 insertion(+)\n create mode 100644 file\n",
+    "stderr": ""
+  },
+  {
+    "format": "sha256",
+    "case": "invalid-zlib",
+    "program": "baseline",
+    "code": 1,
+    "stdout": "[main (root-commit) 325ca70b9073] invalid-zlib\n",
+    "stderr": "error: inflate: data stream error (incorrect header check)\nerror: inflate: data stream error (incorrect header check)\ngit: invalid object: unable to unpack ff6c49075ee2c5815767f65d8674118bd9fb4e7a2a90799bf5314396953b4bd6 header\n"
+  },
+  {
+    "format": "sha256",
+    "case": "invalid-zlib",
+    "program": "current",
+    "code": 1,
+    "stdout": "[main (root-commit) 325ca70b9073] invalid-zlib\n",
+    "stderr": "error: inflate: data stream error (incorrect header check)\nerror: inflate: data stream error (incorrect header check)\nerror: inflate: data stream error (incorrect header check)\nerror: inflate: data stream error (incorrect header check)\nsley: invalid object: unable to unpack ff6c49075ee2c5815767f65d8674118bd9fb4e7a2a90799bf5314396953b4bd6 header\n"
+  },
+  {
+    "format": "sha256",
+    "case": "invalid-zlib",
+    "program": "oracle",
+    "code": 0,
+    "stdout": "[main (root-commit) 325ca70b9073] invalid-zlib\n 1 file changed, 1 insertion(+)\n create mode 100644 file\n",
+    "stderr": ""
+  },
+  {
+    "format": "sha256",
+    "case": "unknown-method",
+    "program": "baseline",
+    "code": 1,
+    "stdout": "[main (root-commit) 6d9df81fe028] unknown-method\n",
+    "stderr": "error: inflate: data stream error (unknown compression method)\nerror: inflate: data stream error (unknown compression method)\ngit: invalid object: unable to unpack ff6c49075ee2c5815767f65d8674118bd9fb4e7a2a90799bf5314396953b4bd6 header\n"
+  },
+  {
+    "format": "sha256",
+    "case": "unknown-method",
+    "program": "current",
+    "code": 1,
+    "stdout": "[main (root-commit) 6d9df81fe028] unknown-method\n",
+    "stderr": "error: inflate: data stream error (unknown compression method)\nerror: inflate: data stream error (unknown compression method)\nerror: inflate: data stream error (unknown compression method)\nerror: inflate: data stream error (unknown compression method)\nsley: invalid object: unable to unpack ff6c49075ee2c5815767f65d8674118bd9fb4e7a2a90799bf5314396953b4bd6 header\n"
+  },
+  {
+    "format": "sha256",
+    "case": "unknown-method",
+    "program": "oracle",
+    "code": 0,
+    "stdout": "[main (root-commit) 6d9df81fe028] unknown-method\n 1 file changed, 1 insertion(+)\n create mode 100644 file\n",
+    "stderr": ""
+  },
+  {
+    "format": "sha256",
+    "case": "bad-size",
+    "program": "baseline",
+    "code": 1,
+    "stdout": "[main (root-commit) f436cd5b9b07] bad-size\n",
+    "stderr": "git: invalid object: invalid object size\n"
+  },
+  {
+    "format": "sha256",
+    "case": "bad-size",
+    "program": "current",
+    "code": 1,
+    "stdout": "[main (root-commit) f436cd5b9b07] bad-size\n",
+    "stderr": "sley: invalid object: invalid object size\n"
+  },
+  {
+    "format": "sha256",
+    "case": "bad-size",
+    "program": "oracle",
+    "code": 0,
+    "stdout": "[main (root-commit) f436cd5b9b07] bad-size\n 1 file changed, 1 insertion(+)\n create mode 100644 file\n",
+    "stderr": ""
+  },
+  {
+    "format": "sha256",
+    "case": "overlong-header",
+    "program": "baseline",
+    "code": 1,
+    "stdout": "[main (root-commit) bd92b5342f88] overlong-header\n",
+    "stderr": "git: invalid object: header for ff6c49075ee2c5815767f65d8674118bd9fb4e7a2a90799bf5314396953b4bd6 too long, exceeds 32 bytes\n"
+  },
+  {
+    "format": "sha256",
+    "case": "overlong-header",
+    "program": "current",
+    "code": 1,
+    "stdout": "[main (root-commit) bd92b5342f88] overlong-header\n",
+    "stderr": "sley: invalid object: header for ff6c49075ee2c5815767f65d8674118bd9fb4e7a2a90799bf5314396953b4bd6 too long, exceeds 32 bytes\n"
+  },
+  {
+    "format": "sha256",
+    "case": "overlong-header",
+    "program": "oracle",
+    "code": 0,
+    "stdout": "[main (root-commit) bd92b5342f88] overlong-header\n 1 file changed, 1 insertion(+)\n create mode 100644 file\n",
+    "stderr": ""
+  },
+  {
+    "format": "sha256",
+    "case": "wrong-type",
+    "program": "baseline",
+    "code": 1,
+    "stdout": "[main (root-commit) 1788673dd122] wrong-type\n",
+    "stderr": "git: invalid object: diff expected blob object ff6c49075ee2c5815767f65d8674118bd9fb4e7a2a90799bf5314396953b4bd6\n"
+  },
+  {
+    "format": "sha256",
+    "case": "wrong-type",
+    "program": "current",
+    "code": 1,
+    "stdout": "[main (root-commit) 1788673dd122] wrong-type\n",
+    "stderr": "sley: invalid object: diff expected blob object ff6c49075ee2c5815767f65d8674118bd9fb4e7a2a90799bf5314396953b4bd6\n"
+  },
+  {
+    "format": "sha256",
+    "case": "wrong-type",
+    "program": "oracle",
+    "code": 0,
+    "stdout": "[main (root-commit) 1788673dd122] wrong-type\n 1 file changed, 1 insertion(+)\n create mode 100644 file\n",
+    "stderr": ""
+  }
+]

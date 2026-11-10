@@ -1,0 +1,26 @@
+[
+  {
+    "format": "sha1",
+    "script": "t5000-tar-tree.sh",
+    "before": "not ok 82 - set up repository with huge blob",
+    "after": "ok 82 - set up repository with huge blob"
+  },
+  {
+    "format": "sha1",
+    "script": "t5000-tar-tree.sh",
+    "before": "not ok 85 - set up repository with far-future (2^34 - 1) commit",
+    "after": "ok 85 - set up repository with far-future (2^34 - 1) commit"
+  },
+  {
+    "format": "sha256",
+    "script": "t5000-tar-tree.sh",
+    "before": "not ok 82 - set up repository with huge blob",
+    "after": "ok 82 - set up repository with huge blob"
+  },
+  {
+    "format": "sha256",
+    "script": "t5000-tar-tree.sh",
+    "before": "not ok 85 - set up repository with far-future (2^34 - 1) commit",
+    "after": "ok 85 - set up repository with far-future (2^34 - 1) commit"
+  }
+]

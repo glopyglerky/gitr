@@ -94,7 +94,7 @@ jobs:
         # Includes checked reference publication and corrupt-graph repack tests.
         # Full upstream Git conformance requires the external pinned harness.
         run: '"${{ runner.temp }}/gitr-qualify-native" test-vendor'
-      - name: Run native archive interoperability and revision-selector tests
+      - name: Run native archive, commit-summary, and revision-history tests
         if: ${{ !cancelled() && steps.build_root.outcome == 'success' }}
         run: '"${{ runner.temp }}/gitr-qualify-native" test-vendor-cli'
       - name: Verify imported source provenance through Lustr and BlueFe

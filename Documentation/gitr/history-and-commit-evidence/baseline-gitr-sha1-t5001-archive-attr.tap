@@ -1,0 +1,46 @@
+ok 1 - setup
+ok 2 - git archive
+ok 3 -  archive/ignored does not exist
+ok 4 -  archive/ignored-by-tree does not exist
+ok 5 -  archive/ignored-by-tree.d does not exist
+ok 6 -  archive/ignored-by-tree.d/file does not exist
+ok 7 -  archive/ignored-by-worktree exists
+ok 8 -  archive/excluded-by-pathspec.d exists
+ok 9 -  archive/excluded-by-pathspec.d/file exists
+ok 10 - git archive with pathspec
+ok 11 -  archive-pathspec/ignored does not exist
+ok 12 -  archive-pathspec/ignored-by-tree does not exist
+ok 13 -  archive-pathspec/ignored-by-tree.d does not exist
+ok 14 -  archive-pathspec/ignored-by-tree.d/file does not exist
+ok 15 -  archive-pathspec/ignored-by-worktree exists
+ok 16 -  archive-pathspec/excluded-by-pathspec.d does not exist
+ok 17 -  archive-pathspec/excluded-by-pathspec.d/file does not exist
+ok 18 - git archive with wildcard pathspec
+ok 19 -  archive-pathspec-wildcard/ignored does not exist
+ok 20 -  archive-pathspec-wildcard/ignored-by-tree does not exist
+ok 21 -  archive-pathspec-wildcard/ignored-by-tree.d does not exist
+ok 22 -  archive-pathspec-wildcard/ignored-by-tree.d/file does not exist
+ok 23 -  archive-pathspec-wildcard/ignored-by-worktree exists
+ok 24 -  archive-pathspec-wildcard/excluded-by-pathspec.d does not exist
+ok 25 -  archive-pathspec-wildcard/excluded-by-pathspec.d/file does not exist
+ok 26 - git -C subdir archive
+ok 27 -  archive-subdir/included exists
+ok 28 -  archive-subdir/ignored-by-subtree does not exist
+ok 29 -  archive-subdir/ignored-by-tree does not exist
+ok 30 - git archive with worktree attributes
+ok 31 -  worktree/ignored does not exist
+ok 32 -  worktree/ignored-by-tree exists
+ok 33 -  worktree/ignored-by-worktree does not exist
+ok 34 - git archive --worktree-attributes option
+ok 35 -  worktree2/ignored does not exist
+ok 36 -  worktree2/ignored-by-tree exists
+ok 37 -  worktree2/ignored-by-worktree does not exist
+ok 38 - git archive vs. bare
+ok 39 - git archive with worktree attributes, bare
+ok 40 -  bare-worktree/ignored does not exist
+ok 41 -  bare-worktree/ignored-by-tree does not exist
+ok 42 -  bare-worktree/ignored-by-worktree exists
+ok 43 - export-subst
+ok 44 - export-subst expands %(describe) once
+# passed all 44 test(s)
+1..44

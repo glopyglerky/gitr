@@ -133,9 +133,10 @@ mod pipeline;
 
 pub use content::{
     collect_diff_entry_blob_oids, collect_diff_stat_entries,
-    collect_diff_stat_entries_with_worktree_clean, count_line_diff, diff_entry_new_content,
-    diff_entry_old_content, diff_entry_produces_output, diff_line_stats, gitlink_diff_content,
-    is_binary_content, is_gitlink_pair, read_blob, repo_path_to_path,
+    collect_diff_stat_entries_with_worktree_clean, collect_object_diff_stat_entries,
+    count_line_diff, diff_entry_new_content, diff_entry_old_content, diff_entry_produces_output,
+    diff_line_stats, gitlink_diff_content, is_binary_content, is_gitlink_pair, read_blob,
+    repo_path_to_path,
 };
 pub use filters::{
     DIRTY_SUBMODULE_MODIFIED, DIRTY_SUBMODULE_UNTRACKED, DiffPathspec, LoadRepoConfig,

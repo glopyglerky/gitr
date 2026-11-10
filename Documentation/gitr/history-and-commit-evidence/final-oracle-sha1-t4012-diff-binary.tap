@@ -1,0 +1,15 @@
+ok 1 - prepare repository
+ok 2 - apply --stat output for binary file change
+ok 3 - diff --shortstat output for binary file change
+ok 4 - diff --shortstat output for binary file change only
+ok 5 - apply --numstat notices binary file change
+ok 6 - apply --numstat understands diff --binary format
+ok 7 - apply detecting corrupt patch correctly
+ok 8 - apply detecting corrupt patch correctly
+ok 9 - initial commit
+ok 10 - diff-index with --binary
+ok 11 - apply binary patch
+ok 12 - diff --no-index with binary creation
+ok 13 - diff --stat with binary files and big change count
+# passed all 13 test(s)
+1..13

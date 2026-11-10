@@ -1008,6 +1008,9 @@ pub(crate) fn cmd_commit(
     let git_dir = cli_session.git_dir()?;
     let format = repository_object_format(&git_dir)?;
     let repo_config = read_repo_config(&git_dir).ok();
+    // Parse before any commit publication, including quiet commits. Invalid
+    // thresholds are fatal configuration errors, not a post-commit failure.
+    let big_file_threshold = core_big_file_threshold(Some(&git_dir))?;
     let identity_config = identity_effective_config_for(cli_session)
         .or_else(|| repo_config.clone())
         .unwrap_or_default();
@@ -1764,6 +1767,7 @@ pub(crate) fn cmd_commit(
         print_commit_summary(
             &cli_session.remote_policy,
             &git_dir,
+            &worktree_root_for_git_dir(cli_session, &git_dir)?,
             format,
             &commit_odb,
             &result.oid,
@@ -1773,6 +1777,7 @@ pub(crate) fn cmd_commit(
             &summary_committer,
             show_author_date,
             cli_session.lazy_fetch(),
+            big_file_threshold,
         )?;
     }
     commands::hooks::run_hook_at(
@@ -1852,6 +1857,7 @@ fn run_auto_maintenance_after_commit(
 fn print_commit_summary(
     policy: &sley_remote::RemotePolicy,
     git_dir: &Path,
+    worktree_root: &Path,
     format: ObjectFormat,
     db: &FileObjectDatabase,
     new_oid: &ObjectId,
@@ -1861,6 +1867,7 @@ fn print_commit_summary(
     committer: &[u8],
     show_author_date: bool,
     lazy_fetch: bool,
+    big_file_threshold: u64,
 ) -> Result<()> {
     // HEAD branch name, or "detached HEAD" / "HEAD" when unresolvable.
     let head = match repo_current_branch_name(git_dir) {
@@ -1909,8 +1916,21 @@ fn print_commit_summary(
     )?;
     if !entries.is_empty() {
         let lazy_fetch_adapter_1 = crate::diff_lazy_fetch(policy, lazy_fetch);
-        let stat_entries =
-            collect_diff_stat_entries(&entries, db, None, false, lazy_fetch_adapter_1.as_option())?;
+        let config = read_repo_config(git_dir)?;
+        let attributes = sley_worktree::StandardAttributeMatcher::from_worktree_root(
+            config.precompose_unicode(),
+            worktree_root,
+        )?;
+        let userdiff =
+            commands::userdiff::UserdiffResolver::with_attributes(Some(attributes), Some(config));
+        let force_text = |path: &[u8]| userdiff.binary_for_path(path) == Some(false);
+        let stat_entries = sley_diff_merge::porcelain::collect_object_diff_stat_entries(
+            &entries,
+            db,
+            big_file_threshold,
+            Some(&force_text),
+            lazy_fetch_adapter_1.as_option(),
+        )?;
         write_diff_shortstat_materialized(&mut out, &stat_entries)?;
         for entry in &entries {
             write_commit_summary_entry(&mut out, entry)?;

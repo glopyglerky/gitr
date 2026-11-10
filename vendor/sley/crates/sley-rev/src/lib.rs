@@ -5360,15 +5360,14 @@ fn one_relevant_parent<'a>(
 /// `None` when the chain dead-ends at a root (the parent edge is dropped).
 fn rewrite_one(
     start: &ObjectId,
-    simplify: &HashMap<ObjectId, CommitSimplify>,
+    treesame: impl Fn(&ObjectId) -> bool,
     parents_of: &HashMap<ObjectId, Vec<ObjectId>>,
     relevant_set: &HashSet<ObjectId>,
     first_parent: bool,
 ) -> Option<ObjectId> {
     let mut current = *start;
     loop {
-        let ts = simplify.get(&current).map(|s| s.treesame).unwrap_or(false);
-        if !ts {
+        if !treesame(&current) {
             return Some(current);
         }
         let Some(parents) = parents_of.get(&current) else {
@@ -5611,7 +5610,7 @@ pub fn simplify_history_with_bottoms(
         for parent in &effective {
             if let Some(rewritten) = rewrite_one(
                 parent,
-                &simplify,
+                |oid| simplify.get(oid).is_some_and(|state| state.treesame),
                 &parents_of,
                 &relevant_set,
                 options.first_parent,
@@ -5766,6 +5765,7 @@ fn simplify_merges_pass(
             // A root commit simplifies to itself (no parents to rewrite).
             if parents.is_empty() {
                 display_treesame.insert(*oid, treesame(oid));
+                rewritten_parents.insert(*oid, Vec::new());
                 simplified.insert(*oid, *oid);
                 progressed = true;
                 continue;
@@ -5949,7 +5949,33 @@ fn simplify_merges_pass(
             pull || relevant_parent_count >= 2
         })
         .map(|r| {
-            let parents = rewritten_parents.get(&r.oid).cloned().unwrap_or(r.parents);
+            // Merge simplification can leave a parent pointing at a TREESAME
+            // root that the display filter omits. Apply the normal parent
+            // rewriting step to the simplified graph and its recomputed flags.
+            // Off-graph range boundaries have no flag here and remain parents.
+            let mut parents_to_rewrite = rewritten_parents
+                .get(&r.oid)
+                .cloned()
+                .unwrap_or_else(|| r.parents.clone());
+            if options.first_parent {
+                // First-parent limits traversal and simplification; the other
+                // original merge edges still belong in the displayed graph.
+                parents_to_rewrite.extend(r.parents.iter().skip(1).copied());
+            }
+            let mut seen = HashSet::new();
+            let parents = parents_to_rewrite
+                .iter()
+                .filter_map(|parent| {
+                    rewrite_one(
+                        parent,
+                        |oid| display_treesame.get(oid).copied().unwrap_or(false),
+                        &rewritten_parents,
+                        relevant_set,
+                        options.first_parent,
+                    )
+                })
+                .filter(|parent| seen.insert(*parent))
+                .collect();
             CommitRecord {
                 oid: r.oid,
                 parents,

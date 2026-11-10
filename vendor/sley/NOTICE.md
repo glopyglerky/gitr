@@ -29,6 +29,13 @@ Rust module and regression tests are independently authored Gitr code under
 MIT OR Apache-2.0. Generated shell fixtures model explicitly configured test
 services; no copied filter-branch or i18n shell implementation was restored.
 
+Further local changes use object metadata for oversized-file commit summaries
+and correct parent rewriting in path-limited revision history. They reuse the
+imported object-header lookup, diff statistics, and history simplification
+implementations. Their new differential regression tests are independently
+authored Gitr code under MIT OR Apache-2.0. The imported implementation files
+retain their Apache-2.0 provenance.
+
 The historical Grit donor is outside the active executable's build graph.
 
 Two upstream embedded programs were excluded after source-origin review:

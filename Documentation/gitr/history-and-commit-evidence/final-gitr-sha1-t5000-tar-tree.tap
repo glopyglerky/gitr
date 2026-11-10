@@ -1,0 +1,105 @@
+ok 1 - setup
+ok 2 - --list notices extra parameters
+ok 3 - end-of-options is correctly eaten
+ok 4 - populate workdir
+ok 5 - add ignored file
+ok 6 - add files to repository
+ok 7 - setup export-subst
+ok 8 - create bare clone
+ok 9 - remove ignored file
+ok 10 - git archive
+ok 11 -  extract tar archive
+ok 12 # skip  interpret pax headers (missing TAR_NEEDS_PAX_FALLBACK)
+ok 13 -  validate filenames
+ok 14 -  validate file contents
+ok 15 -  validate mtime of a/a
+ok 16 - git archive --mtime
+ok 17 -  extract tar archive
+ok 18 # skip  interpret pax headers (missing TAR_NEEDS_PAX_FALLBACK)
+ok 19 -  validate filenames
+ok 20 -  validate file contents
+ok 21 -  validate mtime of a/a
+ok 22 - git archive --prefix=prefix/
+ok 23 -  extract tar archive
+ok 24 # skip  interpret pax headers (missing TAR_NEEDS_PAX_FALLBACK)
+ok 25 -  validate filenames
+ok 26 -  validate file contents
+ok 27 - git-archive --prefix=olde-
+ok 28 -  extract tar archive
+ok 29 # skip  interpret pax headers (missing TAR_NEEDS_PAX_FALLBACK)
+ok 30 -  validate filenames
+ok 31 -  validate file contents
+ok 32 - git archive --add-file
+ok 33 -  extract tar archive
+ok 34 # skip  interpret pax headers (missing TAR_NEEDS_PAX_FALLBACK)
+ok 35 -  validate filenames
+ok 36 -  validate file contents
+ok 37 -  validate extra file untracked
+ok 38 - git archive --add-file twice
+ok 39 -  extract tar archive
+ok 40 # skip  interpret pax headers (missing TAR_NEEDS_PAX_FALLBACK)
+ok 41 -  validate filenames
+ok 42 -  validate file contents
+ok 43 -  validate extra file one/untracked
+ok 44 -  validate extra file two/untracked
+ok 45 - git archive on large files
+ok 46 - git archive in a bare repo
+ok 47 - git archive vs. the same in a bare repo
+ok 48 - git archive with --output
+ok 49 - git archive --remote
+ok 50 - git archive --remote with configured remote
+ok 51 - git get-tar-commit-id
+ok 52 - git archive with --output, override inferred format
+ok 53 - git archive with --output and --remote creates .tgz
+ok 54 - git archive --list outside of a git repo
+ok 55 - git archive --remote outside of a git repo
+ok 56 - clients cannot access unreachable commits
+ok 57 - upload-archive can allow unreachable commits
+ok 58 - setup tar filters
+ok 59 - archive --list mentions user filter
+ok 60 - archive --list shows only enabled remote filters
+ok 61 - invoke tar filter by format
+ok 62 - invoke tar filter by extension
+ok 63 - default output format remains tar
+ok 64 - extension matching requires dot
+ok 65 - only enabled filters are available remotely
+ok 66 - invalid filter is reported only once
+ok 67 - git archive --format=tgz
+ok 68 - git archive --format=tar.gz
+ok 69 - infer tgz from .tgz filename
+ok 70 - infer tgz from .tar.gz filename
+ok 71 - extract tgz file
+ok 72 - remote tar.gz is allowed by default
+ok 73 - remote tar.gz can be disabled
+ok 74 - git archive --format=tgz (external gzip)
+ok 75 - git archive --format=tar.gz (external gzip)
+ok 76 - extract tgz file (external gzip)
+ok 77 - archive and :(glob)
+ok 78 - catch non-matching pathspec
+ok 79 - reject paths outside the current directory
+ok 80 - allow pathspecs that resolve to the current directory
+ok 81 - attr pathspec in bare repo
+ok 82 - set up repository with huge blob
+not ok 83 - generate tar with huge size
+#	
+#		{
+#			{ ret=0 && git archive HEAD || ret=$?; } &&
+#			echo "$ret" >exit-code
+#		} | test_copy_bytes 4096 >huge.tar &&
+#		echo 141 >expect &&
+#		test_cmp expect exit-code
+#	
+not ok 84 - system tar can read our huge size
+#	
+#		echo 68719476737 >expect &&
+#		tar_info huge.tar | cut -d" " -f1 >actual &&
+#		test_cmp expect actual
+#	
+ok 85 - set up repository with far-future (2^34 - 1) commit
+ok 86 - generate tar with far-future mtime
+ok 87 - system tar can read our future mtime
+ok 88 - set up repository with far-far-future (2^36 + 1) commit
+ok 89 - generate tar with far-far-future mtime
+ok 90 - system tar can read our future mtime
+# failed 2 among 90 test(s)
+1..90

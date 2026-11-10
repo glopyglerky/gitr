@@ -1,0 +1,147 @@
+{
+  "schema": 1,
+  "recorded_utc_date": "2026-11-10",
+  "baseline_commit": "f4b1367a704bcc12ae4dc784a862526a07f9fcfa",
+  "baseline_hosted_qualification": {
+    "run": "https://github.com/glopyglerky/gitr/actions/runs/42759226333",
+    "conclusion": "success"
+  },
+  "scope": [
+    "oversized-file commit summary metadata and configuration validation",
+    "path-limited revision parent rewriting"
+  ],
+  "compiler": {
+    "coordinator_revision": "6339fbb104d6adda4be7e6be7dc637a6a9e5586b",
+    "coordinator_sha256": "3733905caacebf4470bc14029bf7aec0625c727453a46c4e2f6d55057df75350",
+    "route": "Lustr --engine rustc",
+    "rustc": "1.99.1",
+    "rustc_commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
+    "host": "x86_64-unknown-linux-gnu",
+    "local_produced_bluefe": false
+  },
+  "oracle": {
+    "version": "2.55.0",
+    "commit": "e9019fcafe0040228b8631c30f97ae1adb61bcdc",
+    "binary_sha256": "bb7047c1ae5ed48d5cf47084595e7a3be4463ecd177df81ead8bfdba41d7a036"
+  },
+  "candidate": {
+    "gitr_sha256": "68042dc7a70931f3a8cb4a807eec166baf3eed046cc94284a9c9c5d57fc78eb3",
+    "upstream_lane_sha256": "68042dc7a70931f3a8cb4a807eec166baf3eed046cc94284a9c9c5d57fc78eb3",
+    "new_cli_test_executable": "/workspace/scratch/161a1b7c00ce/tooling/gitr-target/debug/gitr",
+    "source_fingerprints": {
+      ".github/workflows/gitr-native.yml": "15a75c03f7ac0c18d5e95cac0f5b7918c7032d7f93f5ec0e7786ccc3b162aa7b",
+      "Cargo.toml": "be1e922eba8827b3570da4acae301d924c3f6b6c29c2cf74b80438c0eb977946",
+      "Cargo.lock": "762a9dbdebf67e799e25201f90a8fb59995d5b9ac18bc55071a8b1a420e4ea82",
+      "ci/qualify_native.rs": "dd201f0a28e6dbadc7310ed4001b07cbe67fd371c574bc5e585e81713156211e",
+      "vendor/sley/Cargo.lock": "5267787d3cd6459b549c1f9166c18b898a173adbc9c822914f75ca68ec2565bb",
+      "vendor/sley/NOTICE.md": "dda77bff2368904a5a2fff339ef294ea711c2a27b28f789549f68d616d791bd9",
+      "vendor/sley/crates/sley-cli/src/commands/commit.rs": "ea343043cec3f70f1acd919b6e0acca5fbb07bdf91b9626d52f66d841bd29e39",
+      "vendor/sley/crates/sley-cli/src/commands/userdiff.rs": "c1701a3603546c0ebbd49ad093b6dae972d68560bf5d85925f1eae1e9726d613",
+      "vendor/sley/crates/sley-cli/tests/commit_large_blob.rs": "67f8cb083f0e62891002e74c28a74f5b7007b3fa7d13db6cff2059f97c0504a3",
+      "vendor/sley/crates/sley-cli/tests/rev_list.rs": "a211f73318109bb0e06277e92c84ff6fa80791e0a9bdec2232fa2bb925fa5a26",
+      "vendor/sley/crates/sley-cli/tests/rev_list_path_parents.rs": "f95faec6a8f42c58c0cdc0069e94e99eee3d312a55d0bcafd84af58c2dee442a",
+      "vendor/sley/crates/sley-diff-merge/src/porcelain/content.rs": "719141bc312378ab3b822056f074080ecf22b998d0a42a2865d4330672f41e5e",
+      "vendor/sley/crates/sley-diff-merge/src/porcelain/mod.rs": "9b72c0f9411372125ac30e965f5c8912410097d04fa504ef2898cdbe09b6ef83",
+      "vendor/sley/crates/sley-rev/src/lib.rs": "20d3dae61c6e5ce392aa8c497b8755e3dea63b156d304ce0f081c4aad1a87041"
+    },
+    "sley_manifest_sha256": "b69d5c4abd33b1f7b4c6a0ea50f3bcb50ee61b396f9407fe0d3d9ed188612779"
+  },
+  "local_results": {
+    "root_tests": {
+      "passed": 5,
+      "failed": 0,
+      "all_features": true,
+      "all_targets": true
+    },
+    "cli_tests": {
+      "passed": 99,
+      "failed": 0,
+      "targets": {
+        "archive": 7,
+        "archive_remote": 13,
+        "commit": 23,
+        "commit_large_blob": 9,
+        "filter_branch_unavailable": 1,
+        "rev_list": 11,
+        "rev_list_path_parents": 3,
+        "rev_parse": 20,
+        "rev_parse_pseudo_names": 5,
+        "upload_archive": 7
+      },
+      "new_targets_use_actual_root_executable": true,
+      "new_commit_tests": 9,
+      "new_revision_tests": 3,
+      "new_revision_exact_oracle_comparisons": 28
+    },
+    "changed_engine_tests": {
+      "passed": 275,
+      "failed": 0,
+      "sley-rev": 85,
+      "sley-diff-merge": 190
+    },
+    "coordinator_tests": {
+      "passed": 8,
+      "failed": 0
+    },
+    "import": {
+      "passed": true,
+      "files": 678,
+      "adapted": 32,
+      "locally_added": 9
+    },
+    "policy": "passed",
+    "audit": {
+      "exit": 0,
+      "tracked_entries": 1564,
+      "output_sha256": "44eeaf17a81920b750aa635cd978c76d192f73869cb7a31788cb61996e61afdd",
+      "command": "lustr --engine rustc run --manifest-path xtask/Cargo.toml --locked -- audit"
+    }
+  },
+  "upstream_selection": {
+    "unique_scripts": 10,
+    "object_formats": [
+      "sha1",
+      "sha256"
+    ],
+    "target_runs": 40,
+    "exact_script_hash_comparisons": 14,
+    "total_script_hash_comparisons": 20,
+    "candidate": {
+      "passed": 940,
+      "failed": 12,
+      "skipped": 18
+    },
+    "oracle": {
+      "passed": 954,
+      "failed": 0,
+      "skipped": 16
+    },
+    "improved_distinct_cells": [
+      "t5000.82",
+      "t5000.85"
+    ],
+    "improved_executions": 4,
+    "other_result_lines_unchanged": true,
+    "whole_suite_measured": false
+  },
+  "review": {
+    "standards": "resolved after targeted rereview",
+    "spec": "resolved after targeted rereview",
+    "corrections": [
+      "do not compile unused patch regexes or initialize patch commands",
+      "propagate forced-text decisions for NUL content",
+      "suppress only speculative header-probe diagnostics"
+    ],
+    "intermediate_review_record": "review-header-probe-before-correction.json"
+  },
+  "remaining": [
+    "t5000 archive-streaming failures83 and84 in both hashes",
+    "t6016 graph-history failures5,8,9,12 in both hashes",
+    "t1500 compatibility-object-mode skip difference",
+    "t5004 EXPENSIVE >4GB cases remain skipped by both lanes",
+    "native filter-branch and shell-i18n unavailable",
+    "general object/archive streaming and broad raw-filename qualification",
+    "remote authentication, live-network and Windows/macOS qualification",
+    "full 1046-script Git conformance not measured"
+  ]
+}

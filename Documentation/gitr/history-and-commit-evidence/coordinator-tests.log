@@ -1,0 +1,13 @@
+
+running 8 tests
+test tests::pairs_names_and_verbose_records_in_order ... ok
+test tests::rejects_hardlink_targets_that_are_directories ... ok
+test tests::allows_internal_hardlinks_and_validated_hardlink_chains ... ok
+test tests::preserves_leading_spaces_in_member_names ... ok
+test tests::rejects_hardlinks_with_escaping_or_control_character_targets ... ok
+test tests::rejects_symlinks_and_special_files ... ok
+test tests::rejects_missing_future_and_self_hardlink_targets ... ok
+test tests::rejects_duplicate_normalized_member_paths ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

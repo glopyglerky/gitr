@@ -1,0 +1,16 @@
+ok 1 - create commit with empty tree and fake empty tar
+ok 2 - tar archive of commit with empty tree
+ok 3 - tar archive of empty tree is empty
+ok 4 - tar archive of empty tree with prefix
+ok 5 - zip archive of empty tree is empty
+ok 6 - zip archive of empty tree with prefix
+ok 7 - archive complains about pathspec on empty tree
+ok 8 - create a commit with an empty subtree
+ok 9 - archive empty subtree with no pathspec
+ok 10 - archive empty subtree by direct pathspec
+ok 11 - zip archive with many entries
+ok 12 # skip zip archive bigger than 4GB (missing EXPENSIVE of EXPENSIVE,UNZIP,UNZIP_ZIP64_SUPPORT)
+ok 13 # skip zip archive with files bigger than 4GB (missing EXPENSIVE of EXPENSIVE,LONG_IS_64BIT,UNZIP,UNZIP_ZIP64_SUPPORT,ZIPINFO)
+ok 14 - tar archive with long paths
+# passed all 14 test(s)
+1..14

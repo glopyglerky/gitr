@@ -35,6 +35,11 @@ service failures, and fixes symbolic reference-selector output. It records
 command-level qualification and the remaining archive, object-format, transport,
 and platform gaps.
 
+The [history and commit coverage record](Documentation/gitr/history-and-commit-coverage.md)
+adds oversized-file commit summaries, threshold validation, and corrected parent
+lists for path-limited revision history. It retains results from ten upstream
+scripts in both object formats, including the remaining failures and skips.
+
 The upstream README reports an exact conformance floor of **557 of 891 selected
 Git 2.55.0 test scripts**. That is upstream evidence, not Gitr's measured result.
 The pinned Git source contains **1,046 numbered test scripts**. Sley's manifest

@@ -1,0 +1,11 @@
+command=['/workspace/scratch/161a1b7c00ce/tooling/lustr/target/release/lustr', '--engine', 'rustc', 'run', '--example', 'verify_import', '--locked']
+target=/workspace/scratch/161a1b7c00ce/tooling/gitr-target
+tmpdir=/tmp/gitr-coverage-root-b06a1m11
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+   Compiling sley-cli v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-cli)
+   Compiling gitr v0.2.0 (/workspace/scratch/717c1db38a84/gitr)
+    Finished `dev` profile [unoptimized] target(s) in 24.98s
+     Running `/workspace/scratch/161a1b7c00ce/tooling/gitr-target/debug/examples/verify_import`
+Sley source verified: 678 files, 32 adapted, 9 added; exact donor revision and complete installed inventory

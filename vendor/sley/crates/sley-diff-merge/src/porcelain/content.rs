@@ -83,7 +83,18 @@ pub fn repo_path_to_path(path: &[u8]) -> std::path::PathBuf {
 }
 
 pub fn diff_line_stats(old: Option<&[u8]>, new: Option<&[u8]>) -> LineStats {
-    if old.is_some_and(is_binary_content) || new.is_some_and(is_binary_content) {
+    diff_line_stats_with_forced_text(old, new, false, false)
+}
+
+fn diff_line_stats_with_forced_text(
+    old: Option<&[u8]>,
+    new: Option<&[u8]>,
+    old_forced_text: bool,
+    new_forced_text: bool,
+) -> LineStats {
+    if (!old_forced_text && old.is_some_and(is_binary_content))
+        || (!new_forced_text && new.is_some_and(is_binary_content))
+    {
         return LineStats::Binary {
             old_size: old.map_or(0, <[u8]>::len),
             new_size: new.map_or(0, <[u8]>::len),
@@ -385,6 +396,101 @@ pub fn collect_diff_stat_entries<'a>(
     )
 }
 
+/// Materialize stored-object statistics for a commit summary, using object
+/// headers for regular files larger than `core.bigFileThreshold`. Git treats
+/// those files as binary without inflating their contents unless attributes
+/// force a textual diff. This does not validate the complete blob; callers
+/// needing its contents or integrity must still use the normal object reader.
+/// Worktree conversion, gitlinks, and symlinks keep the existing content path.
+pub fn collect_object_diff_stat_entries<'a>(
+    entries: &'a [NameStatusEntry],
+    db: &FileObjectDatabase,
+    big_file_threshold: u64,
+    force_text: Option<&dyn Fn(&[u8]) -> bool>,
+    lazy_fetch: Option<&dyn LazyObjectFetch>,
+) -> Result<Vec<StatEntry<'a>>> {
+    if let Some(fetch) = lazy_fetch {
+        fetch.prefetch_entry_blobs(db, entries, false)?;
+    }
+    let mut stat_entries = Vec::with_capacity(entries.len());
+    for entry in entries {
+        let stats =
+            match oversized_object_stats(entry, db, big_file_threshold, force_text, lazy_fetch)? {
+                Some(stats) => stats,
+                None => materialize_diff_entry_stats(
+                    entry, db, None, false, None, lazy_fetch, force_text,
+                )?,
+            };
+        stat_entries.push(StatEntry { entry, stats });
+    }
+    Ok(stat_entries)
+}
+
+fn oversized_object_stats(
+    entry: &NameStatusEntry,
+    db: &FileObjectDatabase,
+    big_file_threshold: u64,
+    force_text: Option<&dyn Fn(&[u8]) -> bool>,
+    lazy_fetch: Option<&dyn LazyObjectFetch>,
+) -> Result<Option<LineStats>> {
+    if [entry.old_mode, entry.new_mode]
+        .into_iter()
+        .flatten()
+        .any(|mode| mode & 0o170000 != 0o100000)
+    {
+        return Ok(None);
+    }
+    let header_size = |oid: Option<ObjectId>| -> Option<u64> {
+        let Some(oid) = oid else { return Some(0) };
+        // A header error, missing object, or unexpected type must take the
+        // ordinary read path so its existing validation and diagnostic remain
+        // intact. Metadata is an optimization, not a corruption fallback.
+        // The strict fallback owns diagnostics. A speculative header lookup
+        // can report a malformed zlib header itself, so keep only this probe
+        // silent to avoid printing the same corruption diagnostic again.
+        let header =
+            sley_core::diagnostics::Diagnostics::default().scope(|| db.read_object_header(&oid));
+        match header {
+            Ok(Some((ObjectType::Blob, size))) => Some(size),
+            _ => None,
+        }
+    };
+    let (Some(old_size), Some(new_size)) = (header_size(entry.old_oid), header_size(entry.new_oid))
+    else {
+        return Ok(None);
+    };
+    if old_size <= big_file_threshold && new_size <= big_file_threshold {
+        return Ok(None);
+    }
+    let forced_text = |path: &[u8]| force_text.is_some_and(|resolve| resolve(path));
+    let old_path = entry.old_path.as_ref().unwrap_or(&entry.path).as_bytes();
+    if old_size > big_file_threshold && !forced_text(old_path) {
+        // Git short-circuits its binary check on the old side. The new side
+        // needs only its size once the pair is known to be binary.
+    } else if new_size > big_file_threshold && !forced_text(entry.path.as_bytes()) {
+        // Git checks the old side first. Do not hide an ordinary corrupt old
+        // blob just because the replacement is large enough for header-only
+        // classification.
+        if let Some(oid) = entry.old_oid.as_ref() {
+            read_blob_content(db, oid, lazy_fetch)?;
+        }
+    } else {
+        return Ok(None);
+    }
+    let to_size = |size| {
+        usize::try_from(size).map_err(|_| {
+            GitError::InvalidObject(
+                "diff blob size exceeds this platform's address space".to_string(),
+            )
+        })
+    };
+    Ok(Some(LineStats::Binary {
+        old_size: to_size(old_size)?,
+        new_size: to_size(new_size)?,
+        unchanged: entry.old_oid.is_some() && entry.old_oid == entry.new_oid,
+    }))
+}
+
 pub fn collect_diff_stat_entries_with_worktree_clean<'a>(
     entries: &'a [NameStatusEntry],
     db: &FileObjectDatabase,
@@ -400,27 +506,53 @@ pub fn collect_diff_stat_entries_with_worktree_clean<'a>(
     }
     let mut stat_entries = Vec::with_capacity(entries.len());
     for entry in entries {
-        let old_content = diff_entry_old_stat_content(entry, db, lazy_fetch)?;
-        let stats = if entry.old_oid.is_some() && entry.old_oid == entry.new_oid {
-            let old_bytes = old_content.as_ref().map(DiffBlobContent::as_slice);
-            diff_line_stats(old_bytes, old_bytes)
-        } else {
-            let new_content = diff_entry_new_stat_content(
-                entry,
-                db,
-                worktree_root,
-                use_worktree_new,
-                worktree_clean,
-                lazy_fetch,
-            )?;
-            diff_line_stats(
-                old_content.as_ref().map(DiffBlobContent::as_slice),
-                new_content.as_ref().map(DiffBlobContent::as_slice),
-            )
-        };
+        let stats = materialize_diff_entry_stats(
+            entry,
+            db,
+            worktree_root,
+            use_worktree_new,
+            worktree_clean,
+            lazy_fetch,
+            None,
+        )?;
         stat_entries.push(StatEntry { entry, stats });
     }
     Ok(stat_entries)
+}
+
+fn materialize_diff_entry_stats(
+    entry: &NameStatusEntry,
+    db: &FileObjectDatabase,
+    worktree_root: Option<&Path>,
+    use_worktree_new: bool,
+    worktree_clean: Option<&DiffWorktreeCleanContext<'_>>,
+    lazy_fetch: Option<&dyn LazyObjectFetch>,
+    force_text: Option<&dyn Fn(&[u8]) -> bool>,
+) -> Result<LineStats> {
+    let old_content = diff_entry_old_stat_content(entry, db, lazy_fetch)?;
+    let old_path = entry.old_path.as_ref().unwrap_or(&entry.path).as_bytes();
+    let old_forced_text = force_text.is_some_and(|resolve| resolve(old_path));
+    let new_forced_text = force_text.is_some_and(|resolve| resolve(entry.path.as_bytes()));
+    let stats = if entry.old_oid.is_some() && entry.old_oid == entry.new_oid {
+        let old_bytes = old_content.as_ref().map(DiffBlobContent::as_slice);
+        diff_line_stats_with_forced_text(old_bytes, old_bytes, old_forced_text, new_forced_text)
+    } else {
+        let new_content = diff_entry_new_stat_content(
+            entry,
+            db,
+            worktree_root,
+            use_worktree_new,
+            worktree_clean,
+            lazy_fetch,
+        )?;
+        diff_line_stats_with_forced_text(
+            old_content.as_ref().map(DiffBlobContent::as_slice),
+            new_content.as_ref().map(DiffBlobContent::as_slice),
+            old_forced_text,
+            new_forced_text,
+        )
+    };
+    Ok(stats)
 }
 
 /// Whether a name-status entry produces any visible diff output once the

@@ -38,7 +38,7 @@
     },
     {
       "path": "NOTICE.md",
-      "sha256": "16b6184b154c2808cfe0bb392b321b1b87ef1edb51d6fa001997de113962f22e",
+      "sha256": "dda77bff2368904a5a2fff339ef294ea711c2a27b28f789549f68d616d791bd9",
       "origin": "Gitr import provenance notice, authored for this integration."
     },
     {
@@ -412,9 +412,10 @@
     },
     {
       "path": "crates/sley-cli/src/commands/commit.rs",
-      "sha256": "31c026e171c35699ddb0fe9f34e277ff65339a2db17c41c36d90ad7a1418b4b5",
+      "sha256": "ea343043cec3f70f1acd919b6e0acca5fbb07bdf91b9626d52f66d841bd29e39",
       "upstream_blob": "1bbc88c6050d386df898742a36565556c069c990",
-      "upstream_sha256": "31c026e171c35699ddb0fe9f34e277ff65339a2db17c41c36d90ad7a1418b4b5"
+      "upstream_sha256": "31c026e171c35699ddb0fe9f34e277ff65339a2db17c41c36d90ad7a1418b4b5",
+      "change": "Use object metadata for oversized-file commit statistics, preserve forced-text classification, and validate size thresholds before publication."
     },
     {
       "path": "crates/sley-cli/src/commands/config_cmd.rs",
@@ -1067,9 +1068,10 @@
     },
     {
       "path": "crates/sley-cli/src/commands/userdiff.rs",
-      "sha256": "7567332f9d04c6e2b02914167de1be36db9df86956c0b44916bcdd8d10456019",
+      "sha256": "c1701a3603546c0ebbd49ad093b6dae972d68560bf5d85925f1eae1e9726d613",
       "upstream_blob": "8f64f999777fb22771ead2ea39c1cb780faf8a0b",
-      "upstream_sha256": "7567332f9d04c6e2b02914167de1be36db9df86956c0b44916bcdd8d10456019"
+      "upstream_sha256": "7567332f9d04c6e2b02914167de1be36db9df86956c0b44916bcdd8d10456019",
+      "change": "Resolve binary/text attributes for statistics without compiling patch regexes or initializing external converters."
     },
     {
       "path": "crates/sley-cli/src/commands/utility.rs",
@@ -1395,6 +1397,11 @@
       "sha256": "d137811f5ce4cd9f7faecb804c6c4d2aad264fcb9956eddf3f8f048c37d97b19",
       "upstream_blob": "9f773fb55fe909f601e81217453e22b2a2a48bb3",
       "upstream_sha256": "d137811f5ce4cd9f7faecb804c6c4d2aad264fcb9956eddf3f8f048c37d97b19"
+    },
+    {
+      "path": "crates/sley-cli/tests/commit_large_blob.rs",
+      "sha256": "67f8cb083f0e62891002e74c28a74f5b7007b3fa7d13db6cff2059f97c0504a3",
+      "origin": "Independently authored Gitr differential tests for oversized commit summaries, threshold validation, binary/text attributes, and strict corruption diagnostics. MIT OR Apache-2.0."
     },
     {
       "path": "crates/sley-cli/tests/commit_merge.rs",
@@ -1781,9 +1788,15 @@
     },
     {
       "path": "crates/sley-cli/tests/rev_list.rs",
-      "sha256": "b6637ce0d0fd7e74b25399ae594eed42e53c63ac378efa56f55082ea3bba7c2b",
+      "sha256": "a211f73318109bb0e06277e92c84ff6fa80791e0a9bdec2232fa2bb925fa5a26",
       "upstream_blob": "32370598ab84a363a9ca24454e6bdb02f8b8cbf3",
-      "upstream_sha256": "b6637ce0d0fd7e74b25399ae594eed42e53c63ac378efa56f55082ea3bba7c2b"
+      "upstream_sha256": "b6637ce0d0fd7e74b25399ae594eed42e53c63ac378efa56f55082ea3bba7c2b",
+      "change": "Provide an explicit author identity to the commit-tree fixture instead of depending on global configuration."
+    },
+    {
+      "path": "crates/sley-cli/tests/rev_list_path_parents.rs",
+      "sha256": "f95faec6a8f42c58c0cdc0069e94e99eee3d312a55d0bcafd84af58c2dee442a",
+      "origin": "Independently authored Gitr differential tests for path-limited revision parent rewriting, first-parent merges, and explicit or shallow boundaries. MIT OR Apache-2.0."
     },
     {
       "path": "crates/sley-cli/tests/rev_parse.rs",
@@ -2187,9 +2200,10 @@
     },
     {
       "path": "crates/sley-diff-merge/src/porcelain/content.rs",
-      "sha256": "f527148a5ada18dc67eafa24a335c04a38cc6e3b731a59de68cd9c73be00e6c4",
+      "sha256": "719141bc312378ab3b822056f074080ecf22b998d0a42a2865d4330672f41e5e",
       "upstream_blob": "98528da80024e5a69b9e8d3f50f12614e4b30314",
-      "upstream_sha256": "f527148a5ada18dc67eafa24a335c04a38cc6e3b731a59de68cd9c73be00e6c4"
+      "upstream_sha256": "f527148a5ada18dc67eafa24a335c04a38cc6e3b731a59de68cd9c73be00e6c4",
+      "change": "Add header-backed commit-summary statistics, preserving strict fallback diagnostics, special modes, and forced-text line counts."
     },
     {
       "path": "crates/sley-diff-merge/src/porcelain/filters.rs",
@@ -2199,9 +2213,10 @@
     },
     {
       "path": "crates/sley-diff-merge/src/porcelain/mod.rs",
-      "sha256": "223a6f674d0fd1c40e5f7872ac26dbf96dca31fea40b7f782090831f09c8c575",
+      "sha256": "9b72c0f9411372125ac30e965f5c8912410097d04fa504ef2898cdbe09b6ef83",
       "upstream_blob": "1293b3a53a973ba9e210eea0341e8f29189d539e",
-      "upstream_sha256": "223a6f674d0fd1c40e5f7872ac26dbf96dca31fea40b7f782090831f09c8c575"
+      "upstream_sha256": "223a6f674d0fd1c40e5f7872ac26dbf96dca31fea40b7f782090831f09c8c575",
+      "change": "Export the object-stat collector used by commit summaries."
     },
     {
       "path": "crates/sley-diff-merge/src/porcelain/options.rs",
@@ -3223,9 +3238,10 @@
     },
     {
       "path": "crates/sley-rev/src/lib.rs",
-      "sha256": "2c4cb5cba63a136ed5025e0258badd5a37c975f111dca98389c180dd7febcd80",
+      "sha256": "20d3dae61c6e5ce392aa8c497b8755e3dea63b156d304ce0f081c4aad1a87041",
       "upstream_blob": "459c6eb0beba6dd65f4e0f99441e58f771151000",
-      "upstream_sha256": "2c4cb5cba63a136ed5025e0258badd5a37c975f111dca98389c180dd7febcd80"
+      "upstream_sha256": "2c4cb5cba63a136ed5025e0258badd5a37c975f111dca98389c180dd7febcd80",
+      "change": "Rewrite simplified parent edges past omitted TREESAME roots while retaining first-parent secondary edges and explicit or shallow boundaries."
     },
     {
       "path": "crates/sley-rev/src/line_log.rs",

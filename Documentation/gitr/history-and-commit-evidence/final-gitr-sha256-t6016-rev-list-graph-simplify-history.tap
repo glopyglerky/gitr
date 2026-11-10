@@ -1,0 +1,81 @@
+ok 1 - set up rev-list --graph test
+ok 2 - --graph --all
+ok 3 - --graph --simplify-by-decoration
+ok 4 - setup: get rid of decorations on B
+not ok 5 - --graph --simplify-by-decoration prune branch B
+#	
+#		check_graph --simplify-by-decoration --all <<-\EOF
+#		* A7
+#		*   A6
+#		|\
+#		| * C4
+#		| * C3
+#		* | A5
+#		* | A4
+#		|\|
+#		| * C2
+#		| * C1
+#		* | A3
+#		|/
+#		* A2
+#		* A1
+#		EOF
+#	
+ok 6 - --graph --full-history -- bar.txt
+ok 7 - --graph --full-history --simplify-merges -- bar.txt
+not ok 8 - --graph -- bar.txt
+#	
+#		check_graph --all -- bar.txt <<-\EOF
+#		* A7
+#		* A5
+#		* A3
+#		| * C4
+#		|/
+#		* A2
+#		EOF
+#	
+not ok 9 - --graph --sparse -- bar.txt
+#	
+#		check_graph --sparse --all -- bar.txt <<-\EOF
+#		* A7
+#		* A6
+#		* A5
+#		* A4
+#		* A3
+#		| * C4
+#		| * C3
+#		| * C2
+#		| * C1
+#		|/
+#		* A2
+#		* A1
+#		EOF
+#	
+ok 10 - --graph ^C4
+ok 11 - --graph ^C3
+not ok 12 - --graph --boundary ^C3
+#	
+#		check_graph --boundary --all ^C3 <<-\EOF
+#		* A7
+#		*   A6
+#		|\
+#		| * C4
+#		* | A5
+#		| |
+#		|  \
+#		*-. \   A4
+#		|\ \ \
+#		| * | | B2
+#		| * | | B1
+#		* | | | A3
+#		o | | | A2
+#		|/ / /
+#		o / / A1
+#		 / /
+#		| o C3
+#		|/
+#		o C2
+#		EOF
+#	
+# failed 4 among 12 test(s)
+1..12

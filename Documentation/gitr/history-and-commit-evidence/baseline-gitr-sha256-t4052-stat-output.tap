@@ -1,0 +1,93 @@
+ok 1 - preparation
+ok 2 - format-patch: small change with long name gives more space to the name
+ok 3 - diff: small change with long name gives more space to the name
+ok 4 - show: small change with long name gives more space to the name
+ok 5 - log: small change with long name gives more space to the name
+ok 6 - format-patch ignores diff.statNameWidth with long name
+ok 7 - format-patch --stat=width ignores diff.statNameWidth with long name
+ok 8 - diff respects diff.statNameWidth with long name
+ok 9 - diff --stat=width respects diff.statNameWidth with long name
+ok 10 - show respects diff.statNameWidth with long name
+ok 11 - show --stat=width respects diff.statNameWidth with long name
+ok 12 - log respects diff.statNameWidth with long name
+ok 13 - log --stat=width respects diff.statNameWidth with long name
+ok 14 - format-patch --stat=width: a long name is given more room when the bar is short
+ok 15 - format-patch --stat-width=width with long name
+ok 16 - format-patch --stat=width,name-width with long name
+ok 17 - format-patch --stat-name-width=width with long name
+ok 18 - diff --stat=width: a long name is given more room when the bar is short
+ok 19 - diff --stat-width=width with long name
+ok 20 - diff --stat=width,name-width with long name
+ok 21 - diff --stat-name-width=width with long name
+ok 22 - show --stat=width: a long name is given more room when the bar is short
+ok 23 - show --stat-width=width with long name
+ok 24 - show --stat=width,name-width with long name
+ok 25 - show --stat-name-width=width with long name
+ok 26 - log --stat=width: a long name is given more room when the bar is short
+ok 27 - log --stat-width=width with long name
+ok 28 - log --stat=width,name-width with long name
+ok 29 - log --stat-name-width=width with long name
+ok 30 - preparation for big-change tests
+ok 31 - format-patch --cover-letter ignores COLUMNS with big change
+ok 32 - format-patch ignores COLUMNS with big change
+ok 33 - format-patch --graph ignores COLUMNS with big change
+ok 34 - diff respects COLUMNS with big change
+ok 35 - show respects COLUMNS with big change
+ok 36 - log respects COLUMNS with big change
+ok 37 - log --graph respects COLUMNS with big change
+ok 38 - format-patch ignores not enough COLUMNS with big change
+ok 39 - format-patch --graph ignores not enough COLUMNS with big change
+ok 40 - diff respects not enough COLUMNS with big change
+ok 41 - show respects not enough COLUMNS with big change
+ok 42 - log respects not enough COLUMNS with big change
+ok 43 - log --graph respects not enough COLUMNS with big change
+ok 44 - format-patch ignores diff.statGraphWidth
+ok 45 - format-patch --graph ignores diff.statGraphWidth
+ok 46 - diff respects diff.statGraphWidth
+ok 47 - show respects diff.statGraphWidth
+ok 48 - log respects diff.statGraphWidth
+ok 49 - log --graph respects diff.statGraphWidth
+ok 50 - format-patch --stat=width with big change
+ok 51 - format-patch --stat-width=width with big change
+ok 52 - format-patch --stat-graph-width=width with big change
+ok 53 - format-patch --stat-width=width --graph with big change
+ok 54 - format-patch --stat-graph-width=width --graph with big change
+ok 55 - diff --stat=width with big change
+ok 56 - diff --stat-width=width with big change
+ok 57 - diff --stat-graph-width=width with big change
+ok 58 - show --stat=width with big change
+ok 59 - show --stat-width=width with big change
+ok 60 - show --stat-graph-width=width with big change
+ok 61 - log --stat=width with big change
+ok 62 - log --stat-width=width with big change
+ok 63 - log --stat-graph-width=width with big change
+ok 64 - log --stat-width=width --graph with big change
+ok 65 - log --stat-graph-width=width --graph with big change
+ok 66 - preparation for long-name tests
+ok 67 - format-patch --stat=width with big change is more balanced
+ok 68 - format-patch --stat=width --graph with big change is balanced
+ok 69 - diff --stat=width with big change is more balanced
+ok 70 - show --stat=width with big change is more balanced
+ok 71 - log --stat=width with big change is more balanced
+ok 72 - log --stat=width --graph with big change is balanced
+ok 73 - format-patch ignores COLUMNS with long name
+ok 74 - format-patch --graph ignores COLUMNS with long name
+ok 75 - diff respects COLUMNS with long name
+ok 76 - show respects COLUMNS with long name
+ok 77 - log respects COLUMNS with long name
+ok 78 - log --graph respects COLUMNS with long name
+ok 79 - format-patch ignores prefix greater than COLUMNS with big change
+ok 80 - format-patch --graph ignores prefix greater than COLUMNS with big change
+ok 81 - diff respects prefix greater than COLUMNS with big change
+ok 82 - show respects prefix greater than COLUMNS with big change
+ok 83 - log respects prefix greater than COLUMNS with big change
+ok 84 - log --graph respects prefix greater than COLUMNS with big change
+ok 85 - merge --stat respects diff.statGraphWidth with big change
+ok 86 - merge --stat respects COLUMNS with big change
+ok 87 - merge --stat respects diff.statNameWidth with long name
+ok 88 - merge --stat respects COLUMNS with long name
+ok 89 - diffstat where line_prefix contains ANSI escape codes is correct width
+ok 90 - diffstat truncation with invalid UTF-8 does not crash
+ok 91 - diffstat truncation with control chars does not read out of bounds
+# passed all 91 test(s)
+1..91

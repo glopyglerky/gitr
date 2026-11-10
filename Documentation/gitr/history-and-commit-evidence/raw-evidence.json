@@ -1,0 +1,372 @@
+[
+  {
+    "path": "baseline-oracle-sha1-t4052-stat-output.tap",
+    "sha256": "0e8d082d913bf39cbb8044dc2d2be0ed00848ff31d28a843a183c4e5c1c369e2",
+    "bytes": 5295
+  },
+  {
+    "path": "baseline-gitr-sha1-t4052-stat-output.tap",
+    "sha256": "0e8d082d913bf39cbb8044dc2d2be0ed00848ff31d28a843a183c4e5c1c369e2",
+    "bytes": 5295
+  },
+  {
+    "path": "baseline-oracle-sha256-t4052-stat-output.tap",
+    "sha256": "0e8d082d913bf39cbb8044dc2d2be0ed00848ff31d28a843a183c4e5c1c369e2",
+    "bytes": 5295
+  },
+  {
+    "path": "baseline-gitr-sha256-t4052-stat-output.tap",
+    "sha256": "0e8d082d913bf39cbb8044dc2d2be0ed00848ff31d28a843a183c4e5c1c369e2",
+    "bytes": 5295
+  },
+  {
+    "path": "baseline-oracle-sha1-t4012-diff-binary.tap",
+    "sha256": "0cb2565a7f34e98b655dec81329fc7efff734165a19174c56237d8d4a5fa0c41",
+    "bytes": 605
+  },
+  {
+    "path": "baseline-gitr-sha1-t4012-diff-binary.tap",
+    "sha256": "0cb2565a7f34e98b655dec81329fc7efff734165a19174c56237d8d4a5fa0c41",
+    "bytes": 605
+  },
+  {
+    "path": "baseline-oracle-sha256-t4012-diff-binary.tap",
+    "sha256": "0cb2565a7f34e98b655dec81329fc7efff734165a19174c56237d8d4a5fa0c41",
+    "bytes": 605
+  },
+  {
+    "path": "baseline-gitr-sha256-t4012-diff-binary.tap",
+    "sha256": "0cb2565a7f34e98b655dec81329fc7efff734165a19174c56237d8d4a5fa0c41",
+    "bytes": 605
+  },
+  {
+    "path": "baseline-oracle-sha1-t6012-rev-list-simplify.tap",
+    "sha256": "f1aaf4e2a6a349af3c6f99a40aa7658fc2565519fc883dd30bddc00a2e201bb0",
+    "bytes": 1887
+  },
+  {
+    "path": "baseline-gitr-sha1-t6012-rev-list-simplify.tap",
+    "sha256": "f1aaf4e2a6a349af3c6f99a40aa7658fc2565519fc883dd30bddc00a2e201bb0",
+    "bytes": 1887
+  },
+  {
+    "path": "baseline-oracle-sha256-t6012-rev-list-simplify.tap",
+    "sha256": "f1aaf4e2a6a349af3c6f99a40aa7658fc2565519fc883dd30bddc00a2e201bb0",
+    "bytes": 1887
+  },
+  {
+    "path": "baseline-gitr-sha256-t6012-rev-list-simplify.tap",
+    "sha256": "f1aaf4e2a6a349af3c6f99a40aa7658fc2565519fc883dd30bddc00a2e201bb0",
+    "bytes": 1887
+  },
+  {
+    "path": "baseline-oracle-sha1-t6016-rev-list-graph-simplify-history.tap",
+    "sha256": "7f8c9fd1cfe0074e7f409b756225476a3abb02ff8fbde59d1b3820f202cba976",
+    "bytes": 456
+  },
+  {
+    "path": "baseline-gitr-sha1-t6016-rev-list-graph-simplify-history.tap",
+    "sha256": "9237e84d84edc381a8a3b829f4ee8d5975ba1a274f1bc000083f3c4123b7acc9",
+    "bytes": 1181
+  },
+  {
+    "path": "baseline-gitr-sha1-t6016-rev-list-graph-simplify-history.details.log",
+    "sha256": "28685d2c5fa5d1b9da26fe8bc664205583c762a8054033dc9022d16b6becffb1",
+    "bytes": 6910
+  },
+  {
+    "path": "baseline-oracle-sha256-t6016-rev-list-graph-simplify-history.tap",
+    "sha256": "7f8c9fd1cfe0074e7f409b756225476a3abb02ff8fbde59d1b3820f202cba976",
+    "bytes": 456
+  },
+  {
+    "path": "baseline-gitr-sha256-t6016-rev-list-graph-simplify-history.tap",
+    "sha256": "9237e84d84edc381a8a3b829f4ee8d5975ba1a274f1bc000083f3c4123b7acc9",
+    "bytes": 1181
+  },
+  {
+    "path": "baseline-gitr-sha256-t6016-rev-list-graph-simplify-history.details.log",
+    "sha256": "d84f29a88a7900372128f5d9db501b9f13f9723a6b09ad3e3a3aea41af6f1e64",
+    "bytes": 6912
+  },
+  {
+    "path": "baseline-oracle-sha1-t5001-archive-attr.tap",
+    "sha256": "7ce224d96fe9308fdddc187bb6839961ae2c9171433bd34daa015bb21a92a1cf",
+    "bytes": 2208
+  },
+  {
+    "path": "baseline-gitr-sha1-t5001-archive-attr.tap",
+    "sha256": "7ce224d96fe9308fdddc187bb6839961ae2c9171433bd34daa015bb21a92a1cf",
+    "bytes": 2208
+  },
+  {
+    "path": "baseline-oracle-sha256-t5001-archive-attr.tap",
+    "sha256": "7ce224d96fe9308fdddc187bb6839961ae2c9171433bd34daa015bb21a92a1cf",
+    "bytes": 2208
+  },
+  {
+    "path": "baseline-gitr-sha256-t5001-archive-attr.tap",
+    "sha256": "7ce224d96fe9308fdddc187bb6839961ae2c9171433bd34daa015bb21a92a1cf",
+    "bytes": 2208
+  },
+  {
+    "path": "baseline-oracle-sha1-t5002-archive-attr-pattern.tap",
+    "sha256": "05b3e2c022d15c9b2e0d5e131f7ef1469a51ed1ba4b96ebf91db5a8683e38942",
+    "bytes": 1063
+  },
+  {
+    "path": "baseline-gitr-sha1-t5002-archive-attr-pattern.tap",
+    "sha256": "05b3e2c022d15c9b2e0d5e131f7ef1469a51ed1ba4b96ebf91db5a8683e38942",
+    "bytes": 1063
+  },
+  {
+    "path": "baseline-oracle-sha256-t5002-archive-attr-pattern.tap",
+    "sha256": "05b3e2c022d15c9b2e0d5e131f7ef1469a51ed1ba4b96ebf91db5a8683e38942",
+    "bytes": 1063
+  },
+  {
+    "path": "baseline-gitr-sha256-t5002-archive-attr-pattern.tap",
+    "sha256": "05b3e2c022d15c9b2e0d5e131f7ef1469a51ed1ba4b96ebf91db5a8683e38942",
+    "bytes": 1063
+  },
+  {
+    "path": "baseline-oracle-sha1-t5004-archive-corner-cases.tap",
+    "sha256": "cdd39f6abfbec20a31a2a123b63ef6cef18f10f538adab2e612f8e70b2b85224",
+    "bytes": 806
+  },
+  {
+    "path": "baseline-gitr-sha1-t5004-archive-corner-cases.tap",
+    "sha256": "cdd39f6abfbec20a31a2a123b63ef6cef18f10f538adab2e612f8e70b2b85224",
+    "bytes": 806
+  },
+  {
+    "path": "baseline-oracle-sha256-t5004-archive-corner-cases.tap",
+    "sha256": "cdd39f6abfbec20a31a2a123b63ef6cef18f10f538adab2e612f8e70b2b85224",
+    "bytes": 806
+  },
+  {
+    "path": "baseline-gitr-sha256-t5004-archive-corner-cases.tap",
+    "sha256": "cdd39f6abfbec20a31a2a123b63ef6cef18f10f538adab2e612f8e70b2b85224",
+    "bytes": 806
+  },
+  {
+    "path": "final-oracle-sha1-t1500-rev-parse.tap",
+    "sha256": "475bdc870e01811a71e27ed78e326cddc2f15c20bde36809010d07561de30972",
+    "bytes": 4185
+  },
+  {
+    "path": "final-gitr-sha1-t1500-rev-parse.tap",
+    "sha256": "7b03fc8305a3219dab8a04eb018909a9305421e8223978dfb6aab687f6aa8017",
+    "bytes": 4205
+  },
+  {
+    "path": "final-oracle-sha256-t1500-rev-parse.tap",
+    "sha256": "475bdc870e01811a71e27ed78e326cddc2f15c20bde36809010d07561de30972",
+    "bytes": 4185
+  },
+  {
+    "path": "final-gitr-sha256-t1500-rev-parse.tap",
+    "sha256": "7b03fc8305a3219dab8a04eb018909a9305421e8223978dfb6aab687f6aa8017",
+    "bytes": 4205
+  },
+  {
+    "path": "final-oracle-sha1-t4012-diff-binary.tap",
+    "sha256": "0cb2565a7f34e98b655dec81329fc7efff734165a19174c56237d8d4a5fa0c41",
+    "bytes": 605
+  },
+  {
+    "path": "final-gitr-sha1-t4012-diff-binary.tap",
+    "sha256": "0cb2565a7f34e98b655dec81329fc7efff734165a19174c56237d8d4a5fa0c41",
+    "bytes": 605
+  },
+  {
+    "path": "final-oracle-sha256-t4012-diff-binary.tap",
+    "sha256": "0cb2565a7f34e98b655dec81329fc7efff734165a19174c56237d8d4a5fa0c41",
+    "bytes": 605
+  },
+  {
+    "path": "final-gitr-sha256-t4012-diff-binary.tap",
+    "sha256": "0cb2565a7f34e98b655dec81329fc7efff734165a19174c56237d8d4a5fa0c41",
+    "bytes": 605
+  },
+  {
+    "path": "final-oracle-sha1-t4052-stat-output.tap",
+    "sha256": "0e8d082d913bf39cbb8044dc2d2be0ed00848ff31d28a843a183c4e5c1c369e2",
+    "bytes": 5295
+  },
+  {
+    "path": "final-gitr-sha1-t4052-stat-output.tap",
+    "sha256": "0e8d082d913bf39cbb8044dc2d2be0ed00848ff31d28a843a183c4e5c1c369e2",
+    "bytes": 5295
+  },
+  {
+    "path": "final-oracle-sha256-t4052-stat-output.tap",
+    "sha256": "0e8d082d913bf39cbb8044dc2d2be0ed00848ff31d28a843a183c4e5c1c369e2",
+    "bytes": 5295
+  },
+  {
+    "path": "final-gitr-sha256-t4052-stat-output.tap",
+    "sha256": "0e8d082d913bf39cbb8044dc2d2be0ed00848ff31d28a843a183c4e5c1c369e2",
+    "bytes": 5295
+  },
+  {
+    "path": "final-oracle-sha1-t5000-tar-tree.tap",
+    "sha256": "6caac7817bf5373265458e0998717ca099cb347008a29162adace569bfa68026",
+    "bytes": 3600
+  },
+  {
+    "path": "final-gitr-sha1-t5000-tar-tree.tap",
+    "sha256": "034a4c0abbb8b635d5752d84186b35baabb80a0e4edfa45328a6322bc1bdaf22",
+    "bytes": 3902
+  },
+  {
+    "path": "final-gitr-sha1-t5000-tar-tree.details.log",
+    "sha256": "ac1c560347cdea6bbde7e71ecadcf4b9970eaeffc442004e43abc981c71edb4b",
+    "bytes": 22425
+  },
+  {
+    "path": "final-oracle-sha256-t5000-tar-tree.tap",
+    "sha256": "6caac7817bf5373265458e0998717ca099cb347008a29162adace569bfa68026",
+    "bytes": 3600
+  },
+  {
+    "path": "final-gitr-sha256-t5000-tar-tree.tap",
+    "sha256": "034a4c0abbb8b635d5752d84186b35baabb80a0e4edfa45328a6322bc1bdaf22",
+    "bytes": 3902
+  },
+  {
+    "path": "final-gitr-sha256-t5000-tar-tree.details.log",
+    "sha256": "03cc6dddf7eb49f10a00d6dab3dd9e0d6f8f926c0543bb64bd15655e2816842d",
+    "bytes": 22475
+  },
+  {
+    "path": "final-oracle-sha1-t5001-archive-attr.tap",
+    "sha256": "7ce224d96fe9308fdddc187bb6839961ae2c9171433bd34daa015bb21a92a1cf",
+    "bytes": 2208
+  },
+  {
+    "path": "final-gitr-sha1-t5001-archive-attr.tap",
+    "sha256": "7ce224d96fe9308fdddc187bb6839961ae2c9171433bd34daa015bb21a92a1cf",
+    "bytes": 2208
+  },
+  {
+    "path": "final-oracle-sha256-t5001-archive-attr.tap",
+    "sha256": "7ce224d96fe9308fdddc187bb6839961ae2c9171433bd34daa015bb21a92a1cf",
+    "bytes": 2208
+  },
+  {
+    "path": "final-gitr-sha256-t5001-archive-attr.tap",
+    "sha256": "7ce224d96fe9308fdddc187bb6839961ae2c9171433bd34daa015bb21a92a1cf",
+    "bytes": 2208
+  },
+  {
+    "path": "final-oracle-sha1-t5002-archive-attr-pattern.tap",
+    "sha256": "05b3e2c022d15c9b2e0d5e131f7ef1469a51ed1ba4b96ebf91db5a8683e38942",
+    "bytes": 1063
+  },
+  {
+    "path": "final-gitr-sha1-t5002-archive-attr-pattern.tap",
+    "sha256": "05b3e2c022d15c9b2e0d5e131f7ef1469a51ed1ba4b96ebf91db5a8683e38942",
+    "bytes": 1063
+  },
+  {
+    "path": "final-oracle-sha256-t5002-archive-attr-pattern.tap",
+    "sha256": "05b3e2c022d15c9b2e0d5e131f7ef1469a51ed1ba4b96ebf91db5a8683e38942",
+    "bytes": 1063
+  },
+  {
+    "path": "final-gitr-sha256-t5002-archive-attr-pattern.tap",
+    "sha256": "05b3e2c022d15c9b2e0d5e131f7ef1469a51ed1ba4b96ebf91db5a8683e38942",
+    "bytes": 1063
+  },
+  {
+    "path": "final-oracle-sha1-t5003-archive-zip.tap",
+    "sha256": "9565a92e3308e6ae92c6aaf15155738361836bd249d232ecc202ec121dd1be2b",
+    "bytes": 3359
+  },
+  {
+    "path": "final-gitr-sha1-t5003-archive-zip.tap",
+    "sha256": "9565a92e3308e6ae92c6aaf15155738361836bd249d232ecc202ec121dd1be2b",
+    "bytes": 3359
+  },
+  {
+    "path": "final-oracle-sha256-t5003-archive-zip.tap",
+    "sha256": "9565a92e3308e6ae92c6aaf15155738361836bd249d232ecc202ec121dd1be2b",
+    "bytes": 3359
+  },
+  {
+    "path": "final-gitr-sha256-t5003-archive-zip.tap",
+    "sha256": "9565a92e3308e6ae92c6aaf15155738361836bd249d232ecc202ec121dd1be2b",
+    "bytes": 3359
+  },
+  {
+    "path": "final-oracle-sha1-t5004-archive-corner-cases.tap",
+    "sha256": "cdd39f6abfbec20a31a2a123b63ef6cef18f10f538adab2e612f8e70b2b85224",
+    "bytes": 806
+  },
+  {
+    "path": "final-gitr-sha1-t5004-archive-corner-cases.tap",
+    "sha256": "cdd39f6abfbec20a31a2a123b63ef6cef18f10f538adab2e612f8e70b2b85224",
+    "bytes": 806
+  },
+  {
+    "path": "final-oracle-sha256-t5004-archive-corner-cases.tap",
+    "sha256": "cdd39f6abfbec20a31a2a123b63ef6cef18f10f538adab2e612f8e70b2b85224",
+    "bytes": 806
+  },
+  {
+    "path": "final-gitr-sha256-t5004-archive-corner-cases.tap",
+    "sha256": "cdd39f6abfbec20a31a2a123b63ef6cef18f10f538adab2e612f8e70b2b85224",
+    "bytes": 806
+  },
+  {
+    "path": "final-oracle-sha1-t6012-rev-list-simplify.tap",
+    "sha256": "f1aaf4e2a6a349af3c6f99a40aa7658fc2565519fc883dd30bddc00a2e201bb0",
+    "bytes": 1887
+  },
+  {
+    "path": "final-gitr-sha1-t6012-rev-list-simplify.tap",
+    "sha256": "f1aaf4e2a6a349af3c6f99a40aa7658fc2565519fc883dd30bddc00a2e201bb0",
+    "bytes": 1887
+  },
+  {
+    "path": "final-oracle-sha256-t6012-rev-list-simplify.tap",
+    "sha256": "f1aaf4e2a6a349af3c6f99a40aa7658fc2565519fc883dd30bddc00a2e201bb0",
+    "bytes": 1887
+  },
+  {
+    "path": "final-gitr-sha256-t6012-rev-list-simplify.tap",
+    "sha256": "f1aaf4e2a6a349af3c6f99a40aa7658fc2565519fc883dd30bddc00a2e201bb0",
+    "bytes": 1887
+  },
+  {
+    "path": "final-oracle-sha1-t6016-rev-list-graph-simplify-history.tap",
+    "sha256": "7f8c9fd1cfe0074e7f409b756225476a3abb02ff8fbde59d1b3820f202cba976",
+    "bytes": 456
+  },
+  {
+    "path": "final-gitr-sha1-t6016-rev-list-graph-simplify-history.tap",
+    "sha256": "9237e84d84edc381a8a3b829f4ee8d5975ba1a274f1bc000083f3c4123b7acc9",
+    "bytes": 1181
+  },
+  {
+    "path": "final-gitr-sha1-t6016-rev-list-graph-simplify-history.details.log",
+    "sha256": "6337e6690db68b044d5876830b0bb232bb9aa4be5959fd85a14e338ed3ca1847",
+    "bytes": 6903
+  },
+  {
+    "path": "final-oracle-sha256-t6016-rev-list-graph-simplify-history.tap",
+    "sha256": "7f8c9fd1cfe0074e7f409b756225476a3abb02ff8fbde59d1b3820f202cba976",
+    "bytes": 456
+  },
+  {
+    "path": "final-gitr-sha256-t6016-rev-list-graph-simplify-history.tap",
+    "sha256": "9237e84d84edc381a8a3b829f4ee8d5975ba1a274f1bc000083f3c4123b7acc9",
+    "bytes": 1181
+  },
+  {
+    "path": "final-gitr-sha256-t6016-rev-list-graph-simplify-history.details.log",
+    "sha256": "21cd819a01b48deb4645dbdf6e4363a8dc9aef7f9959a28a0dcdbd0409bceadc",
+    "bytes": 6905
+  }
+]
