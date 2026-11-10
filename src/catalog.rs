@@ -20,7 +20,7 @@ use omdb::{
     ReadableTable, TableDefinition,
 };
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
-use sley::ObjectFormat;
+use sley::{ObjectFormat, ObjectId, RefPrecondition, ReferenceTarget, Repository};
 
 use crate::snapshot::{Snapshot, open_repository};
 
@@ -180,6 +180,17 @@ pub struct MutationResult {
     pub request_id: String,
     pub replayed: bool,
     pub record: SnapshotRecord,
+}
+
+/// A conservative Git reachability anchor for one exact catalog generation.
+/// Pins are not automatically released when the name is replaced or deleted.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct PinResult {
+    pub name: String,
+    pub generation: u64,
+    pub commit_oid: String,
+    pub refname: String,
+    pub already_pinned: bool,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -645,6 +656,210 @@ impl SnapshotCatalog {
         }
         Ok(snapshot)
     }
+
+    /// Pin the exact live generation in Git's ordinary reachability namespace.
+    ///
+    /// The deterministic name makes a retry after an interrupted ref commit
+    /// recoverable without extending or migrating the omdb schema. This is a
+    /// create-only ref update: foreign refs are never replaced, and deletion of
+    /// the catalog record does not release a successful pin. A later, separately
+    /// qualified release protocol must own that transition.
+    ///
+    /// Git GC must not run concurrently with pin publication. Git's own
+    /// pruning rules do not make a newly created ref atomic with an already
+    /// running GC's reachability walk.
+    pub fn pin(&self, name: &str, expected_generation: u64) -> Result<PinResult> {
+        identifier(name, "snapshot name")?;
+        let original = self
+            .get(name)?
+            .ok_or_else(|| CatalogError::NotFound(name.into()))?;
+        if original.generation != expected_generation {
+            return Err(CatalogError::Conflict {
+                expected: expected_generation,
+                actual: original.generation,
+            });
+        }
+        let identity = original
+            .snapshot
+            .as_ref()
+            .ok_or_else(|| CatalogError::NotFound(name.into()))?;
+        let repository = open_repository(&self.location.repository_path)?;
+        verify_owned_object_store(&repository)?;
+        let snapshot = Snapshot::open(&self.location.repository_path, &identity.commit_oid)?;
+        if SnapshotIdentity::from_snapshot(&snapshot) != *identity {
+            return Err(invalid(
+                "saved snapshot identity does not match Git content",
+            ));
+        }
+        let oid = ObjectId::from_hex(self.location.format, &identity.commit_oid)?;
+        let refname = pin_ref_name(name, original.generation);
+
+        // A saved identity alone is insufficient: verify the full reachable
+        // graph before installing a ref. The second walk must open a fresh
+        // object store so decoded-object/pack caches cannot conceal removal
+        // during publication; this still cannot coordinate with Git GC.
+        verify_reachable(&repository, oid)?;
+        let refs = repository.references();
+        let already_pinned = match refs.read_ref(&refname)? {
+            Some(ReferenceTarget::Direct(existing)) if existing == oid => true,
+            Some(_) => return Err(invalid("snapshot pin ref exists with a different target")),
+            None => {
+                let mut transaction = refs.transaction();
+                transaction.update_to(
+                    &refname,
+                    ReferenceTarget::Direct(oid),
+                    RefPrecondition::MustNotExist,
+                    None,
+                );
+                match transaction.commit() {
+                    Ok(()) => false,
+                    Err(error) => {
+                        // A second process can win the create-only race. A
+                        // matching ref is the same idempotent publication.
+                        if refs.read_ref(&refname)? != Some(ReferenceTarget::Direct(oid)) {
+                            return Err(error.into());
+                        }
+                        true
+                    }
+                }
+            }
+        };
+        let post_repository = open_repository(&self.location.repository_path)?;
+        verify_owned_object_store(&post_repository)?;
+        verify_reachable(&post_repository, oid)?;
+        if self.get(name)?.as_ref() != Some(&original) {
+            return Err(invalid(
+                "catalog record changed during pin publication; pin retained conservatively",
+            ));
+        }
+        if post_repository.references().read_ref(&refname)? != Some(ReferenceTarget::Direct(oid)) {
+            return Err(invalid("snapshot pin ref changed during verification"));
+        }
+        Ok(PinResult {
+            name: name.into(),
+            generation: original.generation,
+            commit_oid: identity.commit_oid.clone(),
+            refname,
+            already_pinned,
+        })
+    }
+}
+
+// A ref in this repository cannot retain objects owned by a different repo's
+// GC. Explicit pins therefore require a self-contained local object store.
+// Reject promisor packs too: they describe a store that can omit descendants.
+fn verify_owned_object_store(repository: &Repository) -> Result<()> {
+    let objects = repository.common_dir().join("objects");
+    if !fs::symlink_metadata(&objects)?.file_type().is_dir() {
+        return Err(invalid(
+            "snapshot pins require a local Git objects directory",
+        ));
+    }
+    for entry in fs::read_dir(&objects)? {
+        if entry?.file_type()?.is_symlink() {
+            return Err(invalid(
+                "snapshot pins reject symlinked Git object storage directories",
+            ));
+        }
+    }
+    let alternates = objects.join("info/alternates");
+    match fs::symlink_metadata(alternates) {
+        Ok(_) => {
+            return Err(invalid(
+                "snapshot pins do not support Git object alternates",
+            ));
+        }
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+        Err(error) => return Err(error.into()),
+    }
+    let pack = objects.join("pack");
+    match fs::symlink_metadata(&pack) {
+        Ok(metadata) if metadata.file_type().is_dir() => {
+            for item in fs::read_dir(pack)? {
+                let item = item?;
+                if item.file_type()?.is_symlink() {
+                    return Err(invalid(
+                        "snapshot pins require locally owned Git pack files",
+                    ));
+                }
+                let path = item.path();
+                if path
+                    .extension()
+                    .is_some_and(|extension| extension == "promisor")
+                {
+                    return Err(invalid("snapshot pins do not support Git promisor packs"));
+                }
+            }
+        }
+        Ok(_) => return Err(invalid("snapshot pins require a local Git pack directory")),
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+        Err(error) => return Err(error.into()),
+    }
+    Ok(())
+}
+
+// Encode name bytes, not their ref syntax. Components stay below 100 bytes,
+// including for the longest allowed name, and no name can inject a ref path.
+fn pin_ref_name(name: &str, generation: u64) -> String {
+    use std::fmt::Write as _;
+
+    let mut path = String::from("refs/rit/retained");
+    for (index, chunk) in name.as_bytes().chunks(48).enumerate() {
+        path.push('/');
+        if index == 0 {
+            path.push('n');
+        }
+        for byte in chunk {
+            write!(&mut path, "{byte:02x}").expect("String formatting is infallible");
+        }
+    }
+    write!(&mut path, "/g{generation:020}").expect("String formatting is infallible");
+    path
+}
+
+// This is intentionally an explicit, potentially expensive check: it walks
+// every reachable commit, tree and blob, including parent history, and hashes
+// their uncompressed bytes. Gitlinks are external repositories and excluded.
+fn verify_reachable(repository: &Repository, commit: ObjectId) -> Result<()> {
+    // The pack walk is strict about absent objects, including promisor misses.
+    // The fsck walk separately enforces each Git graph edge's expected type,
+    // parsing and the hash of every reachable object.
+    let plan = repository
+        .reachable_pack_plan()
+        .root(commit)
+        .build()?
+        .ok_or_else(|| invalid("snapshot pin has no reachable Git objects"))?;
+    let objects = repository.common_dir().join("objects");
+    for oid in plan.object_ids() {
+        // A loose object may itself be a symlink into another repository's
+        // GC domain even when its containing directory is locally owned.
+        let hex = oid.to_string();
+        let loose = objects.join(&hex[..2]).join(&hex[2..]);
+        match fs::symlink_metadata(loose) {
+            Ok(metadata) if metadata.file_type().is_symlink() => {
+                return Err(invalid(format!(
+                    "snapshot pin object {oid} is a symlink into external storage"
+                )));
+            }
+            Ok(_) => {}
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+            Err(error) => return Err(error.into()),
+        }
+    }
+    let findings = sley_fsck::check_connectivity(
+        repository.object_database(),
+        repository.object_format(),
+        &[commit],
+        &[],
+        sley_fsck::ConnectivityOptions::default(),
+    );
+    if let Some(error) = findings.errors().next() {
+        return Err(invalid(format!(
+            "invalid snapshot pin Git graph: {}",
+            error.message()
+        )));
+    }
+    Ok(())
 }
 
 fn read_header(read: &ReadTransaction, format: ObjectFormat) -> Result<Header> {
@@ -882,6 +1097,21 @@ mod tests {
                 .unwrap_err()
                 .to_string()
                 .contains("does not match Git content")
+        );
+        assert!(
+            catalog
+                .pin("job", original.generation)
+                .unwrap_err()
+                .to_string()
+                .contains("does not match Git content")
+        );
+        assert!(
+            open_repository(temp.path())
+                .unwrap()
+                .references()
+                .read_ref(&pin_ref_name("job", original.generation))
+                .unwrap()
+                .is_none()
         );
 
         let write = writable(&catalog).begin_write().unwrap();

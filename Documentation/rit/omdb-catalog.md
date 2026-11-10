@@ -21,6 +21,7 @@ rit --rit-db init --repo /path/to/repository
 rit --rit-db put --repo /path/to/repository --name build-source --revision HEAD --expect-generation 0 --request-id build-source-1
 rit --rit-db get --repo /path/to/repository --name build-source
 rit --rit-db list --repo /path/to/repository --limit 100
+rit --rit-db pin --repo /path/to/repository --name build-source --expect-generation 1
 rit --rit-snapshot read --repo /path/to/repository --saved build-source --path src/main.rs
 ```
 
@@ -56,6 +57,68 @@ filesystem effects. `put`, `delete`, `get`, `list`, and `snapshot` use the same
 implementation as the CLI. The `git` and `scalar` executables continue their
 existing Git-compatible dispatch; the extensions require the `rit` executable
 and an explicit first option.
+
+## Explicit Git reachability pins
+
+`pin` protects the exact live name and catalog generation against **ordinary
+subsequent Git garbage collection**. This is an opt-in action; `put` still
+stores metadata only and does not automatically retain content. The Rust API
+is `SnapshotCatalog::pin(name, expected_generation) -> PinResult` and can be
+called from a read-only omdb catalog handle. It writes only a native Git ref.
+
+The pin uses a deterministic, unique ref under `refs/rit/retained/`, with the
+ASCII snapshot name encoded into length-bounded hexadecimal path components and
+the full catalog generation as its final component. It does not use an
+unchecked branch update. The Sley ref transaction requires `MustNotExist`
+under the appropriate Git ref lock, for files and reftable alike. An existing
+direct ref with the same commit ID makes an interrupted publication retry
+idempotent; a symbolic ref or any other target is rejected without overwrite.
+
+Before publishing, Rit verifies that the stored commit/tree identity still
+matches Git. A strict native reachability walk refuses missing objects, and
+Sley's fsck connectivity checker validates object hashes, parsed links and
+expected object types. A second set of checks through a newly opened object
+store after publication avoids accepting stale cached objects if content
+disappeared. It then rechecks the catalog record and direct ref against their
+original values. The graph includes parent history and excludes submodule
+gitlinks (those are external repositories). This is deliberate whole-graph
+work: memory grows with object count, and large objects must be decoded; it is
+not a fast or bounded-memory CI checkout operation.
+
+Pins require a locally owned Git object store. They fail closed if the Git
+objects directory, any immediate child, a reachable loose object file or a
+pack entry is a symlink; if `objects/info/alternates` exists; or if there are
+promisor pack markers. A ref in one repository cannot prevent an alternate
+repository's garbage collector from removing shared objects. The ordinary
+`put` and saved snapshot reader still support their existing object storage
+behavior; these restrictions apply specifically to `pin`.
+
+The JSON result contains `name`, `generation`, `commit_oid`, `refname`, and
+`already_pinned`. The caller can independently inspect the Git ref with
+`git show-ref` or `git rev-parse`. An in-flight pin that detects a concurrent
+catalog change or encounters an interrupted response can leave an extra ref.
+Retry with the same name and generation while it remains live. The ref itself
+persists independently of the catalog row.
+
+**Pins are intentionally not automatically released**, including after
+replacement and deletion. A safe release needs separate ownership, fencing,
+checked deletion and reconciliation so it cannot free an object that still
+has a live consumer. For now, users must account for the resulting storage
+growth. There is no automatic sweep, lease expiry, or ref garbage collection.
+Rit does not reserve the ref namespace from external Git commands: manually
+removing or modifying a pin defeats its protection. Internal pin writes do
+not currently invoke configured reference-transaction hooks.
+
+Do not run Git GC or object deletion **concurrently with pin publication**.
+Git's reachability scan and ref creation are not one transaction, so a running
+GC can act on an earlier ref snapshot. This pin also cannot restore objects
+already missing, establish physical power-loss durability on all filesystems,
+or guarantee completeness for a remote/partial object store. It establishes
+a local, verified, create-only ref anchor for later ordinary Git pruning, not
+an atomic omdb/Git cross-store commit or universal object-retention lease.
+The reused Sley fsck connectivity checker is recursive; pathologically deep
+histories or trees may exhaust the process stack. An iterative, bounded-resource
+checker is required before qualifying pins for arbitrarily large repositories.
 
 ## Atomic mutations and retry behavior
 
@@ -138,11 +201,12 @@ identity, opens the full commit through the native snapshot reader, and checks
 that the actual object format and root tree equal the recorded values. It then
 uses the existing path validation, object hashing and raw-byte read behavior.
 
-The catalog does not write Git refs or copy payloads. It does not retain content
-against garbage collection. A record can remain readable as metadata while
-source reads fail because the commit, tree, or blob is missing. Retention leases,
-cross-store publication, bounded-memory streaming, writable overlays, Wasmtime
-workers, authentication and distributed storage remain separate work.
+Saving a record does not write Git refs or copy payloads. A saved record without
+an explicit, successfully published pin can outlive its objects; source reads
+then fail. The explicit pin protocol above uses Git reachability, not an omdb
+payload copy. Retention leases, ref release/reconciliation, cross-store atomic
+publication, bounded-memory streaming, writable overlays, Wasmtime workers,
+authentication and distributed storage remain separate work.
 
 ## Qualification
 
@@ -172,6 +236,24 @@ together or neither, retain every acknowledged write, and converge on one
 generation when the request is retried. This exercises application transaction
 composition against the pinned database; it is not a physical power-loss or
 remote-storage certification.
+
+### Follow-up pin qualification
+
+The explicit pin extension passed 38 root tests (15 catalog product tests,
+7 root unit tests and 16 other product workflows), 9 storage-policy tests,
+and 111 selected Sley ref/GC tests. The source import verifier again checked
+the 680-file Sley inventory without donor changes. Local commands used pinned
+Lustr's Rust 1.99.1 route; this does not establish produced-BlueFe execution.
+
+The tests exercise native ref publication and replay for SHA-1 and SHA-256,
+files and reftable, linked worktrees, ordinary Git 2.55 GC and Rit's native GC,
+stale generations, deliberate missing blobs, mismatched ref targets, malformed
+graph types, promisor markers, borrowed alternate stores, symlinked loose
+objects and symlinked packs. They confirm that pinned content survives
+subsequent pruning while a separate unprotected commit is collected, both with
+Git-first and Rit-first collection. They do not prove concurrent-GC or
+power-loss safety. The [pin evidence](omdb-catalog-evidence/pin-qualification.json)
+records the exact qualification scope and review corrections.
 
 Root Git workflows, source import verification and the updated composition
 policy remain required gates. Produced BlueFe qualification is a separate

@@ -13,12 +13,12 @@ use serde_json::{Value, json};
 use crate::catalog::{CatalogError, SCHEMA_VERSION, SnapshotCatalog};
 
 const HELP: &str = "\
-usage: rit --rit-db <init|put|get|list|delete> [options]
+usage: rit --rit-db <init|put|get|list|delete|pin> [options]
 
   --repo PATH              Repository to open, default: .
-  --name NAME              Saved snapshot name; required for put/get/delete
+  --name NAME              Saved snapshot name; required for put/get/delete/pin
   --revision REV           Revision for put, default: HEAD
-  --expect-generation N    Required for put/delete; 0 requires an unused name
+  --expect-generation N    Required for put/delete/pin; 0 requires an unused name for put
   --request-id ID          Required for put/delete; identifies one mutation
   --after NAME             Exclusive name cursor for list
   --limit N                List page size, default: 100; range: 1..1000
@@ -35,8 +35,12 @@ resolved snapshot. For retries after a branch moves, use the original full
 commit ID. An exact retry returns its original result without applying it again.
 
 Read a saved revision with `rit --rit-snapshot read --saved NAME --path PATH`.
-Saved records do not retain Git objects against garbage collection. Missing
-objects remain an error. This catalog stores metadata, not Git file payloads.
+Saved records alone do not retain Git objects against garbage collection.
+`pin --name NAME --expect-generation N` creates a checked, create-only Git ref
+for that exact generation, after verifying all reachable local objects. Pins
+survive catalog replacement/deletion and have no automatic release command.
+Do not run Git GC concurrently with pin publication. This catalog stores
+metadata, not Git file payloads.
 
 GIT_DIR and GIT_WORK_TREE do not redirect this catalog. Unset GIT_COMMON_DIR,
 GIT_OBJECT_DIRECTORY, GIT_ALTERNATE_OBJECT_DIRECTORIES and GIT_REFERENCE_BACKEND
@@ -115,6 +119,10 @@ enum Action {
         expected_generation: u64,
         request_id: String,
     },
+    Pin {
+        name: String,
+        expected_generation: u64,
+    },
 }
 
 #[derive(Debug)]
@@ -164,8 +172,8 @@ fn parse(args: &[OsString]) -> Result<Option<Options>> {
     if matches!(action, "--help" | "-h") && args.len() == 1 {
         return Ok(None);
     }
-    if !matches!(action, "init" | "put" | "get" | "list" | "delete") {
-        return Err(usage("expected init, put, get, list, or delete"));
+    if !matches!(action, "init" | "put" | "get" | "list" | "delete" | "pin") {
+        return Err(usage("expected init, put, get, list, delete, or pin"));
     }
     if args.len() == 2 && (args[1] == "--help" || args[1] == "-h") {
         return Ok(None);
@@ -182,9 +190,10 @@ fn parse(args: &[OsString]) -> Result<Option<Options>> {
         let option = utf8(option, "option name")?;
         let allowed = match option {
             "--repo" => true,
-            "--name" => matches!(action, "put" | "get" | "delete"),
+            "--name" => matches!(action, "put" | "get" | "delete" | "pin"),
             "--revision" => action == "put",
-            "--expect-generation" | "--request-id" => matches!(action, "put" | "delete"),
+            "--expect-generation" => matches!(action, "put" | "delete" | "pin"),
+            "--request-id" => matches!(action, "put" | "delete"),
             "--after" | "--limit" => action == "list",
             _ => false,
         };
@@ -241,6 +250,10 @@ fn parse(args: &[OsString]) -> Result<Option<Options>> {
             name: required(name, "--name", action)?,
             expected_generation: required(expected_generation, "--expect-generation", action)?,
             request_id: required(request_id, "--request-id", action)?,
+        },
+        "pin" => Action::Pin {
+            name: required(name, "--name", action)?,
+            expected_generation: required(expected_generation, "--expect-generation", action)?,
         },
         _ => unreachable!("the action is validated before parsing options"),
     };
@@ -310,6 +323,16 @@ pub(crate) fn run(args: &[OsString]) -> Result<()> {
         } => {
             let catalog = SnapshotCatalog::open_writable(&options.repository)?;
             let result = catalog.delete(&name, expected_generation, &request_id)?;
+            write_json(&mut output, &json!(result))
+        }
+        Action::Pin {
+            name,
+            expected_generation,
+        } => {
+            // Pin does not mutate omdb. An existing catalog may be opened
+            // read-only; only the native Git ref transaction changes storage.
+            let catalog = SnapshotCatalog::open(&options.repository)?;
+            let result = catalog.pin(&name, expected_generation)?;
             write_json(&mut output, &json!(result))
         }
     }

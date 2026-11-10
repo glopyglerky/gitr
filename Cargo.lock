@@ -587,6 +587,7 @@ dependencies = [
  "sha2",
  "sley",
  "sley-cli",
+ "sley-fsck",
  "tempfile",
 ]
 

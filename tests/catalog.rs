@@ -21,6 +21,10 @@ struct Fixture {
 
 impl Fixture {
     fn new(format: &str) -> Self {
+        Self::new_with_refs(format, "files")
+    }
+
+    fn new_with_refs(format: &str, refs: &str) -> Self {
         let temp = tempfile::tempdir().unwrap();
         let repo = temp.path().join("repo");
         let empty_path = temp.path().join("empty-path");
@@ -42,6 +46,7 @@ impl Fixture {
             "init",
             "--initial-branch=main",
             &format!("--object-format={format}"),
+            &format!("--ref-format={refs}"),
         ]);
         fixture
     }
@@ -147,6 +152,16 @@ impl Fixture {
             &expected.to_string(),
             "--request-id",
             request,
+        ])
+    }
+
+    fn pin(&self, name: &str, expected: u64) -> Output {
+        self.db(&[
+            "pin",
+            "--name",
+            name,
+            "--expect-generation",
+            &expected.to_string(),
         ])
     }
 
@@ -424,6 +439,14 @@ fn linked_worktrees_share_catalog_while_bare_clones_have_separate_metadata() {
         assert_eq!(
             decode(f.db_at(&linked, &["get", "--name", "main"])),
             saved["record"]
+        );
+        let common_pin = decode(f.db_at(
+            &linked,
+            &["pin", "--name", "main", "--expect-generation", "1"],
+        ));
+        assert_eq!(
+            f.git_text(&["rev-parse", common_pin["refname"].as_str().unwrap()]),
+            main
         );
         rejected(f.db_at(&linked, &["init"]));
         fs::write(linked.join("value"), b"linked source\n").unwrap();
@@ -785,22 +808,24 @@ fn separate_process_writers_cannot_both_publish_the_same_expected_generation() {
             .into_iter()
             .map(|child| child.wait_with_output().unwrap())
             .collect();
-        assert_eq!(
-            outputs
-                .iter()
-                .filter(|output| output.status.success())
-                .count(),
-            1,
-            "{outputs:?}"
-        );
-        let winner: Value = serde_json::from_slice(
-            &outputs
-                .iter()
-                .find(|output| output.status.success())
-                .unwrap()
-                .stdout,
-        )
-        .unwrap();
+        let successful: Vec<_> = outputs
+            .iter()
+            .filter(|output| output.status.success())
+            .collect();
+        assert!(successful.len() <= 1, "both writers committed: {outputs:?}");
+        // omdb may return WouldBlock to both processes while they contend at
+        // opening/transaction boundaries. That is a valid retry signal, not a
+        // promise that one of two single attempts must commit.
+        let winner: Value = if let Some(winner) = successful.first() {
+            serde_json::from_slice(&winner.stdout).unwrap()
+        } else {
+            assert!(
+                outputs
+                    .iter()
+                    .all(|output| output.status.code() == Some(75))
+            );
+            f.put("race", &first, 1, "writer-one")
+        };
         let loser = outputs
             .iter()
             .find(|output| !output.status.success())
@@ -868,4 +893,274 @@ fn catalog_extension_keeps_git_dispatch_and_rejects_ambient_storage_redirects() 
     );
     assert!(f.database_path().is_file());
     assert!(!ignored.exists());
+}
+
+#[test]
+fn pinned_generations_survive_git_pruning_and_catalog_deletion() {
+    for format in ["sha1", "sha256"] {
+        for refs in ["files", "reftable"] {
+            let f = Fixture::new_with_refs(format, refs);
+            let original = f.commit(b"keep the old file\n", "first");
+            let unprotected = f.commit(b"unprotected newer file\n", "second");
+            f.db_json(&["init"]);
+            f.put("snapshot..lock", &original, 0, "first-request");
+            let db_before = fs::read(f.database_path()).unwrap();
+            let pinned = decode(f.pin("snapshot..lock", 1));
+            assert_eq!(pinned["name"], "snapshot..lock");
+            assert_eq!(pinned["generation"], 1);
+            assert_eq!(pinned["commit_oid"], original);
+            assert_eq!(pinned["already_pinned"], false);
+            let refname = pinned["refname"].as_str().unwrap();
+            assert!(refname.starts_with("refs/rit/retained/n"));
+            assert!(!refname.contains("snapshot..lock"));
+            assert_eq!(f.git_text(&["rev-parse", refname]), original);
+            assert_eq!(fs::read(f.database_path()).unwrap(), db_before);
+            assert_eq!(decode(f.pin("snapshot..lock", 1))["already_pinned"], true);
+
+            // A saved name is mutable. Its exact, checked historical pin is not.
+            f.put("snapshot..lock", &unprotected, 1, "second-request");
+            rejected(f.pin("snapshot..lock", 1));
+            f.delete("snapshot..lock", 2, "delete-request");
+            rejected(f.pin("snapshot..lock", 3));
+            f.git(&["update-ref", "-d", "refs/heads/main"]);
+            f.git(&[
+                "reflog",
+                "expire",
+                "--all",
+                "--expire=now",
+                "--expire-unreachable=now",
+            ]);
+            let rit_gc = || {
+                success(
+                    f.command(env!("CARGO_BIN_EXE_rit"))
+                        .args(["gc", "--prune=now"])
+                        .output()
+                        .unwrap(),
+                );
+            };
+            // Both GC implementations must independently protect the pin and
+            // prune an otherwise unreachable commit. Reverse their order so
+            // the native engine is first in two of the four combinations.
+            if refs == "files" {
+                rit_gc();
+            } else {
+                f.git(&["gc", "--prune=now"]);
+            }
+            assert_eq!(f.git_text(&["rev-parse", refname]), original);
+            assert_eq!(f.git_text(&["cat-file", "-t", &original]), "commit");
+            assert_eq!(
+                f.git(&["show", &format!("{original}:value")]),
+                b"keep the old file\n",
+                "format={format}, refs={refs}"
+            );
+            assert!(
+                !f.command(&f.oracle)
+                    .args(["cat-file", "-e", &unprotected])
+                    .output()
+                    .unwrap()
+                    .status
+                    .success(),
+                "the unprotected commit unexpectedly survived GC: {format}/{refs}"
+            );
+            if refs == "files" {
+                f.git(&["gc", "--prune=now"]);
+            } else {
+                rit_gc();
+            }
+            assert_eq!(f.git_text(&["cat-file", "-t", &original]), "commit");
+        }
+    }
+}
+
+#[test]
+fn pin_refuses_missing_descendants_and_existing_mismatched_refs() {
+    for format in ["sha1", "sha256"] {
+        let f = Fixture::new(format);
+        let original = f.commit(b"tree points to this blob\n", "first");
+        let alternative = f.commit(b"different snapshot\n", "second");
+        f.db_json(&["init"]);
+        f.put("valid", &original, 0, "first");
+        // Simulate a completed ref publication whose response was interrupted:
+        // a retry recognizes the exact deterministic ref and does not rewrite.
+        let refname = format!("refs/rit/retained/n76616c6964/g{:020}", 1);
+        f.git(&["update-ref", &refname, &original]);
+        let recovered = decode(f.pin("valid", 1));
+        assert_eq!(recovered["already_pinned"], true);
+        assert_eq!(recovered["refname"], refname);
+
+        f.git(&["update-ref", &refname, &alternative]);
+        rejected(f.pin("valid", 1));
+        assert_eq!(f.git_text(&["rev-parse", &refname]), alternative);
+        f.git(&["update-ref", &refname, &original]);
+
+        let blob = f.git_text(&["rev-parse", &format!("{original}:value")]);
+        fs::remove_file(f.object_path(&blob)).unwrap();
+        rejected(f.pin("valid", 1));
+        // Even an already present matching ref is not proof of complete data.
+        assert_eq!(f.git_text(&["rev-parse", &refname]), original);
+
+        f.put("missing", &alternative, 0, "second");
+        let alternative_blob = f.git_text(&["rev-parse", &format!("{alternative}:value")]);
+        fs::remove_file(f.object_path(&alternative_blob)).unwrap();
+        rejected(f.pin("missing", 2));
+        assert!(
+            f.git_text(&[
+                "for-each-ref",
+                "--format=%(refname)",
+                "refs/rit/retained/n6d697373696e67",
+            ])
+            .is_empty()
+        );
+    }
+}
+
+#[test]
+fn pin_rejects_invalid_generations_without_writing_refs() {
+    let f = Fixture::new("sha1");
+    let commit = f.commit(b"one\n", "first");
+    f.db_json(&["init"]);
+    f.put("build", &commit, 0, "first");
+    for args in [
+        vec!["pin", "--name", "build", "--expect-generation", "0"],
+        vec!["pin", "--name", "build"],
+        vec!["pin", "--name", "missing", "--expect-generation", "1"],
+        vec![
+            "pin",
+            "--name",
+            "build",
+            "--expect-generation",
+            "1",
+            "--request-id",
+            "bad",
+        ],
+    ] {
+        rejected(f.db(&args));
+    }
+    assert!(
+        f.git_text(&["for-each-ref", "--format=%(refname)", "refs/rit/retained"])
+            .is_empty()
+    );
+    let longest_name = "x".repeat(128);
+    f.put(&longest_name, &commit, 0, "long-name");
+    let published = decode(f.pin(&longest_name, 2));
+    assert_eq!(published["already_pinned"], false);
+    let pin_name = published["refname"].as_str().unwrap();
+    assert!(pin_name.split('/').all(|component| component.len() <= 97));
+    assert_eq!(f.git_text(&["rev-parse", pin_name]), commit);
+}
+
+#[test]
+fn pin_refuses_external_object_ownership_or_promisor_packs() {
+    for format in ["sha1", "sha256"] {
+        let f = Fixture::new(format);
+        let original = f.commit(b"local objects\n", "source");
+        f.db_json(&["init"]);
+        f.put("source", &original, 0, "first");
+        let alt = f.repo.join(".git/objects/info/alternates");
+        fs::write(&alt, b"/other/repository/objects\n").unwrap();
+        rejected(f.pin("source", 1));
+        fs::remove_file(&alt).unwrap();
+
+        let marker = f.repo.join(".git/objects/pack/pack-test.promisor");
+        fs::write(&marker, b"").unwrap();
+        rejected(f.pin("source", 1));
+        fs::remove_file(&marker).unwrap();
+
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::symlink;
+            let linked_pack = f.repo.join(".git/objects/pack/pack-link.pack");
+            symlink("/dev/null", &linked_pack).unwrap();
+            rejected(f.pin("source", 1));
+            fs::remove_file(linked_pack).unwrap();
+
+            let loose = f.object_path(&original);
+            let external_object = f.temp.path().join("external-loose");
+            fs::rename(&loose, &external_object).unwrap();
+            symlink(&external_object, &loose).unwrap();
+            rejected(f.pin("source", 1));
+            fs::remove_file(&loose).unwrap();
+            fs::rename(&external_object, &loose).unwrap();
+
+            let fanout = loose.parent().unwrap();
+            let external_dir = f.temp.path().join("external-fanout");
+            fs::rename(fanout, &external_dir).unwrap();
+            symlink(&external_dir, fanout).unwrap();
+            rejected(f.pin("source", 1));
+            fs::remove_file(fanout).unwrap();
+            fs::rename(&external_dir, fanout).unwrap();
+        }
+
+        let borrowed = f.temp.path().join("borrowed.git");
+        success(
+            f.command(&f.oracle)
+                .args(["clone", "--bare", "--shared"])
+                .arg(&f.repo)
+                .arg(&borrowed)
+                .output()
+                .unwrap(),
+        );
+        decode(f.db_at(&borrowed, &["init"]));
+        decode(f.db_at(
+            &borrowed,
+            &[
+                "put",
+                "--name",
+                "source",
+                "--revision",
+                &original,
+                "--expect-generation",
+                "0",
+                "--request-id",
+                "borrow",
+            ],
+        ));
+        rejected(f.db_at(
+            &borrowed,
+            &["pin", "--name", "source", "--expect-generation", "1"],
+        ));
+
+        let response = decode(f.pin("source", 1));
+        assert_eq!(response["already_pinned"], false);
+        assert_eq!(
+            f.git_text(&["rev-parse", response["refname"].as_str().unwrap()]),
+            original
+        );
+    }
+}
+
+#[test]
+fn pin_refuses_typed_git_graph_corruption_even_with_valid_object_hashes() {
+    for format in ["sha1", "sha256"] {
+        let f = Fixture::new(format);
+        let repository = sley::Repository::open(f.repo.join(".git")).unwrap();
+        let inner_tree = repository
+            .write_raw_object(sley::GitObjectType::Tree, Vec::new())
+            .unwrap();
+        // A blob-mode entry deliberately points to an existing tree object.
+        // Every individual object's hash is valid, but the graph is not.
+        let mut raw_tree = b"100644 mismatched\0".to_vec();
+        raw_tree.extend_from_slice(inner_tree.as_bytes());
+        let root_tree = repository
+            .write_raw_object(sley::GitObjectType::Tree, raw_tree)
+            .unwrap();
+        let commit = repository
+            .write_raw_object(
+                sley::GitObjectType::Commit,
+                format!(
+                    "tree {root_tree}\nauthor Test <test@example.invalid> 1 +0000\ncommitter Test <test@example.invalid> 1 +0000\n\nwrong type\n"
+                )
+                .into_bytes(),
+            )
+            .unwrap()
+            .to_string();
+        f.db_json(&["init"]);
+        f.put("broken", &commit, 0, "first");
+        let failure = f.pin("broken", 1);
+        rejected(failure);
+        assert!(
+            f.git_text(&["for-each-ref", "--format=%(refname)", "refs/rit/retained"])
+                .is_empty()
+        );
+    }
 }

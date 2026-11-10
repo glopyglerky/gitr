@@ -28,7 +28,10 @@ The active integration is the explicitly invoked, repository-scoped snapshot
 catalog. It must preserve checked generations, deletion tombstones, and atomic
 idempotency receipts. This bounded integration is authorized while full Git
 parity remains unfinished. Git objects and packs retain the Sley implementation;
-catalog records do not establish retention against Git pruning.
+catalog records alone do not establish retention against Git pruning. Explicit
+create-only pins under `refs/rit/retained/` protect a checked catalog generation
+from later ordinary GC, but are never released automatically. Do not claim
+concurrent-GC safety, physical power-loss durability, or cross-store atomicity.
 
 The reviewed registry redb 4.5.0 pin remains preserved in
 `Documentation/gitr/archive/database-first`. That archived source, manifest,

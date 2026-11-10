@@ -1,0 +1,77 @@
+{
+  "feature": "Explicit create-only Git reachability pins for saved omdb snapshots",
+  "base_commit": "e11042fbb2703034573e6596cd8ff8b935bad6b6",
+  "catalog_schema": 1,
+  "local_compiler": {
+    "front_door": "pinned Lustr",
+    "route": "rustc",
+    "rust": "1.99.1",
+    "produced_bluefe": "not measured in this local qualification"
+  },
+  "reference_oracle": {
+    "git": "2.55.0",
+    "mode": "absolute external executable used only for fixtures and interoperability",
+    "candidate_path": "empty PATH in integration tests"
+  },
+  "local_checks": [
+    {
+      "command": "lustr --engine rustc test --locked --offline --all-features --all-targets --no-fail-fast",
+      "status": "pass",
+      "executed": 38,
+      "failed": 0
+    },
+    {
+      "command": "lustr --engine rustc test --manifest-path xtask/Cargo.toml --locked --offline",
+      "status": "pass",
+      "executed": 9,
+      "failed": 0
+    },
+    {
+      "command": "lustr --engine rustc test --manifest-path vendor/sley/Cargo.toml --locked --offline -p sley-refs -p sley-gc",
+      "status": "pass",
+      "executed": 111,
+      "failed": 0
+    },
+    {
+      "command": "lustr --engine rustc run --locked --offline --example verify_import",
+      "status": "pass",
+      "inventory": {
+        "files": 680,
+        "adapted": 36,
+        "added": 11
+      }
+    },
+    {
+      "command": "lustr --engine rustc run --manifest-path xtask/Cargo.toml --locked --offline -- policy",
+      "status": "pass"
+    },
+    {
+      "command": "lustr --engine rustc run --manifest-path xtask/Cargo.toml --locked --offline -- audit",
+      "status": "pass"
+    }
+  ],
+  "differential_slices": [
+    "SHA-1 and SHA-256, files and reftable",
+    "native Rit gc and Git 2.55 gc --prune=now, each first in two hash/ref combinations",
+    "unpinned unreachable commit pruned, pinned commit and blob preserved",
+    "create-only retries and refusal to overwrite an occupied ref",
+    "linked worktree shared common ref namespace",
+    "missing descendants and mismatched object link types",
+    "on-disk alternates, shared clone, symlinked loose objects, symlinked fanout directories, symlinked packs and promisor pack refusal"
+  ],
+  "review_fixes": [
+    "reopen object store for post-publication validation; never trust stale caches",
+    "reuse Sley fsck typed graph integrity checks alongside strict reachability",
+    "reject alternate-owned objects and promisor pack markers",
+    "correct documentation of concurrent catalog changes (no omdb CAS for pin)"
+  ],
+  "known_boundaries": [
+    "no automatic pin release, expiry or catalog-reference reconciliation",
+    "no concurrent Git garbage collection or manual object deletion during publication",
+    "no cross-store atomicity or independent physical power-loss certification",
+    "no multi-tenant security enforcement over an externally mutable Git refs namespace",
+    "explicit whole-graph validation can be expensive in large repositories",
+    "reused Sley fsck is recursive and may exhaust the process stack for very deep graphs",
+    "full Git parity and produced-BlueFe acceptance remain separate work"
+  ]
+}
