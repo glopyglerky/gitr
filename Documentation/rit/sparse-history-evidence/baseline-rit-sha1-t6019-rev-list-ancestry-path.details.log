@@ -1,0 +1,399 @@
+Initialized empty Git repository in /workspace/scratch/717c1db38a84/rit-graph-adjacent-baseline/rit-sha1-t6019-rev-list-ancestry-path/trash directory.t6019-rev-list-ancestry-path/.git/
+expecting success of 6019.1 'setup': 
+	test_commit A &&
+	test_commit B &&
+	test_commit C &&
+	test_commit D &&
+	test_commit E &&
+	test_commit F &&
+	git reset --hard C &&
+	test_commit G &&
+	test_merge E H &&
+	test_commit I &&
+	test_merge F J &&
+	git reset --hard A &&
+	test_commit K &&
+	test_merge J L &&
+	test_commit M
+
+[main (root-commit) 0ddfaf1] A
+ Author: A U Thor <author@example.com>
+ 1 file changed, 1 insertion(+)
+ create mode 100644 A.t
+[main d9df450] B
+ Author: A U Thor <author@example.com>
+ 1 file changed, 1 insertion(+)
+ create mode 100644 B.t
+[main 35a8500] C
+ Author: A U Thor <author@example.com>
+ 1 file changed, 1 insertion(+)
+ create mode 100644 C.t
+[main be8f64f] D
+ Author: A U Thor <author@example.com>
+ 1 file changed, 1 insertion(+)
+ create mode 100644 D.t
+[main ee2ad00] E
+ Author: A U Thor <author@example.com>
+ 1 file changed, 1 insertion(+)
+ create mode 100644 E.t
+[main 5374d8c] F
+ Author: A U Thor <author@example.com>
+ 1 file changed, 1 insertion(+)
+ create mode 100644 F.t
+HEAD is now at 35a8500 C
+[main fa55005] G
+ Author: A U Thor <author@example.com>
+ 1 file changed, 1 insertion(+)
+ create mode 100644 G.t
+Merge made by the 'ours' strategy.
+[main 4e719b9] I
+ Author: A U Thor <author@example.com>
+ 1 file changed, 1 insertion(+)
+ create mode 100644 I.t
+Merge made by the 'ours' strategy.
+HEAD is now at 0ddfaf1 A
+[main 0f470b0] K
+ Author: A U Thor <author@example.com>
+ 1 file changed, 1 insertion(+)
+ create mode 100644 K.t
+Merge made by the 'ours' strategy.
+[main bcafe1b] M
+ Author: A U Thor <author@example.com>
+ 1 file changed, 1 insertion(+)
+ create mode 100644 M.t
+
+ok 1 - setup
+expecting success of 6019.2 'log D..M': 
+		test_write_lines E F G H I J K L M >expect &&
+		git log --format=%s D..M >raw &&
+
+		if test -n "E F G H I J K L M"
+		then
+			sort raw >actual &&
+			test_cmp expect actual
+		else
+			test_must_be_empty raw
+		fi
+	
+
+ok 2 - log D..M
+expecting success of 6019.3 'log --ancestry-path D..M': 
+		test_write_lines E F H I J L M >expect &&
+		git log --format=%s --ancestry-path D..M >raw &&
+
+		if test -n "E F H I J L M"
+		then
+			sort raw >actual &&
+			test_cmp expect actual
+		else
+			test_must_be_empty raw
+		fi
+	
+
+ok 3 - log --ancestry-path D..M
+expecting success of 6019.4 'log --ancestry-path=F D..M': 
+		test_write_lines E F J L M >expect &&
+		git log --format=%s --ancestry-path=F D..M >raw &&
+
+		if test -n "E F J L M"
+		then
+			sort raw >actual &&
+			test_cmp expect actual
+		else
+			test_must_be_empty raw
+		fi
+	
+git: command failed: unsupported log option --ancestry-path=F
+not ok 4 - log --ancestry-path=F D..M
+#	
+#			test_write_lines E F J L M >expect &&
+#			git log --format=%s --ancestry-path=F D..M >raw &&
+#	
+#			if test -n "E F J L M"
+#			then
+#				sort raw >actual &&
+#				test_cmp expect actual
+#			else
+#				test_must_be_empty raw
+#			fi
+#		
+
+expecting success of 6019.5 'log --ancestry-path=G D..M': 
+		test_write_lines G H I J L M >expect &&
+		git log --format=%s --ancestry-path=G D..M >raw &&
+
+		if test -n "G H I J L M"
+		then
+			sort raw >actual &&
+			test_cmp expect actual
+		else
+			test_must_be_empty raw
+		fi
+	
+git: command failed: unsupported log option --ancestry-path=G
+not ok 5 - log --ancestry-path=G D..M
+#	
+#			test_write_lines G H I J L M >expect &&
+#			git log --format=%s --ancestry-path=G D..M >raw &&
+#	
+#			if test -n "G H I J L M"
+#			then
+#				sort raw >actual &&
+#				test_cmp expect actual
+#			else
+#				test_must_be_empty raw
+#			fi
+#		
+
+expecting success of 6019.6 'log --ancestry-path=H D..M': 
+		test_write_lines E G H I J L M >expect &&
+		git log --format=%s --ancestry-path=H D..M >raw &&
+
+		if test -n "E G H I J L M"
+		then
+			sort raw >actual &&
+			test_cmp expect actual
+		else
+			test_must_be_empty raw
+		fi
+	
+git: command failed: unsupported log option --ancestry-path=H
+
+not ok 6 - log --ancestry-path=H D..M
+#	
+#			test_write_lines E G H I J L M >expect &&
+#			git log --format=%s --ancestry-path=H D..M >raw &&
+#	
+#			if test -n "E G H I J L M"
+#			then
+#				sort raw >actual &&
+#				test_cmp expect actual
+#			else
+#				test_must_be_empty raw
+#			fi
+#		
+expecting success of 6019.7 'log --ancestry-path=K D..M': 
+		test_write_lines K L M >expect &&
+		git log --format=%s --ancestry-path=K D..M >raw &&
+
+		if test -n "K L M"
+		then
+			sort raw >actual &&
+			test_cmp expect actual
+		else
+			test_must_be_empty raw
+		fi
+	
+git: command failed: unsupported log option --ancestry-path=K
+not ok 7 - log --ancestry-path=K D..M
+#	
+#			test_write_lines K L M >expect &&
+#			git log --format=%s --ancestry-path=K D..M >raw &&
+#	
+#			if test -n "K L M"
+#			then
+#				sort raw >actual &&
+#				test_cmp expect actual
+#			else
+#				test_must_be_empty raw
+#			fi
+#		
+
+expecting success of 6019.8 'log --ancestry-path=F --ancestry-path=K D..M': 
+		test_write_lines E F J K L M >expect &&
+		git log --format=%s --ancestry-path=F --ancestry-path=K D..M >raw &&
+
+		if test -n "E F J K L M"
+		then
+			sort raw >actual &&
+			test_cmp expect actual
+		else
+			test_must_be_empty raw
+		fi
+	
+git: command failed: unsupported log option --ancestry-path=F
+not ok 8 - log --ancestry-path=F --ancestry-path=K D..M
+#	
+#			test_write_lines E F J K L M >expect &&
+#			git log --format=%s --ancestry-path=F --ancestry-path=K D..M >raw &&
+#	
+#			if test -n "E F J K L M"
+#			then
+#				sort raw >actual &&
+#				test_cmp expect actual
+#			else
+#				test_must_be_empty raw
+#			fi
+#		
+
+expecting success of 6019.9 'log D..M -- M.t': 
+		test_write_lines M >expect &&
+		git log --format=%s D..M -- M.t >raw &&
+
+		if test -n "M"
+		then
+			sort raw >actual &&
+			test_cmp expect actual
+		else
+			test_must_be_empty raw
+		fi
+	
+
+expecting success of 6019.10 'log --ancestry-path D..M -- M.t': 
+		test_write_lines M >expect &&
+		git log --format=%s --ancestry-path D..M -- M.t >raw &&
+
+		if test -n "M"
+		then
+			sort raw >actual &&
+			test_cmp expect actual
+		else
+			test_must_be_empty raw
+		fi
+	
+ok 9 - log D..M -- M.t
+
+expecting success of 6019.11 'log F...I': 
+		test_write_lines F G H I >expect &&
+		git log --format=%s F...I >raw &&
+
+		if test -n "F G H I"
+		then
+			sort raw >actual &&
+			test_cmp expect actual
+		else
+			test_must_be_empty raw
+		fi
+	
+ok 10 - log --ancestry-path D..M -- M.t
+ok 11 - log F...I
+
+expecting success of 6019.12 'log --ancestry-path F...I': 
+		test_write_lines F H I >expect &&
+		git log --format=%s --ancestry-path F...I >raw &&
+
+		if test -n "F H I"
+		then
+			sort raw >actual &&
+			test_cmp expect actual
+		else
+			test_must_be_empty raw
+		fi
+	
+ok 12 - log --ancestry-path F...I
+
+expecting success of 6019.13 'log G..M -- G.t': 
+		test_write_lines  >expect &&
+		git log --format=%s G..M -- G.t >raw &&
+
+		if test -n ""
+		then
+			sort raw >actual &&
+			test_cmp expect actual
+		else
+			test_must_be_empty raw
+		fi
+	
+ok 13 - log G..M -- G.t
+
+expecting success of 6019.14 'log --ancestry-path G..M -- G.t': 
+		test_write_lines L >expect &&
+		git log --format=%s --ancestry-path G..M -- G.t >raw &&
+
+		if test -n "L"
+		then
+			sort raw >actual &&
+			test_cmp expect actual
+		else
+			test_must_be_empty raw
+		fi
+	
+ok 14 - log --ancestry-path G..M -- G.t
+
+expecting success of 6019.15 'log --ancestry-path --simplify-merges G^..M -- G.t': 
+		test_write_lines G L >expect &&
+		git log --format=%s --ancestry-path --simplify-merges G^..M -- G.t >raw &&
+
+		if test -n "G L"
+		then
+			sort raw >actual &&
+			test_cmp expect actual
+		else
+			test_must_be_empty raw
+		fi
+	
+ok 15 - log --ancestry-path --simplify-merges G^..M -- G.t
+
+expecting success of 6019.16 'setup criss-cross': 
+	mkdir criss-cross &&
+	(cd criss-cross &&
+	 git init &&
+	 test_commit A &&
+	 git checkout -b xb main &&
+	 test_commit B &&
+	 git checkout -b xc main &&
+	 test_commit C &&
+	 git checkout -b xbc xb -- &&
+	 git merge xc &&
+	 git checkout -b xcb xc -- &&
+	 git merge xb &&
+	 git checkout main)
+
+Initialized empty Git repository in /workspace/scratch/717c1db38a84/rit-graph-adjacent-baseline/rit-sha1-t6019-rev-list-ancestry-path/trash directory.t6019-rev-list-ancestry-path/criss-cross/.git/
+[main (root-commit) 617a709] A
+ Author: A U Thor <author@example.com>
+ 1 file changed, 1 insertion(+)
+ create mode 100644 A.t
+Switched to a new branch 'xb'
+[xb 7dfaf8e] B
+ Author: A U Thor <author@example.com>
+ 1 file changed, 1 insertion(+)
+ create mode 100644 B.t
+Switched to a new branch 'xc'
+[xc cf5ea0b] C
+ Author: A U Thor <author@example.com>
+ 1 file changed, 1 insertion(+)
+ create mode 100644 C.t
+Switched to a new branch 'xbc'
+Merge made by the 'ort' strategy.
+ C.t | 1 +
+ 1 file changed, 1 insertion(+)
+ create mode 100644 C.t
+Switched to a new branch 'xcb'
+Merge made by the 'ort' strategy.
+ B.t | 1 +
+ 1 file changed, 1 insertion(+)
+ create mode 100644 B.t
+Switched to branch 'main'
+ok 16 - setup criss-cross
+
+expecting success of 6019.17 'criss-cross: rev-list --ancestry-path cb..bc': 
+	(cd criss-cross &&
+	 git rev-list --ancestry-path xcb..xbc > actual &&
+	 test_must_be_empty actual)
+
+'actual' is not empty, it contains:
+d4e12bdf9db25ac6646694c4b3b7fe31f6fbb4e8
+not ok 17 - criss-cross: rev-list --ancestry-path cb..bc
+#	
+#		(cd criss-cross &&
+#		 git rev-list --ancestry-path xcb..xbc > actual &&
+#		 test_must_be_empty actual)
+#	
+
+expecting success of 6019.18 'criss-cross: rev-list --ancestry-path --all ^cb': 
+	(cd criss-cross &&
+	 git rev-list --ancestry-path --all ^xcb > actual &&
+	 test_must_be_empty actual)
+
+'actual' is not empty, it contains:
+d4e12bdf9db25ac6646694c4b3b7fe31f6fbb4e8
+not ok 18 - criss-cross: rev-list --ancestry-path --all ^cb
+#	
+#		(cd criss-cross &&
+#		 git rev-list --ancestry-path --all ^xcb > actual &&
+#		 test_must_be_empty actual)
+#	
+
+# failed 7 among 18 test(s)
+1..18

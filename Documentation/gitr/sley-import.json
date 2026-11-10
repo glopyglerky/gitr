@@ -38,8 +38,8 @@
     },
     {
       "path": "NOTICE.md",
-      "sha256": "3ffb3270b72ce1be7aa4c7438dabc8513d67b5a716e6944bf24399f457a1ef2b",
-      "origin": "Gitr import provenance notice, authored for this integration. Record the project rename to Rit and the retained test-setting compatibility alias."
+      "sha256": "aee0930eb4e6c2d1c50234ac9d4d683a41a93a26cff452ce604ba92f54491bfb",
+      "origin": "Gitr import provenance notice, authored for this integration. Record the project rename to Rit and the retained test-setting compatibility alias. Record the scoped positive-tip and sparse-history adaptations and their test provenance."
     },
     {
       "path": "PARITY.md",
@@ -497,9 +497,10 @@
     },
     {
       "path": "crates/sley-cli/src/commands/fast_export.rs",
-      "sha256": "0cf859b1991d65a2f042380b9db81e5ce3e351a830fb861efd3d5df7d9493c6f",
+      "sha256": "51fbddf320415f88e406d90c78b394b6c373c5be3022b4c3018bcf1b16be15c7",
       "upstream_blob": "4fa861c22a1934cdb587467a05ae7ee1bb164551",
-      "upstream_sha256": "0cf859b1991d65a2f042380b9db81e5ce3e351a830fb861efd3d5df7d9493c6f"
+      "upstream_sha256": "0cf859b1991d65a2f042380b9db81e5ce3e351a830fb861efd3d5df7d9493c6f",
+      "change": "Initialize the new sparse simplification option to false to preserve existing export behavior."
     },
     {
       "path": "crates/sley-cli/src/commands/fast_import.rs",
@@ -614,9 +615,10 @@
     },
     {
       "path": "crates/sley-cli/src/commands/log.rs",
-      "sha256": "299fe5a63bcbed287cbedfe1c060736b83dcd51ffba4be29cb811699c4d84aea",
+      "sha256": "f9b452bc25b0dd2760003bf0e67085bff2b2fadecf52e4cd481769cf8b2ab00e",
       "upstream_blob": "03763111013b75c4a50415cba4aa4fae24bb9274",
-      "upstream_sha256": "299fe5a63bcbed287cbedfe1c060736b83dcd51ffba4be29cb811699c4d84aea"
+      "upstream_sha256": "299fe5a63bcbed287cbedfe1c060736b83dcd51ffba4be29cb811699c4d84aea",
+      "change": "Pass positive starts and sparse mode into history simplification; recompute graph/topological order only for default parent diversion and preserve date/full-history/merge-simplification ordering."
     },
     {
       "path": "crates/sley-cli/src/commands/log/diff.rs",
@@ -971,9 +973,10 @@
     },
     {
       "path": "crates/sley-cli/src/commands/rev_list.rs",
-      "sha256": "bb18a25cdd25bf3cf653b651f8e24b787369bddc29200637636563357e8a7ae7",
+      "sha256": "c59347678225c3ed43886182c5d2ff53f7a107483329f83fc2c83ffc9e4a595b",
       "upstream_blob": "72acfefedd55a835c174e7ab41bb7fbeb85e73ff",
-      "upstream_sha256": "bb18a25cdd25bf3cf653b651f8e24b787369bddc29200637636563357e8a7ae7"
+      "upstream_sha256": "bb18a25cdd25bf3cf653b651f8e24b787369bddc29200637636563357e8a7ae7",
+      "change": "Forward sparse/dense options and positive starts into history simplification; reapply topological ordering only for default parent diversion."
     },
     {
       "path": "crates/sley-cli/src/commands/rev_parse.rs",
@@ -1547,6 +1550,11 @@
       "upstream_sha256": "3990d0d5204785c6bd8d90137ec780d47108004bbb64159ca244f999e064e2d3"
     },
     {
+      "path": "crates/sley-cli/tests/history_sparse_tips.rs",
+      "sha256": "d6702f7ee43e7dd01b477a5b8bd753c4ad820d93e91cd398f34df92d68fff930",
+      "origin": "Independently authored Rit differential regressions for explicitly selected history tips, sparse path traversal, ordering, and missing-object boundaries. SPDX-License-Identifier: MIT OR Apache-2.0."
+    },
+    {
       "path": "crates/sley-cli/tests/http.rs",
       "sha256": "f3fe1e4a1de60c080888cbeccf43e10ad48f7c58e24458a3b22c372593b57d32",
       "upstream_blob": "c11cbaf8b70db4338bc9dd393e0f623243de237f",
@@ -1566,9 +1574,10 @@
     },
     {
       "path": "crates/sley-cli/tests/log.rs",
-      "sha256": "3458ccc4a1ba40f27876b370598e6020e28f93fab1e1b271ed0be608c83086c8",
+      "sha256": "3a3fa2345998ce9956502b6e01823c05f1fc92e2189b650572112cffaeed3de8",
       "upstream_blob": "e2e501d10631e5eca45cc1ad6e6fe0e37a54bdfc",
-      "upstream_sha256": "3458ccc4a1ba40f27876b370598e6020e28f93fab1e1b271ed0be608c83086c8"
+      "upstream_sha256": "3458ccc4a1ba40f27876b370598e6020e28f93fab1e1b271ed0be608c83086c8",
+      "change": "Give the merge and encoded commit-tree oracle fixtures explicit identities so the existing tests do not require global Git configuration."
     },
     {
       "path": "crates/sley-cli/tests/ls_files.rs",
@@ -3238,10 +3247,10 @@
     },
     {
       "path": "crates/sley-rev/src/lib.rs",
-      "sha256": "20d3dae61c6e5ce392aa8c497b8755e3dea63b156d304ce0f081c4aad1a87041",
+      "sha256": "98b7f4bd2cb8713a84d4b72430d81c983449b3804b6085c25d0256b0d0d4c1c8",
       "upstream_blob": "459c6eb0beba6dd65f4e0f99441e58f771151000",
       "upstream_sha256": "2c4cb5cba63a136ed5025e0258badd5a37c975f111dca98389c180dd7febcd80",
-      "change": "Rewrite simplified parent edges past omitted TREESAME roots while retaining first-parent secondary edges and explicit or shallow boundaries."
+      "change": "Rewrite simplified parent edges past omitted TREESAME roots while retaining first-parent secondary edges and explicit or shallow boundaries. Preserve explicitly selected positive traversal starts, implement sparse visited-commit selection and parent handling, and retain sparse linear commits during merge simplification."
     },
     {
       "path": "crates/sley-rev/src/line_log.rs",

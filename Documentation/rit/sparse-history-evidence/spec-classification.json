@@ -1,0 +1,891 @@
+{
+  "baseline_sha256": "f404eb3f4b847f08c4887007dee60942ac1028fa5fd7fe47c39490c8a870170c",
+  "candidate_sha256": "65fb0e263a71010daeff06ea11c061679cf4db7d16b2b219f5b876bb34f45bbb",
+  "baseline_exact": 66,
+  "candidate_exact": 174,
+  "total": 174,
+  "counts": {
+    "newly_passing": 108,
+    "unchanged_pass": 66,
+    "unchanged_mismatch": 0,
+    "regression": 0
+  },
+  "classifications": {
+    "newly_passing": [
+      {
+        "format": "sha1",
+        "kind": "log",
+        "case": "all"
+      },
+      {
+        "format": "sha1",
+        "kind": "log",
+        "case": "explicit-main-side"
+      },
+      {
+        "format": "sha1",
+        "kind": "log",
+        "case": "explicit-side-main"
+      },
+      {
+        "format": "sha1",
+        "kind": "log",
+        "case": "duplicate-positive"
+      },
+      {
+        "format": "sha1",
+        "kind": "log",
+        "case": "sparse-head"
+      },
+      {
+        "format": "sha1",
+        "kind": "log",
+        "case": "sparse-all"
+      },
+      {
+        "format": "sha1",
+        "kind": "log",
+        "case": "sparse-dense"
+      },
+      {
+        "format": "sha1",
+        "kind": "log",
+        "case": "dense-sparse"
+      },
+      {
+        "format": "sha1",
+        "kind": "log",
+        "case": "full-history-sparse"
+      },
+      {
+        "format": "sha1",
+        "kind": "log",
+        "case": "simplify-merges-sparse"
+      },
+      {
+        "format": "sha1",
+        "kind": "log",
+        "case": "sparse-simplify-merges"
+      },
+      {
+        "format": "sha1",
+        "kind": "log",
+        "case": "first-parent"
+      },
+      {
+        "format": "sha1",
+        "kind": "log",
+        "case": "first-parent-sparse"
+      },
+      {
+        "format": "sha1",
+        "kind": "log",
+        "case": "first-parent-simplify-sparse"
+      },
+      {
+        "format": "sha1",
+        "kind": "log",
+        "case": "excluded-interior"
+      },
+      {
+        "format": "sha1",
+        "kind": "log",
+        "case": "range-plus-side"
+      },
+      {
+        "format": "sha1",
+        "kind": "log",
+        "case": "sparse-excluded-interior"
+      },
+      {
+        "format": "sha1",
+        "kind": "log",
+        "case": "sparse-nonexistent-path"
+      },
+      {
+        "format": "sha1",
+        "kind": "log-graph",
+        "case": "all"
+      },
+      {
+        "format": "sha1",
+        "kind": "log-graph",
+        "case": "explicit-main-side"
+      },
+      {
+        "format": "sha1",
+        "kind": "log-graph",
+        "case": "explicit-side-main"
+      },
+      {
+        "format": "sha1",
+        "kind": "log-graph",
+        "case": "duplicate-positive"
+      },
+      {
+        "format": "sha1",
+        "kind": "log-graph",
+        "case": "sparse-head"
+      },
+      {
+        "format": "sha1",
+        "kind": "log-graph",
+        "case": "sparse-all"
+      },
+      {
+        "format": "sha1",
+        "kind": "log-graph",
+        "case": "sparse-dense"
+      },
+      {
+        "format": "sha1",
+        "kind": "log-graph",
+        "case": "dense-sparse"
+      },
+      {
+        "format": "sha1",
+        "kind": "log-graph",
+        "case": "full-history-sparse"
+      },
+      {
+        "format": "sha1",
+        "kind": "log-graph",
+        "case": "simplify-merges-sparse"
+      },
+      {
+        "format": "sha1",
+        "kind": "log-graph",
+        "case": "sparse-simplify-merges"
+      },
+      {
+        "format": "sha1",
+        "kind": "log-graph",
+        "case": "first-parent"
+      },
+      {
+        "format": "sha1",
+        "kind": "log-graph",
+        "case": "first-parent-sparse"
+      },
+      {
+        "format": "sha1",
+        "kind": "log-graph",
+        "case": "first-parent-simplify-sparse"
+      },
+      {
+        "format": "sha1",
+        "kind": "log-graph",
+        "case": "excluded-interior"
+      },
+      {
+        "format": "sha1",
+        "kind": "log-graph",
+        "case": "range-plus-side"
+      },
+      {
+        "format": "sha1",
+        "kind": "log-graph",
+        "case": "sparse-excluded-interior"
+      },
+      {
+        "format": "sha1",
+        "kind": "log-graph",
+        "case": "sparse-nonexistent-path"
+      },
+      {
+        "format": "sha1",
+        "kind": "parents",
+        "case": "all"
+      },
+      {
+        "format": "sha1",
+        "kind": "parents",
+        "case": "explicit-main-side"
+      },
+      {
+        "format": "sha1",
+        "kind": "parents",
+        "case": "explicit-side-main"
+      },
+      {
+        "format": "sha1",
+        "kind": "parents",
+        "case": "duplicate-positive"
+      },
+      {
+        "format": "sha1",
+        "kind": "parents",
+        "case": "sparse-head"
+      },
+      {
+        "format": "sha1",
+        "kind": "parents",
+        "case": "sparse-all"
+      },
+      {
+        "format": "sha1",
+        "kind": "parents",
+        "case": "sparse-dense"
+      },
+      {
+        "format": "sha1",
+        "kind": "parents",
+        "case": "dense-sparse"
+      },
+      {
+        "format": "sha1",
+        "kind": "parents",
+        "case": "full-history-sparse"
+      },
+      {
+        "format": "sha1",
+        "kind": "parents",
+        "case": "simplify-merges-sparse"
+      },
+      {
+        "format": "sha1",
+        "kind": "parents",
+        "case": "sparse-simplify-merges"
+      },
+      {
+        "format": "sha1",
+        "kind": "parents",
+        "case": "first-parent"
+      },
+      {
+        "format": "sha1",
+        "kind": "parents",
+        "case": "first-parent-sparse"
+      },
+      {
+        "format": "sha1",
+        "kind": "parents",
+        "case": "first-parent-simplify-sparse"
+      },
+      {
+        "format": "sha1",
+        "kind": "parents",
+        "case": "excluded-interior"
+      },
+      {
+        "format": "sha1",
+        "kind": "parents",
+        "case": "range-plus-side"
+      },
+      {
+        "format": "sha1",
+        "kind": "parents",
+        "case": "sparse-excluded-interior"
+      },
+      {
+        "format": "sha1",
+        "kind": "parents",
+        "case": "sparse-nonexistent-path"
+      },
+      {
+        "format": "sha256",
+        "kind": "log",
+        "case": "all"
+      },
+      {
+        "format": "sha256",
+        "kind": "log",
+        "case": "explicit-main-side"
+      },
+      {
+        "format": "sha256",
+        "kind": "log",
+        "case": "explicit-side-main"
+      },
+      {
+        "format": "sha256",
+        "kind": "log",
+        "case": "duplicate-positive"
+      },
+      {
+        "format": "sha256",
+        "kind": "log",
+        "case": "sparse-head"
+      },
+      {
+        "format": "sha256",
+        "kind": "log",
+        "case": "sparse-all"
+      },
+      {
+        "format": "sha256",
+        "kind": "log",
+        "case": "sparse-dense"
+      },
+      {
+        "format": "sha256",
+        "kind": "log",
+        "case": "dense-sparse"
+      },
+      {
+        "format": "sha256",
+        "kind": "log",
+        "case": "full-history-sparse"
+      },
+      {
+        "format": "sha256",
+        "kind": "log",
+        "case": "simplify-merges-sparse"
+      },
+      {
+        "format": "sha256",
+        "kind": "log",
+        "case": "sparse-simplify-merges"
+      },
+      {
+        "format": "sha256",
+        "kind": "log",
+        "case": "first-parent"
+      },
+      {
+        "format": "sha256",
+        "kind": "log",
+        "case": "first-parent-sparse"
+      },
+      {
+        "format": "sha256",
+        "kind": "log",
+        "case": "first-parent-simplify-sparse"
+      },
+      {
+        "format": "sha256",
+        "kind": "log",
+        "case": "excluded-interior"
+      },
+      {
+        "format": "sha256",
+        "kind": "log",
+        "case": "range-plus-side"
+      },
+      {
+        "format": "sha256",
+        "kind": "log",
+        "case": "sparse-excluded-interior"
+      },
+      {
+        "format": "sha256",
+        "kind": "log",
+        "case": "sparse-nonexistent-path"
+      },
+      {
+        "format": "sha256",
+        "kind": "log-graph",
+        "case": "all"
+      },
+      {
+        "format": "sha256",
+        "kind": "log-graph",
+        "case": "explicit-main-side"
+      },
+      {
+        "format": "sha256",
+        "kind": "log-graph",
+        "case": "explicit-side-main"
+      },
+      {
+        "format": "sha256",
+        "kind": "log-graph",
+        "case": "duplicate-positive"
+      },
+      {
+        "format": "sha256",
+        "kind": "log-graph",
+        "case": "sparse-head"
+      },
+      {
+        "format": "sha256",
+        "kind": "log-graph",
+        "case": "sparse-all"
+      },
+      {
+        "format": "sha256",
+        "kind": "log-graph",
+        "case": "sparse-dense"
+      },
+      {
+        "format": "sha256",
+        "kind": "log-graph",
+        "case": "dense-sparse"
+      },
+      {
+        "format": "sha256",
+        "kind": "log-graph",
+        "case": "full-history-sparse"
+      },
+      {
+        "format": "sha256",
+        "kind": "log-graph",
+        "case": "simplify-merges-sparse"
+      },
+      {
+        "format": "sha256",
+        "kind": "log-graph",
+        "case": "sparse-simplify-merges"
+      },
+      {
+        "format": "sha256",
+        "kind": "log-graph",
+        "case": "first-parent"
+      },
+      {
+        "format": "sha256",
+        "kind": "log-graph",
+        "case": "first-parent-sparse"
+      },
+      {
+        "format": "sha256",
+        "kind": "log-graph",
+        "case": "first-parent-simplify-sparse"
+      },
+      {
+        "format": "sha256",
+        "kind": "log-graph",
+        "case": "excluded-interior"
+      },
+      {
+        "format": "sha256",
+        "kind": "log-graph",
+        "case": "range-plus-side"
+      },
+      {
+        "format": "sha256",
+        "kind": "log-graph",
+        "case": "sparse-excluded-interior"
+      },
+      {
+        "format": "sha256",
+        "kind": "log-graph",
+        "case": "sparse-nonexistent-path"
+      },
+      {
+        "format": "sha256",
+        "kind": "parents",
+        "case": "all"
+      },
+      {
+        "format": "sha256",
+        "kind": "parents",
+        "case": "explicit-main-side"
+      },
+      {
+        "format": "sha256",
+        "kind": "parents",
+        "case": "explicit-side-main"
+      },
+      {
+        "format": "sha256",
+        "kind": "parents",
+        "case": "duplicate-positive"
+      },
+      {
+        "format": "sha256",
+        "kind": "parents",
+        "case": "sparse-head"
+      },
+      {
+        "format": "sha256",
+        "kind": "parents",
+        "case": "sparse-all"
+      },
+      {
+        "format": "sha256",
+        "kind": "parents",
+        "case": "sparse-dense"
+      },
+      {
+        "format": "sha256",
+        "kind": "parents",
+        "case": "dense-sparse"
+      },
+      {
+        "format": "sha256",
+        "kind": "parents",
+        "case": "full-history-sparse"
+      },
+      {
+        "format": "sha256",
+        "kind": "parents",
+        "case": "simplify-merges-sparse"
+      },
+      {
+        "format": "sha256",
+        "kind": "parents",
+        "case": "sparse-simplify-merges"
+      },
+      {
+        "format": "sha256",
+        "kind": "parents",
+        "case": "first-parent"
+      },
+      {
+        "format": "sha256",
+        "kind": "parents",
+        "case": "first-parent-sparse"
+      },
+      {
+        "format": "sha256",
+        "kind": "parents",
+        "case": "first-parent-simplify-sparse"
+      },
+      {
+        "format": "sha256",
+        "kind": "parents",
+        "case": "excluded-interior"
+      },
+      {
+        "format": "sha256",
+        "kind": "parents",
+        "case": "range-plus-side"
+      },
+      {
+        "format": "sha256",
+        "kind": "parents",
+        "case": "sparse-excluded-interior"
+      },
+      {
+        "format": "sha256",
+        "kind": "parents",
+        "case": "sparse-nonexistent-path"
+      }
+    ],
+    "unchanged_pass": [
+      {
+        "format": "sha1",
+        "kind": "log",
+        "case": "head"
+      },
+      {
+        "format": "sha1",
+        "kind": "log",
+        "case": "interior-positive"
+      },
+      {
+        "format": "sha1",
+        "kind": "log",
+        "case": "full-history"
+      },
+      {
+        "format": "sha1",
+        "kind": "log",
+        "case": "simplify-merges"
+      },
+      {
+        "format": "sha1",
+        "kind": "log",
+        "case": "simplify-sparse-dense"
+      },
+      {
+        "format": "sha1",
+        "kind": "log",
+        "case": "first-parent-head"
+      },
+      {
+        "format": "sha1",
+        "kind": "log",
+        "case": "full-history-excluded-interior"
+      },
+      {
+        "format": "sha1",
+        "kind": "log",
+        "case": "no-path"
+      },
+      {
+        "format": "sha1",
+        "kind": "log",
+        "case": "no-path-sparse"
+      },
+      {
+        "format": "sha1",
+        "kind": "log",
+        "case": "no-path-simplify-sparse"
+      },
+      {
+        "format": "sha1",
+        "kind": "log",
+        "case": "nonexistent-path"
+      },
+      {
+        "format": "sha1",
+        "kind": "log-graph",
+        "case": "head"
+      },
+      {
+        "format": "sha1",
+        "kind": "log-graph",
+        "case": "interior-positive"
+      },
+      {
+        "format": "sha1",
+        "kind": "log-graph",
+        "case": "full-history"
+      },
+      {
+        "format": "sha1",
+        "kind": "log-graph",
+        "case": "simplify-merges"
+      },
+      {
+        "format": "sha1",
+        "kind": "log-graph",
+        "case": "simplify-sparse-dense"
+      },
+      {
+        "format": "sha1",
+        "kind": "log-graph",
+        "case": "first-parent-head"
+      },
+      {
+        "format": "sha1",
+        "kind": "log-graph",
+        "case": "full-history-excluded-interior"
+      },
+      {
+        "format": "sha1",
+        "kind": "log-graph",
+        "case": "no-path"
+      },
+      {
+        "format": "sha1",
+        "kind": "log-graph",
+        "case": "no-path-sparse"
+      },
+      {
+        "format": "sha1",
+        "kind": "log-graph",
+        "case": "no-path-simplify-sparse"
+      },
+      {
+        "format": "sha1",
+        "kind": "log-graph",
+        "case": "nonexistent-path"
+      },
+      {
+        "format": "sha1",
+        "kind": "parents",
+        "case": "head"
+      },
+      {
+        "format": "sha1",
+        "kind": "parents",
+        "case": "interior-positive"
+      },
+      {
+        "format": "sha1",
+        "kind": "parents",
+        "case": "full-history"
+      },
+      {
+        "format": "sha1",
+        "kind": "parents",
+        "case": "simplify-merges"
+      },
+      {
+        "format": "sha1",
+        "kind": "parents",
+        "case": "simplify-sparse-dense"
+      },
+      {
+        "format": "sha1",
+        "kind": "parents",
+        "case": "first-parent-head"
+      },
+      {
+        "format": "sha1",
+        "kind": "parents",
+        "case": "full-history-excluded-interior"
+      },
+      {
+        "format": "sha1",
+        "kind": "parents",
+        "case": "no-path"
+      },
+      {
+        "format": "sha1",
+        "kind": "parents",
+        "case": "no-path-sparse"
+      },
+      {
+        "format": "sha1",
+        "kind": "parents",
+        "case": "no-path-simplify-sparse"
+      },
+      {
+        "format": "sha1",
+        "kind": "parents",
+        "case": "nonexistent-path"
+      },
+      {
+        "format": "sha256",
+        "kind": "log",
+        "case": "head"
+      },
+      {
+        "format": "sha256",
+        "kind": "log",
+        "case": "interior-positive"
+      },
+      {
+        "format": "sha256",
+        "kind": "log",
+        "case": "full-history"
+      },
+      {
+        "format": "sha256",
+        "kind": "log",
+        "case": "simplify-merges"
+      },
+      {
+        "format": "sha256",
+        "kind": "log",
+        "case": "simplify-sparse-dense"
+      },
+      {
+        "format": "sha256",
+        "kind": "log",
+        "case": "first-parent-head"
+      },
+      {
+        "format": "sha256",
+        "kind": "log",
+        "case": "full-history-excluded-interior"
+      },
+      {
+        "format": "sha256",
+        "kind": "log",
+        "case": "no-path"
+      },
+      {
+        "format": "sha256",
+        "kind": "log",
+        "case": "no-path-sparse"
+      },
+      {
+        "format": "sha256",
+        "kind": "log",
+        "case": "no-path-simplify-sparse"
+      },
+      {
+        "format": "sha256",
+        "kind": "log",
+        "case": "nonexistent-path"
+      },
+      {
+        "format": "sha256",
+        "kind": "log-graph",
+        "case": "head"
+      },
+      {
+        "format": "sha256",
+        "kind": "log-graph",
+        "case": "interior-positive"
+      },
+      {
+        "format": "sha256",
+        "kind": "log-graph",
+        "case": "full-history"
+      },
+      {
+        "format": "sha256",
+        "kind": "log-graph",
+        "case": "simplify-merges"
+      },
+      {
+        "format": "sha256",
+        "kind": "log-graph",
+        "case": "simplify-sparse-dense"
+      },
+      {
+        "format": "sha256",
+        "kind": "log-graph",
+        "case": "first-parent-head"
+      },
+      {
+        "format": "sha256",
+        "kind": "log-graph",
+        "case": "full-history-excluded-interior"
+      },
+      {
+        "format": "sha256",
+        "kind": "log-graph",
+        "case": "no-path"
+      },
+      {
+        "format": "sha256",
+        "kind": "log-graph",
+        "case": "no-path-sparse"
+      },
+      {
+        "format": "sha256",
+        "kind": "log-graph",
+        "case": "no-path-simplify-sparse"
+      },
+      {
+        "format": "sha256",
+        "kind": "log-graph",
+        "case": "nonexistent-path"
+      },
+      {
+        "format": "sha256",
+        "kind": "parents",
+        "case": "head"
+      },
+      {
+        "format": "sha256",
+        "kind": "parents",
+        "case": "interior-positive"
+      },
+      {
+        "format": "sha256",
+        "kind": "parents",
+        "case": "full-history"
+      },
+      {
+        "format": "sha256",
+        "kind": "parents",
+        "case": "simplify-merges"
+      },
+      {
+        "format": "sha256",
+        "kind": "parents",
+        "case": "simplify-sparse-dense"
+      },
+      {
+        "format": "sha256",
+        "kind": "parents",
+        "case": "first-parent-head"
+      },
+      {
+        "format": "sha256",
+        "kind": "parents",
+        "case": "full-history-excluded-interior"
+      },
+      {
+        "format": "sha256",
+        "kind": "parents",
+        "case": "no-path"
+      },
+      {
+        "format": "sha256",
+        "kind": "parents",
+        "case": "no-path-sparse"
+      },
+      {
+        "format": "sha256",
+        "kind": "parents",
+        "case": "no-path-simplify-sparse"
+      },
+      {
+        "format": "sha256",
+        "kind": "parents",
+        "case": "nonexistent-path"
+      }
+    ],
+    "unchanged_mismatch": [],
+    "regression": []
+  }
+}

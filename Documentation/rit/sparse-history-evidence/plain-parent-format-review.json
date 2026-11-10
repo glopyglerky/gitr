@@ -1,0 +1,218 @@
+{
+  "binaries": {
+    "oracle": {
+      "path": "/workspace/scratch/161a1b7c00ce/tooling/git-prefix/bin/git",
+      "sha256": "bb7047c1ae5ed48d5cf47084595e7a3be4463ecd177df81ead8bfdba41d7a036"
+    },
+    "baseline": {
+      "path": "/workspace/scratch/717c1db38a84/rit-graph-baseline-bin/git",
+      "sha256": "f404eb3f4b847f08c4887007dee60942ac1028fa5fd7fe47c39490c8a870170c"
+    },
+    "candidate": {
+      "path": "/workspace/scratch/717c1db38a84/rit-history-candidate-v2/git",
+      "sha256": "65fb0e263a71010daeff06ea11c061679cf4db7d16b2b219f5b876bb34f45bbb"
+    }
+  },
+  "cases": [
+    {
+      "hash": "sha1",
+      "case": "plain_parent_format",
+      "repository": "/workspace/scratch/717c1db38a84/rit-graph-baseline/rit-sha1-t6016-rev-list-graph-simplify-history/trash directory.t6016-rev-list-graph-simplify-history",
+      "args": [
+        "log",
+        "--topo-order",
+        "--format=%H %P %s",
+        "HEAD",
+        "--",
+        "bar.txt"
+      ],
+      "outputs": {
+        "oracle": {
+          "status": 0,
+          "stdout": "691bdad7684de9ae4cca811d45577a33a0dc5c50 1cc60e18a898c0923ecc90884b975254be2ebbf6 A7\n3f4a8d1e084f10d32c4d2c3fc847b58d18b7d744 c96d503e7723448f4aeac291d08df4e876360439 A5\n993a1f02952145f4c638b45a4dbf92b253907919 02e48324e6f09ed0d989814ec545fe06dc5b3130 A3\n02e48324e6f09ed0d989814ec545fe06dc5b3130 9b003480a3e1ba3504a6fee73eb4327c3f947405 A2\n",
+          "stderr": ""
+        },
+        "baseline": {
+          "status": 0,
+          "stdout": "691bdad7684de9ae4cca811d45577a33a0dc5c50 3f4a8d1e084f10d32c4d2c3fc847b58d18b7d744 A7\n3f4a8d1e084f10d32c4d2c3fc847b58d18b7d744 993a1f02952145f4c638b45a4dbf92b253907919 A5\n993a1f02952145f4c638b45a4dbf92b253907919 02e48324e6f09ed0d989814ec545fe06dc5b3130 A3\n02e48324e6f09ed0d989814ec545fe06dc5b3130  A2\n",
+          "stderr": ""
+        },
+        "candidate": {
+          "status": 0,
+          "stdout": "691bdad7684de9ae4cca811d45577a33a0dc5c50 3f4a8d1e084f10d32c4d2c3fc847b58d18b7d744 A7\n3f4a8d1e084f10d32c4d2c3fc847b58d18b7d744 993a1f02952145f4c638b45a4dbf92b253907919 A5\n993a1f02952145f4c638b45a4dbf92b253907919 02e48324e6f09ed0d989814ec545fe06dc5b3130 A3\n02e48324e6f09ed0d989814ec545fe06dc5b3130  A2\n",
+          "stderr": ""
+        }
+      },
+      "baseline_exact": false,
+      "candidate_exact": false,
+      "candidate_unchanged": true
+    },
+    {
+      "hash": "sha1",
+      "case": "plain_subject_format",
+      "repository": "/workspace/scratch/717c1db38a84/rit-graph-baseline/rit-sha1-t6016-rev-list-graph-simplify-history/trash directory.t6016-rev-list-graph-simplify-history",
+      "args": [
+        "log",
+        "--topo-order",
+        "--format=%H %s",
+        "HEAD",
+        "--",
+        "bar.txt"
+      ],
+      "outputs": {
+        "oracle": {
+          "status": 0,
+          "stdout": "691bdad7684de9ae4cca811d45577a33a0dc5c50 A7\n3f4a8d1e084f10d32c4d2c3fc847b58d18b7d744 A5\n993a1f02952145f4c638b45a4dbf92b253907919 A3\n02e48324e6f09ed0d989814ec545fe06dc5b3130 A2\n",
+          "stderr": ""
+        },
+        "baseline": {
+          "status": 0,
+          "stdout": "691bdad7684de9ae4cca811d45577a33a0dc5c50 A7\n3f4a8d1e084f10d32c4d2c3fc847b58d18b7d744 A5\n993a1f02952145f4c638b45a4dbf92b253907919 A3\n02e48324e6f09ed0d989814ec545fe06dc5b3130 A2\n",
+          "stderr": ""
+        },
+        "candidate": {
+          "status": 0,
+          "stdout": "691bdad7684de9ae4cca811d45577a33a0dc5c50 A7\n3f4a8d1e084f10d32c4d2c3fc847b58d18b7d744 A5\n993a1f02952145f4c638b45a4dbf92b253907919 A3\n02e48324e6f09ed0d989814ec545fe06dc5b3130 A2\n",
+          "stderr": ""
+        }
+      },
+      "baseline_exact": true,
+      "candidate_exact": true,
+      "candidate_unchanged": true
+    },
+    {
+      "hash": "sha1",
+      "case": "explicit_rewritten_parent_format",
+      "repository": "/workspace/scratch/717c1db38a84/rit-graph-baseline/rit-sha1-t6016-rev-list-graph-simplify-history/trash directory.t6016-rev-list-graph-simplify-history",
+      "args": [
+        "log",
+        "--topo-order",
+        "--parents",
+        "--format=%H %P %s",
+        "HEAD",
+        "--",
+        "bar.txt"
+      ],
+      "outputs": {
+        "oracle": {
+          "status": 0,
+          "stdout": "691bdad7684de9ae4cca811d45577a33a0dc5c50 3f4a8d1e084f10d32c4d2c3fc847b58d18b7d744 A7\n3f4a8d1e084f10d32c4d2c3fc847b58d18b7d744 993a1f02952145f4c638b45a4dbf92b253907919 A5\n993a1f02952145f4c638b45a4dbf92b253907919 02e48324e6f09ed0d989814ec545fe06dc5b3130 A3\n02e48324e6f09ed0d989814ec545fe06dc5b3130  A2\n",
+          "stderr": ""
+        },
+        "baseline": {
+          "status": 0,
+          "stdout": "691bdad7684de9ae4cca811d45577a33a0dc5c50 3f4a8d1e084f10d32c4d2c3fc847b58d18b7d744 A7\n3f4a8d1e084f10d32c4d2c3fc847b58d18b7d744 993a1f02952145f4c638b45a4dbf92b253907919 A5\n993a1f02952145f4c638b45a4dbf92b253907919 02e48324e6f09ed0d989814ec545fe06dc5b3130 A3\n02e48324e6f09ed0d989814ec545fe06dc5b3130  A2\n",
+          "stderr": ""
+        },
+        "candidate": {
+          "status": 0,
+          "stdout": "691bdad7684de9ae4cca811d45577a33a0dc5c50 3f4a8d1e084f10d32c4d2c3fc847b58d18b7d744 A7\n3f4a8d1e084f10d32c4d2c3fc847b58d18b7d744 993a1f02952145f4c638b45a4dbf92b253907919 A5\n993a1f02952145f4c638b45a4dbf92b253907919 02e48324e6f09ed0d989814ec545fe06dc5b3130 A3\n02e48324e6f09ed0d989814ec545fe06dc5b3130  A2\n",
+          "stderr": ""
+        }
+      },
+      "baseline_exact": true,
+      "candidate_exact": true,
+      "candidate_unchanged": true
+    },
+    {
+      "hash": "sha256",
+      "case": "plain_parent_format",
+      "repository": "/workspace/scratch/717c1db38a84/rit-graph-baseline/rit-sha256-t6016-rev-list-graph-simplify-history/trash directory.t6016-rev-list-graph-simplify-history",
+      "args": [
+        "log",
+        "--topo-order",
+        "--format=%H %P %s",
+        "HEAD",
+        "--",
+        "bar.txt"
+      ],
+      "outputs": {
+        "oracle": {
+          "status": 0,
+          "stdout": "04f8deb996f3e407c44c0c95c191bf555c90f3f400198f8475ab2bbc4d3ca827 154a32b757388c497349bfe5d96ccd7eed4a4c4a374243c958ea286daca99a10 A7\n2e0a1b7bc87837cdbda639c59636bc0342a614f7cce594b97bfedb7584178876 7f7380ebd36c9e6ed2392a70f4d28c57f59f6b5aadba6769719fd9d61adeb350 A5\n10f9b3c2575ad2815c0446a16226c7723c9cd6010849b44cacaba87fe5bd0038 c2a763445229150de6b7f00bf738a45c7df4e0d335f5b3a9db41bc0c261b9455 A3\nc2a763445229150de6b7f00bf738a45c7df4e0d335f5b3a9db41bc0c261b9455 98bbf7ee15f1cb380d10301b2b083645ce2dcf8d4881ac2379618205778b1f5a A2\n",
+          "stderr": ""
+        },
+        "baseline": {
+          "status": 0,
+          "stdout": "04f8deb996f3e407c44c0c95c191bf555c90f3f400198f8475ab2bbc4d3ca827 2e0a1b7bc87837cdbda639c59636bc0342a614f7cce594b97bfedb7584178876 A7\n2e0a1b7bc87837cdbda639c59636bc0342a614f7cce594b97bfedb7584178876 10f9b3c2575ad2815c0446a16226c7723c9cd6010849b44cacaba87fe5bd0038 A5\n10f9b3c2575ad2815c0446a16226c7723c9cd6010849b44cacaba87fe5bd0038 c2a763445229150de6b7f00bf738a45c7df4e0d335f5b3a9db41bc0c261b9455 A3\nc2a763445229150de6b7f00bf738a45c7df4e0d335f5b3a9db41bc0c261b9455  A2\n",
+          "stderr": ""
+        },
+        "candidate": {
+          "status": 0,
+          "stdout": "04f8deb996f3e407c44c0c95c191bf555c90f3f400198f8475ab2bbc4d3ca827 2e0a1b7bc87837cdbda639c59636bc0342a614f7cce594b97bfedb7584178876 A7\n2e0a1b7bc87837cdbda639c59636bc0342a614f7cce594b97bfedb7584178876 10f9b3c2575ad2815c0446a16226c7723c9cd6010849b44cacaba87fe5bd0038 A5\n10f9b3c2575ad2815c0446a16226c7723c9cd6010849b44cacaba87fe5bd0038 c2a763445229150de6b7f00bf738a45c7df4e0d335f5b3a9db41bc0c261b9455 A3\nc2a763445229150de6b7f00bf738a45c7df4e0d335f5b3a9db41bc0c261b9455  A2\n",
+          "stderr": ""
+        }
+      },
+      "baseline_exact": false,
+      "candidate_exact": false,
+      "candidate_unchanged": true
+    },
+    {
+      "hash": "sha256",
+      "case": "plain_subject_format",
+      "repository": "/workspace/scratch/717c1db38a84/rit-graph-baseline/rit-sha256-t6016-rev-list-graph-simplify-history/trash directory.t6016-rev-list-graph-simplify-history",
+      "args": [
+        "log",
+        "--topo-order",
+        "--format=%H %s",
+        "HEAD",
+        "--",
+        "bar.txt"
+      ],
+      "outputs": {
+        "oracle": {
+          "status": 0,
+          "stdout": "04f8deb996f3e407c44c0c95c191bf555c90f3f400198f8475ab2bbc4d3ca827 A7\n2e0a1b7bc87837cdbda639c59636bc0342a614f7cce594b97bfedb7584178876 A5\n10f9b3c2575ad2815c0446a16226c7723c9cd6010849b44cacaba87fe5bd0038 A3\nc2a763445229150de6b7f00bf738a45c7df4e0d335f5b3a9db41bc0c261b9455 A2\n",
+          "stderr": ""
+        },
+        "baseline": {
+          "status": 0,
+          "stdout": "04f8deb996f3e407c44c0c95c191bf555c90f3f400198f8475ab2bbc4d3ca827 A7\n2e0a1b7bc87837cdbda639c59636bc0342a614f7cce594b97bfedb7584178876 A5\n10f9b3c2575ad2815c0446a16226c7723c9cd6010849b44cacaba87fe5bd0038 A3\nc2a763445229150de6b7f00bf738a45c7df4e0d335f5b3a9db41bc0c261b9455 A2\n",
+          "stderr": ""
+        },
+        "candidate": {
+          "status": 0,
+          "stdout": "04f8deb996f3e407c44c0c95c191bf555c90f3f400198f8475ab2bbc4d3ca827 A7\n2e0a1b7bc87837cdbda639c59636bc0342a614f7cce594b97bfedb7584178876 A5\n10f9b3c2575ad2815c0446a16226c7723c9cd6010849b44cacaba87fe5bd0038 A3\nc2a763445229150de6b7f00bf738a45c7df4e0d335f5b3a9db41bc0c261b9455 A2\n",
+          "stderr": ""
+        }
+      },
+      "baseline_exact": true,
+      "candidate_exact": true,
+      "candidate_unchanged": true
+    },
+    {
+      "hash": "sha256",
+      "case": "explicit_rewritten_parent_format",
+      "repository": "/workspace/scratch/717c1db38a84/rit-graph-baseline/rit-sha256-t6016-rev-list-graph-simplify-history/trash directory.t6016-rev-list-graph-simplify-history",
+      "args": [
+        "log",
+        "--topo-order",
+        "--parents",
+        "--format=%H %P %s",
+        "HEAD",
+        "--",
+        "bar.txt"
+      ],
+      "outputs": {
+        "oracle": {
+          "status": 0,
+          "stdout": "04f8deb996f3e407c44c0c95c191bf555c90f3f400198f8475ab2bbc4d3ca827 2e0a1b7bc87837cdbda639c59636bc0342a614f7cce594b97bfedb7584178876 A7\n2e0a1b7bc87837cdbda639c59636bc0342a614f7cce594b97bfedb7584178876 10f9b3c2575ad2815c0446a16226c7723c9cd6010849b44cacaba87fe5bd0038 A5\n10f9b3c2575ad2815c0446a16226c7723c9cd6010849b44cacaba87fe5bd0038 c2a763445229150de6b7f00bf738a45c7df4e0d335f5b3a9db41bc0c261b9455 A3\nc2a763445229150de6b7f00bf738a45c7df4e0d335f5b3a9db41bc0c261b9455  A2\n",
+          "stderr": ""
+        },
+        "baseline": {
+          "status": 0,
+          "stdout": "04f8deb996f3e407c44c0c95c191bf555c90f3f400198f8475ab2bbc4d3ca827 2e0a1b7bc87837cdbda639c59636bc0342a614f7cce594b97bfedb7584178876 A7\n2e0a1b7bc87837cdbda639c59636bc0342a614f7cce594b97bfedb7584178876 10f9b3c2575ad2815c0446a16226c7723c9cd6010849b44cacaba87fe5bd0038 A5\n10f9b3c2575ad2815c0446a16226c7723c9cd6010849b44cacaba87fe5bd0038 c2a763445229150de6b7f00bf738a45c7df4e0d335f5b3a9db41bc0c261b9455 A3\nc2a763445229150de6b7f00bf738a45c7df4e0d335f5b3a9db41bc0c261b9455  A2\n",
+          "stderr": ""
+        },
+        "candidate": {
+          "status": 0,
+          "stdout": "04f8deb996f3e407c44c0c95c191bf555c90f3f400198f8475ab2bbc4d3ca827 2e0a1b7bc87837cdbda639c59636bc0342a614f7cce594b97bfedb7584178876 A7\n2e0a1b7bc87837cdbda639c59636bc0342a614f7cce594b97bfedb7584178876 10f9b3c2575ad2815c0446a16226c7723c9cd6010849b44cacaba87fe5bd0038 A5\n10f9b3c2575ad2815c0446a16226c7723c9cd6010849b44cacaba87fe5bd0038 c2a763445229150de6b7f00bf738a45c7df4e0d335f5b3a9db41bc0c261b9455 A3\nc2a763445229150de6b7f00bf738a45c7df4e0d335f5b3a9db41bc0c261b9455  A2\n",
+          "stderr": ""
+        }
+      },
+      "baseline_exact": true,
+      "candidate_exact": true,
+      "candidate_unchanged": true
+    }
+  ]
+}

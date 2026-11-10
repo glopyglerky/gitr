@@ -1,0 +1,198 @@
+command=['/workspace/scratch/161a1b7c00ce/tooling/lustr/target/release/lustr', '--engine', 'rustc', 'test', '--manifest-path', 'vendor/sley/Cargo.toml', '--locked', '-p', 'sley-cli', '--test', 'archive', '--test', 'archive_remote', '--test', 'upload_archive', '--test', 'filter_branch_unavailable', '--test', 'rev_parse', '--test', 'rev_parse_pseudo_names', '--test', 'commit', '--test', 'commit_large_blob', '--test', 'rev_list', '--test', 'rev_list_path_parents', '--test', 'log', '--test', 'history_sparse_tips', '--no-fail-fast']
+target=/workspace/scratch/161a1b7c00ce/tooling/sley-target
+tmpdir=/tmp/rit-history-vendor-_6fgp3_j
+   Compiling sley-cli v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-cli)
+    Finished `test` profile [unoptimized] target(s) in 1.48s
+     Running tests/archive.rs (/workspace/scratch/161a1b7c00ce/tooling/sley-target/debug/deps/archive-b2bb06483d7678f4)
+
+running 7 tests
+test archive_missing_pathspec_errors_match_upstream_git ... ok
+test archive_output_option_writes_tar_file ... ok
+test archive_tar_applies_autocrlf_smudge_like_upstream ... ok
+test archive_tar_applies_gitattributes_eol_from_tree ... ok
+test archive_tar_matches_upstream_git_for_commit_tree ... ok
+test archive_tar_cwd_relative_pathspecs_match_upstream_git ... ok
+test archive_tar_pathspecs_match_upstream_git ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
+
+     Running tests/archive_remote.rs (/workspace/scratch/161a1b7c00ce/tooling/sley-target/debug/deps/archive_remote-2e4bd8e80f59963f)
+
+running 13 tests
+test archive_client_rejects_truncation_and_nonzero_exit_after_payload ... ok
+test configured_remote_rewrite_and_ssh_command_work_outside_and_inside_repositories ... ok
+test complete_archive_preserves_status_and_cleans_descendant_stderr ... ok
+test git_daemon_archive_interoperates_through_explicit_proxy ... ok
+test failed_archive_service_terminates_descendants_holding_stderr ... ok
+test local_archive_format_listing_preserves_git_option_handling ... ok
+test local_explicit_archive_service_is_used_and_failures_propagate ... ok
+test non_utf8_archive_argument_is_rejected_before_starting_transport ... ok
+test malformed_archive_peer_is_terminated_without_hanging ... ok
+test remote_archive_enforces_policy_and_server_ref_failures ... ok
+test remote_archive_output_infers_format_and_respects_explicit_override ... ok
+test remote_output_inference_uses_client_formats_and_server_permissions ... ok
+test ssh_archive_matches_git_for_both_hash_formats_without_path_git ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.42s
+
+     Running tests/commit.rs (/workspace/scratch/161a1b7c00ce/tooling/sley-target/debug/deps/commit-13586585e1a3d6b6)
+
+running 23 tests
+test commit_allow_empty_matches_upstream_git_objects ... ok
+test commit_all_stages_tracked_changes_like_upstream_git_objects ... ok
+test commit_amend_with_pathspec_matches_upstream_git ... ok
+test commit_author_and_date_options_match_upstream_git_objects ... ok
+test commit_amend_matches_upstream_git_objects ... ok
+test commit_clean_index_requires_allow_empty_like_upstream_git ... ok
+test commit_cleanup_whitespace_option_and_config_preserve_comments ... ok
+test commit_commentchar_auto_switch_and_exhausted ... ok
+test commit_empty_message_errors_match_upstream_git ... ok
+test commit_fixup_matches_upstream_git_objects ... ok
+test commit_identity_falls_back_to_global_gitconfig_like_upstream_git ... ok
+test commit_message_option_errors_match_upstream_git ... ok
+test commit_pathspec_pre_commit_sees_selected_worktree_content ... ok
+test commit_reedit_message_matches_upstream_git_objects_when_editor_is_noop ... ok
+test commit_reuse_message_matches_upstream_git_objects ... ok
+test commit_signoff_empty_message_places_sob_on_third_line ... ok
+test commit_squash_matches_upstream_git_objects ... ok
+test commit_status_preview_modes_match_upstream_git ... ok
+test commit_tree_argument_errors_match_upstream_git ... ok
+test commit_tree_duplicate_parent_matches_upstream_git ... ok
+test commit_tree_file_messages_match_upstream_git ... ok
+test pre_commit_hook_sees_prefix_and_command_line_author ... ok
+test commit_file_messages_match_upstream_git_objects ... ok
+
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.58s
+
+     Running tests/commit_large_blob.rs (/workspace/scratch/161a1b7c00ce/tooling/sley-target/debug/deps/commit_large_blob-b67ae8084f801078)
+
+running 9 tests
+test forced_text_overrides_size_classification_without_running_textconv ... ok
+test gitlink_summaries_keep_synthetic_text_at_zero_threshold ... ok
+test invalid_big_file_threshold_is_rejected_before_committing ... ok
+test metadata_probe_preserves_malformed_header_and_wrong_type_diagnostics ... ok
+test ordinary_incomplete_blob_still_fails_full_read ... ok
+test configured_big_file_threshold_boundaries_match_git ... ok
+test oversized_blob_add_mode_change_and_delete_summaries_match_git ... ok
+test symlink_summaries_keep_the_existing_content_path ... ok
+test summary_does_not_compile_patch_regexes_or_run_patch_commands ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.11s
+
+     Running tests/filter_branch_unavailable.rs (/workspace/scratch/161a1b7c00ce/tooling/sley-target/debug/deps/filter_branch_unavailable-b47b37772456b136)
+
+running 1 test
+test rejected_filter_branch_preserves_repository_and_executes_no_helpers ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/history_sparse_tips.rs (/workspace/scratch/161a1b7c00ce/tooling/sley-target/debug/deps/history_sparse_tips-a3c10349f0434efc)
+
+running 5 tests
+test explicitly_selected_side_tip_survives_merge_diversion ... ok
+test sparse_keeps_visited_path_history_and_dense_order_is_respected ... ok
+test selected_tips_respect_ranges_filters_order_and_shallow_boundaries ... ok
+test sparse_skips_unused_linear_trees_but_requires_commit_objects ... ok
+test tied_and_backdated_clocks_keep_pre_simplification_order ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.54s
+
+     Running tests/log.rs (/workspace/scratch/161a1b7c00ce/tooling/sley-target/debug/deps/log-354e92a3b68b7ebc)
+
+running 17 tests
+test log_author_filter_matches_upstream_git ... ok
+test log_committer_filter_matches_upstream_git ... ok
+test log_decorate_full_from_global_config_matches_upstream_git ... ok
+test log_epoch_age_filters_match_upstream_git ... ok
+test log_custom_format_placeholders_match_upstream_git ... ok
+test log_fixed_string_filters_match_upstream_git ... ok
+test log_first_parent_matches_upstream_git ... ok
+test log_grep_searches_in_log_output_encoding ... ok
+test log_grep_filter_matches_upstream_git ... ok
+test log_identity_filters_end_at_email_and_exclude_timestamp ... ok
+test log_limited_subject_formats_match_upstream_git ... ok
+test log_oneline_matches_upstream_git ... ok
+test log_pretty_oneline_aliases_match_upstream_git ... ok
+test log_reflog_filters_intersect_identity_and_message_filters ... ok
+test log_regexp_ignore_case_filters_match_upstream_git ... ok
+test log_reverse_matches_upstream_git ... ok
+test log_minimal_format_matches_upstream_git ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.93s
+
+     Running tests/rev_list.rs (/workspace/scratch/161a1b7c00ce/tooling/sley-target/debug/deps/rev_list-4971bc96ec7dc977)
+
+running 11 tests
+test rev_list_all_includes_detached_head ... ok
+test rev_list_annotated_tag_start_matches_upstream_git ... ok
+test rev_list_bare_full_oid_hydrates_but_missing_expression_does_not ... ok
+test rev_list_corrupt_bitmap_falls_back_to_regular_walk ... ok
+test rev_list_date_order_merge_history_matches_upstream_git ... ok
+test rev_list_epoch_age_filters_match_upstream_git ... ok
+test rev_list_first_parent_merge_history_matches_upstream_git ... ok
+test rev_list_identity_and_message_filters_match_upstream_git ... ok
+test rev_list_ref_selector_modes_match_upstream_git ... ok
+test rev_list_symmetric_branch_range_count_matches_upstream_git ... ok
+test rev_list_linear_history_matches_upstream_git ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.59s
+
+     Running tests/rev_list_path_parents.rs (/workspace/scratch/161a1b7c00ce/tooling/sley-target/debug/deps/rev_list_path_parents-eaa8ac5f9b6a7b9c)
+
+running 3 tests
+test simplified_merge_keeps_selected_parent_branches_and_explicit_boundary ... ok
+test simplified_path_history_prunes_ancestors_before_directory_creation ... ok
+test simplified_path_history_retains_root_that_changes_the_selected_directory ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.25s
+
+     Running tests/rev_parse.rs (/workspace/scratch/161a1b7c00ce/tooling/sley-target/debug/deps/rev_parse-f45505bb7db5136a)
+
+running 20 tests
+test rev_parse_abbreviated_object_ids_match_upstream_git ... ok
+test log_fetch_head_in_bare_repo ... ok
+test rev_parse_git_common_dir_matches_upstream_git ... ok
+test rev_parse_core_bare_config_matches_upstream_git ... ok
+test rev_parse_hex_refname_prefers_ref_and_warns_like_upstream_git ... ok
+test rev_parse_inside_repository_flags_match_upstream_git ... ok
+test rev_parse_is_shallow_repository_matches_upstream_git ... ok
+test rev_parse_local_env_vars_and_path_format_errors_match_upstream_git ... ok
+test rev_parse_git_path_matches_upstream_git ... ok
+test rev_parse_parent_suffixes_use_upstream_commit_graph ... ok
+test rev_parse_object_format_modes_match_upstream_git ... ok
+test rev_parse_resolve_git_dir_matches_upstream_git ... ok
+test rev_parse_path_format_matches_upstream_git ... ok
+test rev_parse_show_prefix_ceiling_symlink_no_resolve_matches_upstream_git ... ok
+test rev_parse_short_and_ref_flags_terminate_and_match_git ... ok
+test rev_parse_show_ref_format_matches_upstream_git ... ok
+test rev_parse_sq_quote_matches_upstream_git ... ok
+test rev_parse_verify_quiet_missing_matches_upstream_git ... ok
+test rev_parse_worktree_path_options_match_upstream_git ... ok
+test rev_parse_submodule_gitfile_matches_upstream_git ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.95s
+
+     Running tests/rev_parse_pseudo_names.rs (/workspace/scratch/161a1b7c00ce/tooling/sley-target/debug/deps/rev_parse_pseudo_names-530bc66271d17c8c)
+
+running 5 tests
+test reference_selector_modes_and_exclusions_follow_argument_order ... ok
+test abbreviated_reference_selectors_honor_ambiguity_modes_and_configuration ... ok
+test reference_selectors_cover_root_refs_global_config_and_broken_aliases ... ok
+test reference_selectors_resolve_symbolic_aliases_and_skip_dangling_or_cyclic_refs ... ok
+test symbolic_reference_selectors_match_git_with_no_git_on_path ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.00s
+
+     Running tests/upload_archive.rs (/workspace/scratch/161a1b7c00ce/tooling/sley-target/debug/deps/upload_archive-83fb10a0058effcb)
+
+running 7 tests
+test native_upload_archive_does_not_discover_a_parent_repository ... ok
+test native_upload_archive_does_not_execute_client_options_or_read_extra_files ... ok
+test native_upload_archive_honors_bare_repositories_and_remote_format_policy ... ok
+test native_upload_archive_accepts_only_refs_and_ref_subtrees_by_default ... ok
+test stock_git_archive_client_accepts_the_native_service ... ok
+test stock_git_archive_client_uses_the_installed_native_helper ... ok
+test native_upload_archive_streams_tar_and_zip_with_no_git_on_path ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s
+

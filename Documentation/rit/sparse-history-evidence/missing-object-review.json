@@ -1,0 +1,505 @@
+{
+  "candidate_sha256": "65fb0e263a71010daeff06ea11c061679cf4db7d16b2b219f5b876bb34f45bbb",
+  "comparisons": [
+    {
+      "format": "sha1",
+      "fault": "missing intermediate tree",
+      "args": [
+        "rev-list",
+        "--parents",
+        "HEAD",
+        "--",
+        "watched"
+      ],
+      "outputs": {
+        "oracle": {
+          "status": 128,
+          "stdout": "",
+          "stderr": "fatal: unable to read tree (6728cc9f4e43fec61aa706275bd91c3bbb508351)\n"
+        },
+        "baseline": {
+          "status": 1,
+          "stdout": "",
+          "stderr": "git: not found: object 6728cc9f4e43fec61aa706275bd91c3bbb508351\n"
+        },
+        "candidate": {
+          "status": 1,
+          "stdout": "",
+          "stderr": "git: not found: object 6728cc9f4e43fec61aa706275bd91c3bbb508351\n"
+        }
+      },
+      "candidate_status_matches": false,
+      "candidate_stdout_matches": true
+    },
+    {
+      "format": "sha1",
+      "fault": "missing intermediate tree",
+      "args": [
+        "rev-list",
+        "--parents",
+        "--sparse",
+        "HEAD",
+        "--",
+        "watched"
+      ],
+      "outputs": {
+        "oracle": {
+          "status": 0,
+          "stdout": "3a9cecc08faf33aba6c580e768d7dfdefd498bf6 823f93ea07a96bf93a063d18cd67ba75ac095e37\n823f93ea07a96bf93a063d18cd67ba75ac095e37 f8f473e838368fbd858da49daa9ac928ef0eab38\nf8f473e838368fbd858da49daa9ac928ef0eab38\n",
+          "stderr": ""
+        },
+        "baseline": {
+          "status": 1,
+          "stdout": "",
+          "stderr": "git: not found: object 6728cc9f4e43fec61aa706275bd91c3bbb508351\n"
+        },
+        "candidate": {
+          "status": 0,
+          "stdout": "3a9cecc08faf33aba6c580e768d7dfdefd498bf6 823f93ea07a96bf93a063d18cd67ba75ac095e37\n823f93ea07a96bf93a063d18cd67ba75ac095e37 f8f473e838368fbd858da49daa9ac928ef0eab38\nf8f473e838368fbd858da49daa9ac928ef0eab38\n",
+          "stderr": ""
+        }
+      },
+      "candidate_status_matches": true,
+      "candidate_stdout_matches": true
+    },
+    {
+      "format": "sha1",
+      "fault": "missing intermediate tree",
+      "args": [
+        "rev-list",
+        "--parents",
+        "--sparse",
+        "--full-history",
+        "HEAD",
+        "--",
+        "watched"
+      ],
+      "outputs": {
+        "oracle": {
+          "status": 0,
+          "stdout": "3a9cecc08faf33aba6c580e768d7dfdefd498bf6 823f93ea07a96bf93a063d18cd67ba75ac095e37\n823f93ea07a96bf93a063d18cd67ba75ac095e37 f8f473e838368fbd858da49daa9ac928ef0eab38\nf8f473e838368fbd858da49daa9ac928ef0eab38\n",
+          "stderr": ""
+        },
+        "baseline": {
+          "status": 1,
+          "stdout": "",
+          "stderr": "git: not found: object 6728cc9f4e43fec61aa706275bd91c3bbb508351\n"
+        },
+        "candidate": {
+          "status": 0,
+          "stdout": "3a9cecc08faf33aba6c580e768d7dfdefd498bf6 823f93ea07a96bf93a063d18cd67ba75ac095e37\n823f93ea07a96bf93a063d18cd67ba75ac095e37 f8f473e838368fbd858da49daa9ac928ef0eab38\nf8f473e838368fbd858da49daa9ac928ef0eab38\n",
+          "stderr": ""
+        }
+      },
+      "candidate_status_matches": true,
+      "candidate_stdout_matches": true
+    },
+    {
+      "format": "sha1",
+      "fault": "missing intermediate tree",
+      "args": [
+        "rev-list",
+        "--parents",
+        "--sparse",
+        "--simplify-merges",
+        "HEAD",
+        "--",
+        "watched"
+      ],
+      "outputs": {
+        "oracle": {
+          "status": 0,
+          "stdout": "3a9cecc08faf33aba6c580e768d7dfdefd498bf6 823f93ea07a96bf93a063d18cd67ba75ac095e37\n823f93ea07a96bf93a063d18cd67ba75ac095e37 f8f473e838368fbd858da49daa9ac928ef0eab38\nf8f473e838368fbd858da49daa9ac928ef0eab38\n",
+          "stderr": ""
+        },
+        "baseline": {
+          "status": 1,
+          "stdout": "",
+          "stderr": "git: not found: object 6728cc9f4e43fec61aa706275bd91c3bbb508351\n"
+        },
+        "candidate": {
+          "status": 0,
+          "stdout": "3a9cecc08faf33aba6c580e768d7dfdefd498bf6 823f93ea07a96bf93a063d18cd67ba75ac095e37\n823f93ea07a96bf93a063d18cd67ba75ac095e37 f8f473e838368fbd858da49daa9ac928ef0eab38\nf8f473e838368fbd858da49daa9ac928ef0eab38\n",
+          "stderr": ""
+        }
+      },
+      "candidate_status_matches": true,
+      "candidate_stdout_matches": true
+    },
+    {
+      "format": "sha1",
+      "fault": "missing intermediate commit",
+      "args": [
+        "rev-list",
+        "--parents",
+        "HEAD",
+        "--",
+        "watched"
+      ],
+      "outputs": {
+        "oracle": {
+          "status": 128,
+          "stdout": "",
+          "stderr": "error: Could not read 823f93ea07a96bf93a063d18cd67ba75ac095e37\nfatal: cannot simplify commit 3a9cecc08faf33aba6c580e768d7dfdefd498bf6 (because of 823f93ea07a96bf93a063d18cd67ba75ac095e37)\n"
+        },
+        "baseline": {
+          "status": 1,
+          "stdout": "",
+          "stderr": "git: not found: object 823f93ea07a96bf93a063d18cd67ba75ac095e37\n"
+        },
+        "candidate": {
+          "status": 1,
+          "stdout": "",
+          "stderr": "git: not found: object 823f93ea07a96bf93a063d18cd67ba75ac095e37\n"
+        }
+      },
+      "candidate_status_matches": false,
+      "candidate_stdout_matches": true
+    },
+    {
+      "format": "sha1",
+      "fault": "missing intermediate commit",
+      "args": [
+        "rev-list",
+        "--parents",
+        "--sparse",
+        "HEAD",
+        "--",
+        "watched"
+      ],
+      "outputs": {
+        "oracle": {
+          "status": 128,
+          "stdout": "",
+          "stderr": "error: Could not read 823f93ea07a96bf93a063d18cd67ba75ac095e37\nfatal: Failed to traverse parents of commit 3a9cecc08faf33aba6c580e768d7dfdefd498bf6\n"
+        },
+        "baseline": {
+          "status": 1,
+          "stdout": "",
+          "stderr": "git: not found: object 823f93ea07a96bf93a063d18cd67ba75ac095e37\n"
+        },
+        "candidate": {
+          "status": 1,
+          "stdout": "",
+          "stderr": "git: not found: object 823f93ea07a96bf93a063d18cd67ba75ac095e37\n"
+        }
+      },
+      "candidate_status_matches": false,
+      "candidate_stdout_matches": true
+    },
+    {
+      "format": "sha1",
+      "fault": "missing intermediate commit",
+      "args": [
+        "rev-list",
+        "--parents",
+        "--sparse",
+        "--full-history",
+        "HEAD",
+        "--",
+        "watched"
+      ],
+      "outputs": {
+        "oracle": {
+          "status": 128,
+          "stdout": "",
+          "stderr": "error: Could not read 823f93ea07a96bf93a063d18cd67ba75ac095e37\nfatal: Failed to traverse parents of commit 3a9cecc08faf33aba6c580e768d7dfdefd498bf6\n"
+        },
+        "baseline": {
+          "status": 1,
+          "stdout": "",
+          "stderr": "git: not found: object 823f93ea07a96bf93a063d18cd67ba75ac095e37\n"
+        },
+        "candidate": {
+          "status": 1,
+          "stdout": "",
+          "stderr": "git: not found: object 823f93ea07a96bf93a063d18cd67ba75ac095e37\n"
+        }
+      },
+      "candidate_status_matches": false,
+      "candidate_stdout_matches": true
+    },
+    {
+      "format": "sha1",
+      "fault": "missing intermediate commit",
+      "args": [
+        "rev-list",
+        "--parents",
+        "--sparse",
+        "--simplify-merges",
+        "HEAD",
+        "--",
+        "watched"
+      ],
+      "outputs": {
+        "oracle": {
+          "status": 128,
+          "stdout": "",
+          "stderr": "error: Could not read 823f93ea07a96bf93a063d18cd67ba75ac095e37\nfatal: revision walk setup failed\n"
+        },
+        "baseline": {
+          "status": 1,
+          "stdout": "",
+          "stderr": "git: not found: object 823f93ea07a96bf93a063d18cd67ba75ac095e37\n"
+        },
+        "candidate": {
+          "status": 1,
+          "stdout": "",
+          "stderr": "git: not found: object 823f93ea07a96bf93a063d18cd67ba75ac095e37\n"
+        }
+      },
+      "candidate_status_matches": false,
+      "candidate_stdout_matches": true
+    },
+    {
+      "format": "sha256",
+      "fault": "missing intermediate tree",
+      "args": [
+        "rev-list",
+        "--parents",
+        "HEAD",
+        "--",
+        "watched"
+      ],
+      "outputs": {
+        "oracle": {
+          "status": 128,
+          "stdout": "",
+          "stderr": "fatal: unable to read tree (08650474798922e98272e71abee8b5cd2699d417873dd1ef26b91a2ca530450b)\n"
+        },
+        "baseline": {
+          "status": 1,
+          "stdout": "",
+          "stderr": "git: not found: object 08650474798922e98272e71abee8b5cd2699d417873dd1ef26b91a2ca530450b\n"
+        },
+        "candidate": {
+          "status": 1,
+          "stdout": "",
+          "stderr": "git: not found: object 08650474798922e98272e71abee8b5cd2699d417873dd1ef26b91a2ca530450b\n"
+        }
+      },
+      "candidate_status_matches": false,
+      "candidate_stdout_matches": true
+    },
+    {
+      "format": "sha256",
+      "fault": "missing intermediate tree",
+      "args": [
+        "rev-list",
+        "--parents",
+        "--sparse",
+        "HEAD",
+        "--",
+        "watched"
+      ],
+      "outputs": {
+        "oracle": {
+          "status": 0,
+          "stdout": "2cd8e3527007f915562d57e4e6149fe24da9df0c1415256e5d0a5444a97d4557 6f12705fe5c835831a3eb7810d7971f74449ebe8b78de03e90e3e96c51b4dcda\n6f12705fe5c835831a3eb7810d7971f74449ebe8b78de03e90e3e96c51b4dcda e68b981bf641b1c35ba47d7bfefecbbc3d9b2958f0270a00616916ad0fa2a397\ne68b981bf641b1c35ba47d7bfefecbbc3d9b2958f0270a00616916ad0fa2a397\n",
+          "stderr": ""
+        },
+        "baseline": {
+          "status": 1,
+          "stdout": "",
+          "stderr": "git: not found: object 08650474798922e98272e71abee8b5cd2699d417873dd1ef26b91a2ca530450b\n"
+        },
+        "candidate": {
+          "status": 0,
+          "stdout": "2cd8e3527007f915562d57e4e6149fe24da9df0c1415256e5d0a5444a97d4557 6f12705fe5c835831a3eb7810d7971f74449ebe8b78de03e90e3e96c51b4dcda\n6f12705fe5c835831a3eb7810d7971f74449ebe8b78de03e90e3e96c51b4dcda e68b981bf641b1c35ba47d7bfefecbbc3d9b2958f0270a00616916ad0fa2a397\ne68b981bf641b1c35ba47d7bfefecbbc3d9b2958f0270a00616916ad0fa2a397\n",
+          "stderr": ""
+        }
+      },
+      "candidate_status_matches": true,
+      "candidate_stdout_matches": true
+    },
+    {
+      "format": "sha256",
+      "fault": "missing intermediate tree",
+      "args": [
+        "rev-list",
+        "--parents",
+        "--sparse",
+        "--full-history",
+        "HEAD",
+        "--",
+        "watched"
+      ],
+      "outputs": {
+        "oracle": {
+          "status": 0,
+          "stdout": "2cd8e3527007f915562d57e4e6149fe24da9df0c1415256e5d0a5444a97d4557 6f12705fe5c835831a3eb7810d7971f74449ebe8b78de03e90e3e96c51b4dcda\n6f12705fe5c835831a3eb7810d7971f74449ebe8b78de03e90e3e96c51b4dcda e68b981bf641b1c35ba47d7bfefecbbc3d9b2958f0270a00616916ad0fa2a397\ne68b981bf641b1c35ba47d7bfefecbbc3d9b2958f0270a00616916ad0fa2a397\n",
+          "stderr": ""
+        },
+        "baseline": {
+          "status": 1,
+          "stdout": "",
+          "stderr": "git: not found: object 08650474798922e98272e71abee8b5cd2699d417873dd1ef26b91a2ca530450b\n"
+        },
+        "candidate": {
+          "status": 0,
+          "stdout": "2cd8e3527007f915562d57e4e6149fe24da9df0c1415256e5d0a5444a97d4557 6f12705fe5c835831a3eb7810d7971f74449ebe8b78de03e90e3e96c51b4dcda\n6f12705fe5c835831a3eb7810d7971f74449ebe8b78de03e90e3e96c51b4dcda e68b981bf641b1c35ba47d7bfefecbbc3d9b2958f0270a00616916ad0fa2a397\ne68b981bf641b1c35ba47d7bfefecbbc3d9b2958f0270a00616916ad0fa2a397\n",
+          "stderr": ""
+        }
+      },
+      "candidate_status_matches": true,
+      "candidate_stdout_matches": true
+    },
+    {
+      "format": "sha256",
+      "fault": "missing intermediate tree",
+      "args": [
+        "rev-list",
+        "--parents",
+        "--sparse",
+        "--simplify-merges",
+        "HEAD",
+        "--",
+        "watched"
+      ],
+      "outputs": {
+        "oracle": {
+          "status": 0,
+          "stdout": "2cd8e3527007f915562d57e4e6149fe24da9df0c1415256e5d0a5444a97d4557 6f12705fe5c835831a3eb7810d7971f74449ebe8b78de03e90e3e96c51b4dcda\n6f12705fe5c835831a3eb7810d7971f74449ebe8b78de03e90e3e96c51b4dcda e68b981bf641b1c35ba47d7bfefecbbc3d9b2958f0270a00616916ad0fa2a397\ne68b981bf641b1c35ba47d7bfefecbbc3d9b2958f0270a00616916ad0fa2a397\n",
+          "stderr": ""
+        },
+        "baseline": {
+          "status": 1,
+          "stdout": "",
+          "stderr": "git: not found: object 08650474798922e98272e71abee8b5cd2699d417873dd1ef26b91a2ca530450b\n"
+        },
+        "candidate": {
+          "status": 0,
+          "stdout": "2cd8e3527007f915562d57e4e6149fe24da9df0c1415256e5d0a5444a97d4557 6f12705fe5c835831a3eb7810d7971f74449ebe8b78de03e90e3e96c51b4dcda\n6f12705fe5c835831a3eb7810d7971f74449ebe8b78de03e90e3e96c51b4dcda e68b981bf641b1c35ba47d7bfefecbbc3d9b2958f0270a00616916ad0fa2a397\ne68b981bf641b1c35ba47d7bfefecbbc3d9b2958f0270a00616916ad0fa2a397\n",
+          "stderr": ""
+        }
+      },
+      "candidate_status_matches": true,
+      "candidate_stdout_matches": true
+    },
+    {
+      "format": "sha256",
+      "fault": "missing intermediate commit",
+      "args": [
+        "rev-list",
+        "--parents",
+        "HEAD",
+        "--",
+        "watched"
+      ],
+      "outputs": {
+        "oracle": {
+          "status": 128,
+          "stdout": "",
+          "stderr": "error: Could not read 6f12705fe5c835831a3eb7810d7971f74449ebe8b78de03e90e3e96c51b4dcda\nfatal: cannot simplify commit 2cd8e3527007f915562d57e4e6149fe24da9df0c1415256e5d0a5444a97d4557 (because of 6f12705fe5c835831a3eb7810d7971f74449ebe8b78de03e90e3e96c51b4dcda)\n"
+        },
+        "baseline": {
+          "status": 1,
+          "stdout": "",
+          "stderr": "git: not found: object 6f12705fe5c835831a3eb7810d7971f74449ebe8b78de03e90e3e96c51b4dcda\n"
+        },
+        "candidate": {
+          "status": 1,
+          "stdout": "",
+          "stderr": "git: not found: object 6f12705fe5c835831a3eb7810d7971f74449ebe8b78de03e90e3e96c51b4dcda\n"
+        }
+      },
+      "candidate_status_matches": false,
+      "candidate_stdout_matches": true
+    },
+    {
+      "format": "sha256",
+      "fault": "missing intermediate commit",
+      "args": [
+        "rev-list",
+        "--parents",
+        "--sparse",
+        "HEAD",
+        "--",
+        "watched"
+      ],
+      "outputs": {
+        "oracle": {
+          "status": 128,
+          "stdout": "",
+          "stderr": "error: Could not read 6f12705fe5c835831a3eb7810d7971f74449ebe8b78de03e90e3e96c51b4dcda\nfatal: Failed to traverse parents of commit 2cd8e3527007f915562d57e4e6149fe24da9df0c1415256e5d0a5444a97d4557\n"
+        },
+        "baseline": {
+          "status": 1,
+          "stdout": "",
+          "stderr": "git: not found: object 6f12705fe5c835831a3eb7810d7971f74449ebe8b78de03e90e3e96c51b4dcda\n"
+        },
+        "candidate": {
+          "status": 1,
+          "stdout": "",
+          "stderr": "git: not found: object 6f12705fe5c835831a3eb7810d7971f74449ebe8b78de03e90e3e96c51b4dcda\n"
+        }
+      },
+      "candidate_status_matches": false,
+      "candidate_stdout_matches": true
+    },
+    {
+      "format": "sha256",
+      "fault": "missing intermediate commit",
+      "args": [
+        "rev-list",
+        "--parents",
+        "--sparse",
+        "--full-history",
+        "HEAD",
+        "--",
+        "watched"
+      ],
+      "outputs": {
+        "oracle": {
+          "status": 128,
+          "stdout": "",
+          "stderr": "error: Could not read 6f12705fe5c835831a3eb7810d7971f74449ebe8b78de03e90e3e96c51b4dcda\nfatal: Failed to traverse parents of commit 2cd8e3527007f915562d57e4e6149fe24da9df0c1415256e5d0a5444a97d4557\n"
+        },
+        "baseline": {
+          "status": 1,
+          "stdout": "",
+          "stderr": "git: not found: object 6f12705fe5c835831a3eb7810d7971f74449ebe8b78de03e90e3e96c51b4dcda\n"
+        },
+        "candidate": {
+          "status": 1,
+          "stdout": "",
+          "stderr": "git: not found: object 6f12705fe5c835831a3eb7810d7971f74449ebe8b78de03e90e3e96c51b4dcda\n"
+        }
+      },
+      "candidate_status_matches": false,
+      "candidate_stdout_matches": true
+    },
+    {
+      "format": "sha256",
+      "fault": "missing intermediate commit",
+      "args": [
+        "rev-list",
+        "--parents",
+        "--sparse",
+        "--simplify-merges",
+        "HEAD",
+        "--",
+        "watched"
+      ],
+      "outputs": {
+        "oracle": {
+          "status": 128,
+          "stdout": "",
+          "stderr": "error: Could not read 6f12705fe5c835831a3eb7810d7971f74449ebe8b78de03e90e3e96c51b4dcda\nfatal: revision walk setup failed\n"
+        },
+        "baseline": {
+          "status": 1,
+          "stdout": "",
+          "stderr": "git: not found: object 6f12705fe5c835831a3eb7810d7971f74449ebe8b78de03e90e3e96c51b4dcda\n"
+        },
+        "candidate": {
+          "status": 1,
+          "stdout": "",
+          "stderr": "git: not found: object 6f12705fe5c835831a3eb7810d7971f74449ebe8b78de03e90e3e96c51b4dcda\n"
+        }
+      },
+      "candidate_status_matches": false,
+      "candidate_stdout_matches": true
+    }
+  ]
+}

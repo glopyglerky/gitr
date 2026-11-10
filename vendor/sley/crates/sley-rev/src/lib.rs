@@ -4884,6 +4884,9 @@ pub struct SimplifyOptions {
     /// against *any* parent (and the merges that join those lines), rather than
     /// the default which follows a single TREESAME parent.
     pub full_history: bool,
+    /// `--sparse`: keep every commit reached after merge-parent diversion,
+    /// including commits that do not change the selected paths.
+    pub sparse: bool,
     /// `--first-parent`: TREESAME is computed only against the first parent, and
     /// rewriting follows only the first parent.
     pub first_parent: bool,
@@ -5109,6 +5112,7 @@ fn compute_treesame(
     pathspec: &Pathspec,
     first_parent: bool,
     full_history: bool,
+    sparse: bool,
 ) -> Result<HashMap<ObjectId, CommitSimplify>> {
     // O(1) tree lookup for on-graph commits.
     let tree_by_oid: HashMap<ObjectId, ObjectId> =
@@ -5166,8 +5170,13 @@ fn compute_treesame(
             out.insert(record.oid, simplify);
             continue;
         }
-        // Non-merge in default (non-dense) mode is always a change. We always run
-        // dense here (the pathspec / --full-history path), so fall through.
+        // Sparse traversal preserves linear commits as !TREESAME, including
+        // during the separate --simplify-merges collapse pass. Merges still
+        // need comparisons so their traversal can divert to a TREESAME parent.
+        if sparse && record.parents.len() == 1 {
+            out.insert(record.oid, simplify);
+            continue;
+        }
         let mut relevant_parents = 0usize;
         let mut relevant_change = false;
         let mut irrelevant_change = false;
@@ -5455,6 +5464,23 @@ pub fn simplify_history_with_bottoms(
     options: SimplifyOptions,
     bottoms: &HashSet<ObjectId>,
 ) -> Result<Vec<CommitRecord>> {
+    simplify_history_with_starts(db, format, records, pathspec, options, bottoms, &[])
+}
+
+/// As [`simplify_history_with_bottoms`], preserving explicitly selected positive
+/// starting commits even when another selected commit is their descendant.
+/// Such a tip remains a traversal root when default path simplification diverts
+/// a merge away from it. Inferred tips are also retained because callers may
+/// have filtered the starting commits out of `records` before simplification.
+pub fn simplify_history_with_starts(
+    db: &FileObjectDatabase,
+    format: ObjectFormat,
+    records: Vec<CommitRecord>,
+    pathspec: &Pathspec,
+    options: SimplifyOptions,
+    bottoms: &HashSet<ObjectId>,
+    starts: &[ObjectId],
+) -> Result<Vec<CommitRecord>> {
     if pathspec.is_empty() {
         // Without a pathspec there is nothing to prune: every commit "changes"
         // the (whole) tree, so TREESAME is never set and no simplification
@@ -5487,6 +5513,7 @@ pub fn simplify_history_with_bottoms(
         pathspec,
         options.first_parent,
         full_history_for_treesame,
+        options.sparse,
     )?;
 
     if options.simplify_merges {
@@ -5540,11 +5567,15 @@ pub fn simplify_history_with_bottoms(
         .iter()
         .flat_map(|r| r.parents.iter().copied())
         .collect();
-    let tips: Vec<ObjectId> = records
+    let mut tips: Vec<ObjectId> = records
         .iter()
         .map(|r| r.oid)
         .filter(|oid| !is_real_parent.contains(oid))
         .collect();
+    // A named side tip is still a starting point when a later merge diverts
+    // away from its parent edge. Do not infer these starts from the effective
+    // graph: that would also resurrect sides the caller never selected.
+    tips.extend(starts.iter().filter(|oid| record_oids.contains(oid)).copied());
     let mut live: HashSet<ObjectId> = HashSet::new();
     let mut stack = tips;
     while let Some(oid) = stack.pop() {
@@ -5583,7 +5614,7 @@ pub fn simplify_history_with_bottoms(
         // TREESAME merge is dropped. The parent count is taken over the
         // EFFECTIVE parents (after default-mode diversion truncated a merge to a
         // single parent), so a diverted merge no longer counts as a merge.
-        let show = if !ts {
+        let show = if options.sparse || !ts {
             true
         } else if options.want_ancestry {
             let pull = options.show_pulls
@@ -5601,6 +5632,24 @@ pub fn simplify_history_with_bottoms(
             false
         };
         if !show {
+            continue;
+        }
+
+        if options.sparse {
+            // Sparse mode displays the visited TREESAME commits themselves.
+            // Keep effective merge-parent diversion, but do not rewrite past
+            // those displayed commits as dense mode does. --first-parent alone
+            // limits traversal, not the displayed physical parent list; only
+            // a TREESAME diversion actually truncates that list.
+            let parents = simplify
+                .get(&record.oid)
+                .and_then(|state| state.simplified_parents.clone())
+                .unwrap_or(record.parents);
+            out.push(CommitRecord {
+                oid: record.oid,
+                parents,
+                commit: record.commit,
+            });
             continue;
         }
 
@@ -5937,7 +5986,7 @@ fn simplify_merges_pass(
         .filter(|r| simplified.get(&r.oid) == Some(&r.oid))
         .filter(|r| {
             let ts = display_treesame.get(&r.oid).copied().unwrap_or(false);
-            if !ts {
+            if options.sparse || !ts {
                 return true;
             }
             let rewritten = rewritten_parents.get(&r.oid);
@@ -5968,7 +6017,7 @@ fn simplify_merges_pass(
                 .filter_map(|parent| {
                     rewrite_one(
                         parent,
-                        |oid| display_treesame.get(oid).copied().unwrap_or(false),
+                        |oid| !options.sparse && display_treesame.get(oid).copied().unwrap_or(false),
                         &rewritten_parents,
                         relevant_set,
                         options.first_parent,

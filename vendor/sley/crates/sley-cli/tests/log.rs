@@ -815,7 +815,21 @@ fn log_first_parent_matches_upstream_git() {
                 "-q",
             ],
         );
-        git(&root, &["merge", "--no-ff", "side", "-m", "merge", "-q"]);
+        git(
+            &root,
+            &[
+                "-c",
+                "user.name=Example User",
+                "-c",
+                "user.email=example@example.invalid",
+                "merge",
+                "--no-ff",
+                "side",
+                "-m",
+                "merge",
+                "-q",
+            ],
+        );
         git(&root, &["update-ref", "refs/remotes/origin/side", "side"]);
         git(&root, &["checkout", "-qb", "hidden", "HEAD~1"]);
         fs::write(root.join("hidden.txt"), b"hidden\n").expect("write hidden fixture");
@@ -1717,6 +1731,10 @@ fn log_custom_format_placeholders_match_upstream_git() {
         let encoded = String::from_utf8(git(
             &root,
             &[
+                "-c",
+                "user.name=Committer User",
+                "-c",
+                "user.email=committer@example.invalid",
                 "-c",
                 "i18n.commitEncoding=ISO-8859-1",
                 "commit-tree",

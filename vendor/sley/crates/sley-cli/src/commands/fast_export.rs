@@ -441,6 +441,7 @@ impl FastExporter {
         if self.path_limited || revision_options.full_history || revision_options.simplify_merges {
             let simplify = SimplifyOptions {
                 full_history: revision_options.full_history,
+                sparse: false,
                 first_parent: revision_options.first_parent,
                 simplify_merges: revision_options.simplify_merges,
                 show_pulls: revision_options.show_pulls,

@@ -1,0 +1,34 @@
+command=['/workspace/scratch/161a1b7c00ce/tooling/lustr/target/release/lustr', '--engine', 'rustc', 'test', '--manifest-path', 'vendor/sley/Cargo.toml', '--locked', '-p', 'sley-cli', '--test', 'history_sparse_tips', 'tied_and_backdated_clocks', '--', '--nocapture']
+target=/workspace/scratch/161a1b7c00ce/tooling/sley-target
+tmpdir=/tmp/rit-rename-vendor-njqd7uhq
+   Compiling sley-cli v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-cli)
+    Finished `test` profile [unoptimized] target(s) in 0.37s
+     Running tests/history_sparse_tips.rs (/workspace/scratch/161a1b7c00ce/tooling/sley-target/debug/deps/history_sparse_tips-a3c10349f0434efc)
+
+running 1 test
+
+thread 'tied_and_backdated_clocks_keep_pre_simplification_order' (38) panicked at crates/sley-cli/tests/history_sparse_tips.rs:101:9:
+stdout for ["rev-list", "--parents", "--author-date-order", "--all", "--", "watched"]
+expected: bd9301bed508f73949ea2be4df428fb8d679645f acb2e459d48206fee2ca94fc2a7ff7b9d2edbf29
+acb2e459d48206fee2ca94fc2a7ff7b9d2edbf29 3b98bb1bedfcd8964761bbac3a58aa3c71728106 b5c91cc643edb5fdc19643b709a0282a47ecdcdf
+b5c91cc643edb5fdc19643b709a0282a47ecdcdf 9ffe58141bc0ac1e4c091256ef0785b7cb4dc78e
+3b98bb1bedfcd8964761bbac3a58aa3c71728106 9ffe58141bc0ac1e4c091256ef0785b7cb4dc78e
+9ffe58141bc0ac1e4c091256ef0785b7cb4dc78e
+
+actual: bd9301bed508f73949ea2be4df428fb8d679645f acb2e459d48206fee2ca94fc2a7ff7b9d2edbf29
+acb2e459d48206fee2ca94fc2a7ff7b9d2edbf29 3b98bb1bedfcd8964761bbac3a58aa3c71728106 b5c91cc643edb5fdc19643b709a0282a47ecdcdf
+3b98bb1bedfcd8964761bbac3a58aa3c71728106 9ffe58141bc0ac1e4c091256ef0785b7cb4dc78e
+b5c91cc643edb5fdc19643b709a0282a47ecdcdf 9ffe58141bc0ac1e4c091256ef0785b7cb4dc78e
+9ffe58141bc0ac1e4c091256ef0785b7cb4dc78e
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test tied_and_backdated_clocks_keep_pre_simplification_order ... FAILED
+
+failures:
+
+failures:
+    tied_and_backdated_clocks_keep_pre_simplification_order
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.09s
+
+error: test failed, to rerun pass `-p sley-cli --test history_sparse_tips`

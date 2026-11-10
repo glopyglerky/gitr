@@ -163,7 +163,8 @@ pub(crate) fn cmd_rev_list(
             "--simplify-merges" | "--show-pulls" | "--ancestry-path" => {
                 setup_args.push(arg.clone())
             }
-            "--sparse" | "--dense" | "--remove-empty" => {}
+            "--sparse" | "--dense" => setup_args.push(arg.clone()),
+            "--remove-empty" => {}
             "--exclude-promisor-objects" => exclude_promisor_objects = true,
             "--no-exclude-promisor-objects" => exclude_promisor_objects = false,
             // No effect on the regular walk yet (pre-existing behaviour); the
@@ -1038,7 +1039,7 @@ pub(crate) fn cmd_rev_list(
             let walk = rev_list_walk_commits_with_missing_details(
                 &db,
                 format,
-                include_commits,
+                include_commits.iter().copied(),
                 first_parent,
                 traversal_missing_action,
             )?;
@@ -1054,7 +1055,7 @@ pub(crate) fn cmd_rev_list(
             walk.records
         }
         RevListWalkMode::NoWalkSorted | RevListWalkMode::NoWalkUnsorted => {
-            rev_list_no_walk_commits(&db, format, include_commits)?
+            rev_list_no_walk_commits(&db, format, include_commits.iter().copied())?
         }
     };
     let selected_commit_oids = commits
@@ -1155,13 +1156,14 @@ pub(crate) fn cmd_rev_list(
         // The `^`-excluded boundary tips are git's BOTTOM commits: relevant for
         // topology-keep decisions even though they aren't shown.
         let bottoms: HashSet<ObjectId> = exclude_tip_oids.iter().copied().collect();
-        simplified_storage = sley_rev::simplify_history_with_bottoms(
+        simplified_storage = sley_rev::simplify_history_with_starts(
             &db,
             format,
             ordered_owned,
             &pathspec,
             sley_rev::SimplifyOptions {
                 full_history,
+                sparse: revision_options.sparse,
                 first_parent,
                 simplify_merges: revision_options.simplify_merges,
                 show_pulls: revision_options.show_pulls,
@@ -1172,8 +1174,16 @@ pub(crate) fn cmd_rev_list(
                 want_ancestry: parents || children || revision_options.simplify_merges,
             },
             &bottoms,
+            &include_commits,
         )?;
         selected = simplified_storage.iter().collect();
+        // Only default parent diversion changes the graph-order walk here.
+        // Other modes retain the order and tie breaks established beforehand.
+        if !full_history && !revision_options.simplify_merges && !revision_options.ancestry_path
+            && ordering == RevListOrdering::Topo
+        {
+            selected = rev_list_topo_order(selected)?;
+        }
     }
     let patchsame_oids = if cherry_mode != RevListCherryMode::None {
         rev_list_patchsame_oids(

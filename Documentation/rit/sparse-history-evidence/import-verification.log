@@ -1,0 +1,7 @@
+command=['/workspace/scratch/161a1b7c00ce/tooling/lustr/target/release/lustr', '--engine', 'rustc', 'run', '--all-features', '--example', 'verify_import', '--locked']
+target=/workspace/scratch/161a1b7c00ce/tooling/gitr-target
+tmpdir=/tmp/rit-history-root-2plbvh_o
+   Compiling rit v0.2.0 (/workspace/scratch/717c1db38a84/gitr)
+    Finished `dev` profile [unoptimized] target(s) in 0.25s
+     Running `/workspace/scratch/161a1b7c00ce/tooling/gitr-target/debug/examples/verify_import`
+Sley source verified: 679 files, 36 adapted, 10 added; exact donor revision and complete installed inventory

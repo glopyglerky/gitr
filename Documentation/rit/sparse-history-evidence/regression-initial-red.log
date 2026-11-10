@@ -1,0 +1,73 @@
+command=['/workspace/scratch/161a1b7c00ce/tooling/lustr/target/release/lustr', '--engine', 'rustc', 'test', '--manifest-path', 'vendor/sley/Cargo.toml', '--locked', '-p', 'sley-cli', '--test', 'history_sparse_tips', '--no-fail-fast']
+target=/workspace/scratch/161a1b7c00ce/tooling/sley-target
+tmpdir=/tmp/rit-rename-vendor-ivrm06e9
+   Compiling sley-cli v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-cli)
+    Finished `test` profile [unoptimized] target(s) in 0.33s
+     Running tests/history_sparse_tips.rs (/workspace/scratch/161a1b7c00ce/tooling/sley-target/debug/deps/history_sparse_tips-a3c10349f0434efc)
+
+running 3 tests
+test selected_tips_respect_ranges_filters_order_and_shallow_boundaries ... FAILED
+test explicitly_selected_side_tip_survives_merge_diversion ... FAILED
+test sparse_keeps_visited_path_history_and_dense_order_is_respected ... FAILED
+
+failures:
+
+---- selected_tips_respect_ranges_filters_order_and_shallow_boundaries stdout ----
+
+thread 'selected_tips_respect_ranges_filters_order_and_shallow_boundaries' (37) panicked at crates/sley-cli/tests/history_sparse_tips.rs:66:9:
+stdout for ["log", "--graph", "--format=%H %P %s", "main", "side", "^648f0fc2a920afed9672d0a3c3686fb513809bfb", "--", "watched"]
+expected: * 4293c2b2e64044457dc25cc72628161817243b07 b3de15db2a78b239a17654ad1ef8f6c5edb90408 main tip
+* b3de15db2a78b239a17654ad1ef8f6c5edb90408 648f0fc2a920afed9672d0a3c3686fb513809bfb main change
+* a1366be1fd18a3e942649e82125a16da58b5d571 648f0fc2a920afed9672d0a3c3686fb513809bfb side change
+
+actual: * 4293c2b2e64044457dc25cc72628161817243b07 b3de15db2a78b239a17654ad1ef8f6c5edb90408 main tip
+* b3de15db2a78b239a17654ad1ef8f6c5edb90408 648f0fc2a920afed9672d0a3c3686fb513809bfb main change
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- explicitly_selected_side_tip_survives_merge_diversion stdout ----
+
+thread 'explicitly_selected_side_tip_survives_merge_diversion' (36) panicked at crates/sley-cli/tests/history_sparse_tips.rs:66:9:
+stdout for ["log", "--graph", "--format=%H %P %s", "main", "side", "--", "watched"]
+expected: * 4293c2b2e64044457dc25cc72628161817243b07 b3de15db2a78b239a17654ad1ef8f6c5edb90408 main tip
+* b3de15db2a78b239a17654ad1ef8f6c5edb90408 648f0fc2a920afed9672d0a3c3686fb513809bfb main change
+| * a1366be1fd18a3e942649e82125a16da58b5d571 648f0fc2a920afed9672d0a3c3686fb513809bfb side change
+|/  
+* 648f0fc2a920afed9672d0a3c3686fb513809bfb  selected base
+
+actual: * 4293c2b2e64044457dc25cc72628161817243b07 b3de15db2a78b239a17654ad1ef8f6c5edb90408 main tip
+* b3de15db2a78b239a17654ad1ef8f6c5edb90408 648f0fc2a920afed9672d0a3c3686fb513809bfb main change
+* 648f0fc2a920afed9672d0a3c3686fb513809bfb  selected base
+
+
+---- sparse_keeps_visited_path_history_and_dense_order_is_respected stdout ----
+
+thread 'sparse_keeps_visited_path_history_and_dense_order_is_respected' (141) panicked at crates/sley-cli/tests/history_sparse_tips.rs:66:9:
+stdout for ["log", "--graph", "--format=%H %P %s", "--sparse", "--all", "--", "watched"]
+expected: * 4293c2b2e64044457dc25cc72628161817243b07 183b85563090500d4fe5641dd27d6757925cf8d3 main tip
+* 183b85563090500d4fe5641dd27d6757925cf8d3 146c594037aee42e570bfffac0443924bb4eaebe ignore side tree
+* 146c594037aee42e570bfffac0443924bb4eaebe b3de15db2a78b239a17654ad1ef8f6c5edb90408 main unrelated
+* b3de15db2a78b239a17654ad1ef8f6c5edb90408 648f0fc2a920afed9672d0a3c3686fb513809bfb main change
+| * a1366be1fd18a3e942649e82125a16da58b5d571 83f6430233c6122ae253e5ddd8ea1b5786a0be8c side change
+| * 83f6430233c6122ae253e5ddd8ea1b5786a0be8c a3532b2c061f8f0689c8997dab4ce06c7a530ce6 side unrelated two
+| * a3532b2c061f8f0689c8997dab4ce06c7a530ce6 648f0fc2a920afed9672d0a3c3686fb513809bfb side unrelated one
+|/  
+* 648f0fc2a920afed9672d0a3c3686fb513809bfb 68a64939df79f8c7999209a89e7160cc2aca3439 selected base
+* 68a64939df79f8c7999209a89e7160cc2aca3439  unselected root
+
+actual: * 4293c2b2e64044457dc25cc72628161817243b07 b3de15db2a78b239a17654ad1ef8f6c5edb90408 main tip
+* b3de15db2a78b239a17654ad1ef8f6c5edb90408 648f0fc2a920afed9672d0a3c3686fb513809bfb main change
+* 648f0fc2a920afed9672d0a3c3686fb513809bfb  selected base
+
+
+
+failures:
+    explicitly_selected_side_tip_survives_merge_diversion
+    selected_tips_respect_ranges_filters_order_and_shallow_boundaries
+    sparse_keeps_visited_path_history_and_dense_order_is_respected
+
+test result: FAILED. 0 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s
+
+error: test failed, to rerun pass `-p sley-cli --test history_sparse_tips`
+error: 1 target failed:
+    `-p sley-cli --test history_sparse_tips`

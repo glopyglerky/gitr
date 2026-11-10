@@ -1,0 +1,148 @@
+{
+  "schema": 1,
+  "project": "Rit",
+  "repository": "https://github.com/glopyglerky/rit",
+  "baseline_commit": "87649428b17762d3c33b90f543bc733fe19aaa96",
+  "scope": "Preserve explicitly selected positive history tips and sparse path-limited log/rev-list traversal; no full Git parity claim.",
+  "local_compiler": {
+    "lustr_revision": "6339fbb104d6adda4be7e6be7dc637a6a9e5586b",
+    "engine": "rustc",
+    "rust_version": "1.99.1",
+    "rust_commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
+    "application_cargo_build_jobs": 4,
+    "rust_test_threads": 2,
+    "dev_debug": 0,
+    "test_debug": 0,
+    "incremental": false
+  },
+  "reference_git": {
+    "version": "2.55.0",
+    "commit": "e9019fcafe0040228b8631c30f97ae1adb61bcdc",
+    "sha256": "bb7047c1ae5ed48d5cf47084595e7a3be4463ecd177df81ead8bfdba41d7a036"
+  },
+  "candidate": {
+    "baseline_commit": "87649428b17762d3c33b90f543bc733fe19aaa96",
+    "source_binary": "root rit",
+    "candidate_sha256": "65fb0e263a71010daeff06ea11c061679cf4db7d16b2b219f5b876bb34f45bbb",
+    "source_sha256": {
+      "vendor/sley/crates/sley-rev/src/lib.rs": "98b7f4bd2cb8713a84d4b72430d81c983449b3804b6085c25d0256b0d0d4c1c8",
+      "vendor/sley/crates/sley-cli/src/commands/log.rs": "f9b452bc25b0dd2760003bf0e67085bff2b2fadecf52e4cd481769cf8b2ab00e",
+      "vendor/sley/crates/sley-cli/src/commands/rev_list.rs": "c59347678225c3ed43886182c5d2ff53f7a107483329f83fc2c83ffc9e4a595b",
+      "vendor/sley/crates/sley-cli/src/commands/fast_export.rs": "51fbddf320415f88e406d90c78b394b6c373c5be3022b4c3018bcf1b16be15c7"
+    }
+  },
+  "local_tests": {
+    "root": {
+      "passed": 5,
+      "log": "root-tests.log"
+    },
+    "selected_cli": {
+      "passed": 121,
+      "log": "cli-tests.log",
+      "new_tests": 5,
+      "existing_log_tests": 17
+    },
+    "revision_library": {
+      "passed": 85,
+      "log": "revision-tests.log"
+    },
+    "coordinator": {
+      "passed": 8,
+      "log": "coordinator-tests.log"
+    }
+  },
+  "new_regressions": {
+    "targets": [
+      "history_sparse_tips"
+    ],
+    "tests": 5,
+    "exact_comparisons": 270,
+    "outcome_only_missing_object_checks": 4,
+    "object_formats": [
+      "sha1",
+      "sha256"
+    ],
+    "candidate_setting": "RIT_TEST_BIN",
+    "candidate_path": "/workspace/scratch/717c1db38a84/rit-history-candidate-v2/git",
+    "candidate_PATH": "empty fixture directory",
+    "oracle_setting": "SLEY_TEST_GIT",
+    "corruption_note": "Required objects remain rejected; native corruption diagnostics and exit status differences are preserved, not declared exact Git parity."
+  },
+  "upstream": {
+    "scripts": 4,
+    "baseline_runs": 16,
+    "final_runs": 16,
+    "all_TAP_plans_complete": true,
+    "final_rit_passed": 140,
+    "final_rit_failed": 18,
+    "final_rit_skipped": 0,
+    "final_git_passed": 158,
+    "final_git_failed": 0,
+    "final_git_skipped": 0,
+    "new_passing_executions": 4,
+    "changed_cells_per_format": [
+      8,
+      9
+    ],
+    "changed_script": "t6016-rev-list-graph-simplify-history.sh",
+    "all_other_result_lines_unchanged": true,
+    "fully_matching_unique_scripts": 2,
+    "fully_matching_script_count_increased": false,
+    "baseline": "upstream-baseline.json",
+    "final": "upstream-final.json",
+    "changes": "upstream-changes.json"
+  },
+  "reviews": {
+    "spec": {
+      "comparisons": 174,
+      "baseline_exact": 66,
+      "final_exact": 174,
+      "newly_passing": 108,
+      "regressions": 0,
+      "record": "spec-final.json"
+    },
+    "standards": {
+      "comparisons": 216,
+      "final_exact": 168,
+      "preexisting_mismatches": 48,
+      "regressions": 0,
+      "record": "standards-final.json"
+    },
+    "missing_objects": {
+      "comparisons": 16,
+      "record": "missing-object-review.json"
+    },
+    "intermediate_note": "spec-intermediate-review.json, standards-intermediate-review.json and ordering-review-red.log document rejected intermediate behavior, not final qualification."
+  },
+  "provenance": {
+    "files": 679,
+    "adapted": 36,
+    "locally_added": 10,
+    "original_donor_identifiers_preserved": true,
+    "sley_revision": "a71654f50de24b3c750f0df5f1829db7342491f6",
+    "dependency_versions_unchanged": true
+  },
+  "composition_policy": "passed",
+  "source_audit": "passed",
+  "hosted_qualification": {
+    "workflow": ".github/workflows/rit-native.yml",
+    "url": "https://github.com/glopyglerky/rit/actions/workflows/rit-native.yml",
+    "note": "Produced-BlueFe qualification is reported for the published commit by GitHub Actions; it is separate from these local rustc results."
+  },
+  "source_sha256": {
+    "Cargo.toml": "7dd9bd6703fdd8b381788cbb7de600895602b3ae3a4078f248aebd45d508aec3",
+    "Cargo.lock": "0a2d797250593312eb281ac377e01b17514fc583e10e202f54a968ea1d51fa24",
+    "src/lib.rs": "4fb2a0851bfba892cd0d93bcce6a776189e2ddd740041156cd33bc66427db81c",
+    "ci/qualify_native.rs": "6ddec18ac3f24f6ad0f85b175237254ec3be90f872a750fb3710d6c0906db8c0",
+    "examples/verify_import.rs": "b8b991bc0348f36ccac4f892fa1e87a27fcb81d6937ce2e8ff60c0558d9a5502",
+    "Documentation/gitr/sley-import.json": "41012fedff0b2104aacb0ae9307f7e64d8d96f94ff5416554ef9deffdd7136d4",
+    "vendor/sley/NOTICE.md": "aee0930eb4e6c2d1c50234ac9d4d683a41a93a26cff452ce604ba92f54491bfb",
+    "vendor/sley/crates/sley-rev/src/lib.rs": "98b7f4bd2cb8713a84d4b72430d81c983449b3804b6085c25d0256b0d0d4c1c8",
+    "vendor/sley/crates/sley-cli/src/commands/log.rs": "f9b452bc25b0dd2760003bf0e67085bff2b2fadecf52e4cd481769cf8b2ab00e",
+    "vendor/sley/crates/sley-cli/src/commands/rev_list.rs": "c59347678225c3ed43886182c5d2ff53f7a107483329f83fc2c83ffc9e4a595b",
+    "vendor/sley/crates/sley-cli/src/commands/fast_export.rs": "51fbddf320415f88e406d90c78b394b6c373c5be3022b4c3018bcf1b16be15c7",
+    "vendor/sley/crates/sley-cli/tests/log.rs": "3a3fa2345998ce9956502b6e01823c05f1fc92e2189b650572112cffaeed3de8",
+    "vendor/sley/crates/sley-cli/tests/history_sparse_tips.rs": "d6702f7ee43e7dd01b477a5b8bd753c4ad820d93e91cd398f34df92d68fff930"
+  },
+  "raw_evidence_index": "raw-evidence.json"
+}

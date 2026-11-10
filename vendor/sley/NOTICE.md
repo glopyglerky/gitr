@@ -51,3 +51,10 @@ The project rename to Rit updates product-facing diagnostics, helper cache names
 and test-binary settings. RIT_TEST_BIN selects the renamed product; the earlier
 GITR_TEST_BIN setting remains a compatibility alias. Donor crate names, original
 source identities, and license grants are unchanged.
+
+Path-limited history now retains explicitly selected positive tips and honors
+sparse/dense output selection in log and rev-list. Default graph traversal is
+reordered after parent diversion while full-history, merge simplification, and
+date-based ordering retain their established order. The new differential tests
+are independently authored Rit code under MIT OR Apache-2.0; the adapted engine
+and command implementation files retain their Apache-2.0 provenance.

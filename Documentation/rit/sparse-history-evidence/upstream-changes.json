@@ -1,0 +1,34 @@
+[
+  {
+    "lane": "rit",
+    "format": "sha1",
+    "script": "t6016-rev-list-graph-simplify-history.sh",
+    "cell": 8,
+    "before": "not ok 8 - --graph -- bar.txt",
+    "after": "ok 8 - --graph -- bar.txt"
+  },
+  {
+    "lane": "rit",
+    "format": "sha1",
+    "script": "t6016-rev-list-graph-simplify-history.sh",
+    "cell": 9,
+    "before": "not ok 9 - --graph --sparse -- bar.txt",
+    "after": "ok 9 - --graph --sparse -- bar.txt"
+  },
+  {
+    "lane": "rit",
+    "format": "sha256",
+    "script": "t6016-rev-list-graph-simplify-history.sh",
+    "cell": 8,
+    "before": "not ok 8 - --graph -- bar.txt",
+    "after": "ok 8 - --graph -- bar.txt"
+  },
+  {
+    "lane": "rit",
+    "format": "sha256",
+    "script": "t6016-rev-list-graph-simplify-history.sh",
+    "cell": 9,
+    "before": "not ok 9 - --graph --sparse -- bar.txt",
+    "after": "ok 9 - --graph --sparse -- bar.txt"
+  }
+]

@@ -43,6 +43,11 @@ adds oversized-file commit summaries, threshold validation, and corrected parent
 lists for path-limited revision history. It retains results from ten upstream
 scripts in both object formats, including the remaining failures and skips.
 
+The [sparse history coverage record](Documentation/rit/sparse-history-coverage.md)
+adds explicit starting-tip preservation and sparse path-limited history in `log`
+and `rev-list`. The selected upstream graph script now passes 10 of 12 cases in
+both object formats; decoration and boundary-order differences remain recorded.
+
 The upstream README reports an exact conformance floor of **557 of 891 selected
 Git 2.55.0 test scripts**. That is upstream evidence, not Rit's measured result.
 The pinned Git source contains **1,046 numbered test scripts**. Sley's manifest

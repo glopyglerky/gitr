@@ -3256,9 +3256,9 @@ fn cmd_log_impl(
         return Ok(());
     }
     let commits = if walk {
-        rev_list_walk_commits(&db, format, starts, first_parent)?
+        rev_list_walk_commits(&db, format, starts.iter().copied(), first_parent)?
     } else {
-        rev_list_no_walk_commits(&db, format, starts)?
+        rev_list_no_walk_commits(&db, format, starts.iter().copied())?
     };
     let mut child_oids = HashMap::<ObjectId, Vec<ObjectId>>::new();
     if show_children {
@@ -3411,13 +3411,14 @@ fn cmd_log_impl(
         )?;
         let ordered_owned: Vec<sley_rev::CommitRecord> = commits.clone();
         let bottoms: HashSet<ObjectId> = revision_options.negatives.iter().copied().collect();
-        let _ = sley_rev::simplify_history_with_bottoms(
+        let _ = sley_rev::simplify_history_with_starts(
             &db,
             format,
             ordered_owned,
             &pathspec,
             sley_rev::SimplifyOptions {
                 full_history,
+                sparse: revision_options.sparse,
                 first_parent,
                 simplify_merges: revision_options.simplify_merges,
                 show_pulls: revision_options.show_pulls,
@@ -3428,6 +3429,7 @@ fn cmd_log_impl(
                     || revision_options.simplify_merges,
             },
             &bottoms,
+            &starts,
         )?;
     }
     let follow_applied =
@@ -3502,13 +3504,14 @@ fn cmd_log_impl(
         // The `^`-excluded boundary tips are git's BOTTOM commits: relevant for
         // topology-keep decisions even though they aren't shown.
         let bottoms: HashSet<ObjectId> = revision_options.negatives.iter().copied().collect();
-        simplified_storage = sley_rev::simplify_history_with_bottoms(
+        simplified_storage = sley_rev::simplify_history_with_starts(
             &db,
             format,
             ordered_owned,
             &pathspec,
             sley_rev::SimplifyOptions {
                 full_history,
+                sparse: revision_options.sparse,
                 first_parent,
                 simplify_merges: revision_options.simplify_merges,
                 show_pulls: revision_options.show_pulls,
@@ -3522,8 +3525,20 @@ fn cmd_log_impl(
                     || revision_options.simplify_merges,
             },
             &bottoms,
+            &starts,
         )?;
         selected = simplified_storage.iter().collect();
+        // Default parent diversion can make an explicitly selected side tip
+        // independent of a merge on the main line. Recompute graph order in
+        // that mode only. Full-history and merge simplification keep their
+        // pre-simplification order, as do date-based sorts and their tie breaks.
+        if !full_history && !revision_options.simplify_merges && !revision_options.ancestry_path {
+            selected = match ordering {
+                RevListOrdering::Default if graph => rev_list_topo_order(selected)?,
+                RevListOrdering::Topo => rev_list_topo_order(selected)?,
+                _ => selected,
+            };
+        }
     }
     // Build the decoration ref filter: `--decorate-refs` (include-only globs),
     // `--decorate-refs-exclude`, and `log.excludeDecoration` config (a missing

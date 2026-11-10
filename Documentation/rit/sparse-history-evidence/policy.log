@@ -1,0 +1,6 @@
+command=['/workspace/scratch/161a1b7c00ce/tooling/lustr/target/release/lustr', '--engine', 'rustc', 'run', '--manifest-path', 'xtask/Cargo.toml', '--locked', '--', 'policy']
+target=/workspace/scratch/161a1b7c00ce/tooling/xtask-target
+tmpdir=/tmp/rit-history-policy-yzj2jxx2
+    Finished `dev` profile [unoptimized] target(s) in 0.06s
+     Running `/workspace/scratch/161a1b7c00ce/tooling/xtask-target/debug/rit-xtask policy`
+storage policy: Sley Git engine; redb 4.5.0 preserved for later integration; no active Surreal dependencies or grit-git linkage

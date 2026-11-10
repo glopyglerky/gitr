@@ -1,0 +1,4556 @@
+{
+  "candidate": "/workspace/scratch/717c1db38a84/rit-history-candidate-v2/git",
+  "sha256": "65fb0e263a71010daeff06ea11c061679cf4db7d16b2b219f5b876bb34f45bbb",
+  "count": 174,
+  "exact": 174,
+  "records": [
+    {
+      "format": "sha1",
+      "kind": "log",
+      "case": "head",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "HEAD",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nmain-change\nroot\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nmain-change\nroot\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log",
+      "case": "all",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nside-change\nmain-change\nroot\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nside-change\nmain-change\nroot\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log",
+      "case": "explicit-main-side",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "main",
+        "side",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nside-change\nmain-change\nroot\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nside-change\nmain-change\nroot\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log",
+      "case": "explicit-side-main",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "side",
+        "main",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nside-change\nmain-change\nroot\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nside-change\nmain-change\nroot\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log",
+      "case": "interior-positive",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "HEAD",
+        "27155a7c84ae2835b9c60a9b41c1f571cd195666",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nmain-change\nroot\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nmain-change\nroot\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log",
+      "case": "duplicate-positive",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "HEAD",
+        "side",
+        "side",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nside-change\nmain-change\nroot\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nside-change\nmain-change\nroot\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log",
+      "case": "sparse-head",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--sparse",
+        "HEAD",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log",
+      "case": "sparse-all",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--sparse",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log",
+      "case": "sparse-dense",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--sparse",
+        "--dense",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nside-change\nmain-change\nroot\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nside-change\nmain-change\nroot\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log",
+      "case": "dense-sparse",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--dense",
+        "--sparse",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log",
+      "case": "full-history",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--full-history",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-change\nroot\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-change\nroot\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log",
+      "case": "full-history-sparse",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--full-history",
+        "--sparse",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log",
+      "case": "simplify-merges",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--simplify-merges",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-change\nroot\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-change\nroot\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log",
+      "case": "simplify-merges-sparse",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--simplify-merges",
+        "--sparse",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log",
+      "case": "sparse-simplify-merges",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--sparse",
+        "--simplify-merges",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log",
+      "case": "simplify-sparse-dense",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--simplify-merges",
+        "--sparse",
+        "--dense",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-change\nroot\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-change\nroot\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log",
+      "case": "first-parent",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--first-parent",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nside-change\nmain-change\nroot\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nside-change\nmain-change\nroot\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log",
+      "case": "first-parent-head",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--first-parent",
+        "HEAD",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nmain-change\nroot\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nmain-change\nroot\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log",
+      "case": "first-parent-sparse",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--first-parent",
+        "--sparse",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log",
+      "case": "first-parent-simplify-sparse",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--first-parent",
+        "--simplify-merges",
+        "--sparse",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log",
+      "case": "excluded-interior",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--all",
+        "^0a800c19b68f944b6660ccd7521ba33338cbe3d3",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nside-change\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nside-change\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log",
+      "case": "range-plus-side",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "0a800c19b68f944b6660ccd7521ba33338cbe3d3..HEAD",
+        "side",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nside-change\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nside-change\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log",
+      "case": "sparse-excluded-interior",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--sparse",
+        "--all",
+        "^0a800c19b68f944b6660ccd7521ba33338cbe3d3",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log",
+      "case": "full-history-excluded-interior",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--full-history",
+        "--all",
+        "^0a800c19b68f944b6660ccd7521ba33338cbe3d3",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log",
+      "case": "no-path",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--all"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log",
+      "case": "no-path-sparse",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--sparse",
+        "--all"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log",
+      "case": "no-path-simplify-sparse",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--simplify-merges",
+        "--sparse",
+        "--all"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log",
+      "case": "nonexistent-path",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--all",
+        "--",
+        "absent"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log",
+      "case": "sparse-nonexistent-path",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--sparse",
+        "--all",
+        "--",
+        "absent"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log-graph",
+      "case": "head",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "HEAD",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n* main-change\n* root\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n* main-change\n* root\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log-graph",
+      "case": "all",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n| * side-change\n|/  \n* main-change\n* root\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n| * side-change\n|/  \n* main-change\n* root\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log-graph",
+      "case": "explicit-main-side",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "main",
+        "side",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n| * side-change\n|/  \n* main-change\n* root\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n| * side-change\n|/  \n* main-change\n* root\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log-graph",
+      "case": "explicit-side-main",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "side",
+        "main",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n| * side-change\n|/  \n* main-change\n* root\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n| * side-change\n|/  \n* main-change\n* root\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log-graph",
+      "case": "interior-positive",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "HEAD",
+        "27155a7c84ae2835b9c60a9b41c1f571cd195666",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n* main-change\n* root\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n* main-change\n* root\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log-graph",
+      "case": "duplicate-positive",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "HEAD",
+        "side",
+        "side",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n| * side-change\n|/  \n* main-change\n* root\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n| * side-change\n|/  \n* main-change\n* root\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log-graph",
+      "case": "sparse-head",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--sparse",
+        "HEAD",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n* ours-merge\n* main-unchanged\n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n* ours-merge\n* main-unchanged\n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log-graph",
+      "case": "sparse-all",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--sparse",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n* ours-merge\n* main-unchanged\n| * side-change\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n* ours-merge\n* main-unchanged\n| * side-change\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log-graph",
+      "case": "sparse-dense",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--sparse",
+        "--dense",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n| * side-change\n|/  \n* main-change\n* root\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n| * side-change\n|/  \n* main-change\n* root\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log-graph",
+      "case": "dense-sparse",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--dense",
+        "--sparse",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n* ours-merge\n* main-unchanged\n| * side-change\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n* ours-merge\n* main-unchanged\n| * side-change\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log-graph",
+      "case": "full-history",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--full-history",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n*   ours-merge\n|\\  \n| * side-change\n|/  \n* main-change\n* root\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n*   ours-merge\n|\\  \n| * side-change\n|/  \n* main-change\n* root\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log-graph",
+      "case": "full-history-sparse",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--full-history",
+        "--sparse",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n*   ours-merge\n|\\  \n| * side-change\n* | main-unchanged\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n*   ours-merge\n|\\  \n| * side-change\n* | main-unchanged\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log-graph",
+      "case": "simplify-merges",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--simplify-merges",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n*   ours-merge\n|\\  \n| * side-change\n|/  \n* main-change\n* root\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n*   ours-merge\n|\\  \n| * side-change\n|/  \n* main-change\n* root\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log-graph",
+      "case": "simplify-merges-sparse",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--simplify-merges",
+        "--sparse",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n*   ours-merge\n|\\  \n| * side-change\n* | main-unchanged\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n*   ours-merge\n|\\  \n| * side-change\n* | main-unchanged\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log-graph",
+      "case": "sparse-simplify-merges",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--sparse",
+        "--simplify-merges",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n*   ours-merge\n|\\  \n| * side-change\n* | main-unchanged\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n*   ours-merge\n|\\  \n| * side-change\n* | main-unchanged\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log-graph",
+      "case": "simplify-sparse-dense",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--simplify-merges",
+        "--sparse",
+        "--dense",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n*   ours-merge\n|\\  \n| * side-change\n|/  \n* main-change\n* root\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n*   ours-merge\n|\\  \n| * side-change\n|/  \n* main-change\n* root\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log-graph",
+      "case": "first-parent",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--first-parent",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n| * side-change\n|/  \n* main-change\n* root\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n| * side-change\n|/  \n* main-change\n* root\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log-graph",
+      "case": "first-parent-head",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--first-parent",
+        "HEAD",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n* main-change\n* root\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n* main-change\n* root\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log-graph",
+      "case": "first-parent-sparse",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--first-parent",
+        "--sparse",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n* ours-merge\n* main-unchanged\n| * side-change\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n* ours-merge\n* main-unchanged\n| * side-change\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log-graph",
+      "case": "first-parent-simplify-sparse",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--first-parent",
+        "--simplify-merges",
+        "--sparse",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n| * side-change\n* | main-unchanged\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n| * side-change\n* | main-unchanged\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log-graph",
+      "case": "excluded-interior",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--all",
+        "^0a800c19b68f944b6660ccd7521ba33338cbe3d3",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n* side-change\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n* side-change\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log-graph",
+      "case": "range-plus-side",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "0a800c19b68f944b6660ccd7521ba33338cbe3d3..HEAD",
+        "side",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n* side-change\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n* side-change\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log-graph",
+      "case": "sparse-excluded-interior",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--sparse",
+        "--all",
+        "^0a800c19b68f944b6660ccd7521ba33338cbe3d3",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n* ours-merge\n* main-unchanged\n* side-change\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n* ours-merge\n* main-unchanged\n* side-change\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log-graph",
+      "case": "full-history-excluded-interior",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--full-history",
+        "--all",
+        "^0a800c19b68f944b6660ccd7521ba33338cbe3d3",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n* ours-merge\n* side-change\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n* ours-merge\n* side-change\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log-graph",
+      "case": "no-path",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--all"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n*   ours-merge\n|\\  \n| * side-change\n* | main-unchanged\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n*   ours-merge\n|\\  \n| * side-change\n* | main-unchanged\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log-graph",
+      "case": "no-path-sparse",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--sparse",
+        "--all"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n*   ours-merge\n|\\  \n| * side-change\n* | main-unchanged\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n*   ours-merge\n|\\  \n| * side-change\n* | main-unchanged\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log-graph",
+      "case": "no-path-simplify-sparse",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--simplify-merges",
+        "--sparse",
+        "--all"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n*   ours-merge\n|\\  \n| * side-change\n* | main-unchanged\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n*   ours-merge\n|\\  \n| * side-change\n* | main-unchanged\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log-graph",
+      "case": "nonexistent-path",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--all",
+        "--",
+        "absent"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "log-graph",
+      "case": "sparse-nonexistent-path",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--sparse",
+        "--all",
+        "--",
+        "absent"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n* ours-merge\n* main-unchanged\n| * side-change\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n* ours-merge\n* main-unchanged\n| * side-change\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "parents",
+      "case": "head",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "HEAD",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "parents",
+      "case": "all",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 0a800c19b68f944b6660ccd7521ba33338cbe3d3\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 0a800c19b68f944b6660ccd7521ba33338cbe3d3\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "parents",
+      "case": "explicit-main-side",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "main",
+        "side",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 0a800c19b68f944b6660ccd7521ba33338cbe3d3\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 0a800c19b68f944b6660ccd7521ba33338cbe3d3\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "parents",
+      "case": "explicit-side-main",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "side",
+        "main",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 0a800c19b68f944b6660ccd7521ba33338cbe3d3\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 0a800c19b68f944b6660ccd7521ba33338cbe3d3\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "parents",
+      "case": "interior-positive",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "HEAD",
+        "27155a7c84ae2835b9c60a9b41c1f571cd195666",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "parents",
+      "case": "duplicate-positive",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "HEAD",
+        "side",
+        "side",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 0a800c19b68f944b6660ccd7521ba33338cbe3d3\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 0a800c19b68f944b6660ccd7521ba33338cbe3d3\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "parents",
+      "case": "sparse-head",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--sparse",
+        "HEAD",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 47087a6e71ea1b952b753a195ce81cd8ee951d3c\n47087a6e71ea1b952b753a195ce81cd8ee951d3c 27155a7c84ae2835b9c60a9b41c1f571cd195666\n27155a7c84ae2835b9c60a9b41c1f571cd195666 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c 7d21587831395beb43009e0956c61dc99f296721\n7d21587831395beb43009e0956c61dc99f296721\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 47087a6e71ea1b952b753a195ce81cd8ee951d3c\n47087a6e71ea1b952b753a195ce81cd8ee951d3c 27155a7c84ae2835b9c60a9b41c1f571cd195666\n27155a7c84ae2835b9c60a9b41c1f571cd195666 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c 7d21587831395beb43009e0956c61dc99f296721\n7d21587831395beb43009e0956c61dc99f296721\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "parents",
+      "case": "sparse-all",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--sparse",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 47087a6e71ea1b952b753a195ce81cd8ee951d3c\n47087a6e71ea1b952b753a195ce81cd8ee951d3c 27155a7c84ae2835b9c60a9b41c1f571cd195666\n27155a7c84ae2835b9c60a9b41c1f571cd195666 0a800c19b68f944b6660ccd7521ba33338cbe3d3\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c 7d21587831395beb43009e0956c61dc99f296721\n7d21587831395beb43009e0956c61dc99f296721\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 47087a6e71ea1b952b753a195ce81cd8ee951d3c\n47087a6e71ea1b952b753a195ce81cd8ee951d3c 27155a7c84ae2835b9c60a9b41c1f571cd195666\n27155a7c84ae2835b9c60a9b41c1f571cd195666 0a800c19b68f944b6660ccd7521ba33338cbe3d3\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c 7d21587831395beb43009e0956c61dc99f296721\n7d21587831395beb43009e0956c61dc99f296721\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "parents",
+      "case": "sparse-dense",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--sparse",
+        "--dense",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 0a800c19b68f944b6660ccd7521ba33338cbe3d3\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 0a800c19b68f944b6660ccd7521ba33338cbe3d3\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "parents",
+      "case": "dense-sparse",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--dense",
+        "--sparse",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 47087a6e71ea1b952b753a195ce81cd8ee951d3c\n47087a6e71ea1b952b753a195ce81cd8ee951d3c 27155a7c84ae2835b9c60a9b41c1f571cd195666\n27155a7c84ae2835b9c60a9b41c1f571cd195666 0a800c19b68f944b6660ccd7521ba33338cbe3d3\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c 7d21587831395beb43009e0956c61dc99f296721\n7d21587831395beb43009e0956c61dc99f296721\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 47087a6e71ea1b952b753a195ce81cd8ee951d3c\n47087a6e71ea1b952b753a195ce81cd8ee951d3c 27155a7c84ae2835b9c60a9b41c1f571cd195666\n27155a7c84ae2835b9c60a9b41c1f571cd195666 0a800c19b68f944b6660ccd7521ba33338cbe3d3\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c 7d21587831395beb43009e0956c61dc99f296721\n7d21587831395beb43009e0956c61dc99f296721\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "parents",
+      "case": "full-history",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--full-history",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 47087a6e71ea1b952b753a195ce81cd8ee951d3c\n47087a6e71ea1b952b753a195ce81cd8ee951d3c 0a800c19b68f944b6660ccd7521ba33338cbe3d3 dbb84f2ad0ccba53040b8c85dca27fe55ce128e1\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 47087a6e71ea1b952b753a195ce81cd8ee951d3c\n47087a6e71ea1b952b753a195ce81cd8ee951d3c 0a800c19b68f944b6660ccd7521ba33338cbe3d3 dbb84f2ad0ccba53040b8c85dca27fe55ce128e1\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "parents",
+      "case": "full-history-sparse",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--full-history",
+        "--sparse",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 47087a6e71ea1b952b753a195ce81cd8ee951d3c\n47087a6e71ea1b952b753a195ce81cd8ee951d3c 27155a7c84ae2835b9c60a9b41c1f571cd195666 dbb84f2ad0ccba53040b8c85dca27fe55ce128e1\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n27155a7c84ae2835b9c60a9b41c1f571cd195666 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c 7d21587831395beb43009e0956c61dc99f296721\n7d21587831395beb43009e0956c61dc99f296721\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 47087a6e71ea1b952b753a195ce81cd8ee951d3c\n47087a6e71ea1b952b753a195ce81cd8ee951d3c 27155a7c84ae2835b9c60a9b41c1f571cd195666 dbb84f2ad0ccba53040b8c85dca27fe55ce128e1\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n27155a7c84ae2835b9c60a9b41c1f571cd195666 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c 7d21587831395beb43009e0956c61dc99f296721\n7d21587831395beb43009e0956c61dc99f296721\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "parents",
+      "case": "simplify-merges",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--simplify-merges",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 47087a6e71ea1b952b753a195ce81cd8ee951d3c\n47087a6e71ea1b952b753a195ce81cd8ee951d3c 0a800c19b68f944b6660ccd7521ba33338cbe3d3 dbb84f2ad0ccba53040b8c85dca27fe55ce128e1\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 47087a6e71ea1b952b753a195ce81cd8ee951d3c\n47087a6e71ea1b952b753a195ce81cd8ee951d3c 0a800c19b68f944b6660ccd7521ba33338cbe3d3 dbb84f2ad0ccba53040b8c85dca27fe55ce128e1\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "parents",
+      "case": "simplify-merges-sparse",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--simplify-merges",
+        "--sparse",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 47087a6e71ea1b952b753a195ce81cd8ee951d3c\n47087a6e71ea1b952b753a195ce81cd8ee951d3c 27155a7c84ae2835b9c60a9b41c1f571cd195666 dbb84f2ad0ccba53040b8c85dca27fe55ce128e1\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n27155a7c84ae2835b9c60a9b41c1f571cd195666 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c 7d21587831395beb43009e0956c61dc99f296721\n7d21587831395beb43009e0956c61dc99f296721\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 47087a6e71ea1b952b753a195ce81cd8ee951d3c\n47087a6e71ea1b952b753a195ce81cd8ee951d3c 27155a7c84ae2835b9c60a9b41c1f571cd195666 dbb84f2ad0ccba53040b8c85dca27fe55ce128e1\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n27155a7c84ae2835b9c60a9b41c1f571cd195666 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c 7d21587831395beb43009e0956c61dc99f296721\n7d21587831395beb43009e0956c61dc99f296721\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "parents",
+      "case": "sparse-simplify-merges",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--sparse",
+        "--simplify-merges",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 47087a6e71ea1b952b753a195ce81cd8ee951d3c\n47087a6e71ea1b952b753a195ce81cd8ee951d3c 27155a7c84ae2835b9c60a9b41c1f571cd195666 dbb84f2ad0ccba53040b8c85dca27fe55ce128e1\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n27155a7c84ae2835b9c60a9b41c1f571cd195666 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c 7d21587831395beb43009e0956c61dc99f296721\n7d21587831395beb43009e0956c61dc99f296721\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 47087a6e71ea1b952b753a195ce81cd8ee951d3c\n47087a6e71ea1b952b753a195ce81cd8ee951d3c 27155a7c84ae2835b9c60a9b41c1f571cd195666 dbb84f2ad0ccba53040b8c85dca27fe55ce128e1\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n27155a7c84ae2835b9c60a9b41c1f571cd195666 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c 7d21587831395beb43009e0956c61dc99f296721\n7d21587831395beb43009e0956c61dc99f296721\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "parents",
+      "case": "simplify-sparse-dense",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--simplify-merges",
+        "--sparse",
+        "--dense",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 47087a6e71ea1b952b753a195ce81cd8ee951d3c\n47087a6e71ea1b952b753a195ce81cd8ee951d3c 0a800c19b68f944b6660ccd7521ba33338cbe3d3 dbb84f2ad0ccba53040b8c85dca27fe55ce128e1\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 47087a6e71ea1b952b753a195ce81cd8ee951d3c\n47087a6e71ea1b952b753a195ce81cd8ee951d3c 0a800c19b68f944b6660ccd7521ba33338cbe3d3 dbb84f2ad0ccba53040b8c85dca27fe55ce128e1\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "parents",
+      "case": "first-parent",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--first-parent",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 0a800c19b68f944b6660ccd7521ba33338cbe3d3\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 0a800c19b68f944b6660ccd7521ba33338cbe3d3\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "parents",
+      "case": "first-parent-head",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--first-parent",
+        "HEAD",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "parents",
+      "case": "first-parent-sparse",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--first-parent",
+        "--sparse",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 47087a6e71ea1b952b753a195ce81cd8ee951d3c\n47087a6e71ea1b952b753a195ce81cd8ee951d3c 27155a7c84ae2835b9c60a9b41c1f571cd195666\n27155a7c84ae2835b9c60a9b41c1f571cd195666 0a800c19b68f944b6660ccd7521ba33338cbe3d3\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c 7d21587831395beb43009e0956c61dc99f296721\n7d21587831395beb43009e0956c61dc99f296721\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 47087a6e71ea1b952b753a195ce81cd8ee951d3c\n47087a6e71ea1b952b753a195ce81cd8ee951d3c 27155a7c84ae2835b9c60a9b41c1f571cd195666\n27155a7c84ae2835b9c60a9b41c1f571cd195666 0a800c19b68f944b6660ccd7521ba33338cbe3d3\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c 7d21587831395beb43009e0956c61dc99f296721\n7d21587831395beb43009e0956c61dc99f296721\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "parents",
+      "case": "first-parent-simplify-sparse",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--first-parent",
+        "--simplify-merges",
+        "--sparse",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 27155a7c84ae2835b9c60a9b41c1f571cd195666\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n27155a7c84ae2835b9c60a9b41c1f571cd195666 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c 7d21587831395beb43009e0956c61dc99f296721\n7d21587831395beb43009e0956c61dc99f296721\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 27155a7c84ae2835b9c60a9b41c1f571cd195666\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n27155a7c84ae2835b9c60a9b41c1f571cd195666 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c 7d21587831395beb43009e0956c61dc99f296721\n7d21587831395beb43009e0956c61dc99f296721\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "parents",
+      "case": "excluded-interior",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--all",
+        "^0a800c19b68f944b6660ccd7521ba33338cbe3d3",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 0a800c19b68f944b6660ccd7521ba33338cbe3d3\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 0a800c19b68f944b6660ccd7521ba33338cbe3d3\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "parents",
+      "case": "range-plus-side",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "0a800c19b68f944b6660ccd7521ba33338cbe3d3..HEAD",
+        "side",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 0a800c19b68f944b6660ccd7521ba33338cbe3d3\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 0a800c19b68f944b6660ccd7521ba33338cbe3d3\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "parents",
+      "case": "sparse-excluded-interior",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--sparse",
+        "--all",
+        "^0a800c19b68f944b6660ccd7521ba33338cbe3d3",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 47087a6e71ea1b952b753a195ce81cd8ee951d3c\n47087a6e71ea1b952b753a195ce81cd8ee951d3c 27155a7c84ae2835b9c60a9b41c1f571cd195666\n27155a7c84ae2835b9c60a9b41c1f571cd195666 0a800c19b68f944b6660ccd7521ba33338cbe3d3\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 47087a6e71ea1b952b753a195ce81cd8ee951d3c\n47087a6e71ea1b952b753a195ce81cd8ee951d3c 27155a7c84ae2835b9c60a9b41c1f571cd195666\n27155a7c84ae2835b9c60a9b41c1f571cd195666 0a800c19b68f944b6660ccd7521ba33338cbe3d3\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "parents",
+      "case": "full-history-excluded-interior",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--full-history",
+        "--all",
+        "^0a800c19b68f944b6660ccd7521ba33338cbe3d3",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 47087a6e71ea1b952b753a195ce81cd8ee951d3c\n47087a6e71ea1b952b753a195ce81cd8ee951d3c 0a800c19b68f944b6660ccd7521ba33338cbe3d3 dbb84f2ad0ccba53040b8c85dca27fe55ce128e1\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 47087a6e71ea1b952b753a195ce81cd8ee951d3c\n47087a6e71ea1b952b753a195ce81cd8ee951d3c 0a800c19b68f944b6660ccd7521ba33338cbe3d3 dbb84f2ad0ccba53040b8c85dca27fe55ce128e1\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "parents",
+      "case": "no-path",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--all"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 47087a6e71ea1b952b753a195ce81cd8ee951d3c\n47087a6e71ea1b952b753a195ce81cd8ee951d3c 27155a7c84ae2835b9c60a9b41c1f571cd195666 dbb84f2ad0ccba53040b8c85dca27fe55ce128e1\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n27155a7c84ae2835b9c60a9b41c1f571cd195666 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c 7d21587831395beb43009e0956c61dc99f296721\n7d21587831395beb43009e0956c61dc99f296721\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 47087a6e71ea1b952b753a195ce81cd8ee951d3c\n47087a6e71ea1b952b753a195ce81cd8ee951d3c 27155a7c84ae2835b9c60a9b41c1f571cd195666 dbb84f2ad0ccba53040b8c85dca27fe55ce128e1\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n27155a7c84ae2835b9c60a9b41c1f571cd195666 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c 7d21587831395beb43009e0956c61dc99f296721\n7d21587831395beb43009e0956c61dc99f296721\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "parents",
+      "case": "no-path-sparse",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--sparse",
+        "--all"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 47087a6e71ea1b952b753a195ce81cd8ee951d3c\n47087a6e71ea1b952b753a195ce81cd8ee951d3c 27155a7c84ae2835b9c60a9b41c1f571cd195666 dbb84f2ad0ccba53040b8c85dca27fe55ce128e1\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n27155a7c84ae2835b9c60a9b41c1f571cd195666 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c 7d21587831395beb43009e0956c61dc99f296721\n7d21587831395beb43009e0956c61dc99f296721\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 47087a6e71ea1b952b753a195ce81cd8ee951d3c\n47087a6e71ea1b952b753a195ce81cd8ee951d3c 27155a7c84ae2835b9c60a9b41c1f571cd195666 dbb84f2ad0ccba53040b8c85dca27fe55ce128e1\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n27155a7c84ae2835b9c60a9b41c1f571cd195666 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c 7d21587831395beb43009e0956c61dc99f296721\n7d21587831395beb43009e0956c61dc99f296721\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "parents",
+      "case": "no-path-simplify-sparse",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--simplify-merges",
+        "--sparse",
+        "--all"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 47087a6e71ea1b952b753a195ce81cd8ee951d3c\n47087a6e71ea1b952b753a195ce81cd8ee951d3c 27155a7c84ae2835b9c60a9b41c1f571cd195666 dbb84f2ad0ccba53040b8c85dca27fe55ce128e1\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n27155a7c84ae2835b9c60a9b41c1f571cd195666 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c 7d21587831395beb43009e0956c61dc99f296721\n7d21587831395beb43009e0956c61dc99f296721\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 47087a6e71ea1b952b753a195ce81cd8ee951d3c\n47087a6e71ea1b952b753a195ce81cd8ee951d3c 27155a7c84ae2835b9c60a9b41c1f571cd195666 dbb84f2ad0ccba53040b8c85dca27fe55ce128e1\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n27155a7c84ae2835b9c60a9b41c1f571cd195666 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c 7d21587831395beb43009e0956c61dc99f296721\n7d21587831395beb43009e0956c61dc99f296721\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "parents",
+      "case": "nonexistent-path",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--all",
+        "--",
+        "absent"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha1",
+      "kind": "parents",
+      "case": "sparse-nonexistent-path",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--sparse",
+        "--all",
+        "--",
+        "absent"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 47087a6e71ea1b952b753a195ce81cd8ee951d3c\n47087a6e71ea1b952b753a195ce81cd8ee951d3c 27155a7c84ae2835b9c60a9b41c1f571cd195666\n27155a7c84ae2835b9c60a9b41c1f571cd195666 0a800c19b68f944b6660ccd7521ba33338cbe3d3\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c 7d21587831395beb43009e0956c61dc99f296721\n7d21587831395beb43009e0956c61dc99f296721\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "af790fdc24f8688d443e148a84b6af3031c08c61 47087a6e71ea1b952b753a195ce81cd8ee951d3c\n47087a6e71ea1b952b753a195ce81cd8ee951d3c 27155a7c84ae2835b9c60a9b41c1f571cd195666\n27155a7c84ae2835b9c60a9b41c1f571cd195666 0a800c19b68f944b6660ccd7521ba33338cbe3d3\ndbb84f2ad0ccba53040b8c85dca27fe55ce128e1 0a800c19b68f944b6660ccd7521ba33338cbe3d3\n0a800c19b68f944b6660ccd7521ba33338cbe3d3 f1f6167c39df17f7f9f63a49d34f953549adda7c\nf1f6167c39df17f7f9f63a49d34f953549adda7c 7d21587831395beb43009e0956c61dc99f296721\n7d21587831395beb43009e0956c61dc99f296721\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log",
+      "case": "head",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "HEAD",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nmain-change\nroot\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nmain-change\nroot\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log",
+      "case": "all",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nside-change\nmain-change\nroot\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nside-change\nmain-change\nroot\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log",
+      "case": "explicit-main-side",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "main",
+        "side",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nside-change\nmain-change\nroot\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nside-change\nmain-change\nroot\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log",
+      "case": "explicit-side-main",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "side",
+        "main",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nside-change\nmain-change\nroot\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nside-change\nmain-change\nroot\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log",
+      "case": "interior-positive",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "HEAD",
+        "b02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nmain-change\nroot\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nmain-change\nroot\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log",
+      "case": "duplicate-positive",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "HEAD",
+        "side",
+        "side",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nside-change\nmain-change\nroot\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nside-change\nmain-change\nroot\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log",
+      "case": "sparse-head",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--sparse",
+        "HEAD",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log",
+      "case": "sparse-all",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--sparse",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log",
+      "case": "sparse-dense",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--sparse",
+        "--dense",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nside-change\nmain-change\nroot\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nside-change\nmain-change\nroot\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log",
+      "case": "dense-sparse",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--dense",
+        "--sparse",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log",
+      "case": "full-history",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--full-history",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-change\nroot\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-change\nroot\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log",
+      "case": "full-history-sparse",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--full-history",
+        "--sparse",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log",
+      "case": "simplify-merges",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--simplify-merges",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-change\nroot\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-change\nroot\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log",
+      "case": "simplify-merges-sparse",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--simplify-merges",
+        "--sparse",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log",
+      "case": "sparse-simplify-merges",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--sparse",
+        "--simplify-merges",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log",
+      "case": "simplify-sparse-dense",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--simplify-merges",
+        "--sparse",
+        "--dense",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-change\nroot\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-change\nroot\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log",
+      "case": "first-parent",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--first-parent",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nside-change\nmain-change\nroot\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nside-change\nmain-change\nroot\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log",
+      "case": "first-parent-head",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--first-parent",
+        "HEAD",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nmain-change\nroot\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nmain-change\nroot\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log",
+      "case": "first-parent-sparse",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--first-parent",
+        "--sparse",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log",
+      "case": "first-parent-simplify-sparse",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--first-parent",
+        "--simplify-merges",
+        "--sparse",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log",
+      "case": "excluded-interior",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--all",
+        "^64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nside-change\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nside-change\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log",
+      "case": "range-plus-side",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887..HEAD",
+        "side",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nside-change\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nside-change\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log",
+      "case": "sparse-excluded-interior",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--sparse",
+        "--all",
+        "^64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log",
+      "case": "full-history-excluded-interior",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--full-history",
+        "--all",
+        "^64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log",
+      "case": "no-path",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--all"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log",
+      "case": "no-path-sparse",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--sparse",
+        "--all"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log",
+      "case": "no-path-simplify-sparse",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--simplify-merges",
+        "--sparse",
+        "--all"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log",
+      "case": "nonexistent-path",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--all",
+        "--",
+        "absent"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log",
+      "case": "sparse-nonexistent-path",
+      "arguments": [
+        "log",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--sparse",
+        "--all",
+        "--",
+        "absent"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "tip-change\nours-merge\nside-change\nmain-unchanged\nmain-change\nroot\nempty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log-graph",
+      "case": "head",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "HEAD",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n* main-change\n* root\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n* main-change\n* root\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log-graph",
+      "case": "all",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n| * side-change\n|/  \n* main-change\n* root\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n| * side-change\n|/  \n* main-change\n* root\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log-graph",
+      "case": "explicit-main-side",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "main",
+        "side",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n| * side-change\n|/  \n* main-change\n* root\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n| * side-change\n|/  \n* main-change\n* root\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log-graph",
+      "case": "explicit-side-main",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "side",
+        "main",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n| * side-change\n|/  \n* main-change\n* root\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n| * side-change\n|/  \n* main-change\n* root\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log-graph",
+      "case": "interior-positive",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "HEAD",
+        "b02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n* main-change\n* root\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n* main-change\n* root\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log-graph",
+      "case": "duplicate-positive",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "HEAD",
+        "side",
+        "side",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n| * side-change\n|/  \n* main-change\n* root\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n| * side-change\n|/  \n* main-change\n* root\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log-graph",
+      "case": "sparse-head",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--sparse",
+        "HEAD",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n* ours-merge\n* main-unchanged\n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n* ours-merge\n* main-unchanged\n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log-graph",
+      "case": "sparse-all",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--sparse",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n* ours-merge\n* main-unchanged\n| * side-change\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n* ours-merge\n* main-unchanged\n| * side-change\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log-graph",
+      "case": "sparse-dense",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--sparse",
+        "--dense",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n| * side-change\n|/  \n* main-change\n* root\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n| * side-change\n|/  \n* main-change\n* root\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log-graph",
+      "case": "dense-sparse",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--dense",
+        "--sparse",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n* ours-merge\n* main-unchanged\n| * side-change\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n* ours-merge\n* main-unchanged\n| * side-change\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log-graph",
+      "case": "full-history",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--full-history",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n*   ours-merge\n|\\  \n| * side-change\n|/  \n* main-change\n* root\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n*   ours-merge\n|\\  \n| * side-change\n|/  \n* main-change\n* root\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log-graph",
+      "case": "full-history-sparse",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--full-history",
+        "--sparse",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n*   ours-merge\n|\\  \n| * side-change\n* | main-unchanged\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n*   ours-merge\n|\\  \n| * side-change\n* | main-unchanged\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log-graph",
+      "case": "simplify-merges",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--simplify-merges",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n*   ours-merge\n|\\  \n| * side-change\n|/  \n* main-change\n* root\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n*   ours-merge\n|\\  \n| * side-change\n|/  \n* main-change\n* root\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log-graph",
+      "case": "simplify-merges-sparse",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--simplify-merges",
+        "--sparse",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n*   ours-merge\n|\\  \n| * side-change\n* | main-unchanged\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n*   ours-merge\n|\\  \n| * side-change\n* | main-unchanged\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log-graph",
+      "case": "sparse-simplify-merges",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--sparse",
+        "--simplify-merges",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n*   ours-merge\n|\\  \n| * side-change\n* | main-unchanged\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n*   ours-merge\n|\\  \n| * side-change\n* | main-unchanged\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log-graph",
+      "case": "simplify-sparse-dense",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--simplify-merges",
+        "--sparse",
+        "--dense",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n*   ours-merge\n|\\  \n| * side-change\n|/  \n* main-change\n* root\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n*   ours-merge\n|\\  \n| * side-change\n|/  \n* main-change\n* root\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log-graph",
+      "case": "first-parent",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--first-parent",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n| * side-change\n|/  \n* main-change\n* root\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n| * side-change\n|/  \n* main-change\n* root\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log-graph",
+      "case": "first-parent-head",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--first-parent",
+        "HEAD",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n* main-change\n* root\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n* main-change\n* root\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log-graph",
+      "case": "first-parent-sparse",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--first-parent",
+        "--sparse",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n* ours-merge\n* main-unchanged\n| * side-change\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n* ours-merge\n* main-unchanged\n| * side-change\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log-graph",
+      "case": "first-parent-simplify-sparse",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--first-parent",
+        "--simplify-merges",
+        "--sparse",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n| * side-change\n* | main-unchanged\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n| * side-change\n* | main-unchanged\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log-graph",
+      "case": "excluded-interior",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--all",
+        "^64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n* side-change\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n* side-change\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log-graph",
+      "case": "range-plus-side",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887..HEAD",
+        "side",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n* side-change\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n* side-change\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log-graph",
+      "case": "sparse-excluded-interior",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--sparse",
+        "--all",
+        "^64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n* ours-merge\n* main-unchanged\n* side-change\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n* ours-merge\n* main-unchanged\n* side-change\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log-graph",
+      "case": "full-history-excluded-interior",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--full-history",
+        "--all",
+        "^64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n* ours-merge\n* side-change\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n* ours-merge\n* side-change\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log-graph",
+      "case": "no-path",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--all"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n*   ours-merge\n|\\  \n| * side-change\n* | main-unchanged\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n*   ours-merge\n|\\  \n| * side-change\n* | main-unchanged\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log-graph",
+      "case": "no-path-sparse",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--sparse",
+        "--all"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n*   ours-merge\n|\\  \n| * side-change\n* | main-unchanged\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n*   ours-merge\n|\\  \n| * side-change\n* | main-unchanged\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log-graph",
+      "case": "no-path-simplify-sparse",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--simplify-merges",
+        "--sparse",
+        "--all"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n*   ours-merge\n|\\  \n| * side-change\n* | main-unchanged\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n*   ours-merge\n|\\  \n| * side-change\n* | main-unchanged\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log-graph",
+      "case": "nonexistent-path",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--all",
+        "--",
+        "absent"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "log-graph",
+      "case": "sparse-nonexistent-path",
+      "arguments": [
+        "log",
+        "--graph",
+        "--format=%s",
+        "--no-decorate",
+        "--no-color",
+        "--sparse",
+        "--all",
+        "--",
+        "absent"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "* tip-change\n* ours-merge\n* main-unchanged\n| * side-change\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "* tip-change\n* ours-merge\n* main-unchanged\n| * side-change\n|/  \n* main-change\n* root\n* empty\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "parents",
+      "case": "head",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "HEAD",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "parents",
+      "case": "all",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "parents",
+      "case": "explicit-main-side",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "main",
+        "side",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "parents",
+      "case": "explicit-side-main",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "side",
+        "main",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "parents",
+      "case": "interior-positive",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "HEAD",
+        "b02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "parents",
+      "case": "duplicate-positive",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "HEAD",
+        "side",
+        "side",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "parents",
+      "case": "sparse-head",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--sparse",
+        "HEAD",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820\n5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820 b02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547\nb02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e 1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820\n5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820 b02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547\nb02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e 1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "parents",
+      "case": "sparse-all",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--sparse",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820\n5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820 b02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547\nb02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e 1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820\n5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820 b02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547\nb02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e 1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "parents",
+      "case": "sparse-dense",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--sparse",
+        "--dense",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "parents",
+      "case": "dense-sparse",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--dense",
+        "--sparse",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820\n5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820 b02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547\nb02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e 1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820\n5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820 b02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547\nb02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e 1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "parents",
+      "case": "full-history",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--full-history",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820\n5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 ad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820\n5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 ad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "parents",
+      "case": "full-history-sparse",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--full-history",
+        "--sparse",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820\n5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820 b02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547 ad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nb02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e 1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820\n5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820 b02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547 ad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nb02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e 1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "parents",
+      "case": "simplify-merges",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--simplify-merges",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820\n5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 ad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820\n5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 ad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "parents",
+      "case": "simplify-merges-sparse",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--simplify-merges",
+        "--sparse",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820\n5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820 b02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547 ad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nb02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e 1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820\n5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820 b02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547 ad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nb02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e 1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "parents",
+      "case": "sparse-simplify-merges",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--sparse",
+        "--simplify-merges",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820\n5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820 b02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547 ad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nb02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e 1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820\n5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820 b02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547 ad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nb02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e 1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "parents",
+      "case": "simplify-sparse-dense",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--simplify-merges",
+        "--sparse",
+        "--dense",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820\n5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 ad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820\n5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 ad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "parents",
+      "case": "first-parent",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--first-parent",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "parents",
+      "case": "first-parent-head",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--first-parent",
+        "HEAD",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "parents",
+      "case": "first-parent-sparse",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--first-parent",
+        "--sparse",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820\n5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820 b02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547\nb02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e 1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820\n5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820 b02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547\nb02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e 1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "parents",
+      "case": "first-parent-simplify-sparse",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--first-parent",
+        "--simplify-merges",
+        "--sparse",
+        "--all",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 b02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nb02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e 1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 b02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nb02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e 1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "parents",
+      "case": "excluded-interior",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--all",
+        "^64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "parents",
+      "case": "range-plus-side",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887..HEAD",
+        "side",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "parents",
+      "case": "sparse-excluded-interior",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--sparse",
+        "--all",
+        "^64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820\n5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820 b02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547\nb02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820\n5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820 b02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547\nb02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "parents",
+      "case": "full-history-excluded-interior",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--full-history",
+        "--all",
+        "^64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887",
+        "--",
+        "bar"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820\n5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 ad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820\n5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 ad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "parents",
+      "case": "no-path",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--all"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820\n5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820 b02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547 ad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nb02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e 1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820\n5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820 b02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547 ad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nb02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e 1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "parents",
+      "case": "no-path-sparse",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--sparse",
+        "--all"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820\n5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820 b02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547 ad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nb02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e 1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820\n5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820 b02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547 ad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nb02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e 1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "parents",
+      "case": "no-path-simplify-sparse",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--simplify-merges",
+        "--sparse",
+        "--all"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820\n5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820 b02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547 ad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nb02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e 1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820\n5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820 b02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547 ad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nb02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e 1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "parents",
+      "case": "nonexistent-path",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--all",
+        "--",
+        "absent"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "format": "sha256",
+      "kind": "parents",
+      "case": "sparse-nonexistent-path",
+      "arguments": [
+        "rev-list",
+        "--parents",
+        "--topo-order",
+        "--sparse",
+        "--all",
+        "--",
+        "absent"
+      ],
+      "exact": true,
+      "git": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820\n5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820 b02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547\nb02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e 1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n",
+        "stderr": ""
+      },
+      "rit": {
+        "status": 0,
+        "stdout": "4586697ae0d07d4dccec5374bd7f4348d0075c7f96a23d4c2c07f7a75dd40e82 5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820\n5ce607ae0bc38127a464c42eef40a4c51a255a41c6aff917e71f7e816933c820 b02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547\nb02b2b2fb1b33e19dd625b916e5f7173d6538573421b3ddd200ec74085c24547 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\nad69fd935b3494153623a0be2170f799c48d1111e0e567c6430be0086d92a8f7 64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887\n64a3487560141a9e53321e6c9a7d1536ec4da9faae0a82f000ca44e374235887 9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e\n9bf454bb5df1a5a9f8d232288cac136b9686f6499b97cfd2cdc684abdfd8d55e 1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n1a0c73248bd01ef593d61ce54e8c4e1439ca7159a680d5d28fa45842a09a32a3\n",
+        "stderr": ""
+      }
+    }
+  ]
+}

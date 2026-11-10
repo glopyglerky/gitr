@@ -1,0 +1,908 @@
+{
+  "candidate_sha256": "65fb0e263a71010daeff06ea11c061679cf4db7d16b2b219f5b876bb34f45bbb",
+  "oracle_commit": "e9019fcafe0040228b8631c30f97ae1adb61bcdc",
+  "comparisons": [
+    {
+      "script": "t6004-rev-list-path-optim.sh",
+      "format": "sha1",
+      "exact_cell_match": true
+    },
+    {
+      "script": "t6004-rev-list-path-optim.sh",
+      "format": "sha256",
+      "exact_cell_match": true
+    },
+    {
+      "script": "t6012-rev-list-simplify.sh",
+      "format": "sha1",
+      "exact_cell_match": true
+    },
+    {
+      "script": "t6012-rev-list-simplify.sh",
+      "format": "sha256",
+      "exact_cell_match": true
+    },
+    {
+      "script": "t6016-rev-list-graph-simplify-history.sh",
+      "format": "sha1",
+      "exact_cell_match": false
+    },
+    {
+      "script": "t6016-rev-list-graph-simplify-history.sh",
+      "format": "sha256",
+      "exact_cell_match": false
+    },
+    {
+      "script": "t6019-rev-list-ancestry-path.sh",
+      "format": "sha1",
+      "exact_cell_match": false
+    },
+    {
+      "script": "t6019-rev-list-ancestry-path.sh",
+      "format": "sha256",
+      "exact_cell_match": false
+    }
+  ],
+  "results": [
+    {
+      "lane": "oracle",
+      "format": "sha1",
+      "script": "t6004-rev-list-path-optim.sh",
+      "command": [
+        "sh",
+        "/workspace/scratch/161a1b7c00ce/tooling/git-oracle/t/t6004-rev-list-path-optim.sh",
+        "--no-bin-wrappers",
+        "--root=/workspace/scratch/717c1db38a84/rit-history-upstream-final/oracle-sha1-t6004-rev-list-path-optim",
+        "--verbose-log"
+      ],
+      "environment": {
+        "LC_ALL": "C",
+        "GIT_TEST_INSTALLED": "/workspace/scratch/161a1b7c00ce/tooling/git-prefix/bin",
+        "SLEY_BIN": "/workspace/scratch/717c1db38a84/rit-history-candidate-v2/git",
+        "GIT_BUILD_DIR": "/workspace/scratch/161a1b7c00ce/tooling/git-oracle",
+        "GIT_SRC_DIR": "/workspace/scratch/161a1b7c00ce/tooling/git-oracle",
+        "GIT_TEST_DEFAULT_HASH": "sha1",
+        "GIT_TEST_EXT_CHAIN_LINT": "0",
+        "TEST_OUTPUT_DIRECTORY": "/workspace/scratch/717c1db38a84/rit-history-upstream-final/oracle-sha1-t6004-rev-list-path-optim",
+        "GIT_TEST_OPTS": "",
+        "GIT_CONFIG_NOSYSTEM": "1"
+      },
+      "exit": 0,
+      "seconds": 0.216,
+      "cells": [
+        "ok 1 - setup",
+        "ok 2 - path-optimization",
+        "ok 3 - further setup",
+        "ok 4 - path optimization 2",
+        "ok 5 - pathspec with leading path",
+        "ok 6 - pathspec with glob (1)",
+        "ok 7 - pathspec with glob (2)"
+      ],
+      "plan": [
+        "1..7"
+      ],
+      "complete_tap": true,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "lane": "rit",
+      "format": "sha1",
+      "script": "t6004-rev-list-path-optim.sh",
+      "command": [
+        "sh",
+        "/workspace/scratch/161a1b7c00ce/tooling/git-oracle/t/t6004-rev-list-path-optim.sh",
+        "--no-bin-wrappers",
+        "--root=/workspace/scratch/717c1db38a84/rit-history-upstream-final/rit-sha1-t6004-rev-list-path-optim",
+        "--verbose-log"
+      ],
+      "environment": {
+        "LC_ALL": "C",
+        "GIT_TEST_INSTALLED": "/workspace/scratch/717c1db38a84/rit-history-candidate-v2",
+        "SLEY_BIN": "/workspace/scratch/717c1db38a84/rit-history-candidate-v2/git",
+        "GIT_BUILD_DIR": "/workspace/scratch/161a1b7c00ce/tooling/git-oracle",
+        "GIT_SRC_DIR": "/workspace/scratch/161a1b7c00ce/tooling/git-oracle",
+        "GIT_TEST_DEFAULT_HASH": "sha1",
+        "GIT_TEST_EXT_CHAIN_LINT": "0",
+        "TEST_OUTPUT_DIRECTORY": "/workspace/scratch/717c1db38a84/rit-history-upstream-final/rit-sha1-t6004-rev-list-path-optim",
+        "GIT_TEST_OPTS": "",
+        "GIT_CONFIG_NOSYSTEM": "1"
+      },
+      "exit": 0,
+      "seconds": 0.37,
+      "cells": [
+        "ok 1 - setup",
+        "ok 2 - path-optimization",
+        "ok 3 - further setup",
+        "ok 4 - path optimization 2",
+        "ok 5 - pathspec with leading path",
+        "ok 6 - pathspec with glob (1)",
+        "ok 7 - pathspec with glob (2)"
+      ],
+      "plan": [
+        "1..7"
+      ],
+      "complete_tap": true,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "lane": "oracle",
+      "format": "sha256",
+      "script": "t6004-rev-list-path-optim.sh",
+      "command": [
+        "sh",
+        "/workspace/scratch/161a1b7c00ce/tooling/git-oracle/t/t6004-rev-list-path-optim.sh",
+        "--no-bin-wrappers",
+        "--root=/workspace/scratch/717c1db38a84/rit-history-upstream-final/oracle-sha256-t6004-rev-list-path-optim",
+        "--verbose-log"
+      ],
+      "environment": {
+        "LC_ALL": "C",
+        "GIT_TEST_INSTALLED": "/workspace/scratch/161a1b7c00ce/tooling/git-prefix/bin",
+        "SLEY_BIN": "/workspace/scratch/717c1db38a84/rit-history-candidate-v2/git",
+        "GIT_BUILD_DIR": "/workspace/scratch/161a1b7c00ce/tooling/git-oracle",
+        "GIT_SRC_DIR": "/workspace/scratch/161a1b7c00ce/tooling/git-oracle",
+        "GIT_TEST_DEFAULT_HASH": "sha256",
+        "GIT_TEST_EXT_CHAIN_LINT": "0",
+        "TEST_OUTPUT_DIRECTORY": "/workspace/scratch/717c1db38a84/rit-history-upstream-final/oracle-sha256-t6004-rev-list-path-optim",
+        "GIT_TEST_OPTS": "",
+        "GIT_CONFIG_NOSYSTEM": "1"
+      },
+      "exit": 0,
+      "seconds": 0.218,
+      "cells": [
+        "ok 1 - setup",
+        "ok 2 - path-optimization",
+        "ok 3 - further setup",
+        "ok 4 - path optimization 2",
+        "ok 5 - pathspec with leading path",
+        "ok 6 - pathspec with glob (1)",
+        "ok 7 - pathspec with glob (2)"
+      ],
+      "plan": [
+        "1..7"
+      ],
+      "complete_tap": true,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "lane": "rit",
+      "format": "sha256",
+      "script": "t6004-rev-list-path-optim.sh",
+      "command": [
+        "sh",
+        "/workspace/scratch/161a1b7c00ce/tooling/git-oracle/t/t6004-rev-list-path-optim.sh",
+        "--no-bin-wrappers",
+        "--root=/workspace/scratch/717c1db38a84/rit-history-upstream-final/rit-sha256-t6004-rev-list-path-optim",
+        "--verbose-log"
+      ],
+      "environment": {
+        "LC_ALL": "C",
+        "GIT_TEST_INSTALLED": "/workspace/scratch/717c1db38a84/rit-history-candidate-v2",
+        "SLEY_BIN": "/workspace/scratch/717c1db38a84/rit-history-candidate-v2/git",
+        "GIT_BUILD_DIR": "/workspace/scratch/161a1b7c00ce/tooling/git-oracle",
+        "GIT_SRC_DIR": "/workspace/scratch/161a1b7c00ce/tooling/git-oracle",
+        "GIT_TEST_DEFAULT_HASH": "sha256",
+        "GIT_TEST_EXT_CHAIN_LINT": "0",
+        "TEST_OUTPUT_DIRECTORY": "/workspace/scratch/717c1db38a84/rit-history-upstream-final/rit-sha256-t6004-rev-list-path-optim",
+        "GIT_TEST_OPTS": "",
+        "GIT_CONFIG_NOSYSTEM": "1"
+      },
+      "exit": 0,
+      "seconds": 0.419,
+      "cells": [
+        "ok 1 - setup",
+        "ok 2 - path-optimization",
+        "ok 3 - further setup",
+        "ok 4 - path optimization 2",
+        "ok 5 - pathspec with leading path",
+        "ok 6 - pathspec with glob (1)",
+        "ok 7 - pathspec with glob (2)"
+      ],
+      "plan": [
+        "1..7"
+      ],
+      "complete_tap": true,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "lane": "oracle",
+      "format": "sha1",
+      "script": "t6012-rev-list-simplify.sh",
+      "command": [
+        "sh",
+        "/workspace/scratch/161a1b7c00ce/tooling/git-oracle/t/t6012-rev-list-simplify.sh",
+        "--no-bin-wrappers",
+        "--root=/workspace/scratch/717c1db38a84/rit-history-upstream-final/oracle-sha1-t6012-rev-list-simplify",
+        "--verbose-log"
+      ],
+      "environment": {
+        "LC_ALL": "C",
+        "GIT_TEST_INSTALLED": "/workspace/scratch/161a1b7c00ce/tooling/git-prefix/bin",
+        "SLEY_BIN": "/workspace/scratch/717c1db38a84/rit-history-candidate-v2/git",
+        "GIT_BUILD_DIR": "/workspace/scratch/161a1b7c00ce/tooling/git-oracle",
+        "GIT_SRC_DIR": "/workspace/scratch/161a1b7c00ce/tooling/git-oracle",
+        "GIT_TEST_DEFAULT_HASH": "sha1",
+        "GIT_TEST_EXT_CHAIN_LINT": "0",
+        "TEST_OUTPUT_DIRECTORY": "/workspace/scratch/717c1db38a84/rit-history-upstream-final/oracle-sha1-t6012-rev-list-simplify",
+        "GIT_TEST_OPTS": "",
+        "GIT_CONFIG_NOSYSTEM": "1"
+      },
+      "exit": 0,
+      "seconds": 0.872,
+      "cells": [
+        "ok 1 - setup",
+        "ok 2 - log --full-history --topo-order",
+        "ok 3 - log --full-history",
+        "ok 4 - log --full-history --date-order",
+        "ok 5 - log --full-history --author-date-order",
+        "ok 6 - log --full-history -- file",
+        "ok 7 - log --full-history --topo-order -- file",
+        "ok 8 - log --full-history --date-order -- file",
+        "ok 9 - log --full-history --author-date-order -- file",
+        "ok 10 - log --simplify-merges -- file",
+        "ok 11 - log --simplify-merges --topo-order -- file",
+        "ok 12 - log --simplify-merges --date-order -- file",
+        "ok 13 - log --simplify-merges --author-date-order -- file",
+        "ok 14 - log -- file",
+        "ok 15 - log --topo-order -- file",
+        "ok 16 - log --date-order -- file",
+        "ok 17 - log --author-date-order -- file",
+        "ok 18 - log --first-parent -- another-file",
+        "ok 19 - log --first-parent --topo-order -- another-file",
+        "ok 20 - log --first-parent L",
+        "ok 21 - log --exclude-first-parent-only F ^L",
+        "ok 22 - log F ^L",
+        "ok 23 - log L ^F",
+        "ok 24 - log --exclude-first-parent-only L ^F",
+        "ok 25 - log --exclude-first-parent-only --first-parent L ^F",
+        "ok 26 - log --full-history E -- lost",
+        "ok 27 - full history simplification without parent",
+        "ok 28 - --full-diff is not affected by --parents",
+        "ok 29 - setup rebuild repo",
+        "ok 30 - log -- file",
+        "ok 31 - log --show-pulls -- file",
+        "ok 32 - log --full-history --topo-order -- file",
+        "ok 33 - log --simplify-merges --topo-order --show-pulls -- file",
+        "ok 34 - log --simplify-merges --topo-order -- file",
+        "ok 35 - log --first-parent -- file",
+        "ok 36 - log --first-parent --show-pulls -- file",
+        "ok 37 - log --topo-order --ancestry-path A..HEAD -- file",
+        "ok 38 - log --topo-order --show-pulls --ancestry-path A..HEAD -- file",
+        "ok 39 - log --topo-order --full-history --ancestry-path A..HEAD -- file",
+        "ok 40 - log --topo-order --simplify-merges --ancestry-path A..HEAD -- file",
+        "ok 41 - log --topo-order --simplify-merges --show-pulls --ancestry-path A..HEAD -- file",
+        "ok 42 - log --graph --simplify-merges --show-pulls"
+      ],
+      "plan": [
+        "1..42"
+      ],
+      "complete_tap": true,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "lane": "rit",
+      "format": "sha1",
+      "script": "t6012-rev-list-simplify.sh",
+      "command": [
+        "sh",
+        "/workspace/scratch/161a1b7c00ce/tooling/git-oracle/t/t6012-rev-list-simplify.sh",
+        "--no-bin-wrappers",
+        "--root=/workspace/scratch/717c1db38a84/rit-history-upstream-final/rit-sha1-t6012-rev-list-simplify",
+        "--verbose-log"
+      ],
+      "environment": {
+        "LC_ALL": "C",
+        "GIT_TEST_INSTALLED": "/workspace/scratch/717c1db38a84/rit-history-candidate-v2",
+        "SLEY_BIN": "/workspace/scratch/717c1db38a84/rit-history-candidate-v2/git",
+        "GIT_BUILD_DIR": "/workspace/scratch/161a1b7c00ce/tooling/git-oracle",
+        "GIT_SRC_DIR": "/workspace/scratch/161a1b7c00ce/tooling/git-oracle",
+        "GIT_TEST_DEFAULT_HASH": "sha1",
+        "GIT_TEST_EXT_CHAIN_LINT": "0",
+        "TEST_OUTPUT_DIRECTORY": "/workspace/scratch/717c1db38a84/rit-history-upstream-final/rit-sha1-t6012-rev-list-simplify",
+        "GIT_TEST_OPTS": "",
+        "GIT_CONFIG_NOSYSTEM": "1"
+      },
+      "exit": 0,
+      "seconds": 1.942,
+      "cells": [
+        "ok 1 - setup",
+        "ok 2 - log --full-history --topo-order",
+        "ok 3 - log --full-history",
+        "ok 4 - log --full-history --date-order",
+        "ok 5 - log --full-history --author-date-order",
+        "ok 6 - log --full-history -- file",
+        "ok 7 - log --full-history --topo-order -- file",
+        "ok 8 - log --full-history --date-order -- file",
+        "ok 9 - log --full-history --author-date-order -- file",
+        "ok 10 - log --simplify-merges -- file",
+        "ok 11 - log --simplify-merges --topo-order -- file",
+        "ok 12 - log --simplify-merges --date-order -- file",
+        "ok 13 - log --simplify-merges --author-date-order -- file",
+        "ok 14 - log -- file",
+        "ok 15 - log --topo-order -- file",
+        "ok 16 - log --date-order -- file",
+        "ok 17 - log --author-date-order -- file",
+        "ok 18 - log --first-parent -- another-file",
+        "ok 19 - log --first-parent --topo-order -- another-file",
+        "ok 20 - log --first-parent L",
+        "ok 21 - log --exclude-first-parent-only F ^L",
+        "ok 22 - log F ^L",
+        "ok 23 - log L ^F",
+        "ok 24 - log --exclude-first-parent-only L ^F",
+        "ok 25 - log --exclude-first-parent-only --first-parent L ^F",
+        "ok 26 - log --full-history E -- lost",
+        "ok 27 - full history simplification without parent",
+        "ok 28 - --full-diff is not affected by --parents",
+        "ok 29 - setup rebuild repo",
+        "ok 30 - log -- file",
+        "ok 31 - log --show-pulls -- file",
+        "ok 32 - log --full-history --topo-order -- file",
+        "ok 33 - log --simplify-merges --topo-order --show-pulls -- file",
+        "ok 34 - log --simplify-merges --topo-order -- file",
+        "ok 35 - log --first-parent -- file",
+        "ok 36 - log --first-parent --show-pulls -- file",
+        "ok 37 - log --topo-order --ancestry-path A..HEAD -- file",
+        "ok 38 - log --topo-order --show-pulls --ancestry-path A..HEAD -- file",
+        "ok 39 - log --topo-order --full-history --ancestry-path A..HEAD -- file",
+        "ok 40 - log --topo-order --simplify-merges --ancestry-path A..HEAD -- file",
+        "ok 41 - log --topo-order --simplify-merges --show-pulls --ancestry-path A..HEAD -- file",
+        "ok 42 - log --graph --simplify-merges --show-pulls"
+      ],
+      "plan": [
+        "1..42"
+      ],
+      "complete_tap": true,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "lane": "oracle",
+      "format": "sha256",
+      "script": "t6012-rev-list-simplify.sh",
+      "command": [
+        "sh",
+        "/workspace/scratch/161a1b7c00ce/tooling/git-oracle/t/t6012-rev-list-simplify.sh",
+        "--no-bin-wrappers",
+        "--root=/workspace/scratch/717c1db38a84/rit-history-upstream-final/oracle-sha256-t6012-rev-list-simplify",
+        "--verbose-log"
+      ],
+      "environment": {
+        "LC_ALL": "C",
+        "GIT_TEST_INSTALLED": "/workspace/scratch/161a1b7c00ce/tooling/git-prefix/bin",
+        "SLEY_BIN": "/workspace/scratch/717c1db38a84/rit-history-candidate-v2/git",
+        "GIT_BUILD_DIR": "/workspace/scratch/161a1b7c00ce/tooling/git-oracle",
+        "GIT_SRC_DIR": "/workspace/scratch/161a1b7c00ce/tooling/git-oracle",
+        "GIT_TEST_DEFAULT_HASH": "sha256",
+        "GIT_TEST_EXT_CHAIN_LINT": "0",
+        "TEST_OUTPUT_DIRECTORY": "/workspace/scratch/717c1db38a84/rit-history-upstream-final/oracle-sha256-t6012-rev-list-simplify",
+        "GIT_TEST_OPTS": "",
+        "GIT_CONFIG_NOSYSTEM": "1"
+      },
+      "exit": 0,
+      "seconds": 1.085,
+      "cells": [
+        "ok 1 - setup",
+        "ok 2 - log --full-history --topo-order",
+        "ok 3 - log --full-history",
+        "ok 4 - log --full-history --date-order",
+        "ok 5 - log --full-history --author-date-order",
+        "ok 6 - log --full-history -- file",
+        "ok 7 - log --full-history --topo-order -- file",
+        "ok 8 - log --full-history --date-order -- file",
+        "ok 9 - log --full-history --author-date-order -- file",
+        "ok 10 - log --simplify-merges -- file",
+        "ok 11 - log --simplify-merges --topo-order -- file",
+        "ok 12 - log --simplify-merges --date-order -- file",
+        "ok 13 - log --simplify-merges --author-date-order -- file",
+        "ok 14 - log -- file",
+        "ok 15 - log --topo-order -- file",
+        "ok 16 - log --date-order -- file",
+        "ok 17 - log --author-date-order -- file",
+        "ok 18 - log --first-parent -- another-file",
+        "ok 19 - log --first-parent --topo-order -- another-file",
+        "ok 20 - log --first-parent L",
+        "ok 21 - log --exclude-first-parent-only F ^L",
+        "ok 22 - log F ^L",
+        "ok 23 - log L ^F",
+        "ok 24 - log --exclude-first-parent-only L ^F",
+        "ok 25 - log --exclude-first-parent-only --first-parent L ^F",
+        "ok 26 - log --full-history E -- lost",
+        "ok 27 - full history simplification without parent",
+        "ok 28 - --full-diff is not affected by --parents",
+        "ok 29 - setup rebuild repo",
+        "ok 30 - log -- file",
+        "ok 31 - log --show-pulls -- file",
+        "ok 32 - log --full-history --topo-order -- file",
+        "ok 33 - log --simplify-merges --topo-order --show-pulls -- file",
+        "ok 34 - log --simplify-merges --topo-order -- file",
+        "ok 35 - log --first-parent -- file",
+        "ok 36 - log --first-parent --show-pulls -- file",
+        "ok 37 - log --topo-order --ancestry-path A..HEAD -- file",
+        "ok 38 - log --topo-order --show-pulls --ancestry-path A..HEAD -- file",
+        "ok 39 - log --topo-order --full-history --ancestry-path A..HEAD -- file",
+        "ok 40 - log --topo-order --simplify-merges --ancestry-path A..HEAD -- file",
+        "ok 41 - log --topo-order --simplify-merges --show-pulls --ancestry-path A..HEAD -- file",
+        "ok 42 - log --graph --simplify-merges --show-pulls"
+      ],
+      "plan": [
+        "1..42"
+      ],
+      "complete_tap": true,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "lane": "rit",
+      "format": "sha256",
+      "script": "t6012-rev-list-simplify.sh",
+      "command": [
+        "sh",
+        "/workspace/scratch/161a1b7c00ce/tooling/git-oracle/t/t6012-rev-list-simplify.sh",
+        "--no-bin-wrappers",
+        "--root=/workspace/scratch/717c1db38a84/rit-history-upstream-final/rit-sha256-t6012-rev-list-simplify",
+        "--verbose-log"
+      ],
+      "environment": {
+        "LC_ALL": "C",
+        "GIT_TEST_INSTALLED": "/workspace/scratch/717c1db38a84/rit-history-candidate-v2",
+        "SLEY_BIN": "/workspace/scratch/717c1db38a84/rit-history-candidate-v2/git",
+        "GIT_BUILD_DIR": "/workspace/scratch/161a1b7c00ce/tooling/git-oracle",
+        "GIT_SRC_DIR": "/workspace/scratch/161a1b7c00ce/tooling/git-oracle",
+        "GIT_TEST_DEFAULT_HASH": "sha256",
+        "GIT_TEST_EXT_CHAIN_LINT": "0",
+        "TEST_OUTPUT_DIRECTORY": "/workspace/scratch/717c1db38a84/rit-history-upstream-final/rit-sha256-t6012-rev-list-simplify",
+        "GIT_TEST_OPTS": "",
+        "GIT_CONFIG_NOSYSTEM": "1"
+      },
+      "exit": 0,
+      "seconds": 1.779,
+      "cells": [
+        "ok 1 - setup",
+        "ok 2 - log --full-history --topo-order",
+        "ok 3 - log --full-history",
+        "ok 4 - log --full-history --date-order",
+        "ok 5 - log --full-history --author-date-order",
+        "ok 6 - log --full-history -- file",
+        "ok 7 - log --full-history --topo-order -- file",
+        "ok 8 - log --full-history --date-order -- file",
+        "ok 9 - log --full-history --author-date-order -- file",
+        "ok 10 - log --simplify-merges -- file",
+        "ok 11 - log --simplify-merges --topo-order -- file",
+        "ok 12 - log --simplify-merges --date-order -- file",
+        "ok 13 - log --simplify-merges --author-date-order -- file",
+        "ok 14 - log -- file",
+        "ok 15 - log --topo-order -- file",
+        "ok 16 - log --date-order -- file",
+        "ok 17 - log --author-date-order -- file",
+        "ok 18 - log --first-parent -- another-file",
+        "ok 19 - log --first-parent --topo-order -- another-file",
+        "ok 20 - log --first-parent L",
+        "ok 21 - log --exclude-first-parent-only F ^L",
+        "ok 22 - log F ^L",
+        "ok 23 - log L ^F",
+        "ok 24 - log --exclude-first-parent-only L ^F",
+        "ok 25 - log --exclude-first-parent-only --first-parent L ^F",
+        "ok 26 - log --full-history E -- lost",
+        "ok 27 - full history simplification without parent",
+        "ok 28 - --full-diff is not affected by --parents",
+        "ok 29 - setup rebuild repo",
+        "ok 30 - log -- file",
+        "ok 31 - log --show-pulls -- file",
+        "ok 32 - log --full-history --topo-order -- file",
+        "ok 33 - log --simplify-merges --topo-order --show-pulls -- file",
+        "ok 34 - log --simplify-merges --topo-order -- file",
+        "ok 35 - log --first-parent -- file",
+        "ok 36 - log --first-parent --show-pulls -- file",
+        "ok 37 - log --topo-order --ancestry-path A..HEAD -- file",
+        "ok 38 - log --topo-order --show-pulls --ancestry-path A..HEAD -- file",
+        "ok 39 - log --topo-order --full-history --ancestry-path A..HEAD -- file",
+        "ok 40 - log --topo-order --simplify-merges --ancestry-path A..HEAD -- file",
+        "ok 41 - log --topo-order --simplify-merges --show-pulls --ancestry-path A..HEAD -- file",
+        "ok 42 - log --graph --simplify-merges --show-pulls"
+      ],
+      "plan": [
+        "1..42"
+      ],
+      "complete_tap": true,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "lane": "oracle",
+      "format": "sha1",
+      "script": "t6016-rev-list-graph-simplify-history.sh",
+      "command": [
+        "sh",
+        "/workspace/scratch/161a1b7c00ce/tooling/git-oracle/t/t6016-rev-list-graph-simplify-history.sh",
+        "--no-bin-wrappers",
+        "--root=/workspace/scratch/717c1db38a84/rit-history-upstream-final/oracle-sha1-t6016-rev-list-graph-simplify-history",
+        "--verbose-log"
+      ],
+      "environment": {
+        "LC_ALL": "C",
+        "GIT_TEST_INSTALLED": "/workspace/scratch/161a1b7c00ce/tooling/git-prefix/bin",
+        "SLEY_BIN": "/workspace/scratch/717c1db38a84/rit-history-candidate-v2/git",
+        "GIT_BUILD_DIR": "/workspace/scratch/161a1b7c00ce/tooling/git-oracle",
+        "GIT_SRC_DIR": "/workspace/scratch/161a1b7c00ce/tooling/git-oracle",
+        "GIT_TEST_DEFAULT_HASH": "sha1",
+        "GIT_TEST_EXT_CHAIN_LINT": "0",
+        "TEST_OUTPUT_DIRECTORY": "/workspace/scratch/717c1db38a84/rit-history-upstream-final/oracle-sha1-t6016-rev-list-graph-simplify-history",
+        "GIT_TEST_OPTS": "",
+        "GIT_CONFIG_NOSYSTEM": "1"
+      },
+      "exit": 0,
+      "seconds": 0.418,
+      "cells": [
+        "ok 1 - set up rev-list --graph test",
+        "ok 2 - --graph --all",
+        "ok 3 - --graph --simplify-by-decoration",
+        "ok 4 - setup: get rid of decorations on B",
+        "ok 5 - --graph --simplify-by-decoration prune branch B",
+        "ok 6 - --graph --full-history -- bar.txt",
+        "ok 7 - --graph --full-history --simplify-merges -- bar.txt",
+        "ok 8 - --graph -- bar.txt",
+        "ok 9 - --graph --sparse -- bar.txt",
+        "ok 10 - --graph ^C4",
+        "ok 11 - --graph ^C3",
+        "ok 12 - --graph --boundary ^C3"
+      ],
+      "plan": [
+        "1..12"
+      ],
+      "complete_tap": true,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "lane": "rit",
+      "format": "sha1",
+      "script": "t6016-rev-list-graph-simplify-history.sh",
+      "command": [
+        "sh",
+        "/workspace/scratch/161a1b7c00ce/tooling/git-oracle/t/t6016-rev-list-graph-simplify-history.sh",
+        "--no-bin-wrappers",
+        "--root=/workspace/scratch/717c1db38a84/rit-history-upstream-final/rit-sha1-t6016-rev-list-graph-simplify-history",
+        "--verbose-log"
+      ],
+      "environment": {
+        "LC_ALL": "C",
+        "GIT_TEST_INSTALLED": "/workspace/scratch/717c1db38a84/rit-history-candidate-v2",
+        "SLEY_BIN": "/workspace/scratch/717c1db38a84/rit-history-candidate-v2/git",
+        "GIT_BUILD_DIR": "/workspace/scratch/161a1b7c00ce/tooling/git-oracle",
+        "GIT_SRC_DIR": "/workspace/scratch/161a1b7c00ce/tooling/git-oracle",
+        "GIT_TEST_DEFAULT_HASH": "sha1",
+        "GIT_TEST_EXT_CHAIN_LINT": "0",
+        "TEST_OUTPUT_DIRECTORY": "/workspace/scratch/717c1db38a84/rit-history-upstream-final/rit-sha1-t6016-rev-list-graph-simplify-history",
+        "GIT_TEST_OPTS": "",
+        "GIT_CONFIG_NOSYSTEM": "1"
+      },
+      "exit": 1,
+      "seconds": 0.668,
+      "cells": [
+        "ok 1 - set up rev-list --graph test",
+        "ok 2 - --graph --all",
+        "ok 3 - --graph --simplify-by-decoration",
+        "ok 4 - setup: get rid of decorations on B",
+        "not ok 5 - --graph --simplify-by-decoration prune branch B",
+        "ok 6 - --graph --full-history -- bar.txt",
+        "ok 7 - --graph --full-history --simplify-merges -- bar.txt",
+        "ok 8 - --graph -- bar.txt",
+        "ok 9 - --graph --sparse -- bar.txt",
+        "ok 10 - --graph ^C4",
+        "ok 11 - --graph ^C3",
+        "not ok 12 - --graph --boundary ^C3"
+      ],
+      "plan": [
+        "1..12"
+      ],
+      "complete_tap": true,
+      "failed": 2,
+      "skipped": 0
+    },
+    {
+      "lane": "oracle",
+      "format": "sha256",
+      "script": "t6016-rev-list-graph-simplify-history.sh",
+      "command": [
+        "sh",
+        "/workspace/scratch/161a1b7c00ce/tooling/git-oracle/t/t6016-rev-list-graph-simplify-history.sh",
+        "--no-bin-wrappers",
+        "--root=/workspace/scratch/717c1db38a84/rit-history-upstream-final/oracle-sha256-t6016-rev-list-graph-simplify-history",
+        "--verbose-log"
+      ],
+      "environment": {
+        "LC_ALL": "C",
+        "GIT_TEST_INSTALLED": "/workspace/scratch/161a1b7c00ce/tooling/git-prefix/bin",
+        "SLEY_BIN": "/workspace/scratch/717c1db38a84/rit-history-candidate-v2/git",
+        "GIT_BUILD_DIR": "/workspace/scratch/161a1b7c00ce/tooling/git-oracle",
+        "GIT_SRC_DIR": "/workspace/scratch/161a1b7c00ce/tooling/git-oracle",
+        "GIT_TEST_DEFAULT_HASH": "sha256",
+        "GIT_TEST_EXT_CHAIN_LINT": "0",
+        "TEST_OUTPUT_DIRECTORY": "/workspace/scratch/717c1db38a84/rit-history-upstream-final/oracle-sha256-t6016-rev-list-graph-simplify-history",
+        "GIT_TEST_OPTS": "",
+        "GIT_CONFIG_NOSYSTEM": "1"
+      },
+      "exit": 0,
+      "seconds": 0.417,
+      "cells": [
+        "ok 1 - set up rev-list --graph test",
+        "ok 2 - --graph --all",
+        "ok 3 - --graph --simplify-by-decoration",
+        "ok 4 - setup: get rid of decorations on B",
+        "ok 5 - --graph --simplify-by-decoration prune branch B",
+        "ok 6 - --graph --full-history -- bar.txt",
+        "ok 7 - --graph --full-history --simplify-merges -- bar.txt",
+        "ok 8 - --graph -- bar.txt",
+        "ok 9 - --graph --sparse -- bar.txt",
+        "ok 10 - --graph ^C4",
+        "ok 11 - --graph ^C3",
+        "ok 12 - --graph --boundary ^C3"
+      ],
+      "plan": [
+        "1..12"
+      ],
+      "complete_tap": true,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "lane": "rit",
+      "format": "sha256",
+      "script": "t6016-rev-list-graph-simplify-history.sh",
+      "command": [
+        "sh",
+        "/workspace/scratch/161a1b7c00ce/tooling/git-oracle/t/t6016-rev-list-graph-simplify-history.sh",
+        "--no-bin-wrappers",
+        "--root=/workspace/scratch/717c1db38a84/rit-history-upstream-final/rit-sha256-t6016-rev-list-graph-simplify-history",
+        "--verbose-log"
+      ],
+      "environment": {
+        "LC_ALL": "C",
+        "GIT_TEST_INSTALLED": "/workspace/scratch/717c1db38a84/rit-history-candidate-v2",
+        "SLEY_BIN": "/workspace/scratch/717c1db38a84/rit-history-candidate-v2/git",
+        "GIT_BUILD_DIR": "/workspace/scratch/161a1b7c00ce/tooling/git-oracle",
+        "GIT_SRC_DIR": "/workspace/scratch/161a1b7c00ce/tooling/git-oracle",
+        "GIT_TEST_DEFAULT_HASH": "sha256",
+        "GIT_TEST_EXT_CHAIN_LINT": "0",
+        "TEST_OUTPUT_DIRECTORY": "/workspace/scratch/717c1db38a84/rit-history-upstream-final/rit-sha256-t6016-rev-list-graph-simplify-history",
+        "GIT_TEST_OPTS": "",
+        "GIT_CONFIG_NOSYSTEM": "1"
+      },
+      "exit": 1,
+      "seconds": 0.671,
+      "cells": [
+        "ok 1 - set up rev-list --graph test",
+        "ok 2 - --graph --all",
+        "ok 3 - --graph --simplify-by-decoration",
+        "ok 4 - setup: get rid of decorations on B",
+        "not ok 5 - --graph --simplify-by-decoration prune branch B",
+        "ok 6 - --graph --full-history -- bar.txt",
+        "ok 7 - --graph --full-history --simplify-merges -- bar.txt",
+        "ok 8 - --graph -- bar.txt",
+        "ok 9 - --graph --sparse -- bar.txt",
+        "ok 10 - --graph ^C4",
+        "ok 11 - --graph ^C3",
+        "not ok 12 - --graph --boundary ^C3"
+      ],
+      "plan": [
+        "1..12"
+      ],
+      "complete_tap": true,
+      "failed": 2,
+      "skipped": 0
+    },
+    {
+      "lane": "oracle",
+      "format": "sha1",
+      "script": "t6019-rev-list-ancestry-path.sh",
+      "command": [
+        "sh",
+        "/workspace/scratch/161a1b7c00ce/tooling/git-oracle/t/t6019-rev-list-ancestry-path.sh",
+        "--no-bin-wrappers",
+        "--root=/workspace/scratch/717c1db38a84/rit-history-upstream-final/oracle-sha1-t6019-rev-list-ancestry-path",
+        "--verbose-log"
+      ],
+      "environment": {
+        "LC_ALL": "C",
+        "GIT_TEST_INSTALLED": "/workspace/scratch/161a1b7c00ce/tooling/git-prefix/bin",
+        "SLEY_BIN": "/workspace/scratch/717c1db38a84/rit-history-candidate-v2/git",
+        "GIT_BUILD_DIR": "/workspace/scratch/161a1b7c00ce/tooling/git-oracle",
+        "GIT_SRC_DIR": "/workspace/scratch/161a1b7c00ce/tooling/git-oracle",
+        "GIT_TEST_DEFAULT_HASH": "sha1",
+        "GIT_TEST_EXT_CHAIN_LINT": "0",
+        "TEST_OUTPUT_DIRECTORY": "/workspace/scratch/717c1db38a84/rit-history-upstream-final/oracle-sha1-t6019-rev-list-ancestry-path",
+        "GIT_TEST_OPTS": "",
+        "GIT_CONFIG_NOSYSTEM": "1"
+      },
+      "exit": 0,
+      "seconds": 0.417,
+      "cells": [
+        "ok 1 - setup",
+        "ok 2 - log D..M",
+        "ok 3 - log --ancestry-path D..M",
+        "ok 4 - log --ancestry-path=F D..M",
+        "ok 5 - log --ancestry-path=G D..M",
+        "ok 6 - log --ancestry-path=H D..M",
+        "ok 7 - log --ancestry-path=K D..M",
+        "ok 8 - log --ancestry-path=F --ancestry-path=K D..M",
+        "ok 9 - log D..M -- M.t",
+        "ok 10 - log --ancestry-path D..M -- M.t",
+        "ok 11 - log F...I",
+        "ok 12 - log --ancestry-path F...I",
+        "ok 13 - log G..M -- G.t",
+        "ok 14 - log --ancestry-path G..M -- G.t",
+        "ok 15 - log --ancestry-path --simplify-merges G^..M -- G.t",
+        "ok 16 - setup criss-cross",
+        "ok 17 - criss-cross: rev-list --ancestry-path cb..bc",
+        "ok 18 - criss-cross: rev-list --ancestry-path --all ^cb"
+      ],
+      "plan": [
+        "1..18"
+      ],
+      "complete_tap": true,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "lane": "rit",
+      "format": "sha1",
+      "script": "t6019-rev-list-ancestry-path.sh",
+      "command": [
+        "sh",
+        "/workspace/scratch/161a1b7c00ce/tooling/git-oracle/t/t6019-rev-list-ancestry-path.sh",
+        "--no-bin-wrappers",
+        "--root=/workspace/scratch/717c1db38a84/rit-history-upstream-final/rit-sha1-t6019-rev-list-ancestry-path",
+        "--verbose-log"
+      ],
+      "environment": {
+        "LC_ALL": "C",
+        "GIT_TEST_INSTALLED": "/workspace/scratch/717c1db38a84/rit-history-candidate-v2",
+        "SLEY_BIN": "/workspace/scratch/717c1db38a84/rit-history-candidate-v2/git",
+        "GIT_BUILD_DIR": "/workspace/scratch/161a1b7c00ce/tooling/git-oracle",
+        "GIT_SRC_DIR": "/workspace/scratch/161a1b7c00ce/tooling/git-oracle",
+        "GIT_TEST_DEFAULT_HASH": "sha1",
+        "GIT_TEST_EXT_CHAIN_LINT": "0",
+        "TEST_OUTPUT_DIRECTORY": "/workspace/scratch/717c1db38a84/rit-history-upstream-final/rit-sha1-t6019-rev-list-ancestry-path",
+        "GIT_TEST_OPTS": "",
+        "GIT_CONFIG_NOSYSTEM": "1"
+      },
+      "exit": 1,
+      "seconds": 0.768,
+      "cells": [
+        "ok 1 - setup",
+        "ok 2 - log D..M",
+        "ok 3 - log --ancestry-path D..M",
+        "not ok 4 - log --ancestry-path=F D..M",
+        "not ok 5 - log --ancestry-path=G D..M",
+        "not ok 6 - log --ancestry-path=H D..M",
+        "not ok 7 - log --ancestry-path=K D..M",
+        "not ok 8 - log --ancestry-path=F --ancestry-path=K D..M",
+        "ok 9 - log D..M -- M.t",
+        "ok 10 - log --ancestry-path D..M -- M.t",
+        "ok 11 - log F...I",
+        "ok 12 - log --ancestry-path F...I",
+        "ok 13 - log G..M -- G.t",
+        "ok 14 - log --ancestry-path G..M -- G.t",
+        "ok 15 - log --ancestry-path --simplify-merges G^..M -- G.t",
+        "ok 16 - setup criss-cross",
+        "not ok 17 - criss-cross: rev-list --ancestry-path cb..bc",
+        "not ok 18 - criss-cross: rev-list --ancestry-path --all ^cb"
+      ],
+      "plan": [
+        "1..18"
+      ],
+      "complete_tap": true,
+      "failed": 7,
+      "skipped": 0
+    },
+    {
+      "lane": "oracle",
+      "format": "sha256",
+      "script": "t6019-rev-list-ancestry-path.sh",
+      "command": [
+        "sh",
+        "/workspace/scratch/161a1b7c00ce/tooling/git-oracle/t/t6019-rev-list-ancestry-path.sh",
+        "--no-bin-wrappers",
+        "--root=/workspace/scratch/717c1db38a84/rit-history-upstream-final/oracle-sha256-t6019-rev-list-ancestry-path",
+        "--verbose-log"
+      ],
+      "environment": {
+        "LC_ALL": "C",
+        "GIT_TEST_INSTALLED": "/workspace/scratch/161a1b7c00ce/tooling/git-prefix/bin",
+        "SLEY_BIN": "/workspace/scratch/717c1db38a84/rit-history-candidate-v2/git",
+        "GIT_BUILD_DIR": "/workspace/scratch/161a1b7c00ce/tooling/git-oracle",
+        "GIT_SRC_DIR": "/workspace/scratch/161a1b7c00ce/tooling/git-oracle",
+        "GIT_TEST_DEFAULT_HASH": "sha256",
+        "GIT_TEST_EXT_CHAIN_LINT": "0",
+        "TEST_OUTPUT_DIRECTORY": "/workspace/scratch/717c1db38a84/rit-history-upstream-final/oracle-sha256-t6019-rev-list-ancestry-path",
+        "GIT_TEST_OPTS": "",
+        "GIT_CONFIG_NOSYSTEM": "1"
+      },
+      "exit": 0,
+      "seconds": 0.417,
+      "cells": [
+        "ok 1 - setup",
+        "ok 2 - log D..M",
+        "ok 3 - log --ancestry-path D..M",
+        "ok 4 - log --ancestry-path=F D..M",
+        "ok 5 - log --ancestry-path=G D..M",
+        "ok 6 - log --ancestry-path=H D..M",
+        "ok 7 - log --ancestry-path=K D..M",
+        "ok 8 - log --ancestry-path=F --ancestry-path=K D..M",
+        "ok 9 - log D..M -- M.t",
+        "ok 10 - log --ancestry-path D..M -- M.t",
+        "ok 11 - log F...I",
+        "ok 12 - log --ancestry-path F...I",
+        "ok 13 - log G..M -- G.t",
+        "ok 14 - log --ancestry-path G..M -- G.t",
+        "ok 15 - log --ancestry-path --simplify-merges G^..M -- G.t",
+        "ok 16 - setup criss-cross",
+        "ok 17 - criss-cross: rev-list --ancestry-path cb..bc",
+        "ok 18 - criss-cross: rev-list --ancestry-path --all ^cb"
+      ],
+      "plan": [
+        "1..18"
+      ],
+      "complete_tap": true,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "lane": "rit",
+      "format": "sha256",
+      "script": "t6019-rev-list-ancestry-path.sh",
+      "command": [
+        "sh",
+        "/workspace/scratch/161a1b7c00ce/tooling/git-oracle/t/t6019-rev-list-ancestry-path.sh",
+        "--no-bin-wrappers",
+        "--root=/workspace/scratch/717c1db38a84/rit-history-upstream-final/rit-sha256-t6019-rev-list-ancestry-path",
+        "--verbose-log"
+      ],
+      "environment": {
+        "LC_ALL": "C",
+        "GIT_TEST_INSTALLED": "/workspace/scratch/717c1db38a84/rit-history-candidate-v2",
+        "SLEY_BIN": "/workspace/scratch/717c1db38a84/rit-history-candidate-v2/git",
+        "GIT_BUILD_DIR": "/workspace/scratch/161a1b7c00ce/tooling/git-oracle",
+        "GIT_SRC_DIR": "/workspace/scratch/161a1b7c00ce/tooling/git-oracle",
+        "GIT_TEST_DEFAULT_HASH": "sha256",
+        "GIT_TEST_EXT_CHAIN_LINT": "0",
+        "TEST_OUTPUT_DIRECTORY": "/workspace/scratch/717c1db38a84/rit-history-upstream-final/rit-sha256-t6019-rev-list-ancestry-path",
+        "GIT_TEST_OPTS": "",
+        "GIT_CONFIG_NOSYSTEM": "1"
+      },
+      "exit": 1,
+      "seconds": 0.767,
+      "cells": [
+        "ok 1 - setup",
+        "ok 2 - log D..M",
+        "ok 3 - log --ancestry-path D..M",
+        "not ok 4 - log --ancestry-path=F D..M",
+        "not ok 5 - log --ancestry-path=G D..M",
+        "not ok 6 - log --ancestry-path=H D..M",
+        "not ok 7 - log --ancestry-path=K D..M",
+        "not ok 8 - log --ancestry-path=F --ancestry-path=K D..M",
+        "ok 9 - log D..M -- M.t",
+        "ok 10 - log --ancestry-path D..M -- M.t",
+        "ok 11 - log F...I",
+        "ok 12 - log --ancestry-path F...I",
+        "ok 13 - log G..M -- G.t",
+        "ok 14 - log --ancestry-path G..M -- G.t",
+        "ok 15 - log --ancestry-path --simplify-merges G^..M -- G.t",
+        "ok 16 - setup criss-cross",
+        "not ok 17 - criss-cross: rev-list --ancestry-path cb..bc",
+        "not ok 18 - criss-cross: rev-list --ancestry-path --all ^cb"
+      ],
+      "plan": [
+        "1..18"
+      ],
+      "complete_tap": true,
+      "failed": 7,
+      "skipped": 0
+    }
+  ]
+}
