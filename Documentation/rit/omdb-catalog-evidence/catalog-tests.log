@@ -1,0 +1,20 @@
+command=['/workspace/scratch/161a1b7c00ce/tooling/lustr/target/release/lustr', '--engine', 'rustc', 'test', '--locked', '--offline', '--test', 'catalog']
+target=/workspace/scratch/161a1b7c00ce/tooling/gitr-target
+tmpdir=/tmp/rit-history-root-d4lewu10
+   Compiling rit v0.2.0 (/workspace/scratch/717c1db38a84/gitr)
+    Finished `test` profile [unoptimized] target(s) in 1.34s
+     Running tests/catalog.rs (/workspace/scratch/161a1b7c00ce/tooling/gitr-target/debug/deps/catalog-d188a369eaa26fc4)
+
+running 10 tests
+test catalog_extension_keeps_git_dispatch_and_rejects_ambient_storage_redirects ... ok
+test explicit_initialization_and_saved_reads_preserve_immutable_git_identity ... ok
+test catalog_lists_are_bounded_and_input_errors_do_not_mutate_records ... ok
+test moving_reference_retry_requires_the_original_immutable_target ... ok
+test preexisting_empty_foreign_and_nonregular_database_paths_are_not_adopted ... ok
+test linked_worktrees_share_catalog_while_bare_clones_have_separate_metadata ... ok
+test saved_records_fail_when_git_objects_are_missing_and_failed_put_has_no_receipt ... ok
+test separate_process_writers_cannot_both_publish_the_same_expected_generation ... ok
+test symlink_catalog_paths_do_not_redirect_creation_or_reading ... ok
+test receipts_replay_original_results_and_tombstones_prevent_stale_recreation ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.74s

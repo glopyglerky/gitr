@@ -508,7 +508,14 @@
     "project_contributions": "MIT OR Apache-2.0",
     "historical_grit_linked": false,
     "database_prototype_linked": false,
-    "note": "Other dependency licenses remain applicable. Retained source repository is mixed-license; no upstream code was relicensed."
+    "note": "Other dependency licenses remain applicable. Retained source repository is mixed-license; no upstream code was relicensed.",
+    "snapshot_metadata": {
+      "repository": "glopyglerky/omdb",
+      "revision": "4c7c6c35d61372d0cd538ef3824a2f47eed2c4d5",
+      "package": "redb",
+      "license": "MIT OR Apache-2.0",
+      "identity_record": "Documentation/rit/omdb-dependency.json"
+    }
   },
   "new_decision_material": {
     "paths": [
@@ -534,5 +541,16 @@
     "tests/git_workflows.rs",
     "examples/verify_import.rs",
     "tests/grep_patterns.rs"
-  ]
+  ],
+  "omdb_catalog_contributions": {
+    "paths": [
+      "src/catalog.rs",
+      "src/catalog_cli.rs",
+      "tests/catalog.rs",
+      "Documentation/rit/omdb-catalog.md",
+      "Documentation/rit/omdb-dependency.json"
+    ],
+    "license": "MIT OR Apache-2.0",
+    "scope": "New project-specific API integration, CLI, qualification tests and explanatory records. Excludes the dependency implementation and upstream license texts, which retain their own terms."
+  }
 }

@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "scope": "Final staged implementation, documentation, notices and evidence paths.",
+  "tracked_paths": 1851,
+  "classes": {
+    "notice/metadata": 22,
+    "declarative/data": 201,
+    "prose/evidence": 506,
+    "rust": 526,
+    "rust/compatibility-fixtures": 596
+  },
+  "complete_log_sha256": "1ef1637e0503c69bd59caacf372b719be06cabac4c04075e969ed5838e11ea13"
+}

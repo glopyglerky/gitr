@@ -1,7 +1,7 @@
 # Rit
 
-Rit assembles an upstream Rust implementation of Git before adding database,
-forge, or performance extensions. Active development is on
+Rit assembles an upstream Rust implementation of Git and uses the omdb fork
+for explicitly invoked snapshot metadata. Active development is on
 [`master`](https://github.com/glopyglerky/rit/tree/master). The project was renamed
 from Gitr to Rit; see the [rename record](Documentation/rit/rename.md) for the
 current executable and CI names. Historical reports and archived source remain
@@ -109,22 +109,47 @@ verified raw blob bytes. `--path-hex` preserves arbitrary Git path bytes.
 
 This implements the source reader described in the
 [snapshot implementation record](Documentation/rit/snapshot-reader.md).
-It is a local read interface, with no retention lease, writable overlay, mounted
-filesystem, or active database. Symlinks return target bytes, checkout filters
+It is a local read interface, with no retention lease, writable overlay, or mounted
+filesystem. Symlinks return target bytes, checkout filters
 are not applied, and unavailable objects fail. See the record for size limits
 and the four ambient storage variables that must be unset.
+
+## Save snapshot identities in omdb
+
+The active metadata catalog uses the pinned
+[`glopyglerky/omdb` fork](https://github.com/glopyglerky/omdb/tree/4c7c6c35d61372d0cd538ef3824a2f47eed2c4d5)
+with ordinary std features. Initialize it explicitly in a repository:
+
+```sh
+rit --rit-db init --repo /path/to/repository
+rit --rit-db put --repo /path/to/repository --name build-source --revision HEAD --expect-generation 0 --request-id build-source-1
+rit --rit-db get --repo /path/to/repository --name build-source
+rit --rit-snapshot read --repo /path/to/repository --saved build-source --path src/main.rs
+```
+
+Updates and deletions require the last returned generation. Each mutation
+commits its retry receipt atomically with the record; repeating the same request
+returns its original result. Use the original full commit ID when retrying a
+put after a branch moves. Linked worktrees share the catalog in the common Git
+directory. Ordinary Git commands do not create or open it.
+
+Saved identities do not retain objects against Git pruning. The catalog stores
+metadata; source payloads remain in standard Git objects and packs. See the
+[catalog implementation and qualification](Documentation/rit/omdb-catalog.md)
+for the schema, concurrency, recovery, platform limits, and remaining work.
 
 ## Delivery order
 
 1. Establish native Git behavior and interoperability against a pinned oracle.
 2. Close the remaining conformance differences, including remote and platform
    qualification. Unsupported behavior stays explicit.
-3. Integrate redb behind stable Git contracts and measure any speed changes.
+3. Extend the omdb metadata integration behind stable Git contracts and measure
+   any speed changes. The bounded snapshot catalog is active already.
 
 The [storage architecture assessment](Documentation/rit/storage-architecture-review.md)
 reviews redb, Fjall, SlateDB, immutable payload storage, and lazy CI snapshots.
-It retains redb as the future metadata choice and defines the measurements and
-durability requirements for later integration. It does not activate a new backend.
+It defines the measurements and durability requirements for broader integration.
+The snapshot catalog now consumes the owner's omdb fork of redb.
 
 The [omdb/redb fact check](Documentation/rit/omdb-redb-factcheck.md) records the
 owner's redb fork, verified backend and no_std APIs, and the remaining durability
@@ -137,13 +162,14 @@ The old Grit and Rbit donors remain available for selective reuse. They are
 outside the new executable's dependency graph. No existing repository database
 is opened, converted, or deleted by this source migration. The old `db`,
 `assets`, `lfs`, `actions`, and `doctor` extensions are not active commands in
-this Git-first frontend. Redb remains the selected future database.
+this Git-first frontend. The new `--rit-db` catalog is a separate integration.
 
 ## Source map
 
 | Path | Purpose |
 | --- | --- |
 | `src/lib.rs`, `src/main.rs`, `src/bin` | Thin Rit, Git, and Scalar entrypoints |
+| `src/catalog.rs`, `src/catalog_cli.rs` | Active omdb snapshot metadata and explicit CLI |
 | `vendor/sley/crates` | Imported Git engine, frontend, and Rust tests |
 | `vendor/sley/NOTICE.md`, `Documentation/gitr/sley-import.json` | Upstream identity, file origins, exclusions, and local patches |
 | `tests/git_workflows.rs` | Product workflows with no Git executable on candidate PATH |
@@ -157,7 +183,9 @@ as the product implementation or bundled as a fallback.
 ## Licensing and non-Rust boundaries
 
 Rit-controlled code is available under MIT OR Apache-2.0. Sley declares
-Apache-2.0. Historical Grit's GPL-2.0-only CLI is retained as source but is no
+Apache-2.0; the pinned omdb library declares MIT OR Apache-2.0, with its
+[upstream license texts retained](Documentation/rit/omdb-notices).
+Historical Grit's GPL-2.0-only CLI is retained as source but is no
 longer linked into the default executable. Donor licenses are not rewritten.
 See [LICENSE](LICENSE) and the [license map](Documentation/gitr/licensing.md).
 

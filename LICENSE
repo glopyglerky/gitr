@@ -39,7 +39,10 @@ otherwise. Future imports must retain their actual licenses and provenance.
 Current combined executable
 ---------------------------
 
-The active root package links Sley's Apache-2.0 Rust engine and frontend.
+The active root package links Sley's Apache-2.0 Rust engine and frontend,
+and the omdb fork's MIT OR Apache-2.0 redb library for snapshot metadata.
+The pinned database identity and retained upstream notices are recorded in
+Documentation/rit/omdb-dependency.json and Documentation/rit/omdb-notices/.
 Historical grit-git and the deferred database/forge prototype are outside its
 dependency graph. Their GPL-2.0-only terms still apply to their retained source;
 this source migration does not relicense those files.

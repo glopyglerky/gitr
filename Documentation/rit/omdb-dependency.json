@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "repository": "https://github.com/glopyglerky/omdb",
+  "revision": "4c7c6c35d61372d0cd538ef3824a2f47eed2c4d5",
+  "tree": "860ca397a28529e1df4e9ca74ca0949057986852",
+  "dependency_alias": "omdb",
+  "package": "redb",
+  "package_version": "4.5.0",
+  "features": {
+    "default_features": true,
+    "resolved": [
+      "default",
+      "std"
+    ],
+    "experimental_api_5": false
+  },
+  "upstream_repository": "https://github.com/cberner/redb",
+  "upstream_library_revision": "9273718b3ba5282580ca9035b0fb95b5bf13988f",
+  "upstream_src_tree": "4a63039a6bea5459dfe997ea3dc315fa3b6bbc7a",
+  "fork_src_tree": "4a63039a6bea5459dfe997ea3dc315fa3b6bbc7a",
+  "library_delta": "The fork commit adds an optional example, its CI, and documentation. src/ and build.rs match the previously reviewed upstream revision exactly.",
+  "consumption": "Pinned Git dependency; no vendor source copy or local patches. Cargo retains the fork source and license files in its dependency checkout.",
+  "selected_target": "redb library with std; omdb_lanes example and experimental-api-5 are not enabled by Rit.",
+  "license_expression": "MIT OR Apache-2.0",
+  "license_files": [
+    {
+      "path": "LICENSE-MIT",
+      "sha256": "9dc47584f810f4a0f88197b590bf428b154dc5a7f87237c06a39720241e0461f",
+      "url": "https://github.com/glopyglerky/omdb/blob/4c7c6c35d61372d0cd538ef3824a2f47eed2c4d5/LICENSE-MIT",
+      "retained_path": "Documentation/rit/omdb-notices/LICENSE-MIT"
+    },
+    {
+      "path": "LICENSE-APACHE",
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "url": "https://github.com/glopyglerky/omdb/blob/4c7c6c35d61372d0cd538ef3824a2f47eed2c4d5/LICENSE-APACHE",
+      "retained_path": "Documentation/rit/omdb-notices/LICENSE-APACHE"
+    }
+  ],
+  "new_lock_packages": [
+    "redb 4.5.0 from the pinned fork"
+  ],
+  "transitive_runtime_dependency": "libc 0.2.189, already present in the root lock",
+  "integration_scope": "Explicit repository snapshot catalog metadata; Git objects and refs remain in the native Git store.",
+  "prior_review": "omdb-redb-factcheck.md",
+  "constraints": [
+    "No custom StorageBackend or cloud durability claim.",
+    "No no_std, bare-metal, distributed writer, or Wasmtime qualification.",
+    "No automatic opening or migration of archived database prototypes."
+  ]
+}

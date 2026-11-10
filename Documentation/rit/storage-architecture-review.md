@@ -8,8 +8,9 @@ of full native Git compatibility.
 
 The subsequent [snapshot reader implementation](snapshot-reader.md) delivers
 the first local source-read interface over the existing Git object store.
-The database, writable overlay, retention, and worker layers discussed here
-remain proposed work.
+The later [omdb snapshot catalog](omdb-catalog.md) activates the owner's fork
+for durable named snapshot metadata. The broader database integration, writable
+overlay, retention, and worker layers discussed here remain proposed work.
 
 The subsequent [omdb/redb API fact check](omdb-redb-factcheck.md) verifies the
 user's redb fork, its no_std feature combination, custom storage contract, and

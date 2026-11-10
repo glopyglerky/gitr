@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "project": "Rit",
+  "recorded_at": "2026-11-10T15:04:50.022562+00:00",
+  "baseline_commit": "44538cfe8d0c2d503fc6572ea262d4cd4173eb63",
+  "scope": "Active opt-in omdb named snapshot catalog, checked generations, tombstones and atomic retry receipts, connected saved-source reads. Native Git storage/dispatch unchanged.",
+  "database": {
+    "repository": "https://github.com/glopyglerky/omdb",
+    "revision": "4c7c6c35d61372d0cd538ef3824a2f47eed2c4d5",
+    "package": "redb",
+    "alias": "omdb",
+    "version": "4.5.0",
+    "features": [
+      "default",
+      "std"
+    ],
+    "cache_budget_bytes": 8388608
+  },
+  "local_compiler": {
+    "lustr_revision": "6339fbb104d6adda4be7e6be7dc637a6a9e5586b",
+    "engine": "rustc",
+    "rust_version": "1.99.1",
+    "rust_commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
+    "host": "x86_64-unknown-linux-gnu",
+    "offline": true,
+    "application_cargo_build_jobs": 4,
+    "rust_test_threads": 2,
+    "debug_information": false,
+    "incremental": false
+  },
+  "reference_git": {
+    "version": "2.55.0",
+    "commit": "e9019fcafe0040228b8631c30f97ae1adb61bcdc",
+    "sha256": "bb7047c1ae5ed48d5cf47084595e7a3be4463ecd177df81ead8bfdba41d7a036"
+  },
+  "candidate": {
+    "binary_sha256": "dd9cd18ed31138a45ff54374c6830444c8b4e5a755b5da934e04d321df0c72a6",
+    "source_sha256": {
+      "Cargo.toml": "5c5cacdd10806123650f042f605dd5cf607b5d95f71c8fd19f19481dc1a10943",
+      "Cargo.lock": "4fda37b3fdeb21e5b95170efaa7fe92d2f331a12e4df8f5da5846e09c092d4aa",
+      "src/catalog.rs": "62e7bb83322e9717373556c152146c4e3eab70023e0a825e934f9e1220d1f1ee",
+      "src/catalog_cli.rs": "c349a70b33cf89b431e8aafb29b799a525f70eaa5ff5a496b17876b9359eb2cf",
+      "src/lib.rs": "5a48d7247358d592341cbf8ee18e6a86d86bc1bbc38ab91cf09c0ade3734c1a4",
+      "src/snapshot.rs": "f0f87ec5ffe4a7776d05409e8c5b59f6aa4440f9e8be5e407bb049bd747f0fea",
+      "src/snapshot_cli.rs": "b26857fea27fa6b2d8ac58b902e2a2ecb32cfd7a0308ed7f99f4b3cbc1bb10f2",
+      "tests/catalog.rs": "8875f147b8ef076f525a2f55d306ed98af4a26cf9ae56e374fa98d161313c2ad",
+      "xtask/src/main.rs": "4a73b00c478eddbaf3d010533e6defb2aceb2f0e80449ffd1c50188fa1530240",
+      "examples/verify_import.rs": "ff3d40314c296ac96387db410d5b4853be1f02c8246bfc51a6c7e2d81fadbdb4"
+    }
+  },
+  "checks": {
+    "root": {
+      "passed": 33,
+      "failed": 0,
+      "ignored": 0,
+      "command": "lustr --engine rustc test --locked --offline --all-features --all-targets --no-fail-fast",
+      "log": "root-tests.log",
+      "breakdown": {
+        "catalog_contract": 5,
+        "catalog_product": 10,
+        "snapshot_unit": 2,
+        "snapshot_product": 11,
+        "git_workflows_and_grep": 5
+      }
+    },
+    "catalog_product": {
+      "passed": 10,
+      "failed": 0,
+      "log": "catalog-tests.log",
+      "formats": [
+        "sha1",
+        "sha256"
+      ],
+      "candidate_PATH": "empty fixture directory",
+      "coverage": [
+        "explicit and unborn initialization",
+        "saved reads after refs/worktrees change",
+        "CAS, concurrent processes, tombstones and stale recreation",
+        "idempotent receipt replay after later mutations or pruning",
+        "conflicting request IDs and moving-ref retries",
+        "bare and linked-worktree scope",
+        "bounded pagination and invalid input",
+        "read-only file preservation and clean foreign-store refusal",
+        "symlink and nonregular path rejection",
+        "missing Git content and repository environment isolation"
+      ]
+    },
+    "fault_injection": {
+      "test": "catalog::tests::injected_io_failures_recover_record_and_receipt_together",
+      "boundaries": 24,
+      "failures_before": [
+        "write",
+        "set_len",
+        "sync_data"
+      ],
+      "assertions": [
+        "record and receipt recover together or neither",
+        "acknowledged records survive reopen",
+        "retry converges to generation one"
+      ],
+      "qualification": "Synthetic backend I/O failures; not physical power loss."
+    },
+    "policy_tests": {
+      "passed": 9,
+      "failed": 0,
+      "log": "policy-tests.log"
+    },
+    "policy": {
+      "passed": true,
+      "log": "policy.log"
+    },
+    "source_import": {
+      "passed": true,
+      "log": "import-verification.log",
+      "donor_files": 680,
+      "adapted": 36,
+      "added": 11,
+      "vendored_sources_changed": false
+    },
+    "inventory": {
+      "passed": true,
+      "record": "audit-summary.json"
+    },
+    "review": {
+      "standards_remaining": 0,
+      "spec_remaining": 0,
+      "record": "review.json"
+    }
+  },
+  "resolved_findings": [
+    "Preflight clean databases read-only before a writable open can affect a foreign schema.",
+    "Persist reserved database file and directory entries before application-header publication.",
+    "Require exact omdb fork in both composition guards; preserve prior archive/source exclusions."
+  ],
+  "initial_gate_failure": {
+    "log": "initial-import-rejection.log",
+    "cause": "Import verifier still prohibited every redb dependency after user selected omdb.",
+    "resolution": "Require exactly the reviewed fork source/version; source-origin and license verification unchanged."
+  },
+  "logs_sha256": {
+    "policy.log": "ff57d1fb768c3b8490c15f8016b20d98f73c8e7fcc621a3ccc82ee0617f6d616",
+    "catalog-tests.log": "2b50c62427864ef1400071e96488a62ab4660fc3cfcd5f819776f9b63314c2ff",
+    "initial-import-rejection.log": "dfa2d5d9c79e02e4e5d694ee08225ad2178cf55695a0e1a4290aa49413fc53f6",
+    "policy-tests.log": "11b6f4288fef127bf4c2e14c45487938e7c32d3c118c023088dece48f5feedba",
+    "import-verification.log": "c52c23ff536068fe5098c24b6a72c16397750dd4ff87ec1682d3b52706ec7316",
+    "root-tests.log": "4873ec98ad7377d25b801f423a9619261171e23f3e13ac60bb2d5fcad8014159"
+  },
+  "hosted_bluefe": {
+    "workflow": ".github/workflows/rit-native.yml",
+    "status": "Separate post-publication Actions gate. Consult the run attached to the published commit; local rustc checks are not produced-BlueFe execution."
+  },
+  "limitations": [
+    "No full Git parity claim.",
+    "Unix initialization implementation; Linux execution only.",
+    "No object retention, streaming memory bound, writable overlay or Wasmtime worker.",
+    "No distributed or cloud database; one write transaction per local database.",
+    "Receipts and tombstones currently retained indefinitely.",
+    "Trusted repository filesystem; no tenant authentication or hostile rename isolation.",
+    "Dirty database recovery may precede application-header validation on explicit writable open.",
+    "No archived database migration, physical power-loss certification or performance improvement claim."
+  ]
+}

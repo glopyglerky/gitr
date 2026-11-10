@@ -1,0 +1,22 @@
+{
+  "baseline": "44538cfe8d0c2d503fc6572ea262d4cd4173eb63",
+  "standards": {
+    "remaining_findings": 0,
+    "resolved": [
+      "Read-only preflight before opening a clean foreign store for writing",
+      "Document dirty-store recovery before application-header validation"
+    ]
+  },
+  "spec": {
+    "remaining_findings": 0,
+    "resolved": [
+      "Synchronize newly reserved file and parent directories before publishing a usable application header"
+    ]
+  },
+  "boundaries": [
+    "Local trusted repository filesystem; no tenant sandbox",
+    "Unix initialization path; Linux runtime qualification",
+    "Snapshot identities do not retain Git objects",
+    "Fault tests inject I/O errors; no physical power-loss certification"
+  ]
+}

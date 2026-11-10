@@ -22,14 +22,22 @@ the tracked product source. Do not reimport the C Git implementation to fill gap
 
 ## Database, forge, and preserved work
 
-Redb remains the selected future database, with the reviewed 4.5.0 pin preserved
-in `Documentation/gitr/archive/database-first`. The archived root source,
-manifest, lockfile, and tests retain the catalog, object-store, Git LFS, chunking,
-Wasm actions, and forge work. They are not active product capabilities today.
-Do not delete, migrate, or open users' existing databases as part of this source
-reorganization. Later integration must preserve exact Git identities, durability,
-compare-and-swap, idempotency, worker fencing, atomic receipts and artifact
-publication, bounded-memory payloads, and independently verifiable exports.
+The owner selected the `glopyglerky/omdb` fork for Rit's database. Its pinned
+`redb` package is consumed under the `omdb` alias with ordinary std features.
+The active integration is the explicitly invoked, repository-scoped snapshot
+catalog. It must preserve checked generations, deletion tombstones, and atomic
+idempotency receipts. This bounded integration is authorized while full Git
+parity remains unfinished. Git objects and packs retain the Sley implementation;
+catalog records do not establish retention against Git pruning.
+
+The reviewed registry redb 4.5.0 pin remains preserved in
+`Documentation/gitr/archive/database-first`. That archived source, manifest,
+lockfile, and tests retain the old catalog, object-store, Git LFS, chunking,
+Wasm actions, and forge work. Those prototypes remain inactive. Do not delete,
+migrate, or automatically open their databases. Further integration must preserve
+exact Git identities, durability, compare-and-swap, idempotency, worker fencing,
+atomic receipts and artifact publication, bounded-memory payloads, and
+independently verifiable exports.
 
 Do not activate SurrealDB, SurrealKV, or SurrealDS. Keep Rit independently
 installable without mandatory Omnidia services. Search indexes are rebuildable

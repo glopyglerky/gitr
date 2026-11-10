@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 //! Git-compatible entrypoints over the imported native Rust engine.
-//! Repository operations have one implementation; no C Git fallback or database
-//! overlay is selected by command name.
+//! Git commands use the native engine. Explicit Rit options expose immutable
+//! source reads and the repository's omdb metadata catalog.
 
 use std::{ffi::OsString, path::Path, process::ExitCode};
 
+pub mod catalog;
+mod catalog_cli;
 pub mod snapshot;
 mod snapshot_cli;
 
@@ -19,6 +21,15 @@ pub fn main() -> ExitCode {
     let raw_args: Vec<OsString> = invocation.collect();
     // An explicit Rit-only option keeps Git command names, aliases, and helper
     // dispatch unchanged. Preserve OsString until the snapshot path is decoded.
+    if basename == "rit" && raw_args.first().is_some_and(|arg| arg == "--rit-db") {
+        return match catalog_cli::run(&raw_args[1..]) {
+            Ok(()) => ExitCode::SUCCESS,
+            Err(error) => {
+                eprintln!("rit db: {error}");
+                ExitCode::from(error.exit_code())
+            }
+        };
+    }
     if basename == "rit" && raw_args.first().is_some_and(|arg| arg == "--rit-snapshot") {
         return match snapshot_cli::run(&raw_args[1..]) {
             Ok(()) => ExitCode::SUCCESS,

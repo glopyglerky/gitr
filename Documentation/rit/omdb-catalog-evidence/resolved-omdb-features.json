@@ -1,0 +1,11 @@
+[
+  {
+    "name": "redb",
+    "source": "git+https://github.com/glopyglerky/omdb?rev=4c7c6c35d61372d0cd538ef3824a2f47eed2c4d5#4c7c6c35d61372d0cd538ef3824a2f47eed2c4d5",
+    "version": "4.5.0",
+    "features": [
+      "default",
+      "std"
+    ]
+  }
+]

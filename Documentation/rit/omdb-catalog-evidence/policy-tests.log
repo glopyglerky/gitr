@@ -1,0 +1,21 @@
+command=['/workspace/scratch/161a1b7c00ce/tooling/lustr/target/release/lustr', '--engine', 'rustc', 'test', '--manifest-path', 'xtask/Cargo.toml', '--locked', '--offline']
+target=/workspace/scratch/161a1b7c00ce/tooling/xtask-target
+tmpdir=/tmp/rit-history-policy-9tykg2ru
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Finished `test` profile [unoptimized] target(s) in 0.10s
+     Running unittests src/main.rs (/workspace/scratch/161a1b7c00ce/tooling/xtask-target/debug/deps/rit_xtask-3118a42927ca7cff)
+
+running 9 tests
+test tests::accepted_redb ... ok
+test tests::exact_required_matching_pin ... ok
+test tests::forbidden_transitive_lock ... ok
+test tests::forbidden_alias_optional_target_workspace ... ok
+test tests::omdb_rejects_registry_or_different_fork_even_at_the_same_version ... ok
+test tests::omdb_cannot_gain_experimental_features_through_other_root_declarations ... ok
+test tests::retired_paths ... ok
+test tests::sley_build_requires_recorded_engine_and_separate_old_composition ... ok
+test tests::omdb_requires_std_and_rejects_unqualified_features_or_source_overrides ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

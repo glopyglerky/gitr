@@ -1,0 +1,9 @@
+command=['/workspace/scratch/161a1b7c00ce/tooling/lustr/target/release/lustr', '--engine', 'rustc', 'run', '--manifest-path', 'xtask/Cargo.toml', '--locked', '--offline', '--', 'policy']
+target=/workspace/scratch/161a1b7c00ce/tooling/xtask-target
+tmpdir=/tmp/rit-history-policy-81_029wf
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Finished `dev` profile [unoptimized] target(s) in 0.10s
+     Running `/workspace/scratch/161a1b7c00ce/tooling/xtask-target/debug/rit-xtask policy`
+storage policy: Sley Git engine; pinned omdb snapshot catalog; archived redb 4.5.0 preserved; no active Surreal dependencies or grit-git linkage

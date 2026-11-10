@@ -100,7 +100,7 @@ jobs:
       - name: Verify imported source provenance through Lustr and BlueFe
         if: ${{ !cancelled() && steps.build_root.outcome == 'success' }}
         run: '"${{ runner.temp }}/rit-qualify-native" verify-import'
-      - name: Check Git-first composition and retained redb policy through Lustr and BlueFe
+      - name: Check Git composition, omdb and archived redb pins through Lustr and BlueFe
         if: ${{ !cancelled() && steps.build_root.outcome == 'success' }}
         run: '"${{ runner.temp }}/rit-qualify-native" policy'
       - name: Audit repository source through Lustr and BlueFe

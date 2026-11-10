@@ -10,6 +10,7 @@ use std::{
 use serde_json::{Value, json};
 use sley::{GitError, Result};
 
+use crate::catalog::SnapshotCatalog;
 use crate::snapshot::{DEFAULT_MAX_BLOB_BYTES, MAX_BLOB_BYTES, Snapshot, SnapshotEntry};
 
 const HELP: &str = "\
@@ -17,6 +18,7 @@ usage: rit --rit-snapshot <inspect|list|stat|read> [options]
 
   --repo PATH         Repository to open, default: .
   --revision REV      Commit ID, HEAD, ref name, or annotated tag, default: HEAD
+  --saved NAME        Saved catalog snapshot, instead of --revision
   --path PATH         Exact repository-relative path; required for read
   --path-hex HEX      Path bytes encoded as hexadecimal, instead of --path
   --max-bytes N       Read limit, default: 8388608; maximum: 67108864
@@ -31,6 +33,8 @@ Revision expressions such as HEAD~1 are not accepted. Resolve them to a full
 commit ID first. Paths are not normalized and symlinks are not followed.
 Reads do not apply checkout filters or fetch missing objects. Snapshot IDs do
 not retain objects against pruning. Selected objects are materialized in memory.
+--saved opens an existing catalog without creating it. Saved records also do
+not retain objects; a deleted record or unavailable Git object is an error.
 
 GIT_DIR and GIT_WORK_TREE do not redirect this reader. Unset GIT_COMMON_DIR,
 GIT_OBJECT_DIRECTORY, GIT_ALTERNATE_OBJECT_DIRECTORIES and GIT_REFERENCE_BACKEND
@@ -49,6 +53,7 @@ struct Options {
     action: Action,
     repository: PathBuf,
     revision: String,
+    saved: Option<String>,
     path: Vec<u8>,
     max_bytes: u64,
 }
@@ -123,6 +128,7 @@ fn parse(args: &[OsString]) -> Result<Option<Options>> {
     };
     let mut repository = None;
     let mut revision = None;
+    let mut saved = None;
     let mut path = None;
     let mut max_bytes = None;
     let mut remaining = args[1..].iter();
@@ -133,7 +139,7 @@ fn parse(args: &[OsString]) -> Result<Option<Options>> {
         }
         if !matches!(
             option,
-            "--repo" | "--revision" | "--path" | "--path-hex" | "--max-bytes"
+            "--repo" | "--revision" | "--saved" | "--path" | "--path-hex" | "--max-bytes"
         ) {
             return Err(usage(format!("unknown snapshot option {option:?}")));
         }
@@ -150,6 +156,7 @@ fn parse(args: &[OsString]) -> Result<Option<Options>> {
             "--revision" => {
                 set_once(&mut revision, utf8(value, option)?.to_owned(), option)?;
             }
+            "--saved" => set_once(&mut saved, utf8(value, option)?.to_owned(), option)?,
             "--path" => set_once(&mut path, path_bytes(value)?, "--path/--path-hex")?,
             "--path-hex" => set_once(&mut path, from_hex(value)?, "--path/--path-hex")?,
             "--max-bytes" => {
@@ -170,6 +177,9 @@ fn parse(args: &[OsString]) -> Result<Option<Options>> {
             _ => unreachable!(),
         }
     }
+    if revision.is_some() && saved.is_some() {
+        return Err(usage("--revision and --saved are mutually exclusive"));
+    }
     if action == Action::Inspect && path.is_some() {
         return Err(usage("inspect does not accept --path or --path-hex"));
     }
@@ -183,6 +193,7 @@ fn parse(args: &[OsString]) -> Result<Option<Options>> {
         action,
         repository: repository.unwrap_or_else(|| PathBuf::from(".")),
         revision: revision.unwrap_or_else(|| "HEAD".to_owned()),
+        saved,
         path: path.unwrap_or_default(),
         max_bytes: max_bytes.unwrap_or(DEFAULT_MAX_BLOB_BYTES),
     }))
@@ -235,7 +246,12 @@ pub(crate) fn run(args: &[OsString]) -> Result<()> {
         output.write_all(HELP.as_bytes())?;
         return Ok(());
     };
-    let snapshot = Snapshot::open(&options.repository, &options.revision)?;
+    let snapshot = match options.saved {
+        Some(name) => SnapshotCatalog::open(&options.repository)
+            .and_then(|catalog| catalog.snapshot(&name))
+            .map_err(|error| GitError::Command(error.to_string()))?,
+        None => Snapshot::open(&options.repository, &options.revision)?,
+    };
     match options.action {
         Action::Inspect => write_json(&mut output, &identity(&snapshot)),
         Action::List => {

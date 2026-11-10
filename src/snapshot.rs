@@ -87,24 +87,7 @@ impl Snapshot {
     /// policy for those variables.
     /// Replacement refs cannot change the meaning of an object ID.
     pub fn open(path: &Path, revision: &str) -> Result<Self> {
-        for variable in [
-            "GIT_COMMON_DIR",
-            "GIT_OBJECT_DIRECTORY",
-            "GIT_ALTERNATE_OBJECT_DIRECTORIES",
-            "GIT_REFERENCE_BACKEND",
-        ] {
-            if std::env::var_os(variable).is_some() {
-                return Err(GitError::InvalidFormat(format!(
-                    "snapshot reads require {variable} to be unset"
-                )));
-            }
-        }
-        let repository = Repository::open_with(
-            path,
-            OpenOptions::new()
-                .respect_environment(false)
-                .replace_objects(false),
-        )?;
+        let repository = open_repository(path)?;
         let oid = resolve_revision(&repository, revision)?;
         let (commit, tree) = resolve_commit(&repository, oid)?;
         let snapshot = Self {
@@ -253,6 +236,29 @@ impl Snapshot {
             })
             .collect())
     }
+}
+
+// Catalog operations use the same explicit repository and storage policy, even
+// before the first commit exists. Keep environment checks in one place.
+pub(crate) fn open_repository(path: &Path) -> Result<Repository> {
+    for variable in [
+        "GIT_COMMON_DIR",
+        "GIT_OBJECT_DIRECTORY",
+        "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+        "GIT_REFERENCE_BACKEND",
+    ] {
+        if std::env::var_os(variable).is_some() {
+            return Err(GitError::InvalidFormat(format!(
+                "snapshot reads require {variable} to be unset"
+            )));
+        }
+    }
+    Repository::open_with(
+        path,
+        OpenOptions::new()
+            .respect_environment(false)
+            .replace_objects(false),
+    )
 }
 
 fn path_components(path: &[u8]) -> Result<Vec<&[u8]>> {

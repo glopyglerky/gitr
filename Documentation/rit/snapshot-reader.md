@@ -7,6 +7,10 @@ This implements the local source-reader portion of the
 the existing native Sley object store. It does not change storage formats or
 activate the archived redb, forge, LFS, or Wasm implementations.
 
+The later [omdb catalog integration](omdb-catalog.md) adds durable named
+snapshot identities and `--saved NAME` reads through this same source reader.
+It does not add retention against pruning or a worker filesystem.
+
 ## What is implemented
 
 The public [`rit::snapshot`](../../src/snapshot.rs) module opens a repository,

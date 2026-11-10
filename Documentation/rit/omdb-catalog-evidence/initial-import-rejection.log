@@ -1,0 +1,8 @@
+command=['/workspace/scratch/161a1b7c00ce/tooling/lustr/target/release/lustr', '--engine', 'rustc', 'run', '--locked', '--offline', '--example', 'verify_import']
+target=/workspace/scratch/161a1b7c00ce/tooling/gitr-target
+tmpdir=/tmp/rit-history-root-0jm9nlif
+    Blocking waiting for file lock on build directory
+   Compiling rit v0.2.0 (/workspace/scratch/717c1db38a84/gitr)
+    Finished `dev` profile [unoptimized] target(s) in 2.47s
+     Running `/workspace/scratch/161a1b7c00ce/tooling/gitr-target/debug/examples/verify_import`
+Error: "historical engine or deferred database is linked into the active lock"
