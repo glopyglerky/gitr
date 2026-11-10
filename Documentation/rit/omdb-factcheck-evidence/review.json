@@ -1,0 +1,24 @@
+{
+  "scope": "Documentation and fact-check evidence only; no production source or manifest changes.",
+  "rit_parent": "4faf86e79498d1ebf5f385dc5d3bec91b218b266",
+  "api_version_review": "No material remaining finding",
+  "durability_concurrency_vfs_review": "No material remaining finding",
+  "rit_policy": {
+    "exit_code": 0,
+    "log": "rit-policy.log"
+  },
+  "rit_inventory": {
+    "exit_code": 0,
+    "command": "lustr --engine rustc run --manifest-path xtask/Cargo.toml --locked -- audit",
+    "staged_paths": 1832,
+    "class_counts": {
+      "declarative/data": 195,
+      "notice/metadata": 20,
+      "prose/evidence": 498,
+      "rust": 523,
+      "rust/compatibility-fixtures": 596
+    },
+    "full_log_sha256": "8c6dfa4bff6b61c05db8dfe2e6109825fad3b3d250f60a3ede581eaf58de640a",
+    "note": "Inventory covered the staged documentation and probe evidence before this review record was generated. Classification is not proof of absence of embedded code; probe-source.md explicitly records inactive Rust and Python qualification source."
+  }
+}

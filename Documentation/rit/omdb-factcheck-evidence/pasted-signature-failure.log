@@ -1,0 +1,71 @@
+command=['/workspace/scratch/161a1b7c00ce/tooling/lustr/target/release/lustr', '--engine', 'rustc', 'check', '--offline', '--locked', '--bin', 'pasted', '--features', 'preview']
+   Compiling redb v4.5.0 (/workspace/scratch/717c1db38a84/omdb-source)
+    Checking libc v0.2.189
+    Checking omdb-api-probe v0.0.0 (/workspace/scratch/717c1db38a84/omdb-api-probe)
+error[E0050]: method `sync_data` has 2 parameters but the declaration in trait `sync_data` has 1
+  --> src/bin/pasted.rs:27:18
+   |
+27 |     fn sync_data(&self, _eventual: bool) -> Result<(), BackendError> {
+   |                  ^^^^^^^^^^^^^^^^^^^^^^ expected 1 parameter, found 2
+   |
+   = note: `sync_data` from trait: `fn(&Self) -> Result<(), BackendError>`
+help: remove the extra parameter to match the trait
+   |
+27 -     fn sync_data(&self, _eventual: bool) -> Result<(), BackendError> {
+27 +     fn sync_data(&self) -> Result<(), BackendError> {
+   |
+
+error[E0053]: method `read` has an incompatible type for trait
+  --> src/bin/pasted.rs:31:38
+   |
+31 |     fn read(&self, offset: u64, len: usize) -> Result<Box<[u8]>, BackendError> {
+   |                                      ^^^^^ expected `&mut [u8]`, found `usize`
+   |
+   = note: expected signature `fn(&MemoryStorageBackend, _, &mut [u8]) -> Result<(), _>`
+              found signature `fn(&MemoryStorageBackend, _, usize) -> Result<Box<[u8]>, _>`
+help: change the parameter type to match the trait
+   |
+31 -     fn read(&self, offset: u64, len: usize) -> Result<Box<[u8]>, BackendError> {
+31 +     fn read(&self, offset: u64, len: &mut [u8]) -> Result<Box<[u8]>, BackendError> {
+   |
+
+error[E0277]: `MemoryStorageBackend` doesn't implement `Debug`
+  --> src/bin/pasted.rs:16:25
+   |
+16 | impl StorageBackend for MemoryStorageBackend {
+   |                         ^^^^^^^^^^^^^^^^^^^^ the trait `Debug` is not implemented for `MemoryStorageBackend`
+   |
+note: required by a bound in `StorageBackend`
+  --> /workspace/scratch/717c1db38a84/omdb-source/src/db.rs:81:37
+   |
+81 | pub trait StorageBackend: 'static + Debug + Send + Sync {
+   |                                     ^^^^^ required by this bound in `StorageBackend`
+help: consider annotating `MemoryStorageBackend` with `#[derive(Debug)]`
+   |
+ 4 + #[derive(Debug)]
+ 5 | pub struct MemoryStorageBackend {
+   |
+
+error[E0308]: mismatched types
+  --> src/bin/pasted.rs:36:44
+   |
+36 |             return Err(BackendError::Other("Read out of bounds"));
+   |                        ------------------- ^^^^^^^^^^^^^^^^^^^^ expected `Box<dyn Error + Send + Sync>`, found `&str`
+   |                        |
+   |                        arguments to this enum variant are incorrect
+   |
+   = note: expected struct `Box<(dyn std::error::Error + Send + Sync + 'static)>`
+           found reference `&'static str`
+note: tuple variant defined here
+  --> /workspace/scratch/717c1db38a84/omdb-source/src/error.rs:18:5
+   |
+18 |     Other(Box<dyn core::error::Error + Send + Sync>),
+   |     ^^^^^
+help: call `Into::into` on this expression to convert `&'static str` into `Box<(dyn std::error::Error + Send + Sync + 'static)>`
+   |
+36 |             return Err(BackendError::Other("Read out of bounds".into()));
+   |                                                                +++++++
+
+Some errors have detailed explanations: E0050, E0053, E0277, E0308.
+For more information about an error, try `rustc --explain E0050`.
+error: could not compile `omdb-api-probe` (bin "pasted") due to 4 previous errors

@@ -11,6 +11,12 @@ the first local source-read interface over the existing Git object store.
 The database, writable overlay, retention, and worker layers discussed here
 remain proposed work.
 
+The subsequent [omdb/redb API fact check](omdb-redb-factcheck.md) verifies the
+user's redb fork, its no_std feature combination, custom storage contract, and
+non-waiting writer acquisition. It records the differences between released
+4.5.0 and the fork's exact current source, plus their consequences for worker
+integration. It does not activate a new runtime backend.
+
 ## Recommendation
 
 Build a Git-aware repository service from existing storage and execution

@@ -126,6 +126,10 @@ reviews redb, Fjall, SlateDB, immutable payload storage, and lazy CI snapshots.
 It retains redb as the future metadata choice and defines the measurements and
 durability requirements for later integration. It does not activate a new backend.
 
+The [omdb/redb fact check](Documentation/rit/omdb-redb-factcheck.md) records the
+owner's redb fork, verified backend and no_std APIs, and the remaining durability
+and worker-integration requirements.
+
 The former redb catalog, object-store, LFS, Wasm action, and forge prototypes,
 including their tests and manifests, are preserved under
 [`Documentation/gitr/archive/database-first`](Documentation/gitr/archive/database-first).
