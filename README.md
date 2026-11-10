@@ -98,6 +98,11 @@ Local Lustr/rustc checks and hosted BlueFe checks are recorded separately.
    qualification. Unsupported behavior stays explicit.
 3. Integrate redb behind stable Git contracts and measure any speed changes.
 
+The [storage architecture assessment](Documentation/rit/storage-architecture-review.md)
+reviews redb, Fjall, SlateDB, immutable payload storage, and lazy CI snapshots.
+It retains redb as the future metadata choice and defines the measurements and
+durability requirements for later integration. It does not activate a new backend.
+
 The former redb catalog, object-store, LFS, Wasm action, and forge prototypes,
 including their tests and manifests, are preserved under
 [`Documentation/gitr/archive/database-first`](Documentation/gitr/archive/database-first).
