@@ -1,0 +1,184 @@
+[
+  {
+    "format": "sha1",
+    "args": [
+      "log",
+      "--format=%s",
+      "--ancestry-path=B",
+      "A..BC"
+    ],
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-scope/sha1",
+    "results": {
+      "git": {
+        "exit": 0,
+        "stdout": "BC\nB\n",
+        "stderr": ""
+      },
+      "rit": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported log option --ancestry-path=B\n"
+      }
+    },
+    "exact": false
+  },
+  {
+    "format": "sha1",
+    "args": [
+      "log",
+      "--format=%s",
+      "--ancestry-path",
+      "A..BC"
+    ],
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-scope/sha1",
+    "results": {
+      "git": {
+        "exit": 0,
+        "stdout": "BC\nC\nB\n",
+        "stderr": ""
+      },
+      "rit": {
+        "exit": 0,
+        "stdout": "BC\nC\nB\n",
+        "stderr": ""
+      }
+    },
+    "exact": true
+  },
+  {
+    "format": "sha1",
+    "args": [
+      "rev-list",
+      "--ancestry-path",
+      "CB..BC"
+    ],
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-scope/sha1",
+    "results": {
+      "git": {
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "rit": {
+        "exit": 0,
+        "stdout": "bd1466281bfa1b647a1003b895a96d60d4a347f8\n",
+        "stderr": ""
+      }
+    },
+    "exact": false
+  },
+  {
+    "format": "sha1",
+    "args": [
+      "rev-list",
+      "--ancestry-path",
+      "--all",
+      "^CB"
+    ],
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-scope/sha1",
+    "results": {
+      "git": {
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "rit": {
+        "exit": 0,
+        "stdout": "bd1466281bfa1b647a1003b895a96d60d4a347f8\n",
+        "stderr": ""
+      }
+    },
+    "exact": false
+  },
+  {
+    "format": "sha256",
+    "args": [
+      "log",
+      "--format=%s",
+      "--ancestry-path=B",
+      "A..BC"
+    ],
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-scope/sha256",
+    "results": {
+      "git": {
+        "exit": 0,
+        "stdout": "BC\nB\n",
+        "stderr": ""
+      },
+      "rit": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported log option --ancestry-path=B\n"
+      }
+    },
+    "exact": false
+  },
+  {
+    "format": "sha256",
+    "args": [
+      "log",
+      "--format=%s",
+      "--ancestry-path",
+      "A..BC"
+    ],
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-scope/sha256",
+    "results": {
+      "git": {
+        "exit": 0,
+        "stdout": "BC\nC\nB\n",
+        "stderr": ""
+      },
+      "rit": {
+        "exit": 0,
+        "stdout": "BC\nC\nB\n",
+        "stderr": ""
+      }
+    },
+    "exact": true
+  },
+  {
+    "format": "sha256",
+    "args": [
+      "rev-list",
+      "--ancestry-path",
+      "CB..BC"
+    ],
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-scope/sha256",
+    "results": {
+      "git": {
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "rit": {
+        "exit": 0,
+        "stdout": "1e8082c84036c3ab57f7aa072dff5c7a88533043cbedb48b0746b7522b7915f2\n",
+        "stderr": ""
+      }
+    },
+    "exact": false
+  },
+  {
+    "format": "sha256",
+    "args": [
+      "rev-list",
+      "--ancestry-path",
+      "--all",
+      "^CB"
+    ],
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-scope/sha256",
+    "results": {
+      "git": {
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "rit": {
+        "exit": 0,
+        "stdout": "1e8082c84036c3ab57f7aa072dff5c7a88533043cbedb48b0746b7522b7915f2\n",
+        "stderr": ""
+      }
+    },
+    "exact": false
+  }
+]

@@ -1,0 +1,187 @@
+{
+  "candidate": "/workspace/scratch/717c1db38a84/rit-ancestry-candidate-v3/git",
+  "candidate_sha256": "5925c272cb97352c55a2f1828f91a3ac62709473a067ab6ea41a0ab9dd3c6749",
+  "root": "/tmp/rit-ancestry-marks-399wycu9",
+  "results": [
+    {
+      "format": "sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--no-walk",
+        "--ancestry-path",
+        "R",
+        "A",
+        "D"
+      ],
+      "kind": "children control",
+      "oracle": {
+        "exit": 0,
+        "stdout": "c5f870e676d01de9e417e273d70e0f4bc1c61f64\n8a196d48cd96e04e45fa371b6f2e6f723acca4fb\n04821274ddfb2ad92d8c503bb3ec43e438c96b5e\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit": 0,
+        "stdout": "c5f870e676d01de9e417e273d70e0f4bc1c61f64\n8a196d48cd96e04e45fa371b6f2e6f723acca4fb\n04821274ddfb2ad92d8c503bb3ec43e438c96b5e c5f870e676d01de9e417e273d70e0f4bc1c61f64 8a196d48cd96e04e45fa371b6f2e6f723acca4fb\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "c5f870e676d01de9e417e273d70e0f4bc1c61f64\n8a196d48cd96e04e45fa371b6f2e6f723acca4fb\n04821274ddfb2ad92d8c503bb3ec43e438c96b5e c5f870e676d01de9e417e273d70e0f4bc1c61f64 8a196d48cd96e04e45fa371b6f2e6f723acca4fb\n",
+        "stderr": ""
+      },
+      "candidate_exact": false,
+      "baseline_exact": false,
+      "unchanged_from_baseline": true
+    },
+    {
+      "format": "sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--no-walk=unsorted",
+        "--ancestry-path",
+        "R",
+        "A",
+        "D"
+      ],
+      "kind": "children control",
+      "oracle": {
+        "exit": 0,
+        "stdout": "04821274ddfb2ad92d8c503bb3ec43e438c96b5e\n8a196d48cd96e04e45fa371b6f2e6f723acca4fb\nc5f870e676d01de9e417e273d70e0f4bc1c61f64\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit": 0,
+        "stdout": "04821274ddfb2ad92d8c503bb3ec43e438c96b5e 8a196d48cd96e04e45fa371b6f2e6f723acca4fb c5f870e676d01de9e417e273d70e0f4bc1c61f64\n8a196d48cd96e04e45fa371b6f2e6f723acca4fb\nc5f870e676d01de9e417e273d70e0f4bc1c61f64\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "04821274ddfb2ad92d8c503bb3ec43e438c96b5e 8a196d48cd96e04e45fa371b6f2e6f723acca4fb c5f870e676d01de9e417e273d70e0f4bc1c61f64\n8a196d48cd96e04e45fa371b6f2e6f723acca4fb\nc5f870e676d01de9e417e273d70e0f4bc1c61f64\n",
+        "stderr": ""
+      },
+      "candidate_exact": false,
+      "baseline_exact": false,
+      "unchanged_from_baseline": true
+    },
+    {
+      "format": "sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--ancestry-path",
+        "R..M"
+      ],
+      "kind": "children control",
+      "oracle": {
+        "exit": 0,
+        "stdout": "0d0ea8b8b31090937c95be1a85bee611543aa38c\nc5f870e676d01de9e417e273d70e0f4bc1c61f64 0d0ea8b8b31090937c95be1a85bee611543aa38c\na7f9584e4253a104c729614363fb806b8beb75df 0d0ea8b8b31090937c95be1a85bee611543aa38c\nf429b17c1ff6de352e990dde22f2b116655c6868 a7f9584e4253a104c729614363fb806b8beb75df\n8a196d48cd96e04e45fa371b6f2e6f723acca4fb f429b17c1ff6de352e990dde22f2b116655c6868\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit": 0,
+        "stdout": "0d0ea8b8b31090937c95be1a85bee611543aa38c\nc5f870e676d01de9e417e273d70e0f4bc1c61f64 0d0ea8b8b31090937c95be1a85bee611543aa38c\na7f9584e4253a104c729614363fb806b8beb75df 0d0ea8b8b31090937c95be1a85bee611543aa38c\nf429b17c1ff6de352e990dde22f2b116655c6868 a7f9584e4253a104c729614363fb806b8beb75df\n8a196d48cd96e04e45fa371b6f2e6f723acca4fb f429b17c1ff6de352e990dde22f2b116655c6868\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "0d0ea8b8b31090937c95be1a85bee611543aa38c\nc5f870e676d01de9e417e273d70e0f4bc1c61f64 0d0ea8b8b31090937c95be1a85bee611543aa38c\na7f9584e4253a104c729614363fb806b8beb75df 0d0ea8b8b31090937c95be1a85bee611543aa38c\nf429b17c1ff6de352e990dde22f2b116655c6868 a7f9584e4253a104c729614363fb806b8beb75df\n8a196d48cd96e04e45fa371b6f2e6f723acca4fb f429b17c1ff6de352e990dde22f2b116655c6868\n",
+        "stderr": ""
+      },
+      "candidate_exact": true,
+      "baseline_exact": true,
+      "unchanged_from_baseline": true
+    },
+    {
+      "format": "sha256",
+      "args": [
+        "rev-list",
+        "--children",
+        "--no-walk",
+        "--ancestry-path",
+        "R",
+        "A",
+        "D"
+      ],
+      "kind": "children control",
+      "oracle": {
+        "exit": 0,
+        "stdout": "033a6c5cf800bb77031235b33891f373edb9e1e92244389672dcde66af197c2a\na040f208e986c6e9fd992dbb980c624d429fe6eb60234965e755b46dcc969baa\n27bbc9c593733aa79d4028cf1e100de61998ed9fbd1c25ad91bbc383671fc680\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit": 0,
+        "stdout": "033a6c5cf800bb77031235b33891f373edb9e1e92244389672dcde66af197c2a\na040f208e986c6e9fd992dbb980c624d429fe6eb60234965e755b46dcc969baa\n27bbc9c593733aa79d4028cf1e100de61998ed9fbd1c25ad91bbc383671fc680 033a6c5cf800bb77031235b33891f373edb9e1e92244389672dcde66af197c2a a040f208e986c6e9fd992dbb980c624d429fe6eb60234965e755b46dcc969baa\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "033a6c5cf800bb77031235b33891f373edb9e1e92244389672dcde66af197c2a\na040f208e986c6e9fd992dbb980c624d429fe6eb60234965e755b46dcc969baa\n27bbc9c593733aa79d4028cf1e100de61998ed9fbd1c25ad91bbc383671fc680 033a6c5cf800bb77031235b33891f373edb9e1e92244389672dcde66af197c2a a040f208e986c6e9fd992dbb980c624d429fe6eb60234965e755b46dcc969baa\n",
+        "stderr": ""
+      },
+      "candidate_exact": false,
+      "baseline_exact": false,
+      "unchanged_from_baseline": true
+    },
+    {
+      "format": "sha256",
+      "args": [
+        "rev-list",
+        "--children",
+        "--no-walk=unsorted",
+        "--ancestry-path",
+        "R",
+        "A",
+        "D"
+      ],
+      "kind": "children control",
+      "oracle": {
+        "exit": 0,
+        "stdout": "27bbc9c593733aa79d4028cf1e100de61998ed9fbd1c25ad91bbc383671fc680\na040f208e986c6e9fd992dbb980c624d429fe6eb60234965e755b46dcc969baa\n033a6c5cf800bb77031235b33891f373edb9e1e92244389672dcde66af197c2a\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit": 0,
+        "stdout": "27bbc9c593733aa79d4028cf1e100de61998ed9fbd1c25ad91bbc383671fc680 a040f208e986c6e9fd992dbb980c624d429fe6eb60234965e755b46dcc969baa 033a6c5cf800bb77031235b33891f373edb9e1e92244389672dcde66af197c2a\na040f208e986c6e9fd992dbb980c624d429fe6eb60234965e755b46dcc969baa\n033a6c5cf800bb77031235b33891f373edb9e1e92244389672dcde66af197c2a\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "27bbc9c593733aa79d4028cf1e100de61998ed9fbd1c25ad91bbc383671fc680 a040f208e986c6e9fd992dbb980c624d429fe6eb60234965e755b46dcc969baa 033a6c5cf800bb77031235b33891f373edb9e1e92244389672dcde66af197c2a\na040f208e986c6e9fd992dbb980c624d429fe6eb60234965e755b46dcc969baa\n033a6c5cf800bb77031235b33891f373edb9e1e92244389672dcde66af197c2a\n",
+        "stderr": ""
+      },
+      "candidate_exact": false,
+      "baseline_exact": false,
+      "unchanged_from_baseline": true
+    },
+    {
+      "format": "sha256",
+      "args": [
+        "rev-list",
+        "--children",
+        "--ancestry-path",
+        "R..M"
+      ],
+      "kind": "children control",
+      "oracle": {
+        "exit": 0,
+        "stdout": "86ed363f459a50412761a3c4400016c7d06afce6edae858f14661480475bdd97\n033a6c5cf800bb77031235b33891f373edb9e1e92244389672dcde66af197c2a 86ed363f459a50412761a3c4400016c7d06afce6edae858f14661480475bdd97\ncc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481 86ed363f459a50412761a3c4400016c7d06afce6edae858f14661480475bdd97\n9c360befe036302393a82285b3fa1edf4d54dbd1a15688771803cef7f405e878 cc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481\na040f208e986c6e9fd992dbb980c624d429fe6eb60234965e755b46dcc969baa 9c360befe036302393a82285b3fa1edf4d54dbd1a15688771803cef7f405e878\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit": 0,
+        "stdout": "86ed363f459a50412761a3c4400016c7d06afce6edae858f14661480475bdd97\n033a6c5cf800bb77031235b33891f373edb9e1e92244389672dcde66af197c2a 86ed363f459a50412761a3c4400016c7d06afce6edae858f14661480475bdd97\ncc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481 86ed363f459a50412761a3c4400016c7d06afce6edae858f14661480475bdd97\n9c360befe036302393a82285b3fa1edf4d54dbd1a15688771803cef7f405e878 cc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481\na040f208e986c6e9fd992dbb980c624d429fe6eb60234965e755b46dcc969baa 9c360befe036302393a82285b3fa1edf4d54dbd1a15688771803cef7f405e878\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "86ed363f459a50412761a3c4400016c7d06afce6edae858f14661480475bdd97\n033a6c5cf800bb77031235b33891f373edb9e1e92244389672dcde66af197c2a 86ed363f459a50412761a3c4400016c7d06afce6edae858f14661480475bdd97\ncc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481 86ed363f459a50412761a3c4400016c7d06afce6edae858f14661480475bdd97\n9c360befe036302393a82285b3fa1edf4d54dbd1a15688771803cef7f405e878 cc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481\na040f208e986c6e9fd992dbb980c624d429fe6eb60234965e755b46dcc969baa 9c360befe036302393a82285b3fa1edf4d54dbd1a15688771803cef7f405e878\n",
+        "stderr": ""
+      },
+      "candidate_exact": true,
+      "baseline_exact": true,
+      "unchanged_from_baseline": true
+    }
+  ]
+}

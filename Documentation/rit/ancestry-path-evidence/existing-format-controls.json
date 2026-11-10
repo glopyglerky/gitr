@@ -1,0 +1,120 @@
+[
+  {
+    "format": "sha1",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+    "args": [
+      "fast-export",
+      "--no-data",
+      "--show-original-ids",
+      "--ancestry-path",
+      "D..M"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "commit refs/tags/M\nmark :1\noriginal-oid b3cddbd7b2f423e25ab8dc21da22556a025fd428\nauthor Spec Author <spec@example.invalid> 1700000300 +0000\ncommitter Spec Author <spec@example.invalid> 1700000300 +0000\ndata 7\nE keep\nM 100644 d905d9da82c97264ab6f4920e20242e088850ce9 file\nM 100644 f2ad6c76f0115a6ba5b00456a849810e7ec0af20 other\n\ncommit refs/tags/M\nmark :2\noriginal-oid 2776318c44dbb2a2613818888057de173bc6a067\nauthor Spec Author <spec@example.invalid> 1700000480 +0000\ncommitter Spec Author <spec@example.invalid> 1700000480 +0000\ndata 7\nH keep\nfrom :1\nM 100644 61780798228d17af2d34fce4cfbdf35556832472 file\nM 100644 01058d844a98d293a3b03a8615a34700e4ed2be3 other\n\ncommit refs/tags/M\nmark :3\noriginal-oid 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nauthor Spec Author <spec@example.invalid> 1700000540 +0000\ncommitter Spec Author <spec@example.invalid> 1700000540 +0000\ndata 2\nI\nfrom :2\nM 100644 0ddf2bae71d08623786db120996eea00b75f8237 file\n\ncommit refs/tags/M\nmark :4\noriginal-oid f6674c4768336615657d0e72cf001b815c96b560\nauthor Spec Author <spec@example.invalid> 1700000360 +0000\ncommitter Spec Author <spec@example.invalid> 1700000360 +0000\ndata 2\nF\nfrom :1\nM 100644 6a69f92020f5df77af6e8813ff1232493383b708 file\n\ncommit refs/tags/M\nmark :5\noriginal-oid e2e3061465039505674ffb03a5522fba79b962ed\nauthor Spec Author <spec@example.invalid> 1700000600 +0000\ncommitter Spec Author <spec@example.invalid> 1700000600 +0000\ndata 7\nJ keep\nfrom :3\nmerge :4\n\ncommit refs/tags/M\nmark :6\noriginal-oid ff96912faa61781489e5eb846f5195f51e821c33\nauthor Spec Author <spec@example.invalid> 1700000720 +0000\ncommitter Spec Author <spec@example.invalid> 1700000720 +0000\ndata 2\nL\nfrom :5\nM 100644 b68fde2a051d9af2fe3ff4c96c0898e5a3212e4d file\nM 100644 df967b96a579e45a18b8251732d16804b2e56a55 other\n\ncommit refs/tags/M\nmark :7\noriginal-oid b56514313ad9fd72bcf8457de6ebb50beabf0c73\nauthor Spec Author <spec@example.invalid> 1700000780 +0000\ncommitter Spec Author <spec@example.invalid> 1700000780 +0000\ndata 7\nM keep\nfrom :6\nM 100644 28ce6a8b26aa170e1de65536fe8abe1832bd3242 file\n\n",
+      "stderr": ""
+    },
+    "baseline": {
+      "status": 0,
+      "stdout": "commit refs/tags/M\nmark :1\noriginal-oid b3cddbd7b2f423e25ab8dc21da22556a025fd428\nauthor Spec Author <spec@example.invalid> 1700000300 +0000\ncommitter Spec Author <spec@example.invalid> 1700000300 +0000\ndata 7\nE keep\nM 100644 d905d9da82c97264ab6f4920e20242e088850ce9 file\nM 100644 f2ad6c76f0115a6ba5b00456a849810e7ec0af20 other\n\ncommit refs/tags/M\nmark :2\noriginal-oid 2776318c44dbb2a2613818888057de173bc6a067\nauthor Spec Author <spec@example.invalid> 1700000480 +0000\ncommitter Spec Author <spec@example.invalid> 1700000480 +0000\ndata 7\nH keep\nmerge :1\nM 100644 61780798228d17af2d34fce4cfbdf35556832472 file\nM 100644 01058d844a98d293a3b03a8615a34700e4ed2be3 other\n\ncommit refs/tags/M\nmark :3\noriginal-oid 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nauthor Spec Author <spec@example.invalid> 1700000540 +0000\ncommitter Spec Author <spec@example.invalid> 1700000540 +0000\ndata 2\nI\nfrom :2\nM 100644 0ddf2bae71d08623786db120996eea00b75f8237 file\n\ncommit refs/tags/M\nmark :4\noriginal-oid f6674c4768336615657d0e72cf001b815c96b560\nauthor Spec Author <spec@example.invalid> 1700000360 +0000\ncommitter Spec Author <spec@example.invalid> 1700000360 +0000\ndata 2\nF\nfrom :1\nM 100644 6a69f92020f5df77af6e8813ff1232493383b708 file\n\ncommit refs/tags/M\nmark :5\noriginal-oid e2e3061465039505674ffb03a5522fba79b962ed\nauthor Spec Author <spec@example.invalid> 1700000600 +0000\ncommitter Spec Author <spec@example.invalid> 1700000600 +0000\ndata 7\nJ keep\nfrom :3\nmerge :4\n\ncommit refs/tags/M\nmark :6\noriginal-oid ff96912faa61781489e5eb846f5195f51e821c33\nauthor Spec Author <spec@example.invalid> 1700000720 +0000\ncommitter Spec Author <spec@example.invalid> 1700000720 +0000\ndata 2\nL\nmerge :5\nM 100644 b68fde2a051d9af2fe3ff4c96c0898e5a3212e4d file\nM 100644 df967b96a579e45a18b8251732d16804b2e56a55 other\n\ncommit refs/tags/M\nmark :7\noriginal-oid b56514313ad9fd72bcf8457de6ebb50beabf0c73\nauthor Spec Author <spec@example.invalid> 1700000780 +0000\ncommitter Spec Author <spec@example.invalid> 1700000780 +0000\ndata 7\nM keep\nfrom :6\nM 100644 28ce6a8b26aa170e1de65536fe8abe1832bd3242 file\n\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "commit refs/tags/M\nmark :1\noriginal-oid b3cddbd7b2f423e25ab8dc21da22556a025fd428\nauthor Spec Author <spec@example.invalid> 1700000300 +0000\ncommitter Spec Author <spec@example.invalid> 1700000300 +0000\ndata 7\nE keep\nM 100644 d905d9da82c97264ab6f4920e20242e088850ce9 file\nM 100644 f2ad6c76f0115a6ba5b00456a849810e7ec0af20 other\n\ncommit refs/tags/M\nmark :2\noriginal-oid 2776318c44dbb2a2613818888057de173bc6a067\nauthor Spec Author <spec@example.invalid> 1700000480 +0000\ncommitter Spec Author <spec@example.invalid> 1700000480 +0000\ndata 7\nH keep\nmerge :1\nM 100644 61780798228d17af2d34fce4cfbdf35556832472 file\nM 100644 01058d844a98d293a3b03a8615a34700e4ed2be3 other\n\ncommit refs/tags/M\nmark :3\noriginal-oid 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nauthor Spec Author <spec@example.invalid> 1700000540 +0000\ncommitter Spec Author <spec@example.invalid> 1700000540 +0000\ndata 2\nI\nfrom :2\nM 100644 0ddf2bae71d08623786db120996eea00b75f8237 file\n\ncommit refs/tags/M\nmark :4\noriginal-oid f6674c4768336615657d0e72cf001b815c96b560\nauthor Spec Author <spec@example.invalid> 1700000360 +0000\ncommitter Spec Author <spec@example.invalid> 1700000360 +0000\ndata 2\nF\nfrom :1\nM 100644 6a69f92020f5df77af6e8813ff1232493383b708 file\n\ncommit refs/tags/M\nmark :5\noriginal-oid e2e3061465039505674ffb03a5522fba79b962ed\nauthor Spec Author <spec@example.invalid> 1700000600 +0000\ncommitter Spec Author <spec@example.invalid> 1700000600 +0000\ndata 7\nJ keep\nfrom :3\nmerge :4\n\ncommit refs/tags/M\nmark :6\noriginal-oid ff96912faa61781489e5eb846f5195f51e821c33\nauthor Spec Author <spec@example.invalid> 1700000720 +0000\ncommitter Spec Author <spec@example.invalid> 1700000720 +0000\ndata 2\nL\nmerge :5\nM 100644 b68fde2a051d9af2fe3ff4c96c0898e5a3212e4d file\nM 100644 df967b96a579e45a18b8251732d16804b2e56a55 other\n\ncommit refs/tags/M\nmark :7\noriginal-oid b56514313ad9fd72bcf8457de6ebb50beabf0c73\nauthor Spec Author <spec@example.invalid> 1700000780 +0000\ncommitter Spec Author <spec@example.invalid> 1700000780 +0000\ndata 7\nM keep\nfrom :6\nM 100644 28ce6a8b26aa170e1de65536fe8abe1832bd3242 file\n\n",
+      "stderr": ""
+    },
+    "baseline_exact": false,
+    "final_exact": false,
+    "unchanged": true
+  },
+  {
+    "format": "sha1",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+    "args": [
+      "rev-list",
+      "--children",
+      "--grep=E keep",
+      "D..M"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "b3cddbd7b2f423e25ab8dc21da22556a025fd428 f6674c4768336615657d0e72cf001b815c96b560 2776318c44dbb2a2613818888057de173bc6a067\n",
+      "stderr": ""
+    },
+    "baseline": {
+      "status": 0,
+      "stdout": "b3cddbd7b2f423e25ab8dc21da22556a025fd428\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "b3cddbd7b2f423e25ab8dc21da22556a025fd428\n",
+      "stderr": ""
+    },
+    "baseline_exact": false,
+    "final_exact": false,
+    "unchanged": true
+  },
+  {
+    "format": "sha256",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha256",
+    "args": [
+      "fast-export",
+      "--no-data",
+      "--show-original-ids",
+      "--ancestry-path",
+      "D..M"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "commit refs/tags/M\nmark :1\noriginal-oid 82884adbe57b866d28095c10a9c38b453b3ac9bdd3371ea71bb9bbe6ed72ecef\nauthor Spec Author <spec@example.invalid> 1700000300 +0000\ncommitter Spec Author <spec@example.invalid> 1700000300 +0000\ndata 7\nE keep\nM 100644 63cf1d073989bcc56d2befe28d327f4c9be9934eed2ca7162202db23fa4a0eeb file\nM 100644 2abe107e3b1b618efafa0df5e5f1118e5bf86694eb8c185741e67795ae314aa4 other\n\ncommit refs/tags/M\nmark :2\noriginal-oid 258df6561df5540018c621fe778f92ca627b27cd139a9c760b772f9cf0b7ba20\nauthor Spec Author <spec@example.invalid> 1700000480 +0000\ncommitter Spec Author <spec@example.invalid> 1700000480 +0000\ndata 7\nH keep\nfrom :1\nM 100644 9b69d308c97f2c5933fdd0e8ce04acce91c09cb969e36a1f86756fc5a5d3323a file\nM 100644 5e0bc084e7d91ab23db7bce60770f17431c8c27fa49125f65be3c384e01f506f other\n\ncommit refs/tags/M\nmark :3\noriginal-oid 3e5044cbb8e5b4c540d4f367f4647eb5023d98354e35a7d72227802093503c60\nauthor Spec Author <spec@example.invalid> 1700000540 +0000\ncommitter Spec Author <spec@example.invalid> 1700000540 +0000\ndata 2\nI\nfrom :2\nM 100644 50fb78b1c5cc762887cb5284225a77aa7e338e8fd03e0b42cbae421a92f2e585 file\n\ncommit refs/tags/M\nmark :4\noriginal-oid 4a1369f27deca873207451638646abd09d41588c12ac99c81e14f58a996568b3\nauthor Spec Author <spec@example.invalid> 1700000360 +0000\ncommitter Spec Author <spec@example.invalid> 1700000360 +0000\ndata 2\nF\nfrom :1\nM 100644 e8e91e4b4d77c527495dad0ea8be96f624e8bdc7744e28fb281432ca684d3a1e file\n\ncommit refs/tags/M\nmark :5\noriginal-oid 9cf44e1a79c15767d6f1a8229cb04883562c43649640db288ae099a630036c23\nauthor Spec Author <spec@example.invalid> 1700000600 +0000\ncommitter Spec Author <spec@example.invalid> 1700000600 +0000\ndata 7\nJ keep\nfrom :3\nmerge :4\n\ncommit refs/tags/M\nmark :6\noriginal-oid 3adf2f22288879471a12033834a5d21ecf219144bfb7af1f095377a4aecb3c24\nauthor Spec Author <spec@example.invalid> 1700000720 +0000\ncommitter Spec Author <spec@example.invalid> 1700000720 +0000\ndata 2\nL\nfrom :5\nM 100644 1f6d1d004251330445adf1e93820f66b3ad729e328caa33a70f7c49c764bea6f file\nM 100644 abed979e3cd3667c5a295c2641f8319f950860c65cc168eebd1571c51bb4f6fc other\n\ncommit refs/tags/M\nmark :7\noriginal-oid e92a46142178f2a71c2cfc9f3c286620fda0f02728ffa47244c000e5ea8dca79\nauthor Spec Author <spec@example.invalid> 1700000780 +0000\ncommitter Spec Author <spec@example.invalid> 1700000780 +0000\ndata 7\nM keep\nfrom :6\nM 100644 6ca8d4e3bc5df874055e542d18505b5a5efa0fb7d65776efedc13781073ed0f1 file\n\n",
+      "stderr": ""
+    },
+    "baseline": {
+      "status": 0,
+      "stdout": "commit refs/tags/M\nmark :1\noriginal-oid 82884adbe57b866d28095c10a9c38b453b3ac9bdd3371ea71bb9bbe6ed72ecef\nauthor Spec Author <spec@example.invalid> 1700000300 +0000\ncommitter Spec Author <spec@example.invalid> 1700000300 +0000\ndata 7\nE keep\nM 100644 63cf1d073989bcc56d2befe28d327f4c9be9934eed2ca7162202db23fa4a0eeb file\nM 100644 2abe107e3b1b618efafa0df5e5f1118e5bf86694eb8c185741e67795ae314aa4 other\n\ncommit refs/tags/M\nmark :2\noriginal-oid 258df6561df5540018c621fe778f92ca627b27cd139a9c760b772f9cf0b7ba20\nauthor Spec Author <spec@example.invalid> 1700000480 +0000\ncommitter Spec Author <spec@example.invalid> 1700000480 +0000\ndata 7\nH keep\nmerge :1\nM 100644 9b69d308c97f2c5933fdd0e8ce04acce91c09cb969e36a1f86756fc5a5d3323a file\nM 100644 5e0bc084e7d91ab23db7bce60770f17431c8c27fa49125f65be3c384e01f506f other\n\ncommit refs/tags/M\nmark :3\noriginal-oid 3e5044cbb8e5b4c540d4f367f4647eb5023d98354e35a7d72227802093503c60\nauthor Spec Author <spec@example.invalid> 1700000540 +0000\ncommitter Spec Author <spec@example.invalid> 1700000540 +0000\ndata 2\nI\nfrom :2\nM 100644 50fb78b1c5cc762887cb5284225a77aa7e338e8fd03e0b42cbae421a92f2e585 file\n\ncommit refs/tags/M\nmark :4\noriginal-oid 4a1369f27deca873207451638646abd09d41588c12ac99c81e14f58a996568b3\nauthor Spec Author <spec@example.invalid> 1700000360 +0000\ncommitter Spec Author <spec@example.invalid> 1700000360 +0000\ndata 2\nF\nfrom :1\nM 100644 e8e91e4b4d77c527495dad0ea8be96f624e8bdc7744e28fb281432ca684d3a1e file\n\ncommit refs/tags/M\nmark :5\noriginal-oid 9cf44e1a79c15767d6f1a8229cb04883562c43649640db288ae099a630036c23\nauthor Spec Author <spec@example.invalid> 1700000600 +0000\ncommitter Spec Author <spec@example.invalid> 1700000600 +0000\ndata 7\nJ keep\nfrom :3\nmerge :4\n\ncommit refs/tags/M\nmark :6\noriginal-oid 3adf2f22288879471a12033834a5d21ecf219144bfb7af1f095377a4aecb3c24\nauthor Spec Author <spec@example.invalid> 1700000720 +0000\ncommitter Spec Author <spec@example.invalid> 1700000720 +0000\ndata 2\nL\nmerge :5\nM 100644 1f6d1d004251330445adf1e93820f66b3ad729e328caa33a70f7c49c764bea6f file\nM 100644 abed979e3cd3667c5a295c2641f8319f950860c65cc168eebd1571c51bb4f6fc other\n\ncommit refs/tags/M\nmark :7\noriginal-oid e92a46142178f2a71c2cfc9f3c286620fda0f02728ffa47244c000e5ea8dca79\nauthor Spec Author <spec@example.invalid> 1700000780 +0000\ncommitter Spec Author <spec@example.invalid> 1700000780 +0000\ndata 7\nM keep\nfrom :6\nM 100644 6ca8d4e3bc5df874055e542d18505b5a5efa0fb7d65776efedc13781073ed0f1 file\n\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "commit refs/tags/M\nmark :1\noriginal-oid 82884adbe57b866d28095c10a9c38b453b3ac9bdd3371ea71bb9bbe6ed72ecef\nauthor Spec Author <spec@example.invalid> 1700000300 +0000\ncommitter Spec Author <spec@example.invalid> 1700000300 +0000\ndata 7\nE keep\nM 100644 63cf1d073989bcc56d2befe28d327f4c9be9934eed2ca7162202db23fa4a0eeb file\nM 100644 2abe107e3b1b618efafa0df5e5f1118e5bf86694eb8c185741e67795ae314aa4 other\n\ncommit refs/tags/M\nmark :2\noriginal-oid 258df6561df5540018c621fe778f92ca627b27cd139a9c760b772f9cf0b7ba20\nauthor Spec Author <spec@example.invalid> 1700000480 +0000\ncommitter Spec Author <spec@example.invalid> 1700000480 +0000\ndata 7\nH keep\nmerge :1\nM 100644 9b69d308c97f2c5933fdd0e8ce04acce91c09cb969e36a1f86756fc5a5d3323a file\nM 100644 5e0bc084e7d91ab23db7bce60770f17431c8c27fa49125f65be3c384e01f506f other\n\ncommit refs/tags/M\nmark :3\noriginal-oid 3e5044cbb8e5b4c540d4f367f4647eb5023d98354e35a7d72227802093503c60\nauthor Spec Author <spec@example.invalid> 1700000540 +0000\ncommitter Spec Author <spec@example.invalid> 1700000540 +0000\ndata 2\nI\nfrom :2\nM 100644 50fb78b1c5cc762887cb5284225a77aa7e338e8fd03e0b42cbae421a92f2e585 file\n\ncommit refs/tags/M\nmark :4\noriginal-oid 4a1369f27deca873207451638646abd09d41588c12ac99c81e14f58a996568b3\nauthor Spec Author <spec@example.invalid> 1700000360 +0000\ncommitter Spec Author <spec@example.invalid> 1700000360 +0000\ndata 2\nF\nfrom :1\nM 100644 e8e91e4b4d77c527495dad0ea8be96f624e8bdc7744e28fb281432ca684d3a1e file\n\ncommit refs/tags/M\nmark :5\noriginal-oid 9cf44e1a79c15767d6f1a8229cb04883562c43649640db288ae099a630036c23\nauthor Spec Author <spec@example.invalid> 1700000600 +0000\ncommitter Spec Author <spec@example.invalid> 1700000600 +0000\ndata 7\nJ keep\nfrom :3\nmerge :4\n\ncommit refs/tags/M\nmark :6\noriginal-oid 3adf2f22288879471a12033834a5d21ecf219144bfb7af1f095377a4aecb3c24\nauthor Spec Author <spec@example.invalid> 1700000720 +0000\ncommitter Spec Author <spec@example.invalid> 1700000720 +0000\ndata 2\nL\nmerge :5\nM 100644 1f6d1d004251330445adf1e93820f66b3ad729e328caa33a70f7c49c764bea6f file\nM 100644 abed979e3cd3667c5a295c2641f8319f950860c65cc168eebd1571c51bb4f6fc other\n\ncommit refs/tags/M\nmark :7\noriginal-oid e92a46142178f2a71c2cfc9f3c286620fda0f02728ffa47244c000e5ea8dca79\nauthor Spec Author <spec@example.invalid> 1700000780 +0000\ncommitter Spec Author <spec@example.invalid> 1700000780 +0000\ndata 7\nM keep\nfrom :6\nM 100644 6ca8d4e3bc5df874055e542d18505b5a5efa0fb7d65776efedc13781073ed0f1 file\n\n",
+      "stderr": ""
+    },
+    "baseline_exact": false,
+    "final_exact": false,
+    "unchanged": true
+  },
+  {
+    "format": "sha256",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha256",
+    "args": [
+      "rev-list",
+      "--children",
+      "--grep=E keep",
+      "D..M"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "82884adbe57b866d28095c10a9c38b453b3ac9bdd3371ea71bb9bbe6ed72ecef 4a1369f27deca873207451638646abd09d41588c12ac99c81e14f58a996568b3 258df6561df5540018c621fe778f92ca627b27cd139a9c760b772f9cf0b7ba20\n",
+      "stderr": ""
+    },
+    "baseline": {
+      "status": 0,
+      "stdout": "82884adbe57b866d28095c10a9c38b453b3ac9bdd3371ea71bb9bbe6ed72ecef\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "82884adbe57b866d28095c10a9c38b453b3ac9bdd3371ea71bb9bbe6ed72ecef\n",
+      "stderr": ""
+    },
+    "baseline_exact": false,
+    "final_exact": false,
+    "unchanged": true
+  }
+]

@@ -8,7 +8,7 @@ use sley_diff_merge::{
 use sley_pathspec::{Pathspec, normalized_revwalk_pathspec};
 use sley_rev::revlist::{rev_list_topo_order, rev_list_walk_commits_with_missing};
 use sley_rev::{
-    CommitRecord, SimplifyOptions, ancestry_path_on_set, peel_to_commit,
+    CommitRecord, SimplifyOptions, ancestry_path_related_on_set, peel_to_commit,
     simplify_history_with_bottoms,
 };
 
@@ -130,7 +130,7 @@ pub(crate) fn cmd_fast_export(
         return Err(crate::cli_exit(128));
     }
 
-    let setup = sley_rev::setup_revisions(
+    let setup = sley_rev::setup_revisions_with_ancestry(
         &setup_args,
         &sley_rev::RevisionSetupContext {
             git_dir: &git_dir,
@@ -425,18 +425,22 @@ impl FastExporter {
         let mut selected: Vec<CommitRecord> = records
             .into_iter()
             .filter(|record| !excluded.contains(&record.oid))
-            .filter(|record| !self.commit_marks.contains_key(&record.oid))
             .collect();
 
-        if revision_options.ancestry_path && !revision_options.negatives.is_empty() {
-            let on_path = ancestry_path_on_set(
+        if revision_options.ancestry_path
+            && (revision_options.no_walk == sley_rev::NoWalkMode::Walk
+                || !revision_options.negatives.is_empty())
+        {
+            let on_path = ancestry_path_related_on_set(
                 selected
                     .iter()
                     .map(|record| (record.oid, record.parents.clone())),
-                &revision_options.negatives,
+                &revision_options.ancestry_path_anchors,
             );
             selected.retain(|record| on_path.contains(&record.oid));
         }
+        // Imported marks suppress emission, not ancestry connectivity.
+        selected.retain(|record| !self.commit_marks.contains_key(&record.oid));
 
         if self.path_limited || revision_options.full_history || revision_options.simplify_merges {
             let simplify = SimplifyOptions {

@@ -1,0 +1,50 @@
+[
+  {
+    "args": [
+      "log",
+      "--format=%s",
+      "--grep=^B$",
+      "A..BC"
+    ],
+    "oracle": {
+      "exit": 0,
+      "stdout": "B\n",
+      "stderr": ""
+    },
+    "baseline": {
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "candidate": {
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "baseline_equals_candidate": true
+  },
+  {
+    "args": [
+      "log",
+      "--format=%s",
+      "--grep=B",
+      "A..BC"
+    ],
+    "oracle": {
+      "exit": 0,
+      "stdout": "BC\nB\n",
+      "stderr": ""
+    },
+    "baseline": {
+      "exit": 0,
+      "stdout": "BC\nB\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "exit": 0,
+      "stdout": "BC\nB\n",
+      "stderr": ""
+    },
+    "baseline_equals_candidate": true
+  }
+]

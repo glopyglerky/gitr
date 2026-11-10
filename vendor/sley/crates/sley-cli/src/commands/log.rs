@@ -1154,6 +1154,7 @@ fn cmd_log_impl(
             | "--tags"
             | "--remotes"
             | "--no-ignore-missing" => setup_args.push(arg.clone()),
+            value if value.starts_with("--ancestry-path=") => setup_args.push(arg.clone()),
             "--boundary" => boundary = true,
             "-t" => {}
             "--ignore-missing" => {
@@ -2430,7 +2431,7 @@ fn cmd_log_impl(
     });
     let empty_mailmap = commands::utility::Mailmap::default();
     let mut mailmap_cache = None;
-    let setup = match sley_rev::setup_revisions(
+    let setup = match sley_rev::setup_revisions_with_ancestry(
         &setup_args,
         &sley_rev::RevisionSetupContext {
             git_dir: &git_dir,
@@ -2999,6 +3000,7 @@ fn cmd_log_impl(
         && ordering == RevListOrdering::Default
         && pathspecs.is_empty()
         && !full_history
+        && !revision_options.ancestry_path
         && matches!(
             &output,
             LogOutput::Compiled {
@@ -3062,6 +3064,7 @@ fn cmd_log_impl(
         && ordering == RevListOrdering::Default
         && pathspecs.is_empty()
         && !full_history
+        && !revision_options.ancestry_path
         && matches!(&output, LogOutput::Compiled { compiled, show_children: false, .. }
             if compiled.is_metadata_emitable()
                 && compiled.uses_oid()
@@ -3172,6 +3175,7 @@ fn cmd_log_impl(
         && ordering == RevListOrdering::Default
         && pathspecs.is_empty()
         && !full_history
+        && !revision_options.ancestry_path
         && matches!(&output, LogOutput::Compiled { compiled, show_children: false, .. }
             if log_limited_commit_format_supported(compiled) && !compiled_format_uses_notes(compiled))
         && decoration == LogDecorationMode::Off
@@ -3392,13 +3396,14 @@ fn cmd_log_impl(
         RevListOrdering::Date => rev_list_date_order(selected)?,
         RevListOrdering::AuthorDate => rev_list_author_date_order(selected)?,
     };
-    // `--ancestry-path`: keep only commits on a path from a `^`-excluded boundary
-    // (bottom) commit up to the tips (git's `limit_to_ancestry`). Runs before
-    // simplification.
-    if revision_options.ancestry_path && !revision_options.negatives.is_empty() {
-        let on_path = sley_rev::ancestry_path_on_set(
-            selected.iter().map(|r| (r.oid, r.parents.clone())),
-            &revision_options.negatives,
+    // Keep ancestors, descendants, and the anchors themselves within the
+    // nonexcluded walk. Message/author filters must not erase connecting nodes.
+    // Bare --ancestry-path uses the excluded tips as its anchors.
+    if revision_options.ancestry_path && (walk || !revision_options.negatives.is_empty()) {
+        let on_path = sley_rev::ancestry_path_related_on_set(
+            commits.iter().filter(|r| !excluded.contains(&r.oid))
+                .map(|r| (r.oid, r.parents.clone())),
+            &revision_options.ancestry_path_anchors,
         );
         selected.retain(|r| on_path.contains(&r.oid));
     }

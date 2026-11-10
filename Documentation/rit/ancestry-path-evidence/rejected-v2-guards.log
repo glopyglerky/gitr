@@ -1,0 +1,36 @@
+command=['/workspace/scratch/161a1b7c00ce/tooling/lustr/target/release/lustr', '--engine', 'rustc', 'test', '--manifest-path', 'vendor/sley/Cargo.toml', '--locked', '-p', 'sley-cli', '--test', 'history_ancestry_paths', 'no_walk_ancestry_', '--no-fail-fast']
+target=/workspace/scratch/161a1b7c00ce/tooling/sley-target
+tmpdir=/tmp/rit-history-vendor-0e51bs47
+   Compiling sley-cli v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-cli)
+    Finished `test` profile [unoptimized] target(s) in 0.40s
+     Running tests/history_ancestry_paths.rs (/workspace/scratch/161a1b7c00ce/tooling/sley-target/debug/deps/history_ancestry_paths-7757af44736ac1dd)
+
+running 2 tests
+test no_walk_ancestry_export_retains_the_selected_ref ... FAILED
+test no_walk_ancestry_preserves_existing_child_list_order ... FAILED
+
+failures:
+
+---- no_walk_ancestry_export_retains_the_selected_ref stdout ----
+
+thread 'no_walk_ancestry_export_retains_the_selected_ref' (39) panicked at crates/sley-cli/tests/history_ancestry_paths.rs:430:13:
+selected tip missing from export
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- no_walk_ancestry_preserves_existing_child_list_order stdout ----
+
+thread 'no_walk_ancestry_preserves_existing_child_list_order' (40) panicked at crates/sley-cli/tests/history_ancestry_paths.rs:467:13:
+assertion `left == right` failed
+  left: [49, 51, 97, 97, 52, 97, 97, 52, 48, 98, 48, 55, 98, 100, 51, 48, 57, 97, 52, 97, 53, 54, 49, 102, 52, 102, 97, 49, 50, 102, 100, 98, 100, 101, 55, 102, 100, 102, 102, 52, 10, 53, 51, 101, 48, 98, 98, 97, 56, 53, 57, 102, 57, 49, 53, 97, 52, 100, 97, 54, 52, 54, 99, 48, 101, 97, 50, 57, 48, 56, 52, 53, 49, 49, 50, 101, 54, 97, 49, 55, 99, 10, 100, 54, 100, 55, 48, 48, 56, 56, 51, 54, 102, 57, 53, 100, 48, 99, 101, 48, 57, 48, 100, 52, 50, 51, 98, 101, 98, 97, 101, 56, 56, 55, 56, 97, 49, 50, 97, 56, 102, 49, 32, 49, 51, 97, 97, 52, 97, 97, 52, 48, 98, 48, 55, 98, 100, 51, 48, 57, 97, 52, 97, 53, 54, 49, 102, 52, 102, 97, 49, 50, 102, 100, 98, 100, 101, 55, 102, 100, 102, 102, 52, 32, 53, 51, 101, 48, 98, 98, 97, 56, 53, 57, 102, 57, 49, 53, 97, 52, 100, 97, 54, 52, 54, 99, 48, 101, 97, 50, 57, 48, 56, 52, 53, 49, 49, 50, 101, 54, 97, 49, 55, 99, 10]
+ right: [49, 51, 97, 97, 52, 97, 97, 52, 48, 98, 48, 55, 98, 100, 51, 48, 57, 97, 52, 97, 53, 54, 49, 102, 52, 102, 97, 49, 50, 102, 100, 98, 100, 101, 55, 102, 100, 102, 102, 52, 10, 53, 51, 101, 48, 98, 98, 97, 56, 53, 57, 102, 57, 49, 53, 97, 52, 100, 97, 54, 52, 54, 99, 48, 101, 97, 50, 57, 48, 56, 52, 53, 49, 49, 50, 101, 54, 97, 49, 55, 99, 10, 100, 54, 100, 55, 48, 48, 56, 56, 51, 54, 102, 57, 53, 100, 48, 99, 101, 48, 57, 48, 100, 52, 50, 51, 98, 101, 98, 97, 101, 56, 56, 55, 56, 97, 49, 50, 97, 56, 102, 49, 32, 53, 51, 101, 48, 98, 98, 97, 56, 53, 57, 102, 57, 49, 53, 97, 52, 100, 97, 54, 52, 54, 99, 48, 101, 97, 50, 57, 48, 56, 52, 53, 49, 49, 50, 101, 54, 97, 49, 55, 99, 32, 49, 51, 97, 97, 52, 97, 97, 52, 48, 98, 48, 55, 98, 100, 51, 48, 57, 97, 52, 97, 53, 54, 49, 102, 52, 102, 97, 49, 50, 102, 100, 98, 100, 101, 55, 102, 100, 102, 102, 52, 10]
+
+
+failures:
+    no_walk_ancestry_export_retains_the_selected_ref
+    no_walk_ancestry_preserves_existing_child_list_order
+
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 8 filtered out; finished in 0.07s
+
+error: test failed, to rerun pass `-p sley-cli --test history_ancestry_paths`
+error: 1 target failed:
+    `-p sley-cli --test history_ancestry_paths`

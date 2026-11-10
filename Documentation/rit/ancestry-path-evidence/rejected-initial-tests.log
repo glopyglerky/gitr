@@ -1,0 +1,69 @@
+command=['/workspace/scratch/161a1b7c00ce/tooling/lustr/target/release/lustr', '--engine', 'rustc', 'test', '--manifest-path', 'vendor/sley/Cargo.toml', '--locked', '-p', 'sley-cli', '--test', 'history_ancestry_paths', '--test', 'fast_export', '--no-fail-fast']
+target=/workspace/scratch/161a1b7c00ce/tooling/sley-target
+tmpdir=/tmp/rit-history-vendor-dcul1a13
+   Compiling sley-rev v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-rev)
+   Compiling sley-submodule v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-submodule)
+   Compiling sley-worktree v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-worktree)
+   Compiling sley-fsck v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-fsck)
+   Compiling sley-ref-filter v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-ref-filter)
+   Compiling sley-hooks v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-hooks)
+   Compiling sley-remote v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-remote)
+   Compiling sley-gc v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-gc)
+   Compiling sley-pretty v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-pretty)
+   Compiling sley-sequencer v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-sequencer)
+   Compiling sley-archive v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-archive)
+   Compiling sley-notes v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-notes)
+   Compiling sley-testkit v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-testkit)
+   Compiling sley v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley)
+   Compiling sley-cli v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-cli)
+    Finished `test` profile [unoptimized] target(s) in 27.93s
+     Running tests/fast_export.rs (/workspace/scratch/161a1b7c00ce/tooling/sley-target/debug/deps/fast_export-a2b069cd95bd2931)
+
+running 5 tests
+test exports_annotated_blob_tag_byte_identically ... ok
+test exports_nested_tag_chain_with_marks_byte_identically ... ok
+test omits_tree_tag_without_aborting ... ok
+test quotes_control_and_separator_bytes_like_git ... ok
+test first_parent_merge_walk_matches_git_for_both_object_formats ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+     Running tests/history_ancestry_paths.rs (/workspace/scratch/161a1b7c00ce/tooling/sley-target/debug/deps/history_ancestry_paths-7757af44736ac1dd)
+
+running 5 tests
+test ancestry_filter_is_applied_to_listing_count_and_accelerated_modes ... FAILED
+test filters_and_path_simplification_keep_ancestry_connectivity ... FAILED
+test explicit_anchors_union_relations_without_importing_unwalked_history ... ok
+test invalid_anchors_and_missing_bottoms_match_git_rejections ... ok
+test shallow_boundaries_and_export_use_the_same_ancestry_selection ... ok
+
+failures:
+
+---- ancestry_filter_is_applied_to_listing_count_and_accelerated_modes stdout ----
+
+thread 'ancestry_filter_is_applied_to_listing_count_and_accelerated_modes' (442) panicked at crates/sley-cli/tests/history_ancestry_paths.rs:93:9:
+stdout ["rev-list", "--use-bitmap-index", "--count", "--ancestry-path", "X..M"]
+expected: 1
+
+actual: 0
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- filters_and_path_simplification_keep_ancestry_connectivity stdout ----
+
+thread 'filters_and_path_simplification_keep_ancestry_connectivity' (795) panicked at crates/sley-cli/tests/history_ancestry_paths.rs:93:9:
+stdout ["log", "--format=%H %s", "--ancestry-path=B", "--grep=^B$", "A..N"]
+expected: 53e0bba859f915a4da646c0ea290845112e6a17c B
+
+actual: 
+
+
+failures:
+    ancestry_filter_is_applied_to_listing_count_and_accelerated_modes
+    filters_and_path_simplification_keep_ancestry_connectivity
+
+test result: FAILED. 3 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.10s
+
+error: test failed, to rerun pass `-p sley-cli --test history_ancestry_paths`
+error: 1 target failed:
+    `-p sley-cli --test history_ancestry_paths`

@@ -58,3 +58,11 @@ reordered after parent diversion while full-history, merge simplification, and
 date-based ordering retain their established order. The new differential tests
 are independently authored Rit code under MIT OR Apache-2.0; the adapted engine
 and command implementation files retain their Apache-2.0 provenance.
+
+Ancestry selection adds an opt-in revision parser for log, rev-list, and
+fast-export. It resolves explicit anchors within the selected walk, preserves
+connections through commits hidden by output filters or imported export marks,
+and corrects metadata shortcuts that bypassed ancestry filtering. The added
+product regression tests are independently authored Rit code under MIT OR
+Apache-2.0. Adapted parser, engine, and command files retain their original
+Apache-2.0 source identities and notices.

@@ -1,0 +1,763 @@
+{
+  "candidate": "/workspace/scratch/717c1db38a84/rit-ancestry-candidate-v3/git",
+  "candidate_sha256": "5925c272cb97352c55a2f1828f91a3ac62709473a067ab6ea41a0ab9dd3c6749",
+  "root": "/tmp/rit-ancestry-marks-399wycu9",
+  "results": [
+    {
+      "format": "sha1",
+      "args": [
+        "rev-list",
+        "--bisect",
+        "--ancestry-path",
+        "A..M"
+      ],
+      "kind": "previous",
+      "oracle": {
+        "exit": 0,
+        "stdout": "a7f9584e4253a104c729614363fb806b8beb75df\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit": 0,
+        "stdout": "a7f9584e4253a104c729614363fb806b8beb75df\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "a7f9584e4253a104c729614363fb806b8beb75df\n",
+        "stderr": ""
+      },
+      "candidate_exact": true,
+      "baseline_exact": true,
+      "unchanged_from_baseline": true
+    },
+    {
+      "format": "sha1",
+      "args": [
+        "rev-list",
+        "--bisect",
+        "--ancestry-path=A",
+        "R..M"
+      ],
+      "kind": "previous",
+      "oracle": {
+        "exit": 0,
+        "stdout": "f429b17c1ff6de352e990dde22f2b116655c6868\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported rev-list option --ancestry-path=A\n"
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "f429b17c1ff6de352e990dde22f2b116655c6868\n",
+        "stderr": ""
+      },
+      "candidate_exact": true,
+      "baseline_exact": false,
+      "unchanged_from_baseline": false
+    },
+    {
+      "format": "sha1",
+      "args": [
+        "rev-list",
+        "--bisect",
+        "--ancestry-path",
+        "D..M"
+      ],
+      "kind": "previous",
+      "oracle": {
+        "exit": 0,
+        "stdout": "0d0ea8b8b31090937c95be1a85bee611543aa38c\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit": 0,
+        "stdout": "f429b17c1ff6de352e990dde22f2b116655c6868\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "0d0ea8b8b31090937c95be1a85bee611543aa38c\n",
+        "stderr": ""
+      },
+      "candidate_exact": true,
+      "baseline_exact": false,
+      "unchanged_from_baseline": false
+    },
+    {
+      "format": "sha1",
+      "args": [
+        "rev-list",
+        "--bisect",
+        "--ancestry-path=B",
+        "M"
+      ],
+      "kind": "previous",
+      "oracle": {
+        "exit": 0,
+        "stdout": "8a196d48cd96e04e45fa371b6f2e6f723acca4fb\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported rev-list option --ancestry-path=B\n"
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "8a196d48cd96e04e45fa371b6f2e6f723acca4fb\n",
+        "stderr": ""
+      },
+      "candidate_exact": true,
+      "baseline_exact": false,
+      "unchanged_from_baseline": false
+    },
+    {
+      "format": "sha1",
+      "args": [
+        "shortlog",
+        "-s",
+        "--ancestry-path=A",
+        "R..M"
+      ],
+      "kind": "previous",
+      "oracle": {
+        "exit": 0,
+        "stdout": "     4\tAuthor\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit": 129,
+        "stdout": "",
+        "stderr": "error: unknown option `--ancestry-path=A'\nusage: git shortlog [<options>] [<revision-range>] [[--] <path>...]\n   or: git log --pretty=short | git shortlog [<options>]\n\n    -c, --[no-]committer  group by committer rather than author\n    -n, --[no-]numbered   sort output according to the number of commits per author\n    -s, --[no-]summary    suppress commit descriptions, only provides commit count\n    -e, --[no-]email      show the email address of each author\n    -w[<w>[,<i1>[,<i2>]]] linewrap output\n    --[no-]group <field>  group by field\n\n"
+      },
+      "candidate": {
+        "exit": 129,
+        "stdout": "",
+        "stderr": "error: unknown option `--ancestry-path=A'\nusage: git shortlog [<options>] [<revision-range>] [[--] <path>...]\n   or: git log --pretty=short | git shortlog [<options>]\n\n    -c, --[no-]committer  group by committer rather than author\n    -n, --[no-]numbered   sort output according to the number of commits per author\n    -s, --[no-]summary    suppress commit descriptions, only provides commit count\n    -e, --[no-]email      show the email address of each author\n    -w[<w>[,<i1>[,<i2>]]] linewrap output\n    --[no-]group <field>  group by field\n\n"
+      },
+      "candidate_exact": false,
+      "baseline_exact": false,
+      "unchanged_from_baseline": true
+    },
+    {
+      "format": "sha1",
+      "args": [
+        "format-patch",
+        "--stdout",
+        "--ancestry-path=A",
+        "R..M"
+      ],
+      "kind": "previous",
+      "oracle": {
+        "exit": 0,
+        "stdout": "From 8a196d48cd96e04e45fa371b6f2e6f723acca4fb Mon Sep 17 00:00:00 2001\nFrom: Author <author@example.invalid>\nDate: Mon, 1 Jan 2001 00:00:02 +0000\nSubject: [PATCH 1/3] A\n\n---\n file | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)\n\ndiff --git a/file b/file\nindex 331bae0..f70f10e 100644\n--- a/file\n+++ b/file\n@@ -1 +1 @@\n-R\n+A\n-- \n2.55.0\n\n\nFrom f429b17c1ff6de352e990dde22f2b116655c6868 Mon Sep 17 00:00:00 2001\nFrom: Author <author@example.invalid>\nDate: Mon, 1 Jan 2001 00:00:03 +0000\nSubject: [PATCH 2/3] B\n\n---\n file | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)\n\ndiff --git a/file b/file\nindex f70f10e..223b783 100644\n--- a/file\n+++ b/file\n@@ -1 +1 @@\n-A\n+B\n-- \n2.55.0\n\n\nFrom a7f9584e4253a104c729614363fb806b8beb75df Mon Sep 17 00:00:00 2001\nFrom: Author <author@example.invalid>\nDate: Mon, 1 Jan 2001 00:00:04 +0000\nSubject: [PATCH 3/3] C\n\n---\n file | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)\n\ndiff --git a/file b/file\nindex 223b783..3cc58df 100644\n--- a/file\n+++ b/file\n@@ -1 +1 @@\n-B\n+C\n-- \n2.55.0\n\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported format-patch option --ancestry-path=A\n"
+      },
+      "candidate": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported format-patch option --ancestry-path=A\n"
+      },
+      "candidate_exact": false,
+      "baseline_exact": false,
+      "unchanged_from_baseline": true
+    },
+    {
+      "format": "sha1",
+      "args": [
+        "show",
+        "--no-patch",
+        "--format=%s",
+        "--ancestry-path=A",
+        "M"
+      ],
+      "kind": "previous",
+      "oracle": {
+        "exit": 0,
+        "stdout": "M\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported show option --ancestry-path=A\n"
+      },
+      "candidate": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported show option --ancestry-path=A\n"
+      },
+      "candidate_exact": false,
+      "baseline_exact": false,
+      "unchanged_from_baseline": true
+    },
+    {
+      "format": "sha256",
+      "args": [
+        "rev-list",
+        "--bisect",
+        "--ancestry-path",
+        "A..M"
+      ],
+      "kind": "previous",
+      "oracle": {
+        "exit": 0,
+        "stdout": "cc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit": 0,
+        "stdout": "cc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "cc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481\n",
+        "stderr": ""
+      },
+      "candidate_exact": true,
+      "baseline_exact": true,
+      "unchanged_from_baseline": true
+    },
+    {
+      "format": "sha256",
+      "args": [
+        "rev-list",
+        "--bisect",
+        "--ancestry-path=A",
+        "R..M"
+      ],
+      "kind": "previous",
+      "oracle": {
+        "exit": 0,
+        "stdout": "9c360befe036302393a82285b3fa1edf4d54dbd1a15688771803cef7f405e878\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported rev-list option --ancestry-path=A\n"
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "9c360befe036302393a82285b3fa1edf4d54dbd1a15688771803cef7f405e878\n",
+        "stderr": ""
+      },
+      "candidate_exact": true,
+      "baseline_exact": false,
+      "unchanged_from_baseline": false
+    },
+    {
+      "format": "sha256",
+      "args": [
+        "rev-list",
+        "--bisect",
+        "--ancestry-path",
+        "D..M"
+      ],
+      "kind": "previous",
+      "oracle": {
+        "exit": 0,
+        "stdout": "86ed363f459a50412761a3c4400016c7d06afce6edae858f14661480475bdd97\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit": 0,
+        "stdout": "9c360befe036302393a82285b3fa1edf4d54dbd1a15688771803cef7f405e878\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "86ed363f459a50412761a3c4400016c7d06afce6edae858f14661480475bdd97\n",
+        "stderr": ""
+      },
+      "candidate_exact": true,
+      "baseline_exact": false,
+      "unchanged_from_baseline": false
+    },
+    {
+      "format": "sha256",
+      "args": [
+        "rev-list",
+        "--bisect",
+        "--ancestry-path=B",
+        "M"
+      ],
+      "kind": "previous",
+      "oracle": {
+        "exit": 0,
+        "stdout": "a040f208e986c6e9fd992dbb980c624d429fe6eb60234965e755b46dcc969baa\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported rev-list option --ancestry-path=B\n"
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "a040f208e986c6e9fd992dbb980c624d429fe6eb60234965e755b46dcc969baa\n",
+        "stderr": ""
+      },
+      "candidate_exact": true,
+      "baseline_exact": false,
+      "unchanged_from_baseline": false
+    },
+    {
+      "format": "sha256",
+      "args": [
+        "shortlog",
+        "-s",
+        "--ancestry-path=A",
+        "R..M"
+      ],
+      "kind": "previous",
+      "oracle": {
+        "exit": 0,
+        "stdout": "     4\tAuthor\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit": 129,
+        "stdout": "",
+        "stderr": "error: unknown option `--ancestry-path=A'\nusage: git shortlog [<options>] [<revision-range>] [[--] <path>...]\n   or: git log --pretty=short | git shortlog [<options>]\n\n    -c, --[no-]committer  group by committer rather than author\n    -n, --[no-]numbered   sort output according to the number of commits per author\n    -s, --[no-]summary    suppress commit descriptions, only provides commit count\n    -e, --[no-]email      show the email address of each author\n    -w[<w>[,<i1>[,<i2>]]] linewrap output\n    --[no-]group <field>  group by field\n\n"
+      },
+      "candidate": {
+        "exit": 129,
+        "stdout": "",
+        "stderr": "error: unknown option `--ancestry-path=A'\nusage: git shortlog [<options>] [<revision-range>] [[--] <path>...]\n   or: git log --pretty=short | git shortlog [<options>]\n\n    -c, --[no-]committer  group by committer rather than author\n    -n, --[no-]numbered   sort output according to the number of commits per author\n    -s, --[no-]summary    suppress commit descriptions, only provides commit count\n    -e, --[no-]email      show the email address of each author\n    -w[<w>[,<i1>[,<i2>]]] linewrap output\n    --[no-]group <field>  group by field\n\n"
+      },
+      "candidate_exact": false,
+      "baseline_exact": false,
+      "unchanged_from_baseline": true
+    },
+    {
+      "format": "sha256",
+      "args": [
+        "format-patch",
+        "--stdout",
+        "--ancestry-path=A",
+        "R..M"
+      ],
+      "kind": "previous",
+      "oracle": {
+        "exit": 0,
+        "stdout": "From a040f208e986c6e9fd992dbb980c624d429fe6eb60234965e755b46dcc969baa Mon Sep 17 00:00:00 2001\nFrom: Author <author@example.invalid>\nDate: Mon, 1 Jan 2001 00:00:02 +0000\nSubject: [PATCH 1/3] A\n\n---\n file | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)\n\ndiff --git a/file b/file\nindex ba35867..607c437 100644\n--- a/file\n+++ b/file\n@@ -1 +1 @@\n-R\n+A\n-- \n2.55.0\n\n\nFrom 9c360befe036302393a82285b3fa1edf4d54dbd1a15688771803cef7f405e878 Mon Sep 17 00:00:00 2001\nFrom: Author <author@example.invalid>\nDate: Mon, 1 Jan 2001 00:00:03 +0000\nSubject: [PATCH 2/3] B\n\n---\n file | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)\n\ndiff --git a/file b/file\nindex 607c437..54f9c5b 100644\n--- a/file\n+++ b/file\n@@ -1 +1 @@\n-A\n+B\n-- \n2.55.0\n\n\nFrom cc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481 Mon Sep 17 00:00:00 2001\nFrom: Author <author@example.invalid>\nDate: Mon, 1 Jan 2001 00:00:04 +0000\nSubject: [PATCH 3/3] C\n\n---\n file | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)\n\ndiff --git a/file b/file\nindex 54f9c5b..54915d0 100644\n--- a/file\n+++ b/file\n@@ -1 +1 @@\n-B\n+C\n-- \n2.55.0\n\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported format-patch option --ancestry-path=A\n"
+      },
+      "candidate": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported format-patch option --ancestry-path=A\n"
+      },
+      "candidate_exact": false,
+      "baseline_exact": false,
+      "unchanged_from_baseline": true
+    },
+    {
+      "format": "sha256",
+      "args": [
+        "show",
+        "--no-patch",
+        "--format=%s",
+        "--ancestry-path=A",
+        "M"
+      ],
+      "kind": "previous",
+      "oracle": {
+        "exit": 0,
+        "stdout": "M\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported show option --ancestry-path=A\n"
+      },
+      "candidate": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported show option --ancestry-path=A\n"
+      },
+      "candidate_exact": false,
+      "baseline_exact": false,
+      "unchanged_from_baseline": true
+    },
+    {
+      "format": "sha1",
+      "args": [
+        "log",
+        "--format=%H",
+        "--no-walk",
+        "--ancestry-path",
+        "M"
+      ],
+      "kind": "no-walk control",
+      "oracle": {
+        "exit": 0,
+        "stdout": "0d0ea8b8b31090937c95be1a85bee611543aa38c\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit": 0,
+        "stdout": "0d0ea8b8b31090937c95be1a85bee611543aa38c\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "0d0ea8b8b31090937c95be1a85bee611543aa38c\n",
+        "stderr": ""
+      },
+      "candidate_exact": true,
+      "baseline_exact": true,
+      "unchanged_from_baseline": true
+    },
+    {
+      "format": "sha1",
+      "args": [
+        "rev-list",
+        "--no-walk",
+        "--ancestry-path",
+        "M"
+      ],
+      "kind": "no-walk control",
+      "oracle": {
+        "exit": 0,
+        "stdout": "0d0ea8b8b31090937c95be1a85bee611543aa38c\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit": 0,
+        "stdout": "0d0ea8b8b31090937c95be1a85bee611543aa38c\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "0d0ea8b8b31090937c95be1a85bee611543aa38c\n",
+        "stderr": ""
+      },
+      "candidate_exact": true,
+      "baseline_exact": true,
+      "unchanged_from_baseline": true
+    },
+    {
+      "format": "sha1",
+      "args": [
+        "log",
+        "--format=%H",
+        "--no-walk=unsorted",
+        "--ancestry-path",
+        "M",
+        "C"
+      ],
+      "kind": "no-walk control",
+      "oracle": {
+        "exit": 0,
+        "stdout": "0d0ea8b8b31090937c95be1a85bee611543aa38c\na7f9584e4253a104c729614363fb806b8beb75df\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit": 0,
+        "stdout": "0d0ea8b8b31090937c95be1a85bee611543aa38c\na7f9584e4253a104c729614363fb806b8beb75df\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "0d0ea8b8b31090937c95be1a85bee611543aa38c\na7f9584e4253a104c729614363fb806b8beb75df\n",
+        "stderr": ""
+      },
+      "candidate_exact": true,
+      "baseline_exact": true,
+      "unchanged_from_baseline": true
+    },
+    {
+      "format": "sha1",
+      "args": [
+        "rev-list",
+        "--no-walk=unsorted",
+        "--ancestry-path",
+        "M",
+        "C"
+      ],
+      "kind": "no-walk control",
+      "oracle": {
+        "exit": 0,
+        "stdout": "0d0ea8b8b31090937c95be1a85bee611543aa38c\na7f9584e4253a104c729614363fb806b8beb75df\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit": 0,
+        "stdout": "0d0ea8b8b31090937c95be1a85bee611543aa38c\na7f9584e4253a104c729614363fb806b8beb75df\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "0d0ea8b8b31090937c95be1a85bee611543aa38c\na7f9584e4253a104c729614363fb806b8beb75df\n",
+        "stderr": ""
+      },
+      "candidate_exact": true,
+      "baseline_exact": true,
+      "unchanged_from_baseline": true
+    },
+    {
+      "format": "sha1",
+      "args": [
+        "fast-export",
+        "--no-data",
+        "--show-original-ids",
+        "--no-walk",
+        "--ancestry-path",
+        "M"
+      ],
+      "kind": "no-walk control",
+      "oracle": {
+        "exit": 0,
+        "stdout": "commit refs/tags/M\nmark :1\noriginal-oid 0d0ea8b8b31090937c95be1a85bee611543aa38c\nauthor Author <author@example.invalid> 978307206 +0000\ncommitter Author <author@example.invalid> 978307206 +0000\ndata 2\nM\nM 100644 ab7768987ce64e0490e93767ca9a4bcd950c79f6 file\n\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit": 0,
+        "stdout": "reset refs/tags/M\ncommit refs/tags/M\nmark :1\noriginal-oid 04821274ddfb2ad92d8c503bb3ec43e438c96b5e\nauthor Author <author@example.invalid> 978307201 +0000\ncommitter Author <author@example.invalid> 978307201 +0000\ndata 2\nR\nM 100644 331bae08fb73b73f95252c1cf434d8b2b3a01d4b file\n\ncommit refs/tags/M\nmark :2\noriginal-oid 8a196d48cd96e04e45fa371b6f2e6f723acca4fb\nauthor Author <author@example.invalid> 978307202 +0000\ncommitter Author <author@example.invalid> 978307202 +0000\ndata 2\nA\nfrom :1\nM 100644 f70f10e4db19068f79bc43844b49f3eece45c4e8 file\n\ncommit refs/tags/M\nmark :3\noriginal-oid f429b17c1ff6de352e990dde22f2b116655c6868\nauthor Author <author@example.invalid> 978307203 +0000\ncommitter Author <author@example.invalid> 978307203 +0000\ndata 2\nB\nfrom :2\nM 100644 223b7836fb19fdf64ba2d3cd6173c6a283141f78 file\n\ncommit refs/tags/M\nmark :4\noriginal-oid a7f9584e4253a104c729614363fb806b8beb75df\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :3\nM 100644 3cc58df83752123644fef39faab2393af643b1d2 file\n\ncommit refs/tags/M\nmark :5\noriginal-oid c5f870e676d01de9e417e273d70e0f4bc1c61f64\nauthor Author <author@example.invalid> 978307205 +0000\ncommitter Author <author@example.invalid> 978307205 +0000\ndata 2\nD\nfrom :1\nM 100644 178481050188cf00d7d9cd5a11e43ab8fab9294f file\n\ncommit refs/tags/M\nmark :6\noriginal-oid 0d0ea8b8b31090937c95be1a85bee611543aa38c\nauthor Author <author@example.invalid> 978307206 +0000\ncommitter Author <author@example.invalid> 978307206 +0000\ndata 2\nM\nfrom :4\nmerge :5\nM 100644 ab7768987ce64e0490e93767ca9a4bcd950c79f6 file\n\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "reset refs/tags/M\ncommit refs/tags/M\nmark :1\noriginal-oid 04821274ddfb2ad92d8c503bb3ec43e438c96b5e\nauthor Author <author@example.invalid> 978307201 +0000\ncommitter Author <author@example.invalid> 978307201 +0000\ndata 2\nR\nM 100644 331bae08fb73b73f95252c1cf434d8b2b3a01d4b file\n\ncommit refs/tags/M\nmark :2\noriginal-oid 8a196d48cd96e04e45fa371b6f2e6f723acca4fb\nauthor Author <author@example.invalid> 978307202 +0000\ncommitter Author <author@example.invalid> 978307202 +0000\ndata 2\nA\nfrom :1\nM 100644 f70f10e4db19068f79bc43844b49f3eece45c4e8 file\n\ncommit refs/tags/M\nmark :3\noriginal-oid f429b17c1ff6de352e990dde22f2b116655c6868\nauthor Author <author@example.invalid> 978307203 +0000\ncommitter Author <author@example.invalid> 978307203 +0000\ndata 2\nB\nfrom :2\nM 100644 223b7836fb19fdf64ba2d3cd6173c6a283141f78 file\n\ncommit refs/tags/M\nmark :4\noriginal-oid a7f9584e4253a104c729614363fb806b8beb75df\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :3\nM 100644 3cc58df83752123644fef39faab2393af643b1d2 file\n\ncommit refs/tags/M\nmark :5\noriginal-oid c5f870e676d01de9e417e273d70e0f4bc1c61f64\nauthor Author <author@example.invalid> 978307205 +0000\ncommitter Author <author@example.invalid> 978307205 +0000\ndata 2\nD\nfrom :1\nM 100644 178481050188cf00d7d9cd5a11e43ab8fab9294f file\n\ncommit refs/tags/M\nmark :6\noriginal-oid 0d0ea8b8b31090937c95be1a85bee611543aa38c\nauthor Author <author@example.invalid> 978307206 +0000\ncommitter Author <author@example.invalid> 978307206 +0000\ndata 2\nM\nfrom :4\nmerge :5\nM 100644 ab7768987ce64e0490e93767ca9a4bcd950c79f6 file\n\n",
+        "stderr": ""
+      },
+      "candidate_exact": false,
+      "baseline_exact": false,
+      "unchanged_from_baseline": true,
+      "bare_no_walk_safety": {
+        "baseline_stream_restored": true,
+        "selected_tip_emitted": true,
+        "zero_ref_reset_absent": true
+      }
+    },
+    {
+      "format": "sha1",
+      "args": [
+        "fast-export",
+        "--no-data",
+        "--show-original-ids",
+        "--no-walk",
+        "--ancestry-path=D",
+        "M"
+      ],
+      "kind": "no-walk control",
+      "oracle": {
+        "exit": 0,
+        "stdout": "commit refs/tags/M\nmark :1\noriginal-oid 0d0ea8b8b31090937c95be1a85bee611543aa38c\nauthor Author <author@example.invalid> 978307206 +0000\ncommitter Author <author@example.invalid> 978307206 +0000\ndata 2\nM\nM 100644 ab7768987ce64e0490e93767ca9a4bcd950c79f6 file\n\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported fast-export option --ancestry-path=D\n"
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "reset refs/tags/M\ncommit refs/tags/M\nmark :1\noriginal-oid 04821274ddfb2ad92d8c503bb3ec43e438c96b5e\nauthor Author <author@example.invalid> 978307201 +0000\ncommitter Author <author@example.invalid> 978307201 +0000\ndata 2\nR\nM 100644 331bae08fb73b73f95252c1cf434d8b2b3a01d4b file\n\ncommit refs/tags/M\nmark :2\noriginal-oid 8a196d48cd96e04e45fa371b6f2e6f723acca4fb\nauthor Author <author@example.invalid> 978307202 +0000\ncommitter Author <author@example.invalid> 978307202 +0000\ndata 2\nA\nfrom :1\nM 100644 f70f10e4db19068f79bc43844b49f3eece45c4e8 file\n\ncommit refs/tags/M\nmark :3\noriginal-oid f429b17c1ff6de352e990dde22f2b116655c6868\nauthor Author <author@example.invalid> 978307203 +0000\ncommitter Author <author@example.invalid> 978307203 +0000\ndata 2\nB\nfrom :2\nM 100644 223b7836fb19fdf64ba2d3cd6173c6a283141f78 file\n\ncommit refs/tags/M\nmark :4\noriginal-oid a7f9584e4253a104c729614363fb806b8beb75df\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :3\nM 100644 3cc58df83752123644fef39faab2393af643b1d2 file\n\ncommit refs/tags/M\nmark :5\noriginal-oid c5f870e676d01de9e417e273d70e0f4bc1c61f64\nauthor Author <author@example.invalid> 978307205 +0000\ncommitter Author <author@example.invalid> 978307205 +0000\ndata 2\nD\nfrom :1\nM 100644 178481050188cf00d7d9cd5a11e43ab8fab9294f file\n\ncommit refs/tags/M\nmark :6\noriginal-oid 0d0ea8b8b31090937c95be1a85bee611543aa38c\nauthor Author <author@example.invalid> 978307206 +0000\ncommitter Author <author@example.invalid> 978307206 +0000\ndata 2\nM\nfrom :4\nmerge :5\nM 100644 ab7768987ce64e0490e93767ca9a4bcd950c79f6 file\n\n",
+        "stderr": ""
+      },
+      "candidate_exact": false,
+      "baseline_exact": false,
+      "unchanged_from_baseline": false
+    },
+    {
+      "format": "sha256",
+      "args": [
+        "log",
+        "--format=%H",
+        "--no-walk",
+        "--ancestry-path",
+        "M"
+      ],
+      "kind": "no-walk control",
+      "oracle": {
+        "exit": 0,
+        "stdout": "86ed363f459a50412761a3c4400016c7d06afce6edae858f14661480475bdd97\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit": 0,
+        "stdout": "86ed363f459a50412761a3c4400016c7d06afce6edae858f14661480475bdd97\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "86ed363f459a50412761a3c4400016c7d06afce6edae858f14661480475bdd97\n",
+        "stderr": ""
+      },
+      "candidate_exact": true,
+      "baseline_exact": true,
+      "unchanged_from_baseline": true
+    },
+    {
+      "format": "sha256",
+      "args": [
+        "rev-list",
+        "--no-walk",
+        "--ancestry-path",
+        "M"
+      ],
+      "kind": "no-walk control",
+      "oracle": {
+        "exit": 0,
+        "stdout": "86ed363f459a50412761a3c4400016c7d06afce6edae858f14661480475bdd97\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit": 0,
+        "stdout": "86ed363f459a50412761a3c4400016c7d06afce6edae858f14661480475bdd97\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "86ed363f459a50412761a3c4400016c7d06afce6edae858f14661480475bdd97\n",
+        "stderr": ""
+      },
+      "candidate_exact": true,
+      "baseline_exact": true,
+      "unchanged_from_baseline": true
+    },
+    {
+      "format": "sha256",
+      "args": [
+        "log",
+        "--format=%H",
+        "--no-walk=unsorted",
+        "--ancestry-path",
+        "M",
+        "C"
+      ],
+      "kind": "no-walk control",
+      "oracle": {
+        "exit": 0,
+        "stdout": "86ed363f459a50412761a3c4400016c7d06afce6edae858f14661480475bdd97\ncc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit": 0,
+        "stdout": "86ed363f459a50412761a3c4400016c7d06afce6edae858f14661480475bdd97\ncc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "86ed363f459a50412761a3c4400016c7d06afce6edae858f14661480475bdd97\ncc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481\n",
+        "stderr": ""
+      },
+      "candidate_exact": true,
+      "baseline_exact": true,
+      "unchanged_from_baseline": true
+    },
+    {
+      "format": "sha256",
+      "args": [
+        "rev-list",
+        "--no-walk=unsorted",
+        "--ancestry-path",
+        "M",
+        "C"
+      ],
+      "kind": "no-walk control",
+      "oracle": {
+        "exit": 0,
+        "stdout": "86ed363f459a50412761a3c4400016c7d06afce6edae858f14661480475bdd97\ncc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit": 0,
+        "stdout": "86ed363f459a50412761a3c4400016c7d06afce6edae858f14661480475bdd97\ncc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "86ed363f459a50412761a3c4400016c7d06afce6edae858f14661480475bdd97\ncc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481\n",
+        "stderr": ""
+      },
+      "candidate_exact": true,
+      "baseline_exact": true,
+      "unchanged_from_baseline": true
+    },
+    {
+      "format": "sha256",
+      "args": [
+        "fast-export",
+        "--no-data",
+        "--show-original-ids",
+        "--no-walk",
+        "--ancestry-path",
+        "M"
+      ],
+      "kind": "no-walk control",
+      "oracle": {
+        "exit": 0,
+        "stdout": "commit refs/tags/M\nmark :1\noriginal-oid 86ed363f459a50412761a3c4400016c7d06afce6edae858f14661480475bdd97\nauthor Author <author@example.invalid> 978307206 +0000\ncommitter Author <author@example.invalid> 978307206 +0000\ndata 2\nM\nM 100644 28d329cf3ca1825fcfc1746e4a252632bff11a323f0332c561d46b8c85875b35 file\n\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit": 0,
+        "stdout": "reset refs/tags/M\ncommit refs/tags/M\nmark :1\noriginal-oid 27bbc9c593733aa79d4028cf1e100de61998ed9fbd1c25ad91bbc383671fc680\nauthor Author <author@example.invalid> 978307201 +0000\ncommitter Author <author@example.invalid> 978307201 +0000\ndata 2\nR\nM 100644 ba3586730584d820bc49d1da906d11cafe242090545ff27413408a9b3dce0327 file\n\ncommit refs/tags/M\nmark :2\noriginal-oid a040f208e986c6e9fd992dbb980c624d429fe6eb60234965e755b46dcc969baa\nauthor Author <author@example.invalid> 978307202 +0000\ncommitter Author <author@example.invalid> 978307202 +0000\ndata 2\nA\nfrom :1\nM 100644 607c437ab75dbfa006db9252cb1118b691374ccb685ee0e522646ef39e1be16b file\n\ncommit refs/tags/M\nmark :3\noriginal-oid 9c360befe036302393a82285b3fa1edf4d54dbd1a15688771803cef7f405e878\nauthor Author <author@example.invalid> 978307203 +0000\ncommitter Author <author@example.invalid> 978307203 +0000\ndata 2\nB\nfrom :2\nM 100644 54f9c5bcc1bf7b778df4648d5131ae3043682f196aa4da8950c30b5bec2d1564 file\n\ncommit refs/tags/M\nmark :4\noriginal-oid cc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :3\nM 100644 54915d0b84fd75be987b1d0e6c72d3e9c409fecafde42e6daf811e2e99da7102 file\n\ncommit refs/tags/M\nmark :5\noriginal-oid 033a6c5cf800bb77031235b33891f373edb9e1e92244389672dcde66af197c2a\nauthor Author <author@example.invalid> 978307205 +0000\ncommitter Author <author@example.invalid> 978307205 +0000\ndata 2\nD\nfrom :1\nM 100644 9f9b624482c6a8ac37e267f247153f8728af0f925ba56f8af92388ea3bea6edc file\n\ncommit refs/tags/M\nmark :6\noriginal-oid 86ed363f459a50412761a3c4400016c7d06afce6edae858f14661480475bdd97\nauthor Author <author@example.invalid> 978307206 +0000\ncommitter Author <author@example.invalid> 978307206 +0000\ndata 2\nM\nfrom :4\nmerge :5\nM 100644 28d329cf3ca1825fcfc1746e4a252632bff11a323f0332c561d46b8c85875b35 file\n\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "reset refs/tags/M\ncommit refs/tags/M\nmark :1\noriginal-oid 27bbc9c593733aa79d4028cf1e100de61998ed9fbd1c25ad91bbc383671fc680\nauthor Author <author@example.invalid> 978307201 +0000\ncommitter Author <author@example.invalid> 978307201 +0000\ndata 2\nR\nM 100644 ba3586730584d820bc49d1da906d11cafe242090545ff27413408a9b3dce0327 file\n\ncommit refs/tags/M\nmark :2\noriginal-oid a040f208e986c6e9fd992dbb980c624d429fe6eb60234965e755b46dcc969baa\nauthor Author <author@example.invalid> 978307202 +0000\ncommitter Author <author@example.invalid> 978307202 +0000\ndata 2\nA\nfrom :1\nM 100644 607c437ab75dbfa006db9252cb1118b691374ccb685ee0e522646ef39e1be16b file\n\ncommit refs/tags/M\nmark :3\noriginal-oid 9c360befe036302393a82285b3fa1edf4d54dbd1a15688771803cef7f405e878\nauthor Author <author@example.invalid> 978307203 +0000\ncommitter Author <author@example.invalid> 978307203 +0000\ndata 2\nB\nfrom :2\nM 100644 54f9c5bcc1bf7b778df4648d5131ae3043682f196aa4da8950c30b5bec2d1564 file\n\ncommit refs/tags/M\nmark :4\noriginal-oid cc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :3\nM 100644 54915d0b84fd75be987b1d0e6c72d3e9c409fecafde42e6daf811e2e99da7102 file\n\ncommit refs/tags/M\nmark :5\noriginal-oid 033a6c5cf800bb77031235b33891f373edb9e1e92244389672dcde66af197c2a\nauthor Author <author@example.invalid> 978307205 +0000\ncommitter Author <author@example.invalid> 978307205 +0000\ndata 2\nD\nfrom :1\nM 100644 9f9b624482c6a8ac37e267f247153f8728af0f925ba56f8af92388ea3bea6edc file\n\ncommit refs/tags/M\nmark :6\noriginal-oid 86ed363f459a50412761a3c4400016c7d06afce6edae858f14661480475bdd97\nauthor Author <author@example.invalid> 978307206 +0000\ncommitter Author <author@example.invalid> 978307206 +0000\ndata 2\nM\nfrom :4\nmerge :5\nM 100644 28d329cf3ca1825fcfc1746e4a252632bff11a323f0332c561d46b8c85875b35 file\n\n",
+        "stderr": ""
+      },
+      "candidate_exact": false,
+      "baseline_exact": false,
+      "unchanged_from_baseline": true,
+      "bare_no_walk_safety": {
+        "baseline_stream_restored": true,
+        "selected_tip_emitted": true,
+        "zero_ref_reset_absent": true
+      }
+    },
+    {
+      "format": "sha256",
+      "args": [
+        "fast-export",
+        "--no-data",
+        "--show-original-ids",
+        "--no-walk",
+        "--ancestry-path=D",
+        "M"
+      ],
+      "kind": "no-walk control",
+      "oracle": {
+        "exit": 0,
+        "stdout": "commit refs/tags/M\nmark :1\noriginal-oid 86ed363f459a50412761a3c4400016c7d06afce6edae858f14661480475bdd97\nauthor Author <author@example.invalid> 978307206 +0000\ncommitter Author <author@example.invalid> 978307206 +0000\ndata 2\nM\nM 100644 28d329cf3ca1825fcfc1746e4a252632bff11a323f0332c561d46b8c85875b35 file\n\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported fast-export option --ancestry-path=D\n"
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "reset refs/tags/M\ncommit refs/tags/M\nmark :1\noriginal-oid 27bbc9c593733aa79d4028cf1e100de61998ed9fbd1c25ad91bbc383671fc680\nauthor Author <author@example.invalid> 978307201 +0000\ncommitter Author <author@example.invalid> 978307201 +0000\ndata 2\nR\nM 100644 ba3586730584d820bc49d1da906d11cafe242090545ff27413408a9b3dce0327 file\n\ncommit refs/tags/M\nmark :2\noriginal-oid a040f208e986c6e9fd992dbb980c624d429fe6eb60234965e755b46dcc969baa\nauthor Author <author@example.invalid> 978307202 +0000\ncommitter Author <author@example.invalid> 978307202 +0000\ndata 2\nA\nfrom :1\nM 100644 607c437ab75dbfa006db9252cb1118b691374ccb685ee0e522646ef39e1be16b file\n\ncommit refs/tags/M\nmark :3\noriginal-oid 9c360befe036302393a82285b3fa1edf4d54dbd1a15688771803cef7f405e878\nauthor Author <author@example.invalid> 978307203 +0000\ncommitter Author <author@example.invalid> 978307203 +0000\ndata 2\nB\nfrom :2\nM 100644 54f9c5bcc1bf7b778df4648d5131ae3043682f196aa4da8950c30b5bec2d1564 file\n\ncommit refs/tags/M\nmark :4\noriginal-oid cc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :3\nM 100644 54915d0b84fd75be987b1d0e6c72d3e9c409fecafde42e6daf811e2e99da7102 file\n\ncommit refs/tags/M\nmark :5\noriginal-oid 033a6c5cf800bb77031235b33891f373edb9e1e92244389672dcde66af197c2a\nauthor Author <author@example.invalid> 978307205 +0000\ncommitter Author <author@example.invalid> 978307205 +0000\ndata 2\nD\nfrom :1\nM 100644 9f9b624482c6a8ac37e267f247153f8728af0f925ba56f8af92388ea3bea6edc file\n\ncommit refs/tags/M\nmark :6\noriginal-oid 86ed363f459a50412761a3c4400016c7d06afce6edae858f14661480475bdd97\nauthor Author <author@example.invalid> 978307206 +0000\ncommitter Author <author@example.invalid> 978307206 +0000\ndata 2\nM\nfrom :4\nmerge :5\nM 100644 28d329cf3ca1825fcfc1746e4a252632bff11a323f0332c561d46b8c85875b35 file\n\n",
+        "stderr": ""
+      },
+      "candidate_exact": false,
+      "baseline_exact": false,
+      "unchanged_from_baseline": false
+    }
+  ]
+}

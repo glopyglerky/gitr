@@ -1,0 +1,100 @@
+[
+  {
+    "lane": "rit",
+    "format": "sha1",
+    "script": "t6019-rev-list-ancestry-path.sh",
+    "before": "not ok 4 - log --ancestry-path=F D..M",
+    "after": "ok 4 - log --ancestry-path=F D..M"
+  },
+  {
+    "lane": "rit",
+    "format": "sha1",
+    "script": "t6019-rev-list-ancestry-path.sh",
+    "before": "not ok 5 - log --ancestry-path=G D..M",
+    "after": "ok 5 - log --ancestry-path=G D..M"
+  },
+  {
+    "lane": "rit",
+    "format": "sha1",
+    "script": "t6019-rev-list-ancestry-path.sh",
+    "before": "not ok 6 - log --ancestry-path=H D..M",
+    "after": "ok 6 - log --ancestry-path=H D..M"
+  },
+  {
+    "lane": "rit",
+    "format": "sha1",
+    "script": "t6019-rev-list-ancestry-path.sh",
+    "before": "not ok 7 - log --ancestry-path=K D..M",
+    "after": "ok 7 - log --ancestry-path=K D..M"
+  },
+  {
+    "lane": "rit",
+    "format": "sha1",
+    "script": "t6019-rev-list-ancestry-path.sh",
+    "before": "not ok 8 - log --ancestry-path=F --ancestry-path=K D..M",
+    "after": "ok 8 - log --ancestry-path=F --ancestry-path=K D..M"
+  },
+  {
+    "lane": "rit",
+    "format": "sha1",
+    "script": "t6019-rev-list-ancestry-path.sh",
+    "before": "not ok 17 - criss-cross: rev-list --ancestry-path cb..bc",
+    "after": "ok 17 - criss-cross: rev-list --ancestry-path cb..bc"
+  },
+  {
+    "lane": "rit",
+    "format": "sha1",
+    "script": "t6019-rev-list-ancestry-path.sh",
+    "before": "not ok 18 - criss-cross: rev-list --ancestry-path --all ^cb",
+    "after": "ok 18 - criss-cross: rev-list --ancestry-path --all ^cb"
+  },
+  {
+    "lane": "rit",
+    "format": "sha256",
+    "script": "t6019-rev-list-ancestry-path.sh",
+    "before": "not ok 4 - log --ancestry-path=F D..M",
+    "after": "ok 4 - log --ancestry-path=F D..M"
+  },
+  {
+    "lane": "rit",
+    "format": "sha256",
+    "script": "t6019-rev-list-ancestry-path.sh",
+    "before": "not ok 5 - log --ancestry-path=G D..M",
+    "after": "ok 5 - log --ancestry-path=G D..M"
+  },
+  {
+    "lane": "rit",
+    "format": "sha256",
+    "script": "t6019-rev-list-ancestry-path.sh",
+    "before": "not ok 6 - log --ancestry-path=H D..M",
+    "after": "ok 6 - log --ancestry-path=H D..M"
+  },
+  {
+    "lane": "rit",
+    "format": "sha256",
+    "script": "t6019-rev-list-ancestry-path.sh",
+    "before": "not ok 7 - log --ancestry-path=K D..M",
+    "after": "ok 7 - log --ancestry-path=K D..M"
+  },
+  {
+    "lane": "rit",
+    "format": "sha256",
+    "script": "t6019-rev-list-ancestry-path.sh",
+    "before": "not ok 8 - log --ancestry-path=F --ancestry-path=K D..M",
+    "after": "ok 8 - log --ancestry-path=F --ancestry-path=K D..M"
+  },
+  {
+    "lane": "rit",
+    "format": "sha256",
+    "script": "t6019-rev-list-ancestry-path.sh",
+    "before": "not ok 17 - criss-cross: rev-list --ancestry-path cb..bc",
+    "after": "ok 17 - criss-cross: rev-list --ancestry-path cb..bc"
+  },
+  {
+    "lane": "rit",
+    "format": "sha256",
+    "script": "t6019-rev-list-ancestry-path.sh",
+    "before": "not ok 18 - criss-cross: rev-list --ancestry-path --all ^cb",
+    "after": "ok 18 - criss-cross: rev-list --ancestry-path --all ^cb"
+  }
+]

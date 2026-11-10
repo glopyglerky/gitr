@@ -1,0 +1,1037 @@
+{
+  "root": "/tmp/rit-ancestry-marks-399wycu9",
+  "candidate": "/workspace/scratch/717c1db38a84/rit-history-candidate-v2/git",
+  "candidate_sha256": "65fb0e263a71010daeff06ea11c061679cf4db7d16b2b219f5b876bb34f45bbb",
+  "results": [
+    {
+      "format": "sha1",
+      "marks": [
+        "B"
+      ],
+      "args": [
+        "fast-export",
+        "--no-data",
+        "--show-original-ids",
+        "--import-marks=/tmp/rit-ancestry-marks-399wycu9/sha1/marks-B",
+        "C"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "reset refs/tags/C\ncommit refs/tags/C\nmark :2\noriginal-oid 04821274ddfb2ad92d8c503bb3ec43e438c96b5e\nauthor Author <author@example.invalid> 978307201 +0000\ncommitter Author <author@example.invalid> 978307201 +0000\ndata 2\nR\nM 100644 331bae08fb73b73f95252c1cf434d8b2b3a01d4b file\n\ncommit refs/tags/C\nmark :3\noriginal-oid 8a196d48cd96e04e45fa371b6f2e6f723acca4fb\nauthor Author <author@example.invalid> 978307202 +0000\ncommitter Author <author@example.invalid> 978307202 +0000\ndata 2\nA\nfrom :2\nM 100644 f70f10e4db19068f79bc43844b49f3eece45c4e8 file\n\ncommit refs/tags/C\nmark :4\noriginal-oid a7f9584e4253a104c729614363fb806b8beb75df\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :1\nM 100644 3cc58df83752123644fef39faab2393af643b1d2 file\n\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "reset refs/tags/C\ncommit refs/tags/C\nmark :2\noriginal-oid 04821274ddfb2ad92d8c503bb3ec43e438c96b5e\nauthor Author <author@example.invalid> 978307201 +0000\ncommitter Author <author@example.invalid> 978307201 +0000\ndata 2\nR\nM 100644 331bae08fb73b73f95252c1cf434d8b2b3a01d4b file\n\ncommit refs/tags/C\nmark :3\noriginal-oid 8a196d48cd96e04e45fa371b6f2e6f723acca4fb\nauthor Author <author@example.invalid> 978307202 +0000\ncommitter Author <author@example.invalid> 978307202 +0000\ndata 2\nA\nfrom :2\nM 100644 f70f10e4db19068f79bc43844b49f3eece45c4e8 file\n\ncommit refs/tags/C\nmark :4\noriginal-oid a7f9584e4253a104c729614363fb806b8beb75df\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :1\nM 100644 3cc58df83752123644fef39faab2393af643b1d2 file\n\n",
+        "stderr": ""
+      },
+      "oracle_commits": [
+        "R",
+        "A",
+        "C"
+      ],
+      "candidate_commits": [
+        "R",
+        "A",
+        "C"
+      ],
+      "exact": true
+    },
+    {
+      "format": "sha1",
+      "marks": [
+        "B"
+      ],
+      "args": [
+        "fast-export",
+        "--no-data",
+        "--show-original-ids",
+        "--import-marks=/tmp/rit-ancestry-marks-399wycu9/sha1/marks-B",
+        "--ancestry-path=A",
+        "C"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "reset refs/tags/C\ncommit refs/tags/C\nmark :2\noriginal-oid 04821274ddfb2ad92d8c503bb3ec43e438c96b5e\nauthor Author <author@example.invalid> 978307201 +0000\ncommitter Author <author@example.invalid> 978307201 +0000\ndata 2\nR\nM 100644 331bae08fb73b73f95252c1cf434d8b2b3a01d4b file\n\ncommit refs/tags/C\nmark :3\noriginal-oid 8a196d48cd96e04e45fa371b6f2e6f723acca4fb\nauthor Author <author@example.invalid> 978307202 +0000\ncommitter Author <author@example.invalid> 978307202 +0000\ndata 2\nA\nfrom :2\nM 100644 f70f10e4db19068f79bc43844b49f3eece45c4e8 file\n\ncommit refs/tags/C\nmark :4\noriginal-oid a7f9584e4253a104c729614363fb806b8beb75df\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :1\nM 100644 3cc58df83752123644fef39faab2393af643b1d2 file\n\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported fast-export option --ancestry-path=A\n"
+      },
+      "oracle_commits": [
+        "R",
+        "A",
+        "C"
+      ],
+      "candidate_commits": [],
+      "exact": false
+    },
+    {
+      "format": "sha1",
+      "marks": [
+        "B"
+      ],
+      "args": [
+        "fast-export",
+        "--no-data",
+        "--show-original-ids",
+        "--import-marks=/tmp/rit-ancestry-marks-399wycu9/sha1/marks-B",
+        "--ancestry-path=B",
+        "C"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "reset refs/tags/C\ncommit refs/tags/C\nmark :2\noriginal-oid 04821274ddfb2ad92d8c503bb3ec43e438c96b5e\nauthor Author <author@example.invalid> 978307201 +0000\ncommitter Author <author@example.invalid> 978307201 +0000\ndata 2\nR\nM 100644 331bae08fb73b73f95252c1cf434d8b2b3a01d4b file\n\ncommit refs/tags/C\nmark :3\noriginal-oid 8a196d48cd96e04e45fa371b6f2e6f723acca4fb\nauthor Author <author@example.invalid> 978307202 +0000\ncommitter Author <author@example.invalid> 978307202 +0000\ndata 2\nA\nfrom :2\nM 100644 f70f10e4db19068f79bc43844b49f3eece45c4e8 file\n\ncommit refs/tags/C\nmark :4\noriginal-oid a7f9584e4253a104c729614363fb806b8beb75df\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :1\nM 100644 3cc58df83752123644fef39faab2393af643b1d2 file\n\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported fast-export option --ancestry-path=B\n"
+      },
+      "oracle_commits": [
+        "R",
+        "A",
+        "C"
+      ],
+      "candidate_commits": [],
+      "exact": false
+    },
+    {
+      "format": "sha1",
+      "marks": [
+        "B"
+      ],
+      "args": [
+        "fast-export",
+        "--no-data",
+        "--show-original-ids",
+        "--import-marks=/tmp/rit-ancestry-marks-399wycu9/sha1/marks-B",
+        "--ancestry-path=R",
+        "C"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "reset refs/tags/C\ncommit refs/tags/C\nmark :2\noriginal-oid 04821274ddfb2ad92d8c503bb3ec43e438c96b5e\nauthor Author <author@example.invalid> 978307201 +0000\ncommitter Author <author@example.invalid> 978307201 +0000\ndata 2\nR\nM 100644 331bae08fb73b73f95252c1cf434d8b2b3a01d4b file\n\ncommit refs/tags/C\nmark :3\noriginal-oid 8a196d48cd96e04e45fa371b6f2e6f723acca4fb\nauthor Author <author@example.invalid> 978307202 +0000\ncommitter Author <author@example.invalid> 978307202 +0000\ndata 2\nA\nfrom :2\nM 100644 f70f10e4db19068f79bc43844b49f3eece45c4e8 file\n\ncommit refs/tags/C\nmark :4\noriginal-oid a7f9584e4253a104c729614363fb806b8beb75df\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :1\nM 100644 3cc58df83752123644fef39faab2393af643b1d2 file\n\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported fast-export option --ancestry-path=R\n"
+      },
+      "oracle_commits": [
+        "R",
+        "A",
+        "C"
+      ],
+      "candidate_commits": [],
+      "exact": false
+    },
+    {
+      "format": "sha1",
+      "marks": [
+        "B"
+      ],
+      "args": [
+        "fast-export",
+        "--no-data",
+        "--show-original-ids",
+        "--import-marks=/tmp/rit-ancestry-marks-399wycu9/sha1/marks-B",
+        "--ancestry-path",
+        "R..C"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "commit refs/tags/C\nmark :2\noriginal-oid 8a196d48cd96e04e45fa371b6f2e6f723acca4fb\nauthor Author <author@example.invalid> 978307202 +0000\ncommitter Author <author@example.invalid> 978307202 +0000\ndata 2\nA\nM 100644 f70f10e4db19068f79bc43844b49f3eece45c4e8 file\n\ncommit refs/tags/C\nmark :3\noriginal-oid a7f9584e4253a104c729614363fb806b8beb75df\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :1\nM 100644 3cc58df83752123644fef39faab2393af643b1d2 file\n\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "commit refs/tags/C\nmark :2\noriginal-oid 8a196d48cd96e04e45fa371b6f2e6f723acca4fb\nauthor Author <author@example.invalid> 978307202 +0000\ncommitter Author <author@example.invalid> 978307202 +0000\ndata 2\nA\nM 100644 f70f10e4db19068f79bc43844b49f3eece45c4e8 file\n\n",
+        "stderr": ""
+      },
+      "oracle_commits": [
+        "A",
+        "C"
+      ],
+      "candidate_commits": [
+        "A"
+      ],
+      "exact": false
+    },
+    {
+      "format": "sha1",
+      "marks": [
+        "B"
+      ],
+      "args": [
+        "fast-export",
+        "--no-data",
+        "--show-original-ids",
+        "--import-marks=/tmp/rit-ancestry-marks-399wycu9/sha1/marks-B",
+        "--ancestry-path=A",
+        "M"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "reset refs/tags/M\ncommit refs/tags/M\nmark :2\noriginal-oid 04821274ddfb2ad92d8c503bb3ec43e438c96b5e\nauthor Author <author@example.invalid> 978307201 +0000\ncommitter Author <author@example.invalid> 978307201 +0000\ndata 2\nR\nM 100644 331bae08fb73b73f95252c1cf434d8b2b3a01d4b file\n\ncommit refs/tags/M\nmark :3\noriginal-oid 8a196d48cd96e04e45fa371b6f2e6f723acca4fb\nauthor Author <author@example.invalid> 978307202 +0000\ncommitter Author <author@example.invalid> 978307202 +0000\ndata 2\nA\nfrom :2\nM 100644 f70f10e4db19068f79bc43844b49f3eece45c4e8 file\n\ncommit refs/tags/M\nmark :4\noriginal-oid a7f9584e4253a104c729614363fb806b8beb75df\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :1\nM 100644 3cc58df83752123644fef39faab2393af643b1d2 file\n\ncommit refs/tags/M\nmark :5\noriginal-oid 0d0ea8b8b31090937c95be1a85bee611543aa38c\nauthor Author <author@example.invalid> 978307206 +0000\ncommitter Author <author@example.invalid> 978307206 +0000\ndata 2\nM\nfrom :4\nM 100644 ab7768987ce64e0490e93767ca9a4bcd950c79f6 file\n\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported fast-export option --ancestry-path=A\n"
+      },
+      "oracle_commits": [
+        "R",
+        "A",
+        "C",
+        "M"
+      ],
+      "candidate_commits": [],
+      "exact": false
+    },
+    {
+      "format": "sha1",
+      "marks": [
+        "B"
+      ],
+      "args": [
+        "fast-export",
+        "--no-data",
+        "--show-original-ids",
+        "--import-marks=/tmp/rit-ancestry-marks-399wycu9/sha1/marks-B",
+        "--ancestry-path=B",
+        "M"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "reset refs/tags/M\ncommit refs/tags/M\nmark :2\noriginal-oid 04821274ddfb2ad92d8c503bb3ec43e438c96b5e\nauthor Author <author@example.invalid> 978307201 +0000\ncommitter Author <author@example.invalid> 978307201 +0000\ndata 2\nR\nM 100644 331bae08fb73b73f95252c1cf434d8b2b3a01d4b file\n\ncommit refs/tags/M\nmark :3\noriginal-oid 8a196d48cd96e04e45fa371b6f2e6f723acca4fb\nauthor Author <author@example.invalid> 978307202 +0000\ncommitter Author <author@example.invalid> 978307202 +0000\ndata 2\nA\nfrom :2\nM 100644 f70f10e4db19068f79bc43844b49f3eece45c4e8 file\n\ncommit refs/tags/M\nmark :4\noriginal-oid a7f9584e4253a104c729614363fb806b8beb75df\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :1\nM 100644 3cc58df83752123644fef39faab2393af643b1d2 file\n\ncommit refs/tags/M\nmark :5\noriginal-oid 0d0ea8b8b31090937c95be1a85bee611543aa38c\nauthor Author <author@example.invalid> 978307206 +0000\ncommitter Author <author@example.invalid> 978307206 +0000\ndata 2\nM\nfrom :4\nM 100644 ab7768987ce64e0490e93767ca9a4bcd950c79f6 file\n\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported fast-export option --ancestry-path=B\n"
+      },
+      "oracle_commits": [
+        "R",
+        "A",
+        "C",
+        "M"
+      ],
+      "candidate_commits": [],
+      "exact": false
+    },
+    {
+      "format": "sha1",
+      "marks": [
+        "B"
+      ],
+      "args": [
+        "fast-export",
+        "--no-data",
+        "--show-original-ids",
+        "--import-marks=/tmp/rit-ancestry-marks-399wycu9/sha1/marks-B",
+        "--ancestry-path",
+        "R..M"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "commit refs/tags/M\nmark :2\noriginal-oid 8a196d48cd96e04e45fa371b6f2e6f723acca4fb\nauthor Author <author@example.invalid> 978307202 +0000\ncommitter Author <author@example.invalid> 978307202 +0000\ndata 2\nA\nM 100644 f70f10e4db19068f79bc43844b49f3eece45c4e8 file\n\ncommit refs/tags/M\nmark :3\noriginal-oid a7f9584e4253a104c729614363fb806b8beb75df\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :1\nM 100644 3cc58df83752123644fef39faab2393af643b1d2 file\n\ncommit refs/tags/M\nmark :4\noriginal-oid c5f870e676d01de9e417e273d70e0f4bc1c61f64\nauthor Author <author@example.invalid> 978307205 +0000\ncommitter Author <author@example.invalid> 978307205 +0000\ndata 2\nD\nM 100644 178481050188cf00d7d9cd5a11e43ab8fab9294f file\n\ncommit refs/tags/M\nmark :5\noriginal-oid 0d0ea8b8b31090937c95be1a85bee611543aa38c\nauthor Author <author@example.invalid> 978307206 +0000\ncommitter Author <author@example.invalid> 978307206 +0000\ndata 2\nM\nfrom :3\nmerge :4\nM 100644 ab7768987ce64e0490e93767ca9a4bcd950c79f6 file\n\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "commit refs/tags/M\nmark :2\noriginal-oid 8a196d48cd96e04e45fa371b6f2e6f723acca4fb\nauthor Author <author@example.invalid> 978307202 +0000\ncommitter Author <author@example.invalid> 978307202 +0000\ndata 2\nA\nM 100644 f70f10e4db19068f79bc43844b49f3eece45c4e8 file\n\ncommit refs/tags/M\nmark :3\noriginal-oid c5f870e676d01de9e417e273d70e0f4bc1c61f64\nauthor Author <author@example.invalid> 978307205 +0000\ncommitter Author <author@example.invalid> 978307205 +0000\ndata 2\nD\nM 100644 178481050188cf00d7d9cd5a11e43ab8fab9294f file\n\ncommit refs/tags/M\nmark :4\noriginal-oid 0d0ea8b8b31090937c95be1a85bee611543aa38c\nauthor Author <author@example.invalid> 978307206 +0000\ncommitter Author <author@example.invalid> 978307206 +0000\ndata 2\nM\nmerge :3\nM 100644 ab7768987ce64e0490e93767ca9a4bcd950c79f6 file\n\n",
+        "stderr": ""
+      },
+      "oracle_commits": [
+        "A",
+        "C",
+        "D",
+        "M"
+      ],
+      "candidate_commits": [
+        "A",
+        "D",
+        "M"
+      ],
+      "exact": false
+    },
+    {
+      "format": "sha1",
+      "marks": [
+        "R",
+        "A",
+        "B"
+      ],
+      "args": [
+        "fast-export",
+        "--no-data",
+        "--show-original-ids",
+        "--import-marks=/tmp/rit-ancestry-marks-399wycu9/sha1/marks-RAB",
+        "C"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "commit refs/tags/C\nmark :4\noriginal-oid a7f9584e4253a104c729614363fb806b8beb75df\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :3\nM 100644 3cc58df83752123644fef39faab2393af643b1d2 file\n\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "commit refs/tags/C\nmark :4\noriginal-oid a7f9584e4253a104c729614363fb806b8beb75df\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :3\nM 100644 3cc58df83752123644fef39faab2393af643b1d2 file\n\n",
+        "stderr": ""
+      },
+      "oracle_commits": [
+        "C"
+      ],
+      "candidate_commits": [
+        "C"
+      ],
+      "exact": true
+    },
+    {
+      "format": "sha1",
+      "marks": [
+        "R",
+        "A",
+        "B"
+      ],
+      "args": [
+        "fast-export",
+        "--no-data",
+        "--show-original-ids",
+        "--import-marks=/tmp/rit-ancestry-marks-399wycu9/sha1/marks-RAB",
+        "--ancestry-path=A",
+        "C"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "commit refs/tags/C\nmark :4\noriginal-oid a7f9584e4253a104c729614363fb806b8beb75df\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :3\nM 100644 3cc58df83752123644fef39faab2393af643b1d2 file\n\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported fast-export option --ancestry-path=A\n"
+      },
+      "oracle_commits": [
+        "C"
+      ],
+      "candidate_commits": [],
+      "exact": false
+    },
+    {
+      "format": "sha1",
+      "marks": [
+        "R",
+        "A",
+        "B"
+      ],
+      "args": [
+        "fast-export",
+        "--no-data",
+        "--show-original-ids",
+        "--import-marks=/tmp/rit-ancestry-marks-399wycu9/sha1/marks-RAB",
+        "--ancestry-path=B",
+        "C"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "commit refs/tags/C\nmark :4\noriginal-oid a7f9584e4253a104c729614363fb806b8beb75df\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :3\nM 100644 3cc58df83752123644fef39faab2393af643b1d2 file\n\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported fast-export option --ancestry-path=B\n"
+      },
+      "oracle_commits": [
+        "C"
+      ],
+      "candidate_commits": [],
+      "exact": false
+    },
+    {
+      "format": "sha1",
+      "marks": [
+        "R",
+        "A",
+        "B"
+      ],
+      "args": [
+        "fast-export",
+        "--no-data",
+        "--show-original-ids",
+        "--import-marks=/tmp/rit-ancestry-marks-399wycu9/sha1/marks-RAB",
+        "--ancestry-path=R",
+        "C"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "commit refs/tags/C\nmark :4\noriginal-oid a7f9584e4253a104c729614363fb806b8beb75df\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :3\nM 100644 3cc58df83752123644fef39faab2393af643b1d2 file\n\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported fast-export option --ancestry-path=R\n"
+      },
+      "oracle_commits": [
+        "C"
+      ],
+      "candidate_commits": [],
+      "exact": false
+    },
+    {
+      "format": "sha1",
+      "marks": [
+        "R",
+        "A",
+        "B"
+      ],
+      "args": [
+        "fast-export",
+        "--no-data",
+        "--show-original-ids",
+        "--import-marks=/tmp/rit-ancestry-marks-399wycu9/sha1/marks-RAB",
+        "--ancestry-path",
+        "R..C"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "commit refs/tags/C\nmark :4\noriginal-oid a7f9584e4253a104c729614363fb806b8beb75df\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :3\nM 100644 3cc58df83752123644fef39faab2393af643b1d2 file\n\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "reset refs/tags/C\nfrom 0000000000000000000000000000000000000000\n\n",
+        "stderr": ""
+      },
+      "oracle_commits": [
+        "C"
+      ],
+      "candidate_commits": [],
+      "exact": false
+    },
+    {
+      "format": "sha1",
+      "marks": [
+        "R",
+        "A",
+        "B"
+      ],
+      "args": [
+        "fast-export",
+        "--no-data",
+        "--show-original-ids",
+        "--import-marks=/tmp/rit-ancestry-marks-399wycu9/sha1/marks-RAB",
+        "--ancestry-path=A",
+        "M"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "commit refs/tags/M\nmark :4\noriginal-oid a7f9584e4253a104c729614363fb806b8beb75df\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :3\nM 100644 3cc58df83752123644fef39faab2393af643b1d2 file\n\ncommit refs/tags/M\nmark :5\noriginal-oid 0d0ea8b8b31090937c95be1a85bee611543aa38c\nauthor Author <author@example.invalid> 978307206 +0000\ncommitter Author <author@example.invalid> 978307206 +0000\ndata 2\nM\nfrom :4\nM 100644 ab7768987ce64e0490e93767ca9a4bcd950c79f6 file\n\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported fast-export option --ancestry-path=A\n"
+      },
+      "oracle_commits": [
+        "C",
+        "M"
+      ],
+      "candidate_commits": [],
+      "exact": false
+    },
+    {
+      "format": "sha1",
+      "marks": [
+        "R",
+        "A",
+        "B"
+      ],
+      "args": [
+        "fast-export",
+        "--no-data",
+        "--show-original-ids",
+        "--import-marks=/tmp/rit-ancestry-marks-399wycu9/sha1/marks-RAB",
+        "--ancestry-path=B",
+        "M"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "commit refs/tags/M\nmark :4\noriginal-oid a7f9584e4253a104c729614363fb806b8beb75df\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :3\nM 100644 3cc58df83752123644fef39faab2393af643b1d2 file\n\ncommit refs/tags/M\nmark :5\noriginal-oid 0d0ea8b8b31090937c95be1a85bee611543aa38c\nauthor Author <author@example.invalid> 978307206 +0000\ncommitter Author <author@example.invalid> 978307206 +0000\ndata 2\nM\nfrom :4\nM 100644 ab7768987ce64e0490e93767ca9a4bcd950c79f6 file\n\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported fast-export option --ancestry-path=B\n"
+      },
+      "oracle_commits": [
+        "C",
+        "M"
+      ],
+      "candidate_commits": [],
+      "exact": false
+    },
+    {
+      "format": "sha1",
+      "marks": [
+        "R",
+        "A",
+        "B"
+      ],
+      "args": [
+        "fast-export",
+        "--no-data",
+        "--show-original-ids",
+        "--import-marks=/tmp/rit-ancestry-marks-399wycu9/sha1/marks-RAB",
+        "--ancestry-path",
+        "R..M"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "commit refs/tags/M\nmark :4\noriginal-oid a7f9584e4253a104c729614363fb806b8beb75df\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :3\nM 100644 3cc58df83752123644fef39faab2393af643b1d2 file\n\ncommit refs/tags/M\nmark :5\noriginal-oid c5f870e676d01de9e417e273d70e0f4bc1c61f64\nauthor Author <author@example.invalid> 978307205 +0000\ncommitter Author <author@example.invalid> 978307205 +0000\ndata 2\nD\nfrom :1\nM 100644 178481050188cf00d7d9cd5a11e43ab8fab9294f file\n\ncommit refs/tags/M\nmark :6\noriginal-oid 0d0ea8b8b31090937c95be1a85bee611543aa38c\nauthor Author <author@example.invalid> 978307206 +0000\ncommitter Author <author@example.invalid> 978307206 +0000\ndata 2\nM\nfrom :4\nmerge :5\nM 100644 ab7768987ce64e0490e93767ca9a4bcd950c79f6 file\n\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "commit refs/tags/M\nmark :4\noriginal-oid c5f870e676d01de9e417e273d70e0f4bc1c61f64\nauthor Author <author@example.invalid> 978307205 +0000\ncommitter Author <author@example.invalid> 978307205 +0000\ndata 2\nD\nfrom :1\nM 100644 178481050188cf00d7d9cd5a11e43ab8fab9294f file\n\ncommit refs/tags/M\nmark :5\noriginal-oid 0d0ea8b8b31090937c95be1a85bee611543aa38c\nauthor Author <author@example.invalid> 978307206 +0000\ncommitter Author <author@example.invalid> 978307206 +0000\ndata 2\nM\nmerge :4\nM 100644 ab7768987ce64e0490e93767ca9a4bcd950c79f6 file\n\n",
+        "stderr": ""
+      },
+      "oracle_commits": [
+        "C",
+        "D",
+        "M"
+      ],
+      "candidate_commits": [
+        "D",
+        "M"
+      ],
+      "exact": false
+    },
+    {
+      "format": "sha256",
+      "marks": [
+        "B"
+      ],
+      "args": [
+        "fast-export",
+        "--no-data",
+        "--show-original-ids",
+        "--import-marks=/tmp/rit-ancestry-marks-399wycu9/sha256/marks-B",
+        "C"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "reset refs/tags/C\ncommit refs/tags/C\nmark :2\noriginal-oid 27bbc9c593733aa79d4028cf1e100de61998ed9fbd1c25ad91bbc383671fc680\nauthor Author <author@example.invalid> 978307201 +0000\ncommitter Author <author@example.invalid> 978307201 +0000\ndata 2\nR\nM 100644 ba3586730584d820bc49d1da906d11cafe242090545ff27413408a9b3dce0327 file\n\ncommit refs/tags/C\nmark :3\noriginal-oid a040f208e986c6e9fd992dbb980c624d429fe6eb60234965e755b46dcc969baa\nauthor Author <author@example.invalid> 978307202 +0000\ncommitter Author <author@example.invalid> 978307202 +0000\ndata 2\nA\nfrom :2\nM 100644 607c437ab75dbfa006db9252cb1118b691374ccb685ee0e522646ef39e1be16b file\n\ncommit refs/tags/C\nmark :4\noriginal-oid cc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :1\nM 100644 54915d0b84fd75be987b1d0e6c72d3e9c409fecafde42e6daf811e2e99da7102 file\n\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "reset refs/tags/C\ncommit refs/tags/C\nmark :2\noriginal-oid 27bbc9c593733aa79d4028cf1e100de61998ed9fbd1c25ad91bbc383671fc680\nauthor Author <author@example.invalid> 978307201 +0000\ncommitter Author <author@example.invalid> 978307201 +0000\ndata 2\nR\nM 100644 ba3586730584d820bc49d1da906d11cafe242090545ff27413408a9b3dce0327 file\n\ncommit refs/tags/C\nmark :3\noriginal-oid a040f208e986c6e9fd992dbb980c624d429fe6eb60234965e755b46dcc969baa\nauthor Author <author@example.invalid> 978307202 +0000\ncommitter Author <author@example.invalid> 978307202 +0000\ndata 2\nA\nfrom :2\nM 100644 607c437ab75dbfa006db9252cb1118b691374ccb685ee0e522646ef39e1be16b file\n\ncommit refs/tags/C\nmark :4\noriginal-oid cc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :1\nM 100644 54915d0b84fd75be987b1d0e6c72d3e9c409fecafde42e6daf811e2e99da7102 file\n\n",
+        "stderr": ""
+      },
+      "oracle_commits": [
+        "R",
+        "A",
+        "C"
+      ],
+      "candidate_commits": [
+        "R",
+        "A",
+        "C"
+      ],
+      "exact": true
+    },
+    {
+      "format": "sha256",
+      "marks": [
+        "B"
+      ],
+      "args": [
+        "fast-export",
+        "--no-data",
+        "--show-original-ids",
+        "--import-marks=/tmp/rit-ancestry-marks-399wycu9/sha256/marks-B",
+        "--ancestry-path=A",
+        "C"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "reset refs/tags/C\ncommit refs/tags/C\nmark :2\noriginal-oid 27bbc9c593733aa79d4028cf1e100de61998ed9fbd1c25ad91bbc383671fc680\nauthor Author <author@example.invalid> 978307201 +0000\ncommitter Author <author@example.invalid> 978307201 +0000\ndata 2\nR\nM 100644 ba3586730584d820bc49d1da906d11cafe242090545ff27413408a9b3dce0327 file\n\ncommit refs/tags/C\nmark :3\noriginal-oid a040f208e986c6e9fd992dbb980c624d429fe6eb60234965e755b46dcc969baa\nauthor Author <author@example.invalid> 978307202 +0000\ncommitter Author <author@example.invalid> 978307202 +0000\ndata 2\nA\nfrom :2\nM 100644 607c437ab75dbfa006db9252cb1118b691374ccb685ee0e522646ef39e1be16b file\n\ncommit refs/tags/C\nmark :4\noriginal-oid cc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :1\nM 100644 54915d0b84fd75be987b1d0e6c72d3e9c409fecafde42e6daf811e2e99da7102 file\n\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported fast-export option --ancestry-path=A\n"
+      },
+      "oracle_commits": [
+        "R",
+        "A",
+        "C"
+      ],
+      "candidate_commits": [],
+      "exact": false
+    },
+    {
+      "format": "sha256",
+      "marks": [
+        "B"
+      ],
+      "args": [
+        "fast-export",
+        "--no-data",
+        "--show-original-ids",
+        "--import-marks=/tmp/rit-ancestry-marks-399wycu9/sha256/marks-B",
+        "--ancestry-path=B",
+        "C"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "reset refs/tags/C\ncommit refs/tags/C\nmark :2\noriginal-oid 27bbc9c593733aa79d4028cf1e100de61998ed9fbd1c25ad91bbc383671fc680\nauthor Author <author@example.invalid> 978307201 +0000\ncommitter Author <author@example.invalid> 978307201 +0000\ndata 2\nR\nM 100644 ba3586730584d820bc49d1da906d11cafe242090545ff27413408a9b3dce0327 file\n\ncommit refs/tags/C\nmark :3\noriginal-oid a040f208e986c6e9fd992dbb980c624d429fe6eb60234965e755b46dcc969baa\nauthor Author <author@example.invalid> 978307202 +0000\ncommitter Author <author@example.invalid> 978307202 +0000\ndata 2\nA\nfrom :2\nM 100644 607c437ab75dbfa006db9252cb1118b691374ccb685ee0e522646ef39e1be16b file\n\ncommit refs/tags/C\nmark :4\noriginal-oid cc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :1\nM 100644 54915d0b84fd75be987b1d0e6c72d3e9c409fecafde42e6daf811e2e99da7102 file\n\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported fast-export option --ancestry-path=B\n"
+      },
+      "oracle_commits": [
+        "R",
+        "A",
+        "C"
+      ],
+      "candidate_commits": [],
+      "exact": false
+    },
+    {
+      "format": "sha256",
+      "marks": [
+        "B"
+      ],
+      "args": [
+        "fast-export",
+        "--no-data",
+        "--show-original-ids",
+        "--import-marks=/tmp/rit-ancestry-marks-399wycu9/sha256/marks-B",
+        "--ancestry-path=R",
+        "C"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "reset refs/tags/C\ncommit refs/tags/C\nmark :2\noriginal-oid 27bbc9c593733aa79d4028cf1e100de61998ed9fbd1c25ad91bbc383671fc680\nauthor Author <author@example.invalid> 978307201 +0000\ncommitter Author <author@example.invalid> 978307201 +0000\ndata 2\nR\nM 100644 ba3586730584d820bc49d1da906d11cafe242090545ff27413408a9b3dce0327 file\n\ncommit refs/tags/C\nmark :3\noriginal-oid a040f208e986c6e9fd992dbb980c624d429fe6eb60234965e755b46dcc969baa\nauthor Author <author@example.invalid> 978307202 +0000\ncommitter Author <author@example.invalid> 978307202 +0000\ndata 2\nA\nfrom :2\nM 100644 607c437ab75dbfa006db9252cb1118b691374ccb685ee0e522646ef39e1be16b file\n\ncommit refs/tags/C\nmark :4\noriginal-oid cc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :1\nM 100644 54915d0b84fd75be987b1d0e6c72d3e9c409fecafde42e6daf811e2e99da7102 file\n\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported fast-export option --ancestry-path=R\n"
+      },
+      "oracle_commits": [
+        "R",
+        "A",
+        "C"
+      ],
+      "candidate_commits": [],
+      "exact": false
+    },
+    {
+      "format": "sha256",
+      "marks": [
+        "B"
+      ],
+      "args": [
+        "fast-export",
+        "--no-data",
+        "--show-original-ids",
+        "--import-marks=/tmp/rit-ancestry-marks-399wycu9/sha256/marks-B",
+        "--ancestry-path",
+        "R..C"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "commit refs/tags/C\nmark :2\noriginal-oid a040f208e986c6e9fd992dbb980c624d429fe6eb60234965e755b46dcc969baa\nauthor Author <author@example.invalid> 978307202 +0000\ncommitter Author <author@example.invalid> 978307202 +0000\ndata 2\nA\nM 100644 607c437ab75dbfa006db9252cb1118b691374ccb685ee0e522646ef39e1be16b file\n\ncommit refs/tags/C\nmark :3\noriginal-oid cc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :1\nM 100644 54915d0b84fd75be987b1d0e6c72d3e9c409fecafde42e6daf811e2e99da7102 file\n\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "commit refs/tags/C\nmark :2\noriginal-oid a040f208e986c6e9fd992dbb980c624d429fe6eb60234965e755b46dcc969baa\nauthor Author <author@example.invalid> 978307202 +0000\ncommitter Author <author@example.invalid> 978307202 +0000\ndata 2\nA\nM 100644 607c437ab75dbfa006db9252cb1118b691374ccb685ee0e522646ef39e1be16b file\n\n",
+        "stderr": ""
+      },
+      "oracle_commits": [
+        "A",
+        "C"
+      ],
+      "candidate_commits": [
+        "A"
+      ],
+      "exact": false
+    },
+    {
+      "format": "sha256",
+      "marks": [
+        "B"
+      ],
+      "args": [
+        "fast-export",
+        "--no-data",
+        "--show-original-ids",
+        "--import-marks=/tmp/rit-ancestry-marks-399wycu9/sha256/marks-B",
+        "--ancestry-path=A",
+        "M"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "reset refs/tags/M\ncommit refs/tags/M\nmark :2\noriginal-oid 27bbc9c593733aa79d4028cf1e100de61998ed9fbd1c25ad91bbc383671fc680\nauthor Author <author@example.invalid> 978307201 +0000\ncommitter Author <author@example.invalid> 978307201 +0000\ndata 2\nR\nM 100644 ba3586730584d820bc49d1da906d11cafe242090545ff27413408a9b3dce0327 file\n\ncommit refs/tags/M\nmark :3\noriginal-oid a040f208e986c6e9fd992dbb980c624d429fe6eb60234965e755b46dcc969baa\nauthor Author <author@example.invalid> 978307202 +0000\ncommitter Author <author@example.invalid> 978307202 +0000\ndata 2\nA\nfrom :2\nM 100644 607c437ab75dbfa006db9252cb1118b691374ccb685ee0e522646ef39e1be16b file\n\ncommit refs/tags/M\nmark :4\noriginal-oid cc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :1\nM 100644 54915d0b84fd75be987b1d0e6c72d3e9c409fecafde42e6daf811e2e99da7102 file\n\ncommit refs/tags/M\nmark :5\noriginal-oid 86ed363f459a50412761a3c4400016c7d06afce6edae858f14661480475bdd97\nauthor Author <author@example.invalid> 978307206 +0000\ncommitter Author <author@example.invalid> 978307206 +0000\ndata 2\nM\nfrom :4\nM 100644 28d329cf3ca1825fcfc1746e4a252632bff11a323f0332c561d46b8c85875b35 file\n\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported fast-export option --ancestry-path=A\n"
+      },
+      "oracle_commits": [
+        "R",
+        "A",
+        "C",
+        "M"
+      ],
+      "candidate_commits": [],
+      "exact": false
+    },
+    {
+      "format": "sha256",
+      "marks": [
+        "B"
+      ],
+      "args": [
+        "fast-export",
+        "--no-data",
+        "--show-original-ids",
+        "--import-marks=/tmp/rit-ancestry-marks-399wycu9/sha256/marks-B",
+        "--ancestry-path=B",
+        "M"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "reset refs/tags/M\ncommit refs/tags/M\nmark :2\noriginal-oid 27bbc9c593733aa79d4028cf1e100de61998ed9fbd1c25ad91bbc383671fc680\nauthor Author <author@example.invalid> 978307201 +0000\ncommitter Author <author@example.invalid> 978307201 +0000\ndata 2\nR\nM 100644 ba3586730584d820bc49d1da906d11cafe242090545ff27413408a9b3dce0327 file\n\ncommit refs/tags/M\nmark :3\noriginal-oid a040f208e986c6e9fd992dbb980c624d429fe6eb60234965e755b46dcc969baa\nauthor Author <author@example.invalid> 978307202 +0000\ncommitter Author <author@example.invalid> 978307202 +0000\ndata 2\nA\nfrom :2\nM 100644 607c437ab75dbfa006db9252cb1118b691374ccb685ee0e522646ef39e1be16b file\n\ncommit refs/tags/M\nmark :4\noriginal-oid cc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :1\nM 100644 54915d0b84fd75be987b1d0e6c72d3e9c409fecafde42e6daf811e2e99da7102 file\n\ncommit refs/tags/M\nmark :5\noriginal-oid 86ed363f459a50412761a3c4400016c7d06afce6edae858f14661480475bdd97\nauthor Author <author@example.invalid> 978307206 +0000\ncommitter Author <author@example.invalid> 978307206 +0000\ndata 2\nM\nfrom :4\nM 100644 28d329cf3ca1825fcfc1746e4a252632bff11a323f0332c561d46b8c85875b35 file\n\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported fast-export option --ancestry-path=B\n"
+      },
+      "oracle_commits": [
+        "R",
+        "A",
+        "C",
+        "M"
+      ],
+      "candidate_commits": [],
+      "exact": false
+    },
+    {
+      "format": "sha256",
+      "marks": [
+        "B"
+      ],
+      "args": [
+        "fast-export",
+        "--no-data",
+        "--show-original-ids",
+        "--import-marks=/tmp/rit-ancestry-marks-399wycu9/sha256/marks-B",
+        "--ancestry-path",
+        "R..M"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "commit refs/tags/M\nmark :2\noriginal-oid a040f208e986c6e9fd992dbb980c624d429fe6eb60234965e755b46dcc969baa\nauthor Author <author@example.invalid> 978307202 +0000\ncommitter Author <author@example.invalid> 978307202 +0000\ndata 2\nA\nM 100644 607c437ab75dbfa006db9252cb1118b691374ccb685ee0e522646ef39e1be16b file\n\ncommit refs/tags/M\nmark :3\noriginal-oid cc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :1\nM 100644 54915d0b84fd75be987b1d0e6c72d3e9c409fecafde42e6daf811e2e99da7102 file\n\ncommit refs/tags/M\nmark :4\noriginal-oid 033a6c5cf800bb77031235b33891f373edb9e1e92244389672dcde66af197c2a\nauthor Author <author@example.invalid> 978307205 +0000\ncommitter Author <author@example.invalid> 978307205 +0000\ndata 2\nD\nM 100644 9f9b624482c6a8ac37e267f247153f8728af0f925ba56f8af92388ea3bea6edc file\n\ncommit refs/tags/M\nmark :5\noriginal-oid 86ed363f459a50412761a3c4400016c7d06afce6edae858f14661480475bdd97\nauthor Author <author@example.invalid> 978307206 +0000\ncommitter Author <author@example.invalid> 978307206 +0000\ndata 2\nM\nfrom :3\nmerge :4\nM 100644 28d329cf3ca1825fcfc1746e4a252632bff11a323f0332c561d46b8c85875b35 file\n\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "commit refs/tags/M\nmark :2\noriginal-oid a040f208e986c6e9fd992dbb980c624d429fe6eb60234965e755b46dcc969baa\nauthor Author <author@example.invalid> 978307202 +0000\ncommitter Author <author@example.invalid> 978307202 +0000\ndata 2\nA\nM 100644 607c437ab75dbfa006db9252cb1118b691374ccb685ee0e522646ef39e1be16b file\n\ncommit refs/tags/M\nmark :3\noriginal-oid 033a6c5cf800bb77031235b33891f373edb9e1e92244389672dcde66af197c2a\nauthor Author <author@example.invalid> 978307205 +0000\ncommitter Author <author@example.invalid> 978307205 +0000\ndata 2\nD\nM 100644 9f9b624482c6a8ac37e267f247153f8728af0f925ba56f8af92388ea3bea6edc file\n\ncommit refs/tags/M\nmark :4\noriginal-oid 86ed363f459a50412761a3c4400016c7d06afce6edae858f14661480475bdd97\nauthor Author <author@example.invalid> 978307206 +0000\ncommitter Author <author@example.invalid> 978307206 +0000\ndata 2\nM\nmerge :3\nM 100644 28d329cf3ca1825fcfc1746e4a252632bff11a323f0332c561d46b8c85875b35 file\n\n",
+        "stderr": ""
+      },
+      "oracle_commits": [
+        "A",
+        "C",
+        "D",
+        "M"
+      ],
+      "candidate_commits": [
+        "A",
+        "D",
+        "M"
+      ],
+      "exact": false
+    },
+    {
+      "format": "sha256",
+      "marks": [
+        "R",
+        "A",
+        "B"
+      ],
+      "args": [
+        "fast-export",
+        "--no-data",
+        "--show-original-ids",
+        "--import-marks=/tmp/rit-ancestry-marks-399wycu9/sha256/marks-RAB",
+        "C"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "commit refs/tags/C\nmark :4\noriginal-oid cc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :3\nM 100644 54915d0b84fd75be987b1d0e6c72d3e9c409fecafde42e6daf811e2e99da7102 file\n\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "commit refs/tags/C\nmark :4\noriginal-oid cc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :3\nM 100644 54915d0b84fd75be987b1d0e6c72d3e9c409fecafde42e6daf811e2e99da7102 file\n\n",
+        "stderr": ""
+      },
+      "oracle_commits": [
+        "C"
+      ],
+      "candidate_commits": [
+        "C"
+      ],
+      "exact": true
+    },
+    {
+      "format": "sha256",
+      "marks": [
+        "R",
+        "A",
+        "B"
+      ],
+      "args": [
+        "fast-export",
+        "--no-data",
+        "--show-original-ids",
+        "--import-marks=/tmp/rit-ancestry-marks-399wycu9/sha256/marks-RAB",
+        "--ancestry-path=A",
+        "C"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "commit refs/tags/C\nmark :4\noriginal-oid cc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :3\nM 100644 54915d0b84fd75be987b1d0e6c72d3e9c409fecafde42e6daf811e2e99da7102 file\n\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported fast-export option --ancestry-path=A\n"
+      },
+      "oracle_commits": [
+        "C"
+      ],
+      "candidate_commits": [],
+      "exact": false
+    },
+    {
+      "format": "sha256",
+      "marks": [
+        "R",
+        "A",
+        "B"
+      ],
+      "args": [
+        "fast-export",
+        "--no-data",
+        "--show-original-ids",
+        "--import-marks=/tmp/rit-ancestry-marks-399wycu9/sha256/marks-RAB",
+        "--ancestry-path=B",
+        "C"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "commit refs/tags/C\nmark :4\noriginal-oid cc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :3\nM 100644 54915d0b84fd75be987b1d0e6c72d3e9c409fecafde42e6daf811e2e99da7102 file\n\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported fast-export option --ancestry-path=B\n"
+      },
+      "oracle_commits": [
+        "C"
+      ],
+      "candidate_commits": [],
+      "exact": false
+    },
+    {
+      "format": "sha256",
+      "marks": [
+        "R",
+        "A",
+        "B"
+      ],
+      "args": [
+        "fast-export",
+        "--no-data",
+        "--show-original-ids",
+        "--import-marks=/tmp/rit-ancestry-marks-399wycu9/sha256/marks-RAB",
+        "--ancestry-path=R",
+        "C"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "commit refs/tags/C\nmark :4\noriginal-oid cc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :3\nM 100644 54915d0b84fd75be987b1d0e6c72d3e9c409fecafde42e6daf811e2e99da7102 file\n\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported fast-export option --ancestry-path=R\n"
+      },
+      "oracle_commits": [
+        "C"
+      ],
+      "candidate_commits": [],
+      "exact": false
+    },
+    {
+      "format": "sha256",
+      "marks": [
+        "R",
+        "A",
+        "B"
+      ],
+      "args": [
+        "fast-export",
+        "--no-data",
+        "--show-original-ids",
+        "--import-marks=/tmp/rit-ancestry-marks-399wycu9/sha256/marks-RAB",
+        "--ancestry-path",
+        "R..C"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "commit refs/tags/C\nmark :4\noriginal-oid cc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :3\nM 100644 54915d0b84fd75be987b1d0e6c72d3e9c409fecafde42e6daf811e2e99da7102 file\n\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "reset refs/tags/C\nfrom 0000000000000000000000000000000000000000000000000000000000000000\n\n",
+        "stderr": ""
+      },
+      "oracle_commits": [
+        "C"
+      ],
+      "candidate_commits": [],
+      "exact": false
+    },
+    {
+      "format": "sha256",
+      "marks": [
+        "R",
+        "A",
+        "B"
+      ],
+      "args": [
+        "fast-export",
+        "--no-data",
+        "--show-original-ids",
+        "--import-marks=/tmp/rit-ancestry-marks-399wycu9/sha256/marks-RAB",
+        "--ancestry-path=A",
+        "M"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "commit refs/tags/M\nmark :4\noriginal-oid cc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :3\nM 100644 54915d0b84fd75be987b1d0e6c72d3e9c409fecafde42e6daf811e2e99da7102 file\n\ncommit refs/tags/M\nmark :5\noriginal-oid 86ed363f459a50412761a3c4400016c7d06afce6edae858f14661480475bdd97\nauthor Author <author@example.invalid> 978307206 +0000\ncommitter Author <author@example.invalid> 978307206 +0000\ndata 2\nM\nfrom :4\nM 100644 28d329cf3ca1825fcfc1746e4a252632bff11a323f0332c561d46b8c85875b35 file\n\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported fast-export option --ancestry-path=A\n"
+      },
+      "oracle_commits": [
+        "C",
+        "M"
+      ],
+      "candidate_commits": [],
+      "exact": false
+    },
+    {
+      "format": "sha256",
+      "marks": [
+        "R",
+        "A",
+        "B"
+      ],
+      "args": [
+        "fast-export",
+        "--no-data",
+        "--show-original-ids",
+        "--import-marks=/tmp/rit-ancestry-marks-399wycu9/sha256/marks-RAB",
+        "--ancestry-path=B",
+        "M"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "commit refs/tags/M\nmark :4\noriginal-oid cc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :3\nM 100644 54915d0b84fd75be987b1d0e6c72d3e9c409fecafde42e6daf811e2e99da7102 file\n\ncommit refs/tags/M\nmark :5\noriginal-oid 86ed363f459a50412761a3c4400016c7d06afce6edae858f14661480475bdd97\nauthor Author <author@example.invalid> 978307206 +0000\ncommitter Author <author@example.invalid> 978307206 +0000\ndata 2\nM\nfrom :4\nM 100644 28d329cf3ca1825fcfc1746e4a252632bff11a323f0332c561d46b8c85875b35 file\n\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported fast-export option --ancestry-path=B\n"
+      },
+      "oracle_commits": [
+        "C",
+        "M"
+      ],
+      "candidate_commits": [],
+      "exact": false
+    },
+    {
+      "format": "sha256",
+      "marks": [
+        "R",
+        "A",
+        "B"
+      ],
+      "args": [
+        "fast-export",
+        "--no-data",
+        "--show-original-ids",
+        "--import-marks=/tmp/rit-ancestry-marks-399wycu9/sha256/marks-RAB",
+        "--ancestry-path",
+        "R..M"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "commit refs/tags/M\nmark :4\noriginal-oid cc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481\nauthor Author <author@example.invalid> 978307204 +0000\ncommitter Author <author@example.invalid> 978307204 +0000\ndata 2\nC\nfrom :3\nM 100644 54915d0b84fd75be987b1d0e6c72d3e9c409fecafde42e6daf811e2e99da7102 file\n\ncommit refs/tags/M\nmark :5\noriginal-oid 033a6c5cf800bb77031235b33891f373edb9e1e92244389672dcde66af197c2a\nauthor Author <author@example.invalid> 978307205 +0000\ncommitter Author <author@example.invalid> 978307205 +0000\ndata 2\nD\nfrom :1\nM 100644 9f9b624482c6a8ac37e267f247153f8728af0f925ba56f8af92388ea3bea6edc file\n\ncommit refs/tags/M\nmark :6\noriginal-oid 86ed363f459a50412761a3c4400016c7d06afce6edae858f14661480475bdd97\nauthor Author <author@example.invalid> 978307206 +0000\ncommitter Author <author@example.invalid> 978307206 +0000\ndata 2\nM\nfrom :4\nmerge :5\nM 100644 28d329cf3ca1825fcfc1746e4a252632bff11a323f0332c561d46b8c85875b35 file\n\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "exit": 0,
+        "stdout": "commit refs/tags/M\nmark :4\noriginal-oid 033a6c5cf800bb77031235b33891f373edb9e1e92244389672dcde66af197c2a\nauthor Author <author@example.invalid> 978307205 +0000\ncommitter Author <author@example.invalid> 978307205 +0000\ndata 2\nD\nfrom :1\nM 100644 9f9b624482c6a8ac37e267f247153f8728af0f925ba56f8af92388ea3bea6edc file\n\ncommit refs/tags/M\nmark :5\noriginal-oid 86ed363f459a50412761a3c4400016c7d06afce6edae858f14661480475bdd97\nauthor Author <author@example.invalid> 978307206 +0000\ncommitter Author <author@example.invalid> 978307206 +0000\ndata 2\nM\nmerge :4\nM 100644 28d329cf3ca1825fcfc1746e4a252632bff11a323f0332c561d46b8c85875b35 file\n\n",
+        "stderr": ""
+      },
+      "oracle_commits": [
+        "C",
+        "D",
+        "M"
+      ],
+      "candidate_commits": [
+        "D",
+        "M"
+      ],
+      "exact": false
+    }
+  ]
+}

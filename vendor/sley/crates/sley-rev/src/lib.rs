@@ -24,9 +24,10 @@ pub use diff_options::{
     resolve_diff_context, setup_diff_options,
 };
 pub use setup::{
-    MatchedRef, NoWalkMode, PseudoRefResolver, RevisionOptions, RevisionOrder,
+    AncestryPathAnchor, MatchedRef, NoWalkMode, PseudoRefResolver, RevisionOptions, RevisionOrder,
     RevisionSetupContext, RevisionSymmetricRange, RevisionTip, SetupRevisions,
     ambiguous_argument_error, ambiguous_argument_message, setup_revisions, setup_revisions_os,
+    setup_revisions_with_ancestry,
 };
 pub use sley_core::BString;
 use sley_formats::CommitGraph;
@@ -5432,6 +5433,35 @@ pub fn ancestry_path_on_set(
         }
     }
     on_path
+}
+
+/// Include ancestors and descendants of explicit ancestry anchors within a walk.
+///
+/// Supply the nonexcluded walk before message, author, or output filters. An
+/// anchor outside that walk can identify a boundary parent, but must not cause
+/// new history to be read or bridge an excluded intermediate commit. Keep the
+/// ancestor and descendant traversals separate so a shared ancestor does not
+/// pull in unrelated cousins.
+pub fn ancestry_path_related_on_set(
+    records: impl IntoIterator<Item = (ObjectId, Vec<ObjectId>)>,
+    anchors: &[AncestryPathAnchor],
+) -> HashSet<ObjectId> {
+    let nodes: Vec<_> = records.into_iter().collect();
+    let commits: Vec<_> = anchors.iter().map(|anchor| anchor.commit).collect();
+    let mut related = ancestry_path_on_set(nodes.iter().cloned(), &commits);
+    let parents: HashMap<_, _> = nodes.iter().map(|(oid, parents)| (*oid, parents)).collect();
+    let mut ancestors = HashSet::new();
+    let mut pending: Vec<_> = anchors.iter().map(|anchor| anchor.object).collect();
+    while let Some(oid) = pending.pop() {
+        if !ancestors.insert(oid) {
+            continue;
+        }
+        if let Some(parents) = parents.get(&oid) {
+            pending.extend(parents.iter().copied());
+        }
+    }
+    related.extend(ancestors);
+    related
 }
 
 /// Apply pathspec-limited default / `--full-history` simplification to an ordered

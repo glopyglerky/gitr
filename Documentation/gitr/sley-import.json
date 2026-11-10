@@ -38,8 +38,8 @@
     },
     {
       "path": "NOTICE.md",
-      "sha256": "aee0930eb4e6c2d1c50234ac9d4d683a41a93a26cff452ce604ba92f54491bfb",
-      "origin": "Gitr import provenance notice, authored for this integration. Record the project rename to Rit and the retained test-setting compatibility alias. Record the scoped positive-tip and sparse-history adaptations and their test provenance."
+      "sha256": "7885dc762c894d4a57e3afaf27ffdff8086d6e3eb8ab01402a30dd6b5c0656b5",
+      "origin": "Gitr import provenance notice, authored for this integration. Record the project rename to Rit and the retained test-setting compatibility alias. Record the scoped positive-tip and sparse-history adaptations and their test provenance. Record the scoped ancestry parser, traversal, export-mark, and regression-test adaptations."
     },
     {
       "path": "PARITY.md",
@@ -497,10 +497,10 @@
     },
     {
       "path": "crates/sley-cli/src/commands/fast_export.rs",
-      "sha256": "51fbddf320415f88e406d90c78b394b6c373c5be3022b4c3018bcf1b16be15c7",
+      "sha256": "5193160836681c39e8b523c81fcb76ac14590a49dfe230938c3c7c74e68e5f3d",
       "upstream_blob": "4fa861c22a1934cdb587467a05ae7ee1bb164551",
       "upstream_sha256": "0cf859b1991d65a2f042380b9db81e5ce3e351a830fb861efd3d5df7d9493c6f",
-      "change": "Initialize the new sparse simplification option to false to preserve existing export behavior."
+      "change": "Initialize the new sparse simplification option to false to preserve existing export behavior. Honor explicit ancestry anchors and retain ancestry connectivity through imported commit marks before suppressing marked output. Keep inactive no-walk ancestry limiting from emitting an unintended zero-ref reset."
     },
     {
       "path": "crates/sley-cli/src/commands/fast_import.rs",
@@ -615,10 +615,10 @@
     },
     {
       "path": "crates/sley-cli/src/commands/log.rs",
-      "sha256": "f9b452bc25b0dd2760003bf0e67085bff2b2fadecf52e4cd481769cf8b2ab00e",
+      "sha256": "98ed9e1cb4764f3bdfdd45d99b6e10195f76b1c9202a4899a1b96a48e918142e",
       "upstream_blob": "03763111013b75c4a50415cba4aa4fae24bb9274",
       "upstream_sha256": "299fe5a63bcbed287cbedfe1c060736b83dcd51ffba4be29cb811699c4d84aea",
-      "change": "Pass positive starts and sparse mode into history simplification; recompute graph/topological order only for default parent diversion and preserve date/full-history/merge-simplification ordering."
+      "change": "Pass positive starts and sparse mode into history simplification; recompute graph/topological order only for default parent diversion and preserve date/full-history/merge-simplification ordering. Honor explicit ancestry anchors, preserve connections through hidden commits, bypass incompatible metadata shortcuts, and retain direct no-walk behavior."
     },
     {
       "path": "crates/sley-cli/src/commands/log/diff.rs",
@@ -973,10 +973,10 @@
     },
     {
       "path": "crates/sley-cli/src/commands/rev_list.rs",
-      "sha256": "c59347678225c3ed43886182c5d2ff53f7a107483329f83fc2c83ffc9e4a595b",
+      "sha256": "15accf51a1d6cf698da7b5f20966cd183bdb90eb5e33323de0008d409fb99325",
       "upstream_blob": "72acfefedd55a835c174e7ab41bb7fbeb85e73ff",
       "upstream_sha256": "bb18a25cdd25bf3cf653b651f8e24b787369bddc29200637636563357e8a7ae7",
-      "change": "Forward sparse/dense options and positive starts into history simplification; reapply topological ordering only for default parent diversion."
+      "change": "Forward sparse/dense options and positive starts into history simplification; reapply topological ordering only for default parent diversion. Honor explicit ancestry anchors before bisection, avoid the ancestry-bypassing metadata shortcut, and preserve pre-filter child edges and direct no-walk behavior. Keep pinned Git bitmap semantics."
     },
     {
       "path": "crates/sley-cli/src/commands/rev_parse.rs",
@@ -1548,6 +1548,11 @@
       "sha256": "3990d0d5204785c6bd8d90137ec780d47108004bbb64159ca244f999e064e2d3",
       "upstream_blob": "60755e0b88608d1b75d030617115710d852e523c",
       "upstream_sha256": "3990d0d5204785c6bd8d90137ec780d47108004bbb64159ca244f999e064e2d3"
+    },
+    {
+      "path": "crates/sley-cli/tests/history_ancestry_paths.rs",
+      "sha256": "57362aaf38472be7a80f39b349115da68f616c6f14f5b8c2d504ca298c7718f4",
+      "origin": "Independently authored Rit regression tests under MIT OR Apache-2.0. Compare ancestry anchors, bounds, filters, child edges, export marks, no-walk, bitmap behavior, and errors through the product command boundary against the pinned Git oracle."
     },
     {
       "path": "crates/sley-cli/tests/history_sparse_tips.rs",
@@ -3247,10 +3252,10 @@
     },
     {
       "path": "crates/sley-rev/src/lib.rs",
-      "sha256": "98b7f4bd2cb8713a84d4b72430d81c983449b3804b6085c25d0256b0d0d4c1c8",
+      "sha256": "efc71d209f5c735c974a9741bc63dcf9e156b93e884c7cf7551ba834ad6211b8",
       "upstream_blob": "459c6eb0beba6dd65f4e0f99441e58f771151000",
       "upstream_sha256": "2c4cb5cba63a136ed5025e0258badd5a37c975f111dca98389c180dd7febcd80",
-      "change": "Rewrite simplified parent edges past omitted TREESAME roots while retaining first-parent secondary edges and explicit or shallow boundaries. Preserve explicitly selected positive traversal starts, implement sparse visited-commit selection and parent handling, and retain sparse linear commits during merge simplification."
+      "change": "Rewrite simplified parent edges past omitted TREESAME roots while retaining first-parent secondary edges and explicit or shallow boundaries. Preserve explicitly selected positive traversal starts, implement sparse visited-commit selection and parent handling, and retain sparse linear commits during merge simplification. Select ancestor and descendant relations independently within the eligible walk, preserving raw tag anchor identity without importing unwalked history."
     },
     {
       "path": "crates/sley-rev/src/line_log.rs",
@@ -3272,10 +3277,10 @@
     },
     {
       "path": "crates/sley-rev/src/setup.rs",
-      "sha256": "2f747448bf32918c7b24a4112641c2d64ebc79c05044beb4669cb276a14a9457",
+      "sha256": "c2ff6c8eb11ae15a23f85e73a63d77c1b7ac21c5112019f7e79b874b9716517d",
       "upstream_blob": "c2475596d88cad57b843bc20722abc01a1d8a93d",
       "upstream_sha256": "dd5ab7318a428bdd42587e9e46ddeacda5baa5cc52872a1f45521f0c9a7c8f44",
-      "change": "Include valid symbolic aliases in ref selectors and omit missing, cyclic, or malformed targets without dropping valid refs."
+      "change": "Include valid symbolic aliases in ref selectors and omit missing, cyclic, or malformed targets without dropping valid refs. Add an opt-in ancestry-aware revision parser, typed raw-object and peeled-commit anchors, implicit-bottom unions, and qualified rejection behavior while preserving generic consumers."
     },
     {
       "path": "crates/sley-sequencer/Cargo.toml",

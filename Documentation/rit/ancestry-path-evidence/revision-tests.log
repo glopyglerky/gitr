@@ -1,0 +1,99 @@
+command=['/workspace/scratch/161a1b7c00ce/tooling/lustr/target/release/lustr', '--engine', 'rustc', 'test', '--manifest-path', 'vendor/sley/Cargo.toml', '--locked', '-p', 'sley-rev', '--lib']
+target=/workspace/scratch/161a1b7c00ce/tooling/sley-target
+tmpdir=/tmp/rit-history-vendor-dodaj71r
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+   Compiling sley-rev v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-rev)
+    Finished `test` profile [unoptimized] target(s) in 2.26s
+     Running unittests src/lib.rs (/workspace/scratch/161a1b7c00ce/tooling/sley-target/debug/deps/sley_rev-b064ef95e2e228f6)
+
+running 85 tests
+test blame::tests::diff_hunks_collapses_change_runs ... ok
+test blame::tests::diff_hunks_identical_is_empty ... ok
+test blame::tests::blame_ignore_tiny_parent_hunk_prefers_whole_parent_exact_match ... ok
+test blame::tests::diff_hunks_pure_insertion ... ok
+test blame::tests::pass_blame_charges_changed_lines_to_child ... ok
+test blame::tests::pass_blame_routes_preserved_lines_to_parent ... ok
+test blame::tests::split_entry_at_partitions_lines ... ok
+test format_patch::tests::classifies_planning_errors_for_cli_rendering ... ok
+test format_patch::tests::no_argument_series_is_empty_unless_count_or_root_requests_head ... ok
+test revlist::tests::equal_date_input_order_is_stable_instead_of_oid_sorted ... ok
+test revlist::tests::graph_order_preserves_equal_date_tip_enumeration ... ok
+test tests::ambiguous_refname_warning_fires_when_a_ref_shadows_an_object_prefix ... ok
+test format_patch::tests::plans_oldest_first_range_base_and_relative_prefix ... ok
+test tests::ambiguous_refname_warning_requires_ref_and_object_to_collide ... ok
+test tests::at_selector_composes_with_parent_suffix ... ok
+test tests::batched_target_matches_honor_first_parent_and_empty_required_set ... ok
+test tests::commit_graph_chain_is_consulted ... ok
+test tests::batched_target_matches_share_overlapping_ancestry ... ok
+test tests::commit_metadata_reader_falls_back_to_one_object_read ... ok
+test tests::commit_graph_tree_oid_returns_tree_without_object_read ... ok
+test tests::commit_metadata_reader_uses_graph_without_object_reads ... ok
+test tests::core_warn_ambiguous_refs_false_suppresses_the_warning ... ok
+test tests::empty_base_reflog_uses_current_branch_not_head ... ok
+test tests::count_commit_metadata_uses_partial_direct_commit_graph ... ok
+test tests::graph_backed_merge_base_handles_octopus_and_criss_cross ... ok
+test tests::graph_backed_parent_suffix_matches_object_walk ... ok
+test tests::graph_backed_queries_avoid_object_reads ... ok
+test tests::merge_bases_drop_common_ancestors_of_better_common_ancestors ... ok
+test tests::merge_bases_finds_common_ancestor ... ok
+test tests::missing_or_unparseable_graph_falls_back_to_objects ... ok
+test tests::pack_refs_with_auto_peel_writes_peeled_tag ... ok
+test tests::parse_revision_range_recognizes_dot_forms ... ok
+test tests::peel_to_commit_handles_annotated_tags ... ok
+test tests::peel_to_tree_handles_commits_and_tags ... ok
+test tests::prior_checkout_and_head_alias_compose_with_at_marks ... ok
+test tests::read_bisect_terms_defaults_and_matches_custom_refs ... ok
+test tests::reflog_approxidate_ignores_unknown_words_before_absolute_date ... ok
+test tests::reflog_nth_requires_reflog_but_uses_oldest_fallback ... ok
+test tests::resolve_at_selector_rejects_unsupported_and_malformed ... ok
+test tests::resolve_bare_at_is_head ... ok
+test tests::resolve_branch_reflog_nth ... ok
+test tests::resolve_head_reflog_nth ... ok
+test tests::resolve_index_path_reads_blobs_beneath_sparse_directory_entries ... ok
+test tests::resolve_index_path_reads_stage_entries ... ok
+test tests::resolve_previous_checkout_branch ... ok
+test tests::resolve_push_falls_back_to_upstream_then_uses_push_remote ... ok
+test tests::resolve_rev_path_after_commit_message_search_suffix ... ok
+test tests::resolve_rev_path_finds_nested_blob_and_subtree ... ok
+test tests::resolve_rev_path_reports_missing_and_non_tree_paths ... ok
+test tests::resolve_revision_parent_suffix_honors_commit_grafts ... ok
+test tests::resolve_revision_prefers_ref_over_abbreviated_object_id ... ok
+test tests::resolve_revision_range_excludes_ancestors_and_symmetric_difference ... ok
+test tests::resolve_revision_reads_symbolic_head_and_tags ... ok
+test tests::resolve_revision_supports_abbreviated_loose_object_ids ... ok
+test tests::resolve_revision_supports_parent_suffixes ... ok
+test tests::resolve_revision_supports_peel_suffixes ... ok
+test tests::resolve_revision_uses_commit_graph_for_parent_suffixes ... ok
+test tests::resolve_upstream_via_branch_config ... ok
+test tests::revision_head_reports_invalid_symbolic_target_as_broken_reference ... ok
+test tests::revision_ref_name_exists_follows_dwim_rules ... ok
+test tests::revision_selection_resolves_asymmetric_range ... ok
+test tests::revision_selection_resolves_bare_include ... ok
+test tests::revision_selection_resolves_caret_exclude ... ok
+test tests::revision_selection_resolves_default_left_range ... ok
+test tests::revision_selection_resolves_default_right_range ... ok
+test tests::revision_selection_resolves_symmetric_range ... ok
+test tests::revision_spec_ref_splits_only_top_level_tree_path_colons ... ok
+test tests::revwalk_commit_date_order_newest_first ... ok
+test tests::revwalk_date_window_filters_and_prunes ... ok
+test tests::revwalk_delegates_match_old_limited_walk ... ok
+test tests::revwalk_first_parent_follows_one_line ... ok
+test tests::revwalk_max_count_limits_output ... ok
+test tests::revwalk_pathspec_is_carried_but_not_pruning ... ok
+test tests::revwalk_skip_then_limit ... ok
+test tests::search_commit_message_all_finds_matching_commit ... ok
+test tests::setup_revisions_all_includes_detached_head ... ok
+test tests::setup_revisions_collects_pathspecs_after_boundary ... ok
+test tests::setup_revisions_expands_all_with_scoped_exclude ... ok
+test tests::setup_revisions_parses_parent_shorthand_range ... ok
+test tests::setup_revisions_parses_ranges_carets_and_not ... ok
+test tests::setup_revisions_parses_symmetric_difference ... ok
+test tests::setup_revisions_reports_ambiguous_argument ... ok
+test tests::setup_revisions_skips_path_ambiguity_inside_git_dir ... ok
+test tests::walk_commits_missing_start_reports_revision_walk_context ... ok
+test tests::graph_backed_walks_match_object_only_walks ... ok
+
+test result: ok. 85 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.35s
+

@@ -1,0 +1,93 @@
+[
+  {
+    "args": [
+      "log",
+      "--format=%s",
+      "--no-walk",
+      "--ancestry-path",
+      "BC"
+    ],
+    "oracle": {
+      "exit": 0,
+      "stdout": "BC\n",
+      "stderr": ""
+    },
+    "baseline": {
+      "exit": 0,
+      "stdout": "BC\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "exit": 128,
+      "stdout": "",
+      "stderr": "fatal: --ancestry-path given but there are no bottom commits\nfatal: your current branch 'master' does not have any commits yet\n"
+    }
+  },
+  {
+    "args": [
+      "rev-list",
+      "--no-walk",
+      "--ancestry-path",
+      "BC"
+    ],
+    "oracle": {
+      "exit": 0,
+      "stdout": "bd1466281bfa1b647a1003b895a96d60d4a347f8\n",
+      "stderr": ""
+    },
+    "baseline": {
+      "exit": 0,
+      "stdout": "bd1466281bfa1b647a1003b895a96d60d4a347f8\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "exit": 128,
+      "stdout": "",
+      "stderr": "fatal: --ancestry-path given but there are no bottom commits\n"
+    }
+  },
+  {
+    "args": [
+      "rev-list",
+      "--no-walk",
+      "--ancestry-path"
+    ],
+    "oracle": {
+      "exit": 129,
+      "stdout": "",
+      "stderr": "usage: git rev-list [<options>] <commit>... [--] [<path>...]\n\n  limiting output:\n    --max-count=<n>\n    --max-age=<epoch>\n    --min-age=<epoch>\n    --sparse\n    --no-merges\n    --min-parents=<n>\n    --no-min-parents\n    --max-parents=<n>\n    --no-max-parents\n    --remove-empty\n    --all\n    --branches\n    --tags\n    --remotes\n    --stdin\n    --exclude-hidden=[fetch|receive|uploadpack]\n    --quiet\n  ordering output:\n    --topo-order\n    --date-order\n    --reverse\n  formatting output:\n    --parents\n    --children\n    --objects | --objects-edge\n    --disk-usage[=human]\n    --unpacked\n    --header | --pretty\n    --[no-]object-names\n    --abbrev=<n> | --no-abbrev\n    --abbrev-commit\n    --left-right\n    --count\n    -z\n  special purpose:\n    --bisect\n    --bisect-vars\n    --bisect-all\n"
+    },
+    "baseline": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "git: command failed: rev-list currently requires at least one revision\n"
+    },
+    "candidate": {
+      "exit": 128,
+      "stdout": "",
+      "stderr": "fatal: --ancestry-path given but there are no bottom commits\n"
+    }
+  },
+  {
+    "args": [
+      "fast-export",
+      "--no-walk",
+      "--ancestry-path"
+    ],
+    "oracle": {
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "baseline": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "git: command failed: fast-export requires at least one revision\n"
+    },
+    "candidate": {
+      "exit": 128,
+      "stdout": "",
+      "stderr": "fatal: --ancestry-path given but there are no bottom commits\n"
+    }
+  }
+]

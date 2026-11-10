@@ -48,6 +48,12 @@ adds explicit starting-tip preservation and sparse path-limited history in `log`
 and `rev-list`. The selected upstream graph script now passes 10 of 12 cases in
 both object formats; decoration and boundary-order differences remain recorded.
 
+The [ancestry-path coverage record](Documentation/rit/ancestry-path-coverage.md)
+adds explicit ancestry anchors, correct criss-cross selection, and export-mark
+connectivity. The selected ancestry script now passes all 18 cases in both
+object formats. The report retains the neighboring script results, independent
+reviews, and remaining option-combination gaps.
+
 The upstream README reports an exact conformance floor of **557 of 891 selected
 Git 2.55.0 test scripts**. That is upstream evidence, not Rit's measured result.
 The pinned Git source contains **1,046 numbered test scripts**. Sley's manifest

@@ -1,0 +1,191 @@
+{
+  "schema": 1,
+  "project": "Rit",
+  "repository": "https://github.com/glopyglerky/rit",
+  "baseline_commit": "b40277b3c7cea2a607640df70d1fb9de28340a25",
+  "scope": "Ancestry-aware log/rev-list/fast-export selection, graph connectivity and bounded option handling; no full Git conformance claim.",
+  "local_compiler": {
+    "lustr_revision": "6339fbb104d6adda4be7e6be7dc637a6a9e5586b",
+    "engine": "rustc",
+    "rust_version": "1.99.1",
+    "rust_commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
+    "application_cargo_build_jobs": 4,
+    "rust_test_threads": 2,
+    "dev_debug": 0,
+    "test_debug": 0,
+    "incremental": false
+  },
+  "reference_git": {
+    "version": "2.55.0",
+    "commit": "e9019fcafe0040228b8631c30f97ae1adb61bcdc",
+    "sha256": "bb7047c1ae5ed48d5cf47084595e7a3be4463ecd177df81ead8bfdba41d7a036"
+  },
+  "candidate": {
+    "baseline_commit": "b40277b3c7cea2a607640df70d1fb9de28340a25",
+    "source_binary": "root rit",
+    "candidate_sha256": "5925c272cb97352c55a2f1828f91a3ac62709473a067ab6ea41a0ab9dd3c6749",
+    "source_sha256": {
+      "vendor/sley/crates/sley-rev/src/lib.rs": "efc71d209f5c735c974a9741bc63dcf9e156b93e884c7cf7551ba834ad6211b8",
+      "vendor/sley/crates/sley-rev/src/setup.rs": "c2ff6c8eb11ae15a23f85e73a63d77c1b7ac21c5112019f7e79b874b9716517d",
+      "vendor/sley/crates/sley-cli/src/commands/log.rs": "98ed9e1cb4764f3bdfdd45d99b6e10195f76b1c9202a4899a1b96a48e918142e",
+      "vendor/sley/crates/sley-cli/src/commands/rev_list.rs": "15accf51a1d6cf698da7b5f20966cd183bdb90eb5e33323de0008d409fb99325",
+      "vendor/sley/crates/sley-cli/src/commands/fast_export.rs": "5193160836681c39e8b523c81fcb76ac14590a49dfe230938c3c7c74e68e5f3d"
+    }
+  },
+  "local_tests": {
+    "root": {
+      "passed": 5,
+      "log": "root-tests.log"
+    },
+    "selected_cli": {
+      "passed": 136,
+      "new_tests": 10,
+      "existing_fast_export_tests": 5,
+      "log": "cli-tests.log"
+    },
+    "revision_library": {
+      "passed": 85,
+      "log": "revision-tests.log",
+      "note": "Final revision library source unchanged from this recorded run."
+    },
+    "coordinator": {
+      "passed": 8,
+      "log": "coordinator-tests.log"
+    }
+  },
+  "new_regressions": {
+    "target": "history_ancestry_paths",
+    "tests": 10,
+    "exact_git_comparisons": 522,
+    "export_retention_outcome_checks": 2,
+    "child_order_equivalence_checks": 4,
+    "object_formats": [
+      "sha1",
+      "sha256"
+    ],
+    "candidate_setting": "RIT_TEST_BIN",
+    "candidate_path": "/workspace/scratch/717c1db38a84/rit-ancestry-candidate-v3/git",
+    "candidate_PATH": "empty fixture directory",
+    "oracle_setting": "SLEY_TEST_GIT",
+    "baseline_tests": {
+      "passed": 2,
+      "failed": 8,
+      "record": "baseline-regressions.log"
+    },
+    "rejected_v2_guard_tests": {
+      "passed": 0,
+      "failed": 2,
+      "record": "rejected-v2-guards.log"
+    },
+    "nonexact_note": "Six scoped preservation checks do not establish general no-walk export or child-list parity."
+  },
+  "upstream": {
+    "scripts": 5,
+    "baseline_runs": 20,
+    "final_runs": 20,
+    "all_TAP_plans_complete": true,
+    "final_rit_passed": 284,
+    "final_rit_failed": 4,
+    "final_rit_skipped": 0,
+    "final_git_passed": 288,
+    "final_git_failed": 0,
+    "final_git_skipped": 0,
+    "new_passing_executions": 14,
+    "changed_script": "t6019-rev-list-ancestry-path.sh",
+    "changed_cells_per_format": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      17,
+      18
+    ],
+    "all_other_result_lines_unchanged": true,
+    "fully_matching_unique_scripts_before": 3,
+    "fully_matching_unique_scripts_after": 4,
+    "baseline": "upstream-baseline.json",
+    "final": "upstream-final.json",
+    "changes": "upstream-changes.json"
+  },
+  "reviews": {
+    "spec": {
+      "comparisons": 208,
+      "baseline_exact": 16,
+      "final_exact": 206,
+      "newly_passing": 190,
+      "regressions": 0,
+      "persistent_mismatches": 2,
+      "record": "spec-final.json",
+      "note": "Remaining cases are existing no-revision rev-list usage text/status."
+    },
+    "tags": {
+      "comparisons": 60,
+      "exact": 60,
+      "record": "tag-final.json"
+    },
+    "standards": {
+      "comparisons": 64,
+      "exact": 50,
+      "remaining_mismatches": 14,
+      "previously_exact_now_failing": 0,
+      "records": [
+        "marks-final.json",
+        "standards-final.json",
+        "children-controls-final.json"
+      ],
+      "note": "Includes restored baseline bytes for bare no-walk export and inactive child ordering; broader no-walk and generic-client gaps remain."
+    },
+    "children_v2_probe": {
+      "comparisons": 42,
+      "record": "children-intermediate-v2.json",
+      "final_v3_execution": false
+    },
+    "rejected_v2": {
+      "reason": "A positive-only no-walk ancestry export could emit no commits and a zero-OID ref reset. Also changed inactive child-list order. Both guarded before publication.",
+      "records": [
+        "standards-rejected-v2.json",
+        "children-controls-rejected-v2.json",
+        "rejected-v2-guards.log"
+      ]
+    }
+  },
+  "provenance": {
+    "files": 680,
+    "adapted": 36,
+    "locally_added": 11,
+    "original_donor_identifiers_preserved": true,
+    "sley_revision": "a71654f50de24b3c750f0df5f1829db7342491f6",
+    "dependency_versions_unchanged": true,
+    "record": "import-verification.log"
+  },
+  "composition_policy": {
+    "status": "passed",
+    "record": "policy.log"
+  },
+  "source_audit": "passed",
+  "hosted_qualification": {
+    "workflow": ".github/workflows/rit-native.yml",
+    "url": "https://github.com/glopyglerky/rit/actions/workflows/rit-native.yml",
+    "note": "Produced-BlueFe qualification is reported separately for the published commit by GitHub Actions. Local tests used explicit rustc."
+  },
+  "source_sha256": {
+    "Cargo.toml": "7dd9bd6703fdd8b381788cbb7de600895602b3ae3a4078f248aebd45d508aec3",
+    "Cargo.lock": "0a2d797250593312eb281ac377e01b17514fc583e10e202f54a968ea1d51fa24",
+    "vendor/sley/Cargo.toml": "caff6daf8afe7420347369798b1b87a06f48b2e6e9a3d16be3fb2a6f803d9929",
+    "vendor/sley/Cargo.lock": "5267787d3cd6459b549c1f9166c18b898a173adbc9c822914f75ca68ec2565bb",
+    "lustr-toolchain.json": "157d771e5a0fd167f244a807ba8dbed42684b09ceb7b5c926ba42d2f8fa84f9e",
+    "src/lib.rs": "4fb2a0851bfba892cd0d93bcce6a776189e2ddd740041156cd33bc66427db81c",
+    "ci/qualify_native.rs": "684c138dd4aae42b59b91e92b4e838c21db61e00aceec2daae2f815ed89da891",
+    "examples/verify_import.rs": "b8b991bc0348f36ccac4f892fa1e87a27fcb81d6937ce2e8ff60c0558d9a5502",
+    "Documentation/gitr/sley-import.json": "bdb3730a5fa3637471d5fd41385c437ca0670599913fc6cd5ef388c05228487b",
+    "vendor/sley/NOTICE.md": "7885dc762c894d4a57e3afaf27ffdff8086d6e3eb8ab01402a30dd6b5c0656b5",
+    "vendor/sley/crates/sley-rev/src/lib.rs": "efc71d209f5c735c974a9741bc63dcf9e156b93e884c7cf7551ba834ad6211b8",
+    "vendor/sley/crates/sley-rev/src/setup.rs": "c2ff6c8eb11ae15a23f85e73a63d77c1b7ac21c5112019f7e79b874b9716517d",
+    "vendor/sley/crates/sley-cli/src/commands/log.rs": "98ed9e1cb4764f3bdfdd45d99b6e10195f76b1c9202a4899a1b96a48e918142e",
+    "vendor/sley/crates/sley-cli/src/commands/rev_list.rs": "15accf51a1d6cf698da7b5f20966cd183bdb90eb5e33323de0008d409fb99325",
+    "vendor/sley/crates/sley-cli/src/commands/fast_export.rs": "5193160836681c39e8b523c81fcb76ac14590a49dfe230938c3c7c74e68e5f3d",
+    "vendor/sley/crates/sley-cli/tests/history_ancestry_paths.rs": "57362aaf38472be7a80f39b349115da68f616c6f14f5b8c2d504ca298c7718f4"
+  },
+  "raw_evidence_index": "raw-evidence.json"
+}

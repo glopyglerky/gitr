@@ -391,7 +391,9 @@ fn application(context: &Context, phase: &str) -> Result<()> {
                 "--test", "rev_parse", "--test", "rev_parse_pseudo_names",
                 "--test", "commit", "--test", "commit_large_blob",
                 "--test", "rev_list", "--test", "rev_list_path_parents",
-                "--test", "log", "--test", "history_sparse_tips", "--no-fail-fast"])
+                "--test", "log", "--test", "history_sparse_tips",
+                "--test", "history_ancestry_paths", "--test", "fast_export",
+                "--no-fail-fast"])
                 // New command fixtures can exercise the actual root executable
                 // while retaining their standalone donor-workspace test route.
                 .env("RIT_TEST_BIN", context.target.join("debug/rit"));

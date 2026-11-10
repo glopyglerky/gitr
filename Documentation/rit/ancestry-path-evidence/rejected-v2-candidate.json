@@ -1,0 +1,12 @@
+{
+  "baseline_commit": "b40277b3c7cea2a607640df70d1fb9de28340a25",
+  "source_binary": "root rit",
+  "candidate_sha256": "00b4e1e11740e646c7542cc53492eef876d0b794fb551134e74ebd7a289f2a94",
+  "source_sha256": {
+    "vendor/sley/crates/sley-rev/src/lib.rs": "efc71d209f5c735c974a9741bc63dcf9e156b93e884c7cf7551ba834ad6211b8",
+    "vendor/sley/crates/sley-rev/src/setup.rs": "c2ff6c8eb11ae15a23f85e73a63d77c1b7ac21c5112019f7e79b874b9716517d",
+    "vendor/sley/crates/sley-cli/src/commands/log.rs": "98ed9e1cb4764f3bdfdd45d99b6e10195f76b1c9202a4899a1b96a48e918142e",
+    "vendor/sley/crates/sley-cli/src/commands/rev_list.rs": "39fe075e04b00a419d33ac83d338dfad1f536a361fc108219fb5169b414a954c",
+    "vendor/sley/crates/sley-cli/src/commands/fast_export.rs": "cec03d11cf960b2d54e0aaf19aabc4520f72ef3859440e146b427db2dfb48b5c"
+  }
+}

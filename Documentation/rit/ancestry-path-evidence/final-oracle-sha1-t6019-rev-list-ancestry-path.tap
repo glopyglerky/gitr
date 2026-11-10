@@ -1,0 +1,20 @@
+ok 1 - setup
+ok 2 - log D..M
+ok 3 - log --ancestry-path D..M
+ok 4 - log --ancestry-path=F D..M
+ok 5 - log --ancestry-path=G D..M
+ok 6 - log --ancestry-path=H D..M
+ok 7 - log --ancestry-path=K D..M
+ok 8 - log --ancestry-path=F --ancestry-path=K D..M
+ok 9 - log D..M -- M.t
+ok 10 - log --ancestry-path D..M -- M.t
+ok 11 - log F...I
+ok 12 - log --ancestry-path F...I
+ok 13 - log G..M -- G.t
+ok 14 - log --ancestry-path G..M -- G.t
+ok 15 - log --ancestry-path --simplify-merges G^..M -- G.t
+ok 16 - setup criss-cross
+ok 17 - criss-cross: rev-list --ancestry-path cb..bc
+ok 18 - criss-cross: rev-list --ancestry-path --all ^cb
+# passed all 18 test(s)
+1..18

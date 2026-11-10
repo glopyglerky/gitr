@@ -1,0 +1,103 @@
+[
+  {
+    "args": [
+      "log",
+      "--format=%s",
+      "--ancestry-path=CB",
+      "A..BC"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "args": [
+      "log",
+      "--format=%s",
+      "--ancestry-path=B",
+      "BC"
+    ],
+    "exit": 0,
+    "stdout": "BC\nB\nA\n",
+    "stderr": ""
+  },
+  {
+    "args": [
+      "log",
+      "--format=%s",
+      "--ancestry-path",
+      "BC"
+    ],
+    "exit": 128,
+    "stdout": "",
+    "stderr": "fatal: --ancestry-path given but there are no bottom commits\n"
+  },
+  {
+    "args": [
+      "log",
+      "--format=%s",
+      "--ancestry-path=B",
+      "--ancestry-path",
+      "A..BC"
+    ],
+    "exit": 0,
+    "stdout": "BC\nC\nB\n",
+    "stderr": ""
+  },
+  {
+    "args": [
+      "log",
+      "--format=%s",
+      "--ancestry-path",
+      "--ancestry-path=B",
+      "A..BC"
+    ],
+    "exit": 0,
+    "stdout": "BC\nC\nB\n",
+    "stderr": ""
+  },
+  {
+    "args": [
+      "log",
+      "--format=%s",
+      "--ancestry-path=",
+      "A..BC"
+    ],
+    "exit": 128,
+    "stdout": "",
+    "stderr": "error: could not get commit for --ancestry-path argument \n"
+  },
+  {
+    "args": [
+      "log",
+      "--format=%s",
+      "--ancestry-path=does-not-exist",
+      "A..BC"
+    ],
+    "exit": 128,
+    "stdout": "",
+    "stderr": "error: could not get commit for --ancestry-path argument does-not-exist\n"
+  },
+  {
+    "args": [
+      "log",
+      "--format=%s",
+      "--ancestry-path=BC^{tree}",
+      "A..BC"
+    ],
+    "exit": 128,
+    "stdout": "",
+    "stderr": "error: object 4b825dc642cb6eb9a060e54bf8d69288fbee4904 is a tree, not a commit\nerror: could not get commit for --ancestry-path argument BC^{tree}\n"
+  },
+  {
+    "args": [
+      "log",
+      "--format=%s",
+      "--ancestry-path=CB",
+      "B..BC"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+]

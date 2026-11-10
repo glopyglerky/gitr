@@ -1,0 +1,1338 @@
+{
+  "candidate_sha256": "00b4e1e11740e646c7542cc53492eef876d0b794fb551134e74ebd7a289f2a94",
+  "comparisons": 42,
+  "exact": 23,
+  "results": [
+    {
+      "mode": "plain",
+      "path": null,
+      "ancestry": false,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "D..M"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\n8dc321d6537af6b84db2e32f471fc543cd8f731b ff96912faa61781489e5eb846f5195f51e821c33\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\nf6674c4768336615657d0e72cf001b815c96b560 e2e3061465039505674ffb03a5522fba79b962ed\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 f6674c4768336615657d0e72cf001b815c96b560 2776318c44dbb2a2613818888057de173bc6a067\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\n8dc321d6537af6b84db2e32f471fc543cd8f731b ff96912faa61781489e5eb846f5195f51e821c33\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\nf6674c4768336615657d0e72cf001b815c96b560 e2e3061465039505674ffb03a5522fba79b962ed\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 2776318c44dbb2a2613818888057de173bc6a067 f6674c4768336615657d0e72cf001b815c96b560\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\n8dc321d6537af6b84db2e32f471fc543cd8f731b ff96912faa61781489e5eb846f5195f51e821c33\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\nf6674c4768336615657d0e72cf001b815c96b560 e2e3061465039505674ffb03a5522fba79b962ed\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 2776318c44dbb2a2613818888057de173bc6a067 f6674c4768336615657d0e72cf001b815c96b560\n",
+        "stderr": ""
+      },
+      "exact": false,
+      "baseline_exact": false
+    },
+    {
+      "mode": "plain",
+      "path": null,
+      "ancestry": true,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--ancestry-path=H",
+        "D..M"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 f6674c4768336615657d0e72cf001b815c96b560 2776318c44dbb2a2613818888057de173bc6a067\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "status": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported rev-list option --ancestry-path=H\n"
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 f6674c4768336615657d0e72cf001b815c96b560 2776318c44dbb2a2613818888057de173bc6a067\n",
+        "stderr": ""
+      },
+      "exact": true,
+      "baseline_exact": false
+    },
+    {
+      "mode": "plain",
+      "path": "file",
+      "ancestry": false,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "D..M",
+        "--",
+        "file"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\n8dc321d6537af6b84db2e32f471fc543cd8f731b ff96912faa61781489e5eb846f5195f51e821c33\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\n8dc321d6537af6b84db2e32f471fc543cd8f731b b56514313ad9fd72bcf8457de6ebb50beabf0c73\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\n8dc321d6537af6b84db2e32f471fc543cd8f731b b56514313ad9fd72bcf8457de6ebb50beabf0c73\n",
+        "stderr": ""
+      },
+      "exact": false,
+      "baseline_exact": false
+    },
+    {
+      "mode": "plain",
+      "path": "file",
+      "ancestry": true,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--ancestry-path=H",
+        "D..M",
+        "--",
+        "file"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 f6674c4768336615657d0e72cf001b815c96b560 2776318c44dbb2a2613818888057de173bc6a067\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "status": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported rev-list option --ancestry-path=H\n"
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 f6674c4768336615657d0e72cf001b815c96b560 2776318c44dbb2a2613818888057de173bc6a067\n",
+        "stderr": ""
+      },
+      "exact": true,
+      "baseline_exact": false
+    },
+    {
+      "mode": "plain",
+      "path": "other",
+      "ancestry": false,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "D..M",
+        "--",
+        "other"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "baseline": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "exact": true,
+      "baseline_exact": true
+    },
+    {
+      "mode": "plain",
+      "path": "other",
+      "ancestry": true,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--ancestry-path=H",
+        "D..M",
+        "--",
+        "other"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 0,
+        "stdout": "ff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "status": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported rev-list option --ancestry-path=H\n"
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "ff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\n",
+        "stderr": ""
+      },
+      "exact": true,
+      "baseline_exact": false
+    },
+    {
+      "mode": "reverse",
+      "path": null,
+      "ancestry": false,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--reverse",
+        "D..M"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 0,
+        "stdout": "b3cddbd7b2f423e25ab8dc21da22556a025fd428 f6674c4768336615657d0e72cf001b815c96b560 2776318c44dbb2a2613818888057de173bc6a067\nf6674c4768336615657d0e72cf001b815c96b560 e2e3061465039505674ffb03a5522fba79b962ed\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\n8dc321d6537af6b84db2e32f471fc543cd8f731b ff96912faa61781489e5eb846f5195f51e821c33\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\nb56514313ad9fd72bcf8457de6ebb50beabf0c73\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "status": 0,
+        "stdout": "b3cddbd7b2f423e25ab8dc21da22556a025fd428 f6674c4768336615657d0e72cf001b815c96b560 2776318c44dbb2a2613818888057de173bc6a067\nf6674c4768336615657d0e72cf001b815c96b560 e2e3061465039505674ffb03a5522fba79b962ed\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\n8dc321d6537af6b84db2e32f471fc543cd8f731b ff96912faa61781489e5eb846f5195f51e821c33\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\nb56514313ad9fd72bcf8457de6ebb50beabf0c73\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "b3cddbd7b2f423e25ab8dc21da22556a025fd428 f6674c4768336615657d0e72cf001b815c96b560 2776318c44dbb2a2613818888057de173bc6a067\nf6674c4768336615657d0e72cf001b815c96b560 e2e3061465039505674ffb03a5522fba79b962ed\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\n8dc321d6537af6b84db2e32f471fc543cd8f731b ff96912faa61781489e5eb846f5195f51e821c33\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\nb56514313ad9fd72bcf8457de6ebb50beabf0c73\n",
+        "stderr": ""
+      },
+      "exact": true,
+      "baseline_exact": true
+    },
+    {
+      "mode": "reverse",
+      "path": null,
+      "ancestry": true,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--reverse",
+        "--ancestry-path=H",
+        "D..M"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 0,
+        "stdout": "b3cddbd7b2f423e25ab8dc21da22556a025fd428 f6674c4768336615657d0e72cf001b815c96b560 2776318c44dbb2a2613818888057de173bc6a067\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\nb56514313ad9fd72bcf8457de6ebb50beabf0c73\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "status": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported rev-list option --ancestry-path=H\n"
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "b3cddbd7b2f423e25ab8dc21da22556a025fd428 f6674c4768336615657d0e72cf001b815c96b560 2776318c44dbb2a2613818888057de173bc6a067\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\nb56514313ad9fd72bcf8457de6ebb50beabf0c73\n",
+        "stderr": ""
+      },
+      "exact": true,
+      "baseline_exact": false
+    },
+    {
+      "mode": "reverse",
+      "path": "file",
+      "ancestry": false,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--reverse",
+        "D..M",
+        "--",
+        "file"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 0,
+        "stdout": "8dc321d6537af6b84db2e32f471fc543cd8f731b ff96912faa61781489e5eb846f5195f51e821c33\nb56514313ad9fd72bcf8457de6ebb50beabf0c73\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "status": 0,
+        "stdout": "8dc321d6537af6b84db2e32f471fc543cd8f731b b56514313ad9fd72bcf8457de6ebb50beabf0c73\nb56514313ad9fd72bcf8457de6ebb50beabf0c73\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "8dc321d6537af6b84db2e32f471fc543cd8f731b b56514313ad9fd72bcf8457de6ebb50beabf0c73\nb56514313ad9fd72bcf8457de6ebb50beabf0c73\n",
+        "stderr": ""
+      },
+      "exact": false,
+      "baseline_exact": false
+    },
+    {
+      "mode": "reverse",
+      "path": "file",
+      "ancestry": true,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--reverse",
+        "--ancestry-path=H",
+        "D..M",
+        "--",
+        "file"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 0,
+        "stdout": "b3cddbd7b2f423e25ab8dc21da22556a025fd428 f6674c4768336615657d0e72cf001b815c96b560 2776318c44dbb2a2613818888057de173bc6a067\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\nb56514313ad9fd72bcf8457de6ebb50beabf0c73\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "status": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported rev-list option --ancestry-path=H\n"
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "b3cddbd7b2f423e25ab8dc21da22556a025fd428 f6674c4768336615657d0e72cf001b815c96b560 2776318c44dbb2a2613818888057de173bc6a067\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\nb56514313ad9fd72bcf8457de6ebb50beabf0c73\n",
+        "stderr": ""
+      },
+      "exact": true,
+      "baseline_exact": false
+    },
+    {
+      "mode": "reverse",
+      "path": "other",
+      "ancestry": false,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--reverse",
+        "D..M",
+        "--",
+        "other"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "baseline": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "exact": true,
+      "baseline_exact": true
+    },
+    {
+      "mode": "reverse",
+      "path": "other",
+      "ancestry": true,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--reverse",
+        "--ancestry-path=H",
+        "D..M",
+        "--",
+        "other"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 0,
+        "stdout": "bbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "status": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported rev-list option --ancestry-path=H\n"
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "bbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\n",
+        "stderr": ""
+      },
+      "exact": true,
+      "baseline_exact": false
+    },
+    {
+      "mode": "topo",
+      "path": null,
+      "ancestry": false,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--topo-order",
+        "D..M"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\nf6674c4768336615657d0e72cf001b815c96b560 e2e3061465039505674ffb03a5522fba79b962ed\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 2776318c44dbb2a2613818888057de173bc6a067 f6674c4768336615657d0e72cf001b815c96b560\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\n8dc321d6537af6b84db2e32f471fc543cd8f731b ff96912faa61781489e5eb846f5195f51e821c33\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\nf6674c4768336615657d0e72cf001b815c96b560 e2e3061465039505674ffb03a5522fba79b962ed\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 f6674c4768336615657d0e72cf001b815c96b560 2776318c44dbb2a2613818888057de173bc6a067\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\n8dc321d6537af6b84db2e32f471fc543cd8f731b ff96912faa61781489e5eb846f5195f51e821c33\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\nf6674c4768336615657d0e72cf001b815c96b560 e2e3061465039505674ffb03a5522fba79b962ed\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 f6674c4768336615657d0e72cf001b815c96b560 2776318c44dbb2a2613818888057de173bc6a067\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\n8dc321d6537af6b84db2e32f471fc543cd8f731b ff96912faa61781489e5eb846f5195f51e821c33\n",
+        "stderr": ""
+      },
+      "exact": false,
+      "baseline_exact": false
+    },
+    {
+      "mode": "topo",
+      "path": null,
+      "ancestry": true,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--topo-order",
+        "--ancestry-path=H",
+        "D..M"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 2776318c44dbb2a2613818888057de173bc6a067 f6674c4768336615657d0e72cf001b815c96b560\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "status": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported rev-list option --ancestry-path=H\n"
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 2776318c44dbb2a2613818888057de173bc6a067 f6674c4768336615657d0e72cf001b815c96b560\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\n",
+        "stderr": ""
+      },
+      "exact": true,
+      "baseline_exact": false
+    },
+    {
+      "mode": "topo",
+      "path": "file",
+      "ancestry": false,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--topo-order",
+        "D..M",
+        "--",
+        "file"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\n8dc321d6537af6b84db2e32f471fc543cd8f731b ff96912faa61781489e5eb846f5195f51e821c33\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\n8dc321d6537af6b84db2e32f471fc543cd8f731b b56514313ad9fd72bcf8457de6ebb50beabf0c73\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\n8dc321d6537af6b84db2e32f471fc543cd8f731b b56514313ad9fd72bcf8457de6ebb50beabf0c73\n",
+        "stderr": ""
+      },
+      "exact": false,
+      "baseline_exact": false
+    },
+    {
+      "mode": "topo",
+      "path": "file",
+      "ancestry": true,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--topo-order",
+        "--ancestry-path=H",
+        "D..M",
+        "--",
+        "file"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 2776318c44dbb2a2613818888057de173bc6a067 f6674c4768336615657d0e72cf001b815c96b560\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "status": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported rev-list option --ancestry-path=H\n"
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 2776318c44dbb2a2613818888057de173bc6a067 f6674c4768336615657d0e72cf001b815c96b560\n",
+        "stderr": ""
+      },
+      "exact": true,
+      "baseline_exact": false
+    },
+    {
+      "mode": "topo",
+      "path": "other",
+      "ancestry": false,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--topo-order",
+        "D..M",
+        "--",
+        "other"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "baseline": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "exact": true,
+      "baseline_exact": true
+    },
+    {
+      "mode": "topo",
+      "path": "other",
+      "ancestry": true,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--topo-order",
+        "--ancestry-path=H",
+        "D..M",
+        "--",
+        "other"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 0,
+        "stdout": "ff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "status": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported rev-list option --ancestry-path=H\n"
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "ff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\n",
+        "stderr": ""
+      },
+      "exact": true,
+      "baseline_exact": false
+    },
+    {
+      "mode": "grep-E",
+      "path": null,
+      "ancestry": false,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--grep=E keep",
+        "D..M"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 0,
+        "stdout": "b3cddbd7b2f423e25ab8dc21da22556a025fd428 f6674c4768336615657d0e72cf001b815c96b560 2776318c44dbb2a2613818888057de173bc6a067\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "status": 0,
+        "stdout": "b3cddbd7b2f423e25ab8dc21da22556a025fd428\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "b3cddbd7b2f423e25ab8dc21da22556a025fd428\n",
+        "stderr": ""
+      },
+      "exact": false,
+      "baseline_exact": false
+    },
+    {
+      "mode": "grep-E",
+      "path": null,
+      "ancestry": true,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--grep=E keep",
+        "--ancestry-path=H",
+        "D..M"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 0,
+        "stdout": "b3cddbd7b2f423e25ab8dc21da22556a025fd428 f6674c4768336615657d0e72cf001b815c96b560 2776318c44dbb2a2613818888057de173bc6a067\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "status": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported rev-list option --ancestry-path=H\n"
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "b3cddbd7b2f423e25ab8dc21da22556a025fd428\n",
+        "stderr": ""
+      },
+      "exact": false,
+      "baseline_exact": false
+    },
+    {
+      "mode": "grep-E",
+      "path": "file",
+      "ancestry": false,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--grep=E keep",
+        "D..M",
+        "--",
+        "file"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "baseline": {
+        "status": 0,
+        "stdout": "b3cddbd7b2f423e25ab8dc21da22556a025fd428\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "b3cddbd7b2f423e25ab8dc21da22556a025fd428\n",
+        "stderr": ""
+      },
+      "exact": false,
+      "baseline_exact": false
+    },
+    {
+      "mode": "grep-E",
+      "path": "file",
+      "ancestry": true,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--grep=E keep",
+        "--ancestry-path=H",
+        "D..M",
+        "--",
+        "file"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 0,
+        "stdout": "b3cddbd7b2f423e25ab8dc21da22556a025fd428 f6674c4768336615657d0e72cf001b815c96b560 2776318c44dbb2a2613818888057de173bc6a067\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "status": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported rev-list option --ancestry-path=H\n"
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "b3cddbd7b2f423e25ab8dc21da22556a025fd428\n",
+        "stderr": ""
+      },
+      "exact": false,
+      "baseline_exact": false
+    },
+    {
+      "mode": "grep-E",
+      "path": "other",
+      "ancestry": false,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--grep=E keep",
+        "D..M",
+        "--",
+        "other"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "baseline": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "exact": true,
+      "baseline_exact": true
+    },
+    {
+      "mode": "grep-E",
+      "path": "other",
+      "ancestry": true,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--grep=E keep",
+        "--ancestry-path=H",
+        "D..M",
+        "--",
+        "other"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "baseline": {
+        "status": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported rev-list option --ancestry-path=H\n"
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "exact": true,
+      "baseline_exact": false
+    },
+    {
+      "mode": "full",
+      "path": null,
+      "ancestry": false,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--full-history",
+        "D..M"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\n8dc321d6537af6b84db2e32f471fc543cd8f731b ff96912faa61781489e5eb846f5195f51e821c33\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\nf6674c4768336615657d0e72cf001b815c96b560 e2e3061465039505674ffb03a5522fba79b962ed\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 f6674c4768336615657d0e72cf001b815c96b560 2776318c44dbb2a2613818888057de173bc6a067\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\n8dc321d6537af6b84db2e32f471fc543cd8f731b ff96912faa61781489e5eb846f5195f51e821c33\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\nf6674c4768336615657d0e72cf001b815c96b560 e2e3061465039505674ffb03a5522fba79b962ed\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 2776318c44dbb2a2613818888057de173bc6a067 f6674c4768336615657d0e72cf001b815c96b560\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\n8dc321d6537af6b84db2e32f471fc543cd8f731b ff96912faa61781489e5eb846f5195f51e821c33\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\nf6674c4768336615657d0e72cf001b815c96b560 e2e3061465039505674ffb03a5522fba79b962ed\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 2776318c44dbb2a2613818888057de173bc6a067 f6674c4768336615657d0e72cf001b815c96b560\n",
+        "stderr": ""
+      },
+      "exact": false,
+      "baseline_exact": false
+    },
+    {
+      "mode": "full",
+      "path": null,
+      "ancestry": true,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--full-history",
+        "--ancestry-path=H",
+        "D..M"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 f6674c4768336615657d0e72cf001b815c96b560 2776318c44dbb2a2613818888057de173bc6a067\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "status": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported rev-list option --ancestry-path=H\n"
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 f6674c4768336615657d0e72cf001b815c96b560 2776318c44dbb2a2613818888057de173bc6a067\n",
+        "stderr": ""
+      },
+      "exact": true,
+      "baseline_exact": false
+    },
+    {
+      "mode": "full",
+      "path": "file",
+      "ancestry": false,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--full-history",
+        "D..M",
+        "--",
+        "file"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\n8dc321d6537af6b84db2e32f471fc543cd8f731b ff96912faa61781489e5eb846f5195f51e821c33\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nf6674c4768336615657d0e72cf001b815c96b560 e2e3061465039505674ffb03a5522fba79b962ed\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 f6674c4768336615657d0e72cf001b815c96b560 2776318c44dbb2a2613818888057de173bc6a067\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\n8dc321d6537af6b84db2e32f471fc543cd8f731b ff96912faa61781489e5eb846f5195f51e821c33\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nf6674c4768336615657d0e72cf001b815c96b560 e2e3061465039505674ffb03a5522fba79b962ed\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 2776318c44dbb2a2613818888057de173bc6a067 f6674c4768336615657d0e72cf001b815c96b560\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\n8dc321d6537af6b84db2e32f471fc543cd8f731b ff96912faa61781489e5eb846f5195f51e821c33\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nf6674c4768336615657d0e72cf001b815c96b560 e2e3061465039505674ffb03a5522fba79b962ed\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 2776318c44dbb2a2613818888057de173bc6a067 f6674c4768336615657d0e72cf001b815c96b560\n",
+        "stderr": ""
+      },
+      "exact": false,
+      "baseline_exact": false
+    },
+    {
+      "mode": "full",
+      "path": "file",
+      "ancestry": true,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--full-history",
+        "--ancestry-path=H",
+        "D..M",
+        "--",
+        "file"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 f6674c4768336615657d0e72cf001b815c96b560 2776318c44dbb2a2613818888057de173bc6a067\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "status": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported rev-list option --ancestry-path=H\n"
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 f6674c4768336615657d0e72cf001b815c96b560 2776318c44dbb2a2613818888057de173bc6a067\n",
+        "stderr": ""
+      },
+      "exact": true,
+      "baseline_exact": false
+    },
+    {
+      "mode": "full",
+      "path": "other",
+      "ancestry": false,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--full-history",
+        "D..M",
+        "--",
+        "other"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 0,
+        "stdout": "ff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "status": 0,
+        "stdout": "ff96912faa61781489e5eb846f5195f51e821c33\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\n2776318c44dbb2a2613818888057de173bc6a067 e2e3061465039505674ffb03a5522fba79b962ed\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "ff96912faa61781489e5eb846f5195f51e821c33\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\n2776318c44dbb2a2613818888057de173bc6a067 e2e3061465039505674ffb03a5522fba79b962ed\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\n",
+        "stderr": ""
+      },
+      "exact": false,
+      "baseline_exact": false
+    },
+    {
+      "mode": "full",
+      "path": "other",
+      "ancestry": true,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--full-history",
+        "--ancestry-path=H",
+        "D..M",
+        "--",
+        "other"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 0,
+        "stdout": "ff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "status": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported rev-list option --ancestry-path=H\n"
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "ff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\n",
+        "stderr": ""
+      },
+      "exact": true,
+      "baseline_exact": false
+    },
+    {
+      "mode": "simplify",
+      "path": null,
+      "ancestry": false,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--simplify-merges",
+        "D..M"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 128,
+        "stdout": "",
+        "stderr": "fatal: options '--parents' and '--children' cannot be used together\n"
+      },
+      "baseline": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\nf6674c4768336615657d0e72cf001b815c96b560 e2e3061465039505674ffb03a5522fba79b962ed\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 f6674c4768336615657d0e72cf001b815c96b560 2776318c44dbb2a2613818888057de173bc6a067\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\n8dc321d6537af6b84db2e32f471fc543cd8f731b ff96912faa61781489e5eb846f5195f51e821c33\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\nf6674c4768336615657d0e72cf001b815c96b560 e2e3061465039505674ffb03a5522fba79b962ed\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 f6674c4768336615657d0e72cf001b815c96b560 2776318c44dbb2a2613818888057de173bc6a067\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\n8dc321d6537af6b84db2e32f471fc543cd8f731b ff96912faa61781489e5eb846f5195f51e821c33\n",
+        "stderr": ""
+      },
+      "exact": false,
+      "baseline_exact": false
+    },
+    {
+      "mode": "simplify",
+      "path": null,
+      "ancestry": true,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--simplify-merges",
+        "--ancestry-path=H",
+        "D..M"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 128,
+        "stdout": "",
+        "stderr": "fatal: options '--parents' and '--children' cannot be used together\n"
+      },
+      "baseline": {
+        "status": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported rev-list option --ancestry-path=H\n"
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 2776318c44dbb2a2613818888057de173bc6a067 f6674c4768336615657d0e72cf001b815c96b560\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\n",
+        "stderr": ""
+      },
+      "exact": false,
+      "baseline_exact": false
+    },
+    {
+      "mode": "simplify",
+      "path": "file",
+      "ancestry": false,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--simplify-merges",
+        "D..M",
+        "--",
+        "file"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 128,
+        "stdout": "",
+        "stderr": "fatal: options '--parents' and '--children' cannot be used together\n"
+      },
+      "baseline": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\nf6674c4768336615657d0e72cf001b815c96b560 e2e3061465039505674ffb03a5522fba79b962ed\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 f6674c4768336615657d0e72cf001b815c96b560 2776318c44dbb2a2613818888057de173bc6a067\n8dc321d6537af6b84db2e32f471fc543cd8f731b ff96912faa61781489e5eb846f5195f51e821c33\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\nf6674c4768336615657d0e72cf001b815c96b560 e2e3061465039505674ffb03a5522fba79b962ed\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 f6674c4768336615657d0e72cf001b815c96b560 2776318c44dbb2a2613818888057de173bc6a067\n8dc321d6537af6b84db2e32f471fc543cd8f731b ff96912faa61781489e5eb846f5195f51e821c33\n",
+        "stderr": ""
+      },
+      "exact": false,
+      "baseline_exact": false
+    },
+    {
+      "mode": "simplify",
+      "path": "file",
+      "ancestry": true,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--simplify-merges",
+        "--ancestry-path=H",
+        "D..M",
+        "--",
+        "file"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 128,
+        "stdout": "",
+        "stderr": "fatal: options '--parents' and '--children' cannot be used together\n"
+      },
+      "baseline": {
+        "status": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported rev-list option --ancestry-path=H\n"
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 2776318c44dbb2a2613818888057de173bc6a067 f6674c4768336615657d0e72cf001b815c96b560\n",
+        "stderr": ""
+      },
+      "exact": false,
+      "baseline_exact": false
+    },
+    {
+      "mode": "simplify",
+      "path": "other",
+      "ancestry": false,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--simplify-merges",
+        "D..M",
+        "--",
+        "other"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 128,
+        "stdout": "",
+        "stderr": "fatal: options '--parents' and '--children' cannot be used together\n"
+      },
+      "baseline": {
+        "status": 0,
+        "stdout": "ff96912faa61781489e5eb846f5195f51e821c33\n2776318c44dbb2a2613818888057de173bc6a067 ff96912faa61781489e5eb846f5195f51e821c33\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "ff96912faa61781489e5eb846f5195f51e821c33\n2776318c44dbb2a2613818888057de173bc6a067 ff96912faa61781489e5eb846f5195f51e821c33\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\n",
+        "stderr": ""
+      },
+      "exact": false,
+      "baseline_exact": false
+    },
+    {
+      "mode": "simplify",
+      "path": "other",
+      "ancestry": true,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--simplify-merges",
+        "--ancestry-path=H",
+        "D..M",
+        "--",
+        "other"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 128,
+        "stdout": "",
+        "stderr": "fatal: options '--parents' and '--children' cannot be used together\n"
+      },
+      "baseline": {
+        "status": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported rev-list option --ancestry-path=H\n"
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "ff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\n",
+        "stderr": ""
+      },
+      "exact": false,
+      "baseline_exact": false
+    },
+    {
+      "mode": "sparse",
+      "path": null,
+      "ancestry": false,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--sparse",
+        "D..M"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\n8dc321d6537af6b84db2e32f471fc543cd8f731b ff96912faa61781489e5eb846f5195f51e821c33\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\nf6674c4768336615657d0e72cf001b815c96b560 e2e3061465039505674ffb03a5522fba79b962ed\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 f6674c4768336615657d0e72cf001b815c96b560 2776318c44dbb2a2613818888057de173bc6a067\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\n8dc321d6537af6b84db2e32f471fc543cd8f731b ff96912faa61781489e5eb846f5195f51e821c33\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\nf6674c4768336615657d0e72cf001b815c96b560 e2e3061465039505674ffb03a5522fba79b962ed\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 2776318c44dbb2a2613818888057de173bc6a067 f6674c4768336615657d0e72cf001b815c96b560\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\n8dc321d6537af6b84db2e32f471fc543cd8f731b ff96912faa61781489e5eb846f5195f51e821c33\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\nf6674c4768336615657d0e72cf001b815c96b560 e2e3061465039505674ffb03a5522fba79b962ed\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 2776318c44dbb2a2613818888057de173bc6a067 f6674c4768336615657d0e72cf001b815c96b560\n",
+        "stderr": ""
+      },
+      "exact": false,
+      "baseline_exact": false
+    },
+    {
+      "mode": "sparse",
+      "path": null,
+      "ancestry": true,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--sparse",
+        "--ancestry-path=H",
+        "D..M"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 f6674c4768336615657d0e72cf001b815c96b560 2776318c44dbb2a2613818888057de173bc6a067\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "status": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported rev-list option --ancestry-path=H\n"
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 f6674c4768336615657d0e72cf001b815c96b560 2776318c44dbb2a2613818888057de173bc6a067\n",
+        "stderr": ""
+      },
+      "exact": true,
+      "baseline_exact": false
+    },
+    {
+      "mode": "sparse",
+      "path": "file",
+      "ancestry": false,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--sparse",
+        "D..M",
+        "--",
+        "file"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\n8dc321d6537af6b84db2e32f471fc543cd8f731b ff96912faa61781489e5eb846f5195f51e821c33\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\n8dc321d6537af6b84db2e32f471fc543cd8f731b ff96912faa61781489e5eb846f5195f51e821c33\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\n8dc321d6537af6b84db2e32f471fc543cd8f731b ff96912faa61781489e5eb846f5195f51e821c33\n",
+        "stderr": ""
+      },
+      "exact": true,
+      "baseline_exact": true
+    },
+    {
+      "mode": "sparse",
+      "path": "file",
+      "ancestry": true,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--sparse",
+        "--ancestry-path=H",
+        "D..M",
+        "--",
+        "file"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 f6674c4768336615657d0e72cf001b815c96b560 2776318c44dbb2a2613818888057de173bc6a067\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "status": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported rev-list option --ancestry-path=H\n"
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 f6674c4768336615657d0e72cf001b815c96b560 2776318c44dbb2a2613818888057de173bc6a067\n",
+        "stderr": ""
+      },
+      "exact": true,
+      "baseline_exact": false
+    },
+    {
+      "mode": "sparse",
+      "path": "other",
+      "ancestry": false,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--sparse",
+        "D..M",
+        "--",
+        "other"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\n8dc321d6537af6b84db2e32f471fc543cd8f731b ff96912faa61781489e5eb846f5195f51e821c33\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\n8dc321d6537af6b84db2e32f471fc543cd8f731b ff96912faa61781489e5eb846f5195f51e821c33\n",
+        "stderr": ""
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\n8dc321d6537af6b84db2e32f471fc543cd8f731b ff96912faa61781489e5eb846f5195f51e821c33\n",
+        "stderr": ""
+      },
+      "exact": true,
+      "baseline_exact": true
+    },
+    {
+      "mode": "sparse",
+      "path": "other",
+      "ancestry": true,
+      "repo": "/workspace/scratch/717c1db38a84/ancestry-spec-fixtures/sha1",
+      "args": [
+        "rev-list",
+        "--children",
+        "--sparse",
+        "--ancestry-path=H",
+        "D..M",
+        "--",
+        "other"
+      ],
+      "stdin": null,
+      "oracle": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 f6674c4768336615657d0e72cf001b815c96b560 2776318c44dbb2a2613818888057de173bc6a067\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "status": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported rev-list option --ancestry-path=H\n"
+      },
+      "candidate": {
+        "status": 0,
+        "stdout": "b56514313ad9fd72bcf8457de6ebb50beabf0c73\nff96912faa61781489e5eb846f5195f51e821c33 b56514313ad9fd72bcf8457de6ebb50beabf0c73\ne2e3061465039505674ffb03a5522fba79b962ed ff96912faa61781489e5eb846f5195f51e821c33\n0c87fb82cf6679c147881447a6c5bfdacc0c4405 e2e3061465039505674ffb03a5522fba79b962ed\n2776318c44dbb2a2613818888057de173bc6a067 0c87fb82cf6679c147881447a6c5bfdacc0c4405\nbbbf509435f66ac58fe7d42bbd9c399cdbc985f6 2776318c44dbb2a2613818888057de173bc6a067\nb3cddbd7b2f423e25ab8dc21da22556a025fd428 f6674c4768336615657d0e72cf001b815c96b560 2776318c44dbb2a2613818888057de173bc6a067\n",
+        "stderr": ""
+      },
+      "exact": true,
+      "baseline_exact": false
+    }
+  ]
+}

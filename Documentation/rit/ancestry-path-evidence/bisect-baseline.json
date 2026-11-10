@@ -1,0 +1,173 @@
+{
+  "root": "/tmp/rit-ancestry-marks-399wycu9",
+  "results": [
+    {
+      "format": "sha1",
+      "args": [
+        "rev-list",
+        "--bisect",
+        "--ancestry-path",
+        "A..M"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "a7f9584e4253a104c729614363fb806b8beb75df\n",
+        "stderr": "",
+        "subject": "C"
+      },
+      "baseline": {
+        "exit": 0,
+        "stdout": "a7f9584e4253a104c729614363fb806b8beb75df\n",
+        "stderr": "",
+        "subject": "C"
+      }
+    },
+    {
+      "format": "sha1",
+      "args": [
+        "rev-list",
+        "--bisect",
+        "--ancestry-path=A",
+        "R..M"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "f429b17c1ff6de352e990dde22f2b116655c6868\n",
+        "stderr": "",
+        "subject": "B"
+      },
+      "baseline": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported rev-list option --ancestry-path=A\n",
+        "subject": null
+      }
+    },
+    {
+      "format": "sha1",
+      "args": [
+        "rev-list",
+        "--bisect",
+        "--ancestry-path",
+        "D..M"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "0d0ea8b8b31090937c95be1a85bee611543aa38c\n",
+        "stderr": "",
+        "subject": "M"
+      },
+      "baseline": {
+        "exit": 0,
+        "stdout": "f429b17c1ff6de352e990dde22f2b116655c6868\n",
+        "stderr": "",
+        "subject": "B"
+      }
+    },
+    {
+      "format": "sha1",
+      "args": [
+        "rev-list",
+        "--bisect",
+        "--ancestry-path=B",
+        "M"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "8a196d48cd96e04e45fa371b6f2e6f723acca4fb\n",
+        "stderr": "",
+        "subject": "A"
+      },
+      "baseline": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported rev-list option --ancestry-path=B\n",
+        "subject": null
+      }
+    },
+    {
+      "format": "sha256",
+      "args": [
+        "rev-list",
+        "--bisect",
+        "--ancestry-path",
+        "A..M"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "cc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481\n",
+        "stderr": "",
+        "subject": "C"
+      },
+      "baseline": {
+        "exit": 0,
+        "stdout": "cc74a1758085881120055ad9f63b329972099d0cf5c70202a8d8bc946435f481\n",
+        "stderr": "",
+        "subject": "C"
+      }
+    },
+    {
+      "format": "sha256",
+      "args": [
+        "rev-list",
+        "--bisect",
+        "--ancestry-path=A",
+        "R..M"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "9c360befe036302393a82285b3fa1edf4d54dbd1a15688771803cef7f405e878\n",
+        "stderr": "",
+        "subject": "B"
+      },
+      "baseline": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported rev-list option --ancestry-path=A\n",
+        "subject": null
+      }
+    },
+    {
+      "format": "sha256",
+      "args": [
+        "rev-list",
+        "--bisect",
+        "--ancestry-path",
+        "D..M"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "86ed363f459a50412761a3c4400016c7d06afce6edae858f14661480475bdd97\n",
+        "stderr": "",
+        "subject": "M"
+      },
+      "baseline": {
+        "exit": 0,
+        "stdout": "9c360befe036302393a82285b3fa1edf4d54dbd1a15688771803cef7f405e878\n",
+        "stderr": "",
+        "subject": "B"
+      }
+    },
+    {
+      "format": "sha256",
+      "args": [
+        "rev-list",
+        "--bisect",
+        "--ancestry-path=B",
+        "M"
+      ],
+      "oracle": {
+        "exit": 0,
+        "stdout": "a040f208e986c6e9fd992dbb980c624d429fe6eb60234965e755b46dcc969baa\n",
+        "stderr": "",
+        "subject": "A"
+      },
+      "baseline": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "git: command failed: unsupported rev-list option --ancestry-path=B\n",
+        "subject": null
+      }
+    }
+  ]
+}

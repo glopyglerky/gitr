@@ -1,0 +1,140 @@
+command=['/workspace/scratch/161a1b7c00ce/tooling/lustr/target/release/lustr', '--engine', 'rustc', 'test', '--manifest-path', 'vendor/sley/Cargo.toml', '--locked', '-p', 'sley-cli', '--test', 'history_ancestry_paths', '--no-fail-fast']
+target=/workspace/scratch/161a1b7c00ce/tooling/sley-target
+tmpdir=/tmp/rit-history-vendor-9_quixmo
+    Finished `test` profile [unoptimized] target(s) in 0.12s
+     Running tests/history_ancestry_paths.rs (/workspace/scratch/161a1b7c00ce/tooling/sley-target/debug/deps/history_ancestry_paths-7757af44736ac1dd)
+
+running 10 tests
+test ancestry_children_keep_unselected_edges_and_original_walk_order ... FAILED
+test ancestry_filter_is_applied_to_listing_count_and_accelerated_modes ... FAILED
+test explicit_anchors_union_relations_without_importing_unwalked_history ... FAILED
+test filters_and_path_simplification_keep_ancestry_connectivity ... FAILED
+test imported_export_marks_do_not_break_ancestry_connectivity ... FAILED
+test invalid_anchors_and_missing_bottoms_match_git_rejections ... FAILED
+test no_walk_ancestry_export_retains_the_selected_ref ... ok
+test no_walk_ancestry_preserves_existing_child_list_order ... ok
+test shallow_boundaries_and_export_use_the_same_ancestry_selection ... FAILED
+test tag_anchors_preserve_raw_identity_and_no_walk_still_lists_tips ... FAILED
+
+failures:
+
+---- ancestry_children_keep_unselected_edges_and_original_walk_order stdout ----
+
+thread 'ancestry_children_keep_unselected_edges_and_original_walk_order' (17) panicked at crates/sley-cli/tests/history_ancestry_paths.rs:86:9:
+assertion `left == right` failed: status ["rev-list", "--ancestry-path=C", "--children", "A..F"]: git: command failed: unsupported rev-list option --ancestry-path=C
+
+  left: Some(1)
+ right: Some(0)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- ancestry_filter_is_applied_to_listing_count_and_accelerated_modes stdout ----
+
+thread 'ancestry_filter_is_applied_to_listing_count_and_accelerated_modes' (18) panicked at crates/sley-cli/tests/history_ancestry_paths.rs:93:9:
+stdout ["rev-list", "--ancestry-path", "X..M"]
+expected: 
+actual: 484273158eefd6e0072f7cc93e042db847dda750
+
+
+---- explicit_anchors_union_relations_without_importing_unwalked_history stdout ----
+
+thread 'explicit_anchors_union_relations_without_importing_unwalked_history' (79) panicked at crates/sley-cli/tests/history_ancestry_paths.rs:86:9:
+assertion `left == right` failed: status ["log", "--format=%H %s", "--ancestry-path=B", "A..N"]: git: command failed: unsupported log option --ancestry-path=B
+
+  left: Some(1)
+ right: Some(0)
+
+---- filters_and_path_simplification_keep_ancestry_connectivity stdout ----
+
+thread 'filters_and_path_simplification_keep_ancestry_connectivity' (93) panicked at crates/sley-cli/tests/history_ancestry_paths.rs:86:9:
+assertion `left == right` failed: status ["log", "--format=%H %s", "--ancestry-path=B", "--grep=B", "A..N"]: git: command failed: unsupported log option --ancestry-path=B
+
+  left: Some(1)
+ right: Some(0)
+
+---- imported_export_marks_do_not_break_ancestry_connectivity stdout ----
+
+thread 'imported_export_marks_do_not_break_ancestry_connectivity' (155) panicked at crates/sley-cli/tests/history_ancestry_paths.rs:93:9:
+stdout ["fast-export", "--no-data", "--show-original-ids", "--import-marks=/tmp/rit-history-vendor-9_quixmo/rit-history-ancestry-16-1794311318245671729/marks", "--ancestry-path", "A..E"]
+expected: commit refs/heads/E
+mark :11
+original-oid baf95dad81a1b0c1c86366e2b76840b7fdf79d10
+author Example User <example@example.invalid> 1000000002 +0000
+committer Example User <example@example.invalid> 1000000002 +0000
+data 2
+B
+M 100644 1275430f1765c63e539cb0452565563bd6aef6a6 outside
+M 100644 61780798228d17af2d34fce4cfbdf35556832472 watched
+
+commit refs/heads/E
+mark :12
+original-oid 798d105678b68df829c28ebbde41fe8ba02720c2
+author Example User <example@example.invalid> 1000000004 +0000
+committer Example User <example@example.invalid> 1000000004 +0000
+data 2
+D
+from :10
+M 100644 4bcfe98e640c8284511312660fb8709b0afa888e watched
+
+commit refs/heads/E
+mark :13
+original-oid 8e129e03abf0a2b87ac3ea867f637b82c24b4d37
+author Example User <example@example.invalid> 1000000005 +0000
+committer Example User <example@example.invalid> 1000000005 +0000
+data 2
+E
+from :12
+M 100644 d905d9da82c97264ab6f4920e20242e088850ce9 watched
+
+
+actual: commit refs/heads/E
+mark :11
+original-oid baf95dad81a1b0c1c86366e2b76840b7fdf79d10
+author Example User <example@example.invalid> 1000000002 +0000
+committer Example User <example@example.invalid> 1000000002 +0000
+data 2
+B
+M 100644 1275430f1765c63e539cb0452565563bd6aef6a6 outside
+M 100644 61780798228d17af2d34fce4cfbdf35556832472 watched
+
+
+
+---- invalid_anchors_and_missing_bottoms_match_git_rejections stdout ----
+
+thread 'invalid_anchors_and_missing_bottoms_match_git_rejections' (167) panicked at crates/sley-cli/tests/history_ancestry_paths.rs:86:9:
+assertion `left == right` failed: status ["log", "--ancestry-path=", "A..N"]: git: command failed: unsupported log option --ancestry-path=
+
+  left: Some(1)
+ right: Some(128)
+
+---- shallow_boundaries_and_export_use_the_same_ancestry_selection stdout ----
+
+thread 'shallow_boundaries_and_export_use_the_same_ancestry_selection' (362) panicked at crates/sley-cli/tests/history_ancestry_paths.rs:86:9:
+assertion `left == right` failed: status ["fast-export", "--ancestry-path=B", "A..N"]: git: command failed: unsupported fast-export option --ancestry-path=B
+
+  left: Some(1)
+ right: Some(0)
+
+---- tag_anchors_preserve_raw_identity_and_no_walk_still_lists_tips stdout ----
+
+thread 'tag_anchors_preserve_raw_identity_and_no_walk_still_lists_tips' (420) panicked at crates/sley-cli/tests/history_ancestry_paths.rs:86:9:
+assertion `left == right` failed: status ["log", "--format=%H %s", "--ancestry-path=middle-tag", "A..N"]: git: command failed: unsupported log option --ancestry-path=middle-tag
+
+  left: Some(1)
+ right: Some(0)
+
+
+failures:
+    ancestry_children_keep_unselected_edges_and_original_walk_order
+    ancestry_filter_is_applied_to_listing_count_and_accelerated_modes
+    explicit_anchors_union_relations_without_importing_unwalked_history
+    filters_and_path_simplification_keep_ancestry_connectivity
+    imported_export_marks_do_not_break_ancestry_connectivity
+    invalid_anchors_and_missing_bottoms_match_git_rejections
+    shallow_boundaries_and_export_use_the_same_ancestry_selection
+    tag_anchors_preserve_raw_identity_and_no_walk_still_lists_tips
+
+test result: FAILED. 2 passed; 8 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.43s
+
+error: test failed, to rerun pass `-p sley-cli --test history_ancestry_paths`
+error: 1 target failed:
+    `-p sley-cli --test history_ancestry_paths`

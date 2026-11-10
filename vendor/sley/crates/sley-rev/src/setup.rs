@@ -33,6 +33,15 @@ pub struct RevisionSymmetricRange {
     pub negated: bool,
 }
 
+/// Preserve the option's object identity as well as its peeled commit.
+/// Git includes ancestors of a raw commit anchor, but an annotated tag anchor
+/// seeds descendant reachability without adding the commit's ancestors.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct AncestryPathAnchor {
+    pub object: ObjectId,
+    pub commit: ObjectId,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct RevisionOptions {
     pub positives: Vec<RevisionTip>,
@@ -55,6 +64,8 @@ pub struct RevisionOptions {
     pub simplify_merges: bool,
     pub show_pulls: bool,
     pub ancestry_path: bool,
+    /// Resolved roots for consumers using `setup_revisions_with_ancestry`.
+    pub ancestry_path_anchors: Vec<AncestryPathAnchor>,
     pub ignore_missing: bool,
     pub had_ref_selector: bool,
     pub author_patterns: Vec<String>,
@@ -161,6 +172,21 @@ where
     parser.finish()
 }
 
+/// Resolve ancestry anchors for commands that apply ancestry filtering.
+/// The generic setup entrypoint keeps unsupported value forms as leftovers.
+pub fn setup_revisions_with_ancestry<R>(
+    args: &[String],
+    ctx: &RevisionSetupContext<'_, R>,
+) -> Result<SetupRevisions>
+where
+    R: ObjectReader,
+{
+    let mut parser = SetupRevisionsParser::new(ctx);
+    parser.resolve_ancestry = true;
+    parser.parse(args)?;
+    parser.finish()
+}
+
 pub fn setup_revisions_os<R>(
     args: &[OsString],
     ctx: &RevisionSetupContext<'_, R>,
@@ -186,6 +212,8 @@ struct SetupRevisionsParser<'a, R> {
     /// `--reflog`: add every reflog entry (old + new oid, across HEAD and all
     /// refs) as a pending positive tip. Expanded in `finish`.
     reflog: bool,
+    resolve_ancestry: bool,
+    ancestry_from_negatives: bool,
 }
 
 impl<'a, R> SetupRevisionsParser<'a, R>
@@ -202,6 +230,8 @@ where
             not: false,
             default_revision: None,
             reflog: false,
+            resolve_ancestry: false,
+            ancestry_from_negatives: false,
         }
     }
 
@@ -243,7 +273,15 @@ where
                     self.setup.options.order = RevisionOrder::Topo;
                 }
                 "--show-pulls" => self.setup.options.show_pulls = true,
-                "--ancestry-path" => self.setup.options.ancestry_path = true,
+                "--ancestry-path" => {
+                    self.setup.options.ancestry_path = true;
+                    self.ancestry_from_negatives = true;
+                }
+                value if self.resolve_ancestry && value.starts_with("--ancestry-path=") => {
+                    let anchor = self.resolve_ancestry_anchor(&value["--ancestry-path=".len()..])?;
+                    self.setup.options.ancestry_path = true;
+                    self.setup.options.ancestry_path_anchors.push(anchor);
+                }
                 "--reverse" => self.setup.options.reverse = true,
                 "--first-parent" => self.setup.options.first_parent = true,
                 "--no-first-parent" => self.setup.options.first_parent = false,
@@ -428,7 +466,47 @@ where
         if self.reflog {
             self.expand_reflog()?;
         }
+        if self.resolve_ancestry && self.setup.options.ancestry_path {
+            if self.ancestry_from_negatives {
+                self.setup.options.ancestry_path_anchors
+                    .extend(self.setup.options.negatives.iter().map(|oid| AncestryPathAnchor {
+                        object: *oid,
+                        commit: *oid,
+                    }));
+            }
+            let mut seen = HashSet::new();
+            self.setup.options.ancestry_path_anchors.retain(|anchor| seen.insert(*anchor));
+            if self.setup.options.ancestry_path_anchors.is_empty()
+                && self.setup.options.no_walk == NoWalkMode::Walk
+            {
+                sley_core::diagnostic!(Stderr, true,
+                    "fatal: --ancestry-path given but there are no bottom commits");
+                return Err(GitError::Rejected(sley_core::RejectionKind::Refused));
+            }
+        }
         Ok(self.setup)
+    }
+
+    fn resolve_ancestry_anchor(&self, rev: &str) -> Result<AncestryPathAnchor> {
+        let resolved = (|| {
+            let anchor_object = resolve_revision_commitish_with_config_optional(
+                self.ctx.git_dir, self.ctx.format, self.ctx.reader, rev, self.ctx.config,
+            )?;
+            let oid = peel_tags(self.ctx.reader, self.ctx.format, &anchor_object)?;
+            let object = read_revision_object(self.ctx.reader, &oid)?;
+            if object.object_type != ObjectType::Commit {
+                sley_core::diagnostic!(Stderr, true,
+                    "error: object {oid} is a {}, not a commit", object.object_type.as_str());
+                return Err(GitError::InvalidObject("ancestry anchor is not a commit".into()));
+            }
+            Commit::parse_ref(self.ctx.format, &object.body)?;
+            Ok(AncestryPathAnchor { object: anchor_object, commit: oid })
+        })();
+        resolved.map_err(|_| {
+            sley_core::diagnostic!(Stderr, true,
+                "error: could not get commit for --ancestry-path argument {rev}");
+            GitError::Rejected(sley_core::RejectionKind::Refused)
+        })
     }
 
     /// `--reflog`: add every reflog entry (old + new oid) across HEAD and all

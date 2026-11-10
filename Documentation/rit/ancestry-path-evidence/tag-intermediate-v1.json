@@ -1,0 +1,1346 @@
+[
+  {
+    "format": "sha1",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha1",
+    "args": [
+      "log",
+      "--format=%s",
+      "--ancestry-path=C",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "D\nC\nB\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "D\nC\nB\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha1",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha1",
+    "args": [
+      "log",
+      "--format=%s",
+      "--ancestry-path=281467d1ba2cbda7652e46e1d24a2da1fdd911c0",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "D\nC\nB\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "D\nC\nB\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha1",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha1",
+    "args": [
+      "log",
+      "--format=%s",
+      "--ancestry-path=tag-C",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "D\nC\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "D\nC\nB\n",
+      "stderr": ""
+    },
+    "exact": false
+  },
+  {
+    "format": "sha1",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha1",
+    "args": [
+      "log",
+      "--format=%s",
+      "--ancestry-path=22e86c8567407eee1ce7b8e4cd709ea8d13c3e10",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "D\nC\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "D\nC\nB\n",
+      "stderr": ""
+    },
+    "exact": false
+  },
+  {
+    "format": "sha1",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha1",
+    "args": [
+      "log",
+      "--format=%s",
+      "--ancestry-path=tag-C^{commit}",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "D\nC\nB\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "D\nC\nB\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha1",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha1",
+    "args": [
+      "log",
+      "--format=%s",
+      "--ancestry-path=tag-C^0",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "D\nC\nB\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "D\nC\nB\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha1",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha1",
+    "args": [
+      "log",
+      "--format=%s",
+      "--ancestry-path=tag-C",
+      "--ancestry-path",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "D\nC\nB\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "D\nC\nB\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha1",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha1",
+    "args": [
+      "log",
+      "--format=%s",
+      "--ancestry-path",
+      "--ancestry-path=tag-C",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "D\nC\nB\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "D\nC\nB\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha1",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha1",
+    "args": [
+      "log",
+      "--format=%s",
+      "--ancestry-path=tag-C",
+      "--ancestry-path=C",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "D\nC\nB\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "D\nC\nB\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha1",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha1",
+    "args": [
+      "log",
+      "--format=%s",
+      "--ancestry-path=C",
+      "--ancestry-path=tag-C",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "D\nC\nB\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "D\nC\nB\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha1",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha1",
+    "args": [
+      "rev-list",
+      "--ancestry-path=C",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "bdc5d7cc92429155f36702ff953f2642e7cca349\n281467d1ba2cbda7652e46e1d24a2da1fdd911c0\n9d5f5cac95e958844538f24bf09ec463b911ce1c\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "bdc5d7cc92429155f36702ff953f2642e7cca349\n281467d1ba2cbda7652e46e1d24a2da1fdd911c0\n9d5f5cac95e958844538f24bf09ec463b911ce1c\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha1",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha1",
+    "args": [
+      "rev-list",
+      "--ancestry-path=281467d1ba2cbda7652e46e1d24a2da1fdd911c0",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "bdc5d7cc92429155f36702ff953f2642e7cca349\n281467d1ba2cbda7652e46e1d24a2da1fdd911c0\n9d5f5cac95e958844538f24bf09ec463b911ce1c\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "bdc5d7cc92429155f36702ff953f2642e7cca349\n281467d1ba2cbda7652e46e1d24a2da1fdd911c0\n9d5f5cac95e958844538f24bf09ec463b911ce1c\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha1",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha1",
+    "args": [
+      "rev-list",
+      "--ancestry-path=tag-C",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "bdc5d7cc92429155f36702ff953f2642e7cca349\n281467d1ba2cbda7652e46e1d24a2da1fdd911c0\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "bdc5d7cc92429155f36702ff953f2642e7cca349\n281467d1ba2cbda7652e46e1d24a2da1fdd911c0\n9d5f5cac95e958844538f24bf09ec463b911ce1c\n",
+      "stderr": ""
+    },
+    "exact": false
+  },
+  {
+    "format": "sha1",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha1",
+    "args": [
+      "rev-list",
+      "--ancestry-path=22e86c8567407eee1ce7b8e4cd709ea8d13c3e10",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "bdc5d7cc92429155f36702ff953f2642e7cca349\n281467d1ba2cbda7652e46e1d24a2da1fdd911c0\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "bdc5d7cc92429155f36702ff953f2642e7cca349\n281467d1ba2cbda7652e46e1d24a2da1fdd911c0\n9d5f5cac95e958844538f24bf09ec463b911ce1c\n",
+      "stderr": ""
+    },
+    "exact": false
+  },
+  {
+    "format": "sha1",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha1",
+    "args": [
+      "rev-list",
+      "--ancestry-path=tag-C^{commit}",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "bdc5d7cc92429155f36702ff953f2642e7cca349\n281467d1ba2cbda7652e46e1d24a2da1fdd911c0\n9d5f5cac95e958844538f24bf09ec463b911ce1c\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "bdc5d7cc92429155f36702ff953f2642e7cca349\n281467d1ba2cbda7652e46e1d24a2da1fdd911c0\n9d5f5cac95e958844538f24bf09ec463b911ce1c\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha1",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha1",
+    "args": [
+      "rev-list",
+      "--ancestry-path=tag-C^0",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "bdc5d7cc92429155f36702ff953f2642e7cca349\n281467d1ba2cbda7652e46e1d24a2da1fdd911c0\n9d5f5cac95e958844538f24bf09ec463b911ce1c\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "bdc5d7cc92429155f36702ff953f2642e7cca349\n281467d1ba2cbda7652e46e1d24a2da1fdd911c0\n9d5f5cac95e958844538f24bf09ec463b911ce1c\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha1",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha1",
+    "args": [
+      "rev-list",
+      "--ancestry-path=tag-C",
+      "--ancestry-path",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "bdc5d7cc92429155f36702ff953f2642e7cca349\n281467d1ba2cbda7652e46e1d24a2da1fdd911c0\n9d5f5cac95e958844538f24bf09ec463b911ce1c\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "bdc5d7cc92429155f36702ff953f2642e7cca349\n281467d1ba2cbda7652e46e1d24a2da1fdd911c0\n9d5f5cac95e958844538f24bf09ec463b911ce1c\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha1",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha1",
+    "args": [
+      "rev-list",
+      "--ancestry-path",
+      "--ancestry-path=tag-C",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "bdc5d7cc92429155f36702ff953f2642e7cca349\n281467d1ba2cbda7652e46e1d24a2da1fdd911c0\n9d5f5cac95e958844538f24bf09ec463b911ce1c\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "bdc5d7cc92429155f36702ff953f2642e7cca349\n281467d1ba2cbda7652e46e1d24a2da1fdd911c0\n9d5f5cac95e958844538f24bf09ec463b911ce1c\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha1",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha1",
+    "args": [
+      "rev-list",
+      "--ancestry-path=tag-C",
+      "--ancestry-path=C",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "bdc5d7cc92429155f36702ff953f2642e7cca349\n281467d1ba2cbda7652e46e1d24a2da1fdd911c0\n9d5f5cac95e958844538f24bf09ec463b911ce1c\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "bdc5d7cc92429155f36702ff953f2642e7cca349\n281467d1ba2cbda7652e46e1d24a2da1fdd911c0\n9d5f5cac95e958844538f24bf09ec463b911ce1c\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha1",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha1",
+    "args": [
+      "rev-list",
+      "--ancestry-path=C",
+      "--ancestry-path=tag-C",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "bdc5d7cc92429155f36702ff953f2642e7cca349\n281467d1ba2cbda7652e46e1d24a2da1fdd911c0\n9d5f5cac95e958844538f24bf09ec463b911ce1c\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "bdc5d7cc92429155f36702ff953f2642e7cca349\n281467d1ba2cbda7652e46e1d24a2da1fdd911c0\n9d5f5cac95e958844538f24bf09ec463b911ce1c\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha1",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha1",
+    "args": [
+      "fast-export",
+      "--no-data",
+      "--show-original-ids",
+      "--ancestry-path=C",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid 9d5f5cac95e958844538f24bf09ec463b911ce1c\nauthor Spec Author <spec@example.invalid> 1700050060 +0000\ncommitter Spec Author <spec@example.invalid> 1700050060 +0000\ndata 2\nB\n\ncommit refs/heads/D\nmark :2\noriginal-oid 281467d1ba2cbda7652e46e1d24a2da1fdd911c0\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\nfrom :1\n\ncommit refs/heads/D\nmark :3\noriginal-oid bdc5d7cc92429155f36702ff953f2642e7cca349\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :2\n\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid 9d5f5cac95e958844538f24bf09ec463b911ce1c\nauthor Spec Author <spec@example.invalid> 1700050060 +0000\ncommitter Spec Author <spec@example.invalid> 1700050060 +0000\ndata 2\nB\n\ncommit refs/heads/D\nmark :2\noriginal-oid 281467d1ba2cbda7652e46e1d24a2da1fdd911c0\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\nfrom :1\n\ncommit refs/heads/D\nmark :3\noriginal-oid bdc5d7cc92429155f36702ff953f2642e7cca349\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :2\n\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha1",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha1",
+    "args": [
+      "fast-export",
+      "--no-data",
+      "--show-original-ids",
+      "--ancestry-path=281467d1ba2cbda7652e46e1d24a2da1fdd911c0",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid 9d5f5cac95e958844538f24bf09ec463b911ce1c\nauthor Spec Author <spec@example.invalid> 1700050060 +0000\ncommitter Spec Author <spec@example.invalid> 1700050060 +0000\ndata 2\nB\n\ncommit refs/heads/D\nmark :2\noriginal-oid 281467d1ba2cbda7652e46e1d24a2da1fdd911c0\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\nfrom :1\n\ncommit refs/heads/D\nmark :3\noriginal-oid bdc5d7cc92429155f36702ff953f2642e7cca349\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :2\n\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid 9d5f5cac95e958844538f24bf09ec463b911ce1c\nauthor Spec Author <spec@example.invalid> 1700050060 +0000\ncommitter Spec Author <spec@example.invalid> 1700050060 +0000\ndata 2\nB\n\ncommit refs/heads/D\nmark :2\noriginal-oid 281467d1ba2cbda7652e46e1d24a2da1fdd911c0\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\nfrom :1\n\ncommit refs/heads/D\nmark :3\noriginal-oid bdc5d7cc92429155f36702ff953f2642e7cca349\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :2\n\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha1",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha1",
+    "args": [
+      "fast-export",
+      "--no-data",
+      "--show-original-ids",
+      "--ancestry-path=tag-C",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid 281467d1ba2cbda7652e46e1d24a2da1fdd911c0\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\n\ncommit refs/heads/D\nmark :2\noriginal-oid bdc5d7cc92429155f36702ff953f2642e7cca349\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :1\n\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid 9d5f5cac95e958844538f24bf09ec463b911ce1c\nauthor Spec Author <spec@example.invalid> 1700050060 +0000\ncommitter Spec Author <spec@example.invalid> 1700050060 +0000\ndata 2\nB\n\ncommit refs/heads/D\nmark :2\noriginal-oid 281467d1ba2cbda7652e46e1d24a2da1fdd911c0\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\nfrom :1\n\ncommit refs/heads/D\nmark :3\noriginal-oid bdc5d7cc92429155f36702ff953f2642e7cca349\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :2\n\n",
+      "stderr": ""
+    },
+    "exact": false
+  },
+  {
+    "format": "sha1",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha1",
+    "args": [
+      "fast-export",
+      "--no-data",
+      "--show-original-ids",
+      "--ancestry-path=22e86c8567407eee1ce7b8e4cd709ea8d13c3e10",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid 281467d1ba2cbda7652e46e1d24a2da1fdd911c0\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\n\ncommit refs/heads/D\nmark :2\noriginal-oid bdc5d7cc92429155f36702ff953f2642e7cca349\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :1\n\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid 9d5f5cac95e958844538f24bf09ec463b911ce1c\nauthor Spec Author <spec@example.invalid> 1700050060 +0000\ncommitter Spec Author <spec@example.invalid> 1700050060 +0000\ndata 2\nB\n\ncommit refs/heads/D\nmark :2\noriginal-oid 281467d1ba2cbda7652e46e1d24a2da1fdd911c0\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\nfrom :1\n\ncommit refs/heads/D\nmark :3\noriginal-oid bdc5d7cc92429155f36702ff953f2642e7cca349\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :2\n\n",
+      "stderr": ""
+    },
+    "exact": false
+  },
+  {
+    "format": "sha1",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha1",
+    "args": [
+      "fast-export",
+      "--no-data",
+      "--show-original-ids",
+      "--ancestry-path=tag-C^{commit}",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid 9d5f5cac95e958844538f24bf09ec463b911ce1c\nauthor Spec Author <spec@example.invalid> 1700050060 +0000\ncommitter Spec Author <spec@example.invalid> 1700050060 +0000\ndata 2\nB\n\ncommit refs/heads/D\nmark :2\noriginal-oid 281467d1ba2cbda7652e46e1d24a2da1fdd911c0\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\nfrom :1\n\ncommit refs/heads/D\nmark :3\noriginal-oid bdc5d7cc92429155f36702ff953f2642e7cca349\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :2\n\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid 9d5f5cac95e958844538f24bf09ec463b911ce1c\nauthor Spec Author <spec@example.invalid> 1700050060 +0000\ncommitter Spec Author <spec@example.invalid> 1700050060 +0000\ndata 2\nB\n\ncommit refs/heads/D\nmark :2\noriginal-oid 281467d1ba2cbda7652e46e1d24a2da1fdd911c0\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\nfrom :1\n\ncommit refs/heads/D\nmark :3\noriginal-oid bdc5d7cc92429155f36702ff953f2642e7cca349\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :2\n\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha1",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha1",
+    "args": [
+      "fast-export",
+      "--no-data",
+      "--show-original-ids",
+      "--ancestry-path=tag-C^0",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid 9d5f5cac95e958844538f24bf09ec463b911ce1c\nauthor Spec Author <spec@example.invalid> 1700050060 +0000\ncommitter Spec Author <spec@example.invalid> 1700050060 +0000\ndata 2\nB\n\ncommit refs/heads/D\nmark :2\noriginal-oid 281467d1ba2cbda7652e46e1d24a2da1fdd911c0\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\nfrom :1\n\ncommit refs/heads/D\nmark :3\noriginal-oid bdc5d7cc92429155f36702ff953f2642e7cca349\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :2\n\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid 9d5f5cac95e958844538f24bf09ec463b911ce1c\nauthor Spec Author <spec@example.invalid> 1700050060 +0000\ncommitter Spec Author <spec@example.invalid> 1700050060 +0000\ndata 2\nB\n\ncommit refs/heads/D\nmark :2\noriginal-oid 281467d1ba2cbda7652e46e1d24a2da1fdd911c0\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\nfrom :1\n\ncommit refs/heads/D\nmark :3\noriginal-oid bdc5d7cc92429155f36702ff953f2642e7cca349\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :2\n\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha1",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha1",
+    "args": [
+      "fast-export",
+      "--no-data",
+      "--show-original-ids",
+      "--ancestry-path=tag-C",
+      "--ancestry-path",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid 9d5f5cac95e958844538f24bf09ec463b911ce1c\nauthor Spec Author <spec@example.invalid> 1700050060 +0000\ncommitter Spec Author <spec@example.invalid> 1700050060 +0000\ndata 2\nB\n\ncommit refs/heads/D\nmark :2\noriginal-oid 281467d1ba2cbda7652e46e1d24a2da1fdd911c0\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\nfrom :1\n\ncommit refs/heads/D\nmark :3\noriginal-oid bdc5d7cc92429155f36702ff953f2642e7cca349\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :2\n\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid 9d5f5cac95e958844538f24bf09ec463b911ce1c\nauthor Spec Author <spec@example.invalid> 1700050060 +0000\ncommitter Spec Author <spec@example.invalid> 1700050060 +0000\ndata 2\nB\n\ncommit refs/heads/D\nmark :2\noriginal-oid 281467d1ba2cbda7652e46e1d24a2da1fdd911c0\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\nfrom :1\n\ncommit refs/heads/D\nmark :3\noriginal-oid bdc5d7cc92429155f36702ff953f2642e7cca349\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :2\n\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha1",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha1",
+    "args": [
+      "fast-export",
+      "--no-data",
+      "--show-original-ids",
+      "--ancestry-path",
+      "--ancestry-path=tag-C",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid 9d5f5cac95e958844538f24bf09ec463b911ce1c\nauthor Spec Author <spec@example.invalid> 1700050060 +0000\ncommitter Spec Author <spec@example.invalid> 1700050060 +0000\ndata 2\nB\n\ncommit refs/heads/D\nmark :2\noriginal-oid 281467d1ba2cbda7652e46e1d24a2da1fdd911c0\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\nfrom :1\n\ncommit refs/heads/D\nmark :3\noriginal-oid bdc5d7cc92429155f36702ff953f2642e7cca349\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :2\n\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid 9d5f5cac95e958844538f24bf09ec463b911ce1c\nauthor Spec Author <spec@example.invalid> 1700050060 +0000\ncommitter Spec Author <spec@example.invalid> 1700050060 +0000\ndata 2\nB\n\ncommit refs/heads/D\nmark :2\noriginal-oid 281467d1ba2cbda7652e46e1d24a2da1fdd911c0\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\nfrom :1\n\ncommit refs/heads/D\nmark :3\noriginal-oid bdc5d7cc92429155f36702ff953f2642e7cca349\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :2\n\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha1",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha1",
+    "args": [
+      "fast-export",
+      "--no-data",
+      "--show-original-ids",
+      "--ancestry-path=tag-C",
+      "--ancestry-path=C",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid 9d5f5cac95e958844538f24bf09ec463b911ce1c\nauthor Spec Author <spec@example.invalid> 1700050060 +0000\ncommitter Spec Author <spec@example.invalid> 1700050060 +0000\ndata 2\nB\n\ncommit refs/heads/D\nmark :2\noriginal-oid 281467d1ba2cbda7652e46e1d24a2da1fdd911c0\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\nfrom :1\n\ncommit refs/heads/D\nmark :3\noriginal-oid bdc5d7cc92429155f36702ff953f2642e7cca349\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :2\n\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid 9d5f5cac95e958844538f24bf09ec463b911ce1c\nauthor Spec Author <spec@example.invalid> 1700050060 +0000\ncommitter Spec Author <spec@example.invalid> 1700050060 +0000\ndata 2\nB\n\ncommit refs/heads/D\nmark :2\noriginal-oid 281467d1ba2cbda7652e46e1d24a2da1fdd911c0\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\nfrom :1\n\ncommit refs/heads/D\nmark :3\noriginal-oid bdc5d7cc92429155f36702ff953f2642e7cca349\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :2\n\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha1",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha1",
+    "args": [
+      "fast-export",
+      "--no-data",
+      "--show-original-ids",
+      "--ancestry-path=C",
+      "--ancestry-path=tag-C",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid 9d5f5cac95e958844538f24bf09ec463b911ce1c\nauthor Spec Author <spec@example.invalid> 1700050060 +0000\ncommitter Spec Author <spec@example.invalid> 1700050060 +0000\ndata 2\nB\n\ncommit refs/heads/D\nmark :2\noriginal-oid 281467d1ba2cbda7652e46e1d24a2da1fdd911c0\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\nfrom :1\n\ncommit refs/heads/D\nmark :3\noriginal-oid bdc5d7cc92429155f36702ff953f2642e7cca349\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :2\n\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid 9d5f5cac95e958844538f24bf09ec463b911ce1c\nauthor Spec Author <spec@example.invalid> 1700050060 +0000\ncommitter Spec Author <spec@example.invalid> 1700050060 +0000\ndata 2\nB\n\ncommit refs/heads/D\nmark :2\noriginal-oid 281467d1ba2cbda7652e46e1d24a2da1fdd911c0\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\nfrom :1\n\ncommit refs/heads/D\nmark :3\noriginal-oid bdc5d7cc92429155f36702ff953f2642e7cca349\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :2\n\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha256",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha256",
+    "args": [
+      "log",
+      "--format=%s",
+      "--ancestry-path=C",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "D\nC\nB\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "D\nC\nB\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha256",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha256",
+    "args": [
+      "log",
+      "--format=%s",
+      "--ancestry-path=df19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "D\nC\nB\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "D\nC\nB\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha256",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha256",
+    "args": [
+      "log",
+      "--format=%s",
+      "--ancestry-path=tag-C",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "D\nC\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "D\nC\nB\n",
+      "stderr": ""
+    },
+    "exact": false
+  },
+  {
+    "format": "sha256",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha256",
+    "args": [
+      "log",
+      "--format=%s",
+      "--ancestry-path=0dbdc88b942ca22b4fece40ab811e45b266f067f1e125108411aaad2d7d230a7",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "D\nC\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "D\nC\nB\n",
+      "stderr": ""
+    },
+    "exact": false
+  },
+  {
+    "format": "sha256",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha256",
+    "args": [
+      "log",
+      "--format=%s",
+      "--ancestry-path=tag-C^{commit}",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "D\nC\nB\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "D\nC\nB\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha256",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha256",
+    "args": [
+      "log",
+      "--format=%s",
+      "--ancestry-path=tag-C^0",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "D\nC\nB\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "D\nC\nB\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha256",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha256",
+    "args": [
+      "log",
+      "--format=%s",
+      "--ancestry-path=tag-C",
+      "--ancestry-path",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "D\nC\nB\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "D\nC\nB\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha256",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha256",
+    "args": [
+      "log",
+      "--format=%s",
+      "--ancestry-path",
+      "--ancestry-path=tag-C",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "D\nC\nB\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "D\nC\nB\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha256",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha256",
+    "args": [
+      "log",
+      "--format=%s",
+      "--ancestry-path=tag-C",
+      "--ancestry-path=C",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "D\nC\nB\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "D\nC\nB\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha256",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha256",
+    "args": [
+      "log",
+      "--format=%s",
+      "--ancestry-path=C",
+      "--ancestry-path=tag-C",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "D\nC\nB\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "D\nC\nB\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha256",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha256",
+    "args": [
+      "rev-list",
+      "--ancestry-path=C",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\ndf19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\nbc757786e861ffcc0aa2e88a2f88435d79468840691d47cd06e3544adb2f5eaf\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\ndf19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\nbc757786e861ffcc0aa2e88a2f88435d79468840691d47cd06e3544adb2f5eaf\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha256",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha256",
+    "args": [
+      "rev-list",
+      "--ancestry-path=df19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\ndf19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\nbc757786e861ffcc0aa2e88a2f88435d79468840691d47cd06e3544adb2f5eaf\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\ndf19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\nbc757786e861ffcc0aa2e88a2f88435d79468840691d47cd06e3544adb2f5eaf\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha256",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha256",
+    "args": [
+      "rev-list",
+      "--ancestry-path=tag-C",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\ndf19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\ndf19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\nbc757786e861ffcc0aa2e88a2f88435d79468840691d47cd06e3544adb2f5eaf\n",
+      "stderr": ""
+    },
+    "exact": false
+  },
+  {
+    "format": "sha256",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha256",
+    "args": [
+      "rev-list",
+      "--ancestry-path=0dbdc88b942ca22b4fece40ab811e45b266f067f1e125108411aaad2d7d230a7",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\ndf19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\ndf19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\nbc757786e861ffcc0aa2e88a2f88435d79468840691d47cd06e3544adb2f5eaf\n",
+      "stderr": ""
+    },
+    "exact": false
+  },
+  {
+    "format": "sha256",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha256",
+    "args": [
+      "rev-list",
+      "--ancestry-path=tag-C^{commit}",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\ndf19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\nbc757786e861ffcc0aa2e88a2f88435d79468840691d47cd06e3544adb2f5eaf\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\ndf19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\nbc757786e861ffcc0aa2e88a2f88435d79468840691d47cd06e3544adb2f5eaf\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha256",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha256",
+    "args": [
+      "rev-list",
+      "--ancestry-path=tag-C^0",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\ndf19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\nbc757786e861ffcc0aa2e88a2f88435d79468840691d47cd06e3544adb2f5eaf\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\ndf19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\nbc757786e861ffcc0aa2e88a2f88435d79468840691d47cd06e3544adb2f5eaf\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha256",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha256",
+    "args": [
+      "rev-list",
+      "--ancestry-path=tag-C",
+      "--ancestry-path",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\ndf19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\nbc757786e861ffcc0aa2e88a2f88435d79468840691d47cd06e3544adb2f5eaf\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\ndf19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\nbc757786e861ffcc0aa2e88a2f88435d79468840691d47cd06e3544adb2f5eaf\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha256",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha256",
+    "args": [
+      "rev-list",
+      "--ancestry-path",
+      "--ancestry-path=tag-C",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\ndf19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\nbc757786e861ffcc0aa2e88a2f88435d79468840691d47cd06e3544adb2f5eaf\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\ndf19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\nbc757786e861ffcc0aa2e88a2f88435d79468840691d47cd06e3544adb2f5eaf\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha256",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha256",
+    "args": [
+      "rev-list",
+      "--ancestry-path=tag-C",
+      "--ancestry-path=C",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\ndf19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\nbc757786e861ffcc0aa2e88a2f88435d79468840691d47cd06e3544adb2f5eaf\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\ndf19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\nbc757786e861ffcc0aa2e88a2f88435d79468840691d47cd06e3544adb2f5eaf\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha256",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha256",
+    "args": [
+      "rev-list",
+      "--ancestry-path=C",
+      "--ancestry-path=tag-C",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\ndf19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\nbc757786e861ffcc0aa2e88a2f88435d79468840691d47cd06e3544adb2f5eaf\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\ndf19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\nbc757786e861ffcc0aa2e88a2f88435d79468840691d47cd06e3544adb2f5eaf\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha256",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha256",
+    "args": [
+      "fast-export",
+      "--no-data",
+      "--show-original-ids",
+      "--ancestry-path=C",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid bc757786e861ffcc0aa2e88a2f88435d79468840691d47cd06e3544adb2f5eaf\nauthor Spec Author <spec@example.invalid> 1700050060 +0000\ncommitter Spec Author <spec@example.invalid> 1700050060 +0000\ndata 2\nB\n\ncommit refs/heads/D\nmark :2\noriginal-oid df19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\nfrom :1\n\ncommit refs/heads/D\nmark :3\noriginal-oid 395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :2\n\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid bc757786e861ffcc0aa2e88a2f88435d79468840691d47cd06e3544adb2f5eaf\nauthor Spec Author <spec@example.invalid> 1700050060 +0000\ncommitter Spec Author <spec@example.invalid> 1700050060 +0000\ndata 2\nB\n\ncommit refs/heads/D\nmark :2\noriginal-oid df19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\nfrom :1\n\ncommit refs/heads/D\nmark :3\noriginal-oid 395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :2\n\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha256",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha256",
+    "args": [
+      "fast-export",
+      "--no-data",
+      "--show-original-ids",
+      "--ancestry-path=df19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid bc757786e861ffcc0aa2e88a2f88435d79468840691d47cd06e3544adb2f5eaf\nauthor Spec Author <spec@example.invalid> 1700050060 +0000\ncommitter Spec Author <spec@example.invalid> 1700050060 +0000\ndata 2\nB\n\ncommit refs/heads/D\nmark :2\noriginal-oid df19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\nfrom :1\n\ncommit refs/heads/D\nmark :3\noriginal-oid 395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :2\n\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid bc757786e861ffcc0aa2e88a2f88435d79468840691d47cd06e3544adb2f5eaf\nauthor Spec Author <spec@example.invalid> 1700050060 +0000\ncommitter Spec Author <spec@example.invalid> 1700050060 +0000\ndata 2\nB\n\ncommit refs/heads/D\nmark :2\noriginal-oid df19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\nfrom :1\n\ncommit refs/heads/D\nmark :3\noriginal-oid 395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :2\n\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha256",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha256",
+    "args": [
+      "fast-export",
+      "--no-data",
+      "--show-original-ids",
+      "--ancestry-path=tag-C",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid df19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\n\ncommit refs/heads/D\nmark :2\noriginal-oid 395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :1\n\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid bc757786e861ffcc0aa2e88a2f88435d79468840691d47cd06e3544adb2f5eaf\nauthor Spec Author <spec@example.invalid> 1700050060 +0000\ncommitter Spec Author <spec@example.invalid> 1700050060 +0000\ndata 2\nB\n\ncommit refs/heads/D\nmark :2\noriginal-oid df19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\nfrom :1\n\ncommit refs/heads/D\nmark :3\noriginal-oid 395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :2\n\n",
+      "stderr": ""
+    },
+    "exact": false
+  },
+  {
+    "format": "sha256",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha256",
+    "args": [
+      "fast-export",
+      "--no-data",
+      "--show-original-ids",
+      "--ancestry-path=0dbdc88b942ca22b4fece40ab811e45b266f067f1e125108411aaad2d7d230a7",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid df19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\n\ncommit refs/heads/D\nmark :2\noriginal-oid 395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :1\n\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid bc757786e861ffcc0aa2e88a2f88435d79468840691d47cd06e3544adb2f5eaf\nauthor Spec Author <spec@example.invalid> 1700050060 +0000\ncommitter Spec Author <spec@example.invalid> 1700050060 +0000\ndata 2\nB\n\ncommit refs/heads/D\nmark :2\noriginal-oid df19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\nfrom :1\n\ncommit refs/heads/D\nmark :3\noriginal-oid 395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :2\n\n",
+      "stderr": ""
+    },
+    "exact": false
+  },
+  {
+    "format": "sha256",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha256",
+    "args": [
+      "fast-export",
+      "--no-data",
+      "--show-original-ids",
+      "--ancestry-path=tag-C^{commit}",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid bc757786e861ffcc0aa2e88a2f88435d79468840691d47cd06e3544adb2f5eaf\nauthor Spec Author <spec@example.invalid> 1700050060 +0000\ncommitter Spec Author <spec@example.invalid> 1700050060 +0000\ndata 2\nB\n\ncommit refs/heads/D\nmark :2\noriginal-oid df19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\nfrom :1\n\ncommit refs/heads/D\nmark :3\noriginal-oid 395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :2\n\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid bc757786e861ffcc0aa2e88a2f88435d79468840691d47cd06e3544adb2f5eaf\nauthor Spec Author <spec@example.invalid> 1700050060 +0000\ncommitter Spec Author <spec@example.invalid> 1700050060 +0000\ndata 2\nB\n\ncommit refs/heads/D\nmark :2\noriginal-oid df19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\nfrom :1\n\ncommit refs/heads/D\nmark :3\noriginal-oid 395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :2\n\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha256",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha256",
+    "args": [
+      "fast-export",
+      "--no-data",
+      "--show-original-ids",
+      "--ancestry-path=tag-C^0",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid bc757786e861ffcc0aa2e88a2f88435d79468840691d47cd06e3544adb2f5eaf\nauthor Spec Author <spec@example.invalid> 1700050060 +0000\ncommitter Spec Author <spec@example.invalid> 1700050060 +0000\ndata 2\nB\n\ncommit refs/heads/D\nmark :2\noriginal-oid df19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\nfrom :1\n\ncommit refs/heads/D\nmark :3\noriginal-oid 395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :2\n\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid bc757786e861ffcc0aa2e88a2f88435d79468840691d47cd06e3544adb2f5eaf\nauthor Spec Author <spec@example.invalid> 1700050060 +0000\ncommitter Spec Author <spec@example.invalid> 1700050060 +0000\ndata 2\nB\n\ncommit refs/heads/D\nmark :2\noriginal-oid df19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\nfrom :1\n\ncommit refs/heads/D\nmark :3\noriginal-oid 395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :2\n\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha256",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha256",
+    "args": [
+      "fast-export",
+      "--no-data",
+      "--show-original-ids",
+      "--ancestry-path=tag-C",
+      "--ancestry-path",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid bc757786e861ffcc0aa2e88a2f88435d79468840691d47cd06e3544adb2f5eaf\nauthor Spec Author <spec@example.invalid> 1700050060 +0000\ncommitter Spec Author <spec@example.invalid> 1700050060 +0000\ndata 2\nB\n\ncommit refs/heads/D\nmark :2\noriginal-oid df19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\nfrom :1\n\ncommit refs/heads/D\nmark :3\noriginal-oid 395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :2\n\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid bc757786e861ffcc0aa2e88a2f88435d79468840691d47cd06e3544adb2f5eaf\nauthor Spec Author <spec@example.invalid> 1700050060 +0000\ncommitter Spec Author <spec@example.invalid> 1700050060 +0000\ndata 2\nB\n\ncommit refs/heads/D\nmark :2\noriginal-oid df19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\nfrom :1\n\ncommit refs/heads/D\nmark :3\noriginal-oid 395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :2\n\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha256",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha256",
+    "args": [
+      "fast-export",
+      "--no-data",
+      "--show-original-ids",
+      "--ancestry-path",
+      "--ancestry-path=tag-C",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid bc757786e861ffcc0aa2e88a2f88435d79468840691d47cd06e3544adb2f5eaf\nauthor Spec Author <spec@example.invalid> 1700050060 +0000\ncommitter Spec Author <spec@example.invalid> 1700050060 +0000\ndata 2\nB\n\ncommit refs/heads/D\nmark :2\noriginal-oid df19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\nfrom :1\n\ncommit refs/heads/D\nmark :3\noriginal-oid 395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :2\n\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid bc757786e861ffcc0aa2e88a2f88435d79468840691d47cd06e3544adb2f5eaf\nauthor Spec Author <spec@example.invalid> 1700050060 +0000\ncommitter Spec Author <spec@example.invalid> 1700050060 +0000\ndata 2\nB\n\ncommit refs/heads/D\nmark :2\noriginal-oid df19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\nfrom :1\n\ncommit refs/heads/D\nmark :3\noriginal-oid 395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :2\n\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha256",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha256",
+    "args": [
+      "fast-export",
+      "--no-data",
+      "--show-original-ids",
+      "--ancestry-path=tag-C",
+      "--ancestry-path=C",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid bc757786e861ffcc0aa2e88a2f88435d79468840691d47cd06e3544adb2f5eaf\nauthor Spec Author <spec@example.invalid> 1700050060 +0000\ncommitter Spec Author <spec@example.invalid> 1700050060 +0000\ndata 2\nB\n\ncommit refs/heads/D\nmark :2\noriginal-oid df19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\nfrom :1\n\ncommit refs/heads/D\nmark :3\noriginal-oid 395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :2\n\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid bc757786e861ffcc0aa2e88a2f88435d79468840691d47cd06e3544adb2f5eaf\nauthor Spec Author <spec@example.invalid> 1700050060 +0000\ncommitter Spec Author <spec@example.invalid> 1700050060 +0000\ndata 2\nB\n\ncommit refs/heads/D\nmark :2\noriginal-oid df19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\nfrom :1\n\ncommit refs/heads/D\nmark :3\noriginal-oid 395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :2\n\n",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "format": "sha256",
+    "repo": "/workspace/scratch/717c1db38a84/ancestry-tag-minimal-sha256",
+    "args": [
+      "fast-export",
+      "--no-data",
+      "--show-original-ids",
+      "--ancestry-path=C",
+      "--ancestry-path=tag-C",
+      "A..D"
+    ],
+    "stdin": null,
+    "oracle": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid bc757786e861ffcc0aa2e88a2f88435d79468840691d47cd06e3544adb2f5eaf\nauthor Spec Author <spec@example.invalid> 1700050060 +0000\ncommitter Spec Author <spec@example.invalid> 1700050060 +0000\ndata 2\nB\n\ncommit refs/heads/D\nmark :2\noriginal-oid df19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\nfrom :1\n\ncommit refs/heads/D\nmark :3\noriginal-oid 395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :2\n\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "status": 0,
+      "stdout": "commit refs/heads/D\nmark :1\noriginal-oid bc757786e861ffcc0aa2e88a2f88435d79468840691d47cd06e3544adb2f5eaf\nauthor Spec Author <spec@example.invalid> 1700050060 +0000\ncommitter Spec Author <spec@example.invalid> 1700050060 +0000\ndata 2\nB\n\ncommit refs/heads/D\nmark :2\noriginal-oid df19e8116dc2cdb3b35b4d0166ae1dfb13bb251bf49933ed4000a4795dc59638\nauthor Spec Author <spec@example.invalid> 1700050120 +0000\ncommitter Spec Author <spec@example.invalid> 1700050120 +0000\ndata 2\nC\nfrom :1\n\ncommit refs/heads/D\nmark :3\noriginal-oid 395e07bebdc401a4d13e410fa1e41926f2b1fa290088f82799b57a33a2cbd0de\nauthor Spec Author <spec@example.invalid> 1700050180 +0000\ncommitter Spec Author <spec@example.invalid> 1700050180 +0000\ndata 2\nD\nfrom :2\n\n",
+      "stderr": ""
+    },
+    "exact": true
+  }
+]

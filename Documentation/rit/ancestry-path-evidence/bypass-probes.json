@@ -1,0 +1,78 @@
+[
+  {
+    "args": [
+      "rev-list",
+      "--topo-order",
+      "--ancestry-path",
+      "CB..BC"
+    ],
+    "git": {
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "rit": {
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "args": [
+      "rev-list",
+      "--format=%s",
+      "--ancestry-path",
+      "CB..BC"
+    ],
+    "git": {
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "rit": {
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "exact": true
+  },
+  {
+    "args": [
+      "rev-list",
+      "--count",
+      "--ancestry-path",
+      "CB..BC"
+    ],
+    "git": {
+      "exit": 0,
+      "stdout": "0\n",
+      "stderr": ""
+    },
+    "rit": {
+      "exit": 0,
+      "stdout": "1\n",
+      "stderr": ""
+    },
+    "exact": false
+  },
+  {
+    "args": [
+      "log",
+      "--format=%s",
+      "--ancestry-path",
+      "CB..BC"
+    ],
+    "git": {
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "rit": {
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "exact": true
+  }
+]

@@ -163,6 +163,7 @@ pub(crate) fn cmd_rev_list(
             "--simplify-merges" | "--show-pulls" | "--ancestry-path" => {
                 setup_args.push(arg.clone())
             }
+            value if value.starts_with("--ancestry-path=") => setup_args.push(arg.clone()),
             "--sparse" | "--dense" => setup_args.push(arg.clone()),
             "--remove-empty" => {}
             "--exclude-promisor-objects" => exclude_promisor_objects = true,
@@ -490,7 +491,7 @@ pub(crate) fn cmd_rev_list(
             return Err(err);
         }
     }
-    let setup = sley_rev::setup_revisions(
+    let setup = sley_rev::setup_revisions_with_ancestry(
         &setup_args,
         &sley_rev::RevisionSetupContext {
             git_dir: &git_dir,
@@ -892,6 +893,7 @@ pub(crate) fn cmd_rev_list(
         && matches!(object_filter, RevListObjectFilter::None)
         && pathspecs.is_empty()
         && !full_history
+        && !revision_options.ancestry_path
         && !objects
         && !objects_edge
         && disk_usage.is_none()
@@ -1117,6 +1119,24 @@ pub(crate) fn cmd_rev_list(
         (_, RevListOrdering::Date) => rev_list_date_order(selected)?,
         (_, RevListOrdering::AuthorDate) => rev_list_author_date_order(selected)?,
     };
+    // Child decorations use the ordered walk before ancestry/path pruning.
+    // --reverse affects displayed commits later, not these child lists.
+    let limit_ancestry = revision_options.ancestry_path
+        && (walk_mode == RevListWalkMode::Walk || !exclude_tip_oids.is_empty());
+    let ancestry_children = (children && limit_ancestry).then(|| {
+        let mut records = selected.clone();
+        records.reverse();
+        records
+    });
+    // Resolve ancestry on the nonexcluded graph before output predicates.
+    if limit_ancestry {
+        let on_path = sley_rev::ancestry_path_related_on_set(
+            commits.iter().filter(|r| !excluded.contains(&r.oid))
+                .map(|r| (r.oid, r.parents.clone())),
+            &revision_options.ancestry_path_anchors,
+        );
+        selected.retain(|r| on_path.contains(&r.oid));
+    }
     if bisect {
         // git runs `find_bisection` on the limited commit list (date-ordered,
         // newest-first) and replaces the output with the bisection result.
@@ -1129,16 +1149,6 @@ pub(crate) fn cmd_rev_list(
             bisect_all,
             first_parent,
         );
-    }
-    // `--ancestry-path`: keep only commits on a path from a `^`-excluded
-    // boundary (bottom) commit up to the tips. Applied before simplification,
-    // matching git's `limit_to_ancestry` (which runs in `limit_list`).
-    if revision_options.ancestry_path && !exclude_tip_oids.is_empty() {
-        let on_path = sley_rev::ancestry_path_on_set(
-            selected.iter().map(|r| (r.oid, r.parents.clone())),
-            &exclude_tip_oids,
-        );
-        selected.retain(|r| on_path.contains(&r.oid));
     }
     // Pathspec-limited / --full-history simplification: TREESAME-prune the
     // ordered set and rewrite parents past the dropped commits. Held in an
@@ -1405,7 +1415,7 @@ pub(crate) fn cmd_rev_list(
             .iter()
             .map(|record| record.oid)
             .collect::<HashSet<_>>();
-        for record in &selected {
+        for record in ancestry_children.as_ref().unwrap_or(&selected) {
             for parent in &record.parents {
                 if selected_oids.contains(parent) {
                     child_oids.entry(*parent).or_default().push(record.oid);
@@ -2472,6 +2482,7 @@ fn validate_rev_list_stdin_args(args: &[String]) -> Result<()> {
             | "--ancestry-path" => {}
             value
                 if value.starts_with("--glob=")
+                    || value.starts_with("--ancestry-path=")
                     || value.starts_with("--exclude=")
                     || value.starts_with("--exclude-hidden=")
                     || value.starts_with("--branches=")

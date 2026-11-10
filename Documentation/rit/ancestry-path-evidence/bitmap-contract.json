@@ -1,0 +1,121 @@
+[
+  {
+    "args": [
+      "rev-list",
+      "--count",
+      "--ancestry-path",
+      "CB..BC"
+    ],
+    "oracle": {
+      "exit": 0,
+      "stdout": "0\n",
+      "stderr": ""
+    },
+    "baseline": {
+      "exit": 0,
+      "stdout": "1\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "exit": 0,
+      "stdout": "0\n",
+      "stderr": ""
+    }
+  },
+  {
+    "args": [
+      "rev-list",
+      "--use-bitmap-index",
+      "--count",
+      "--ancestry-path",
+      "CB..BC"
+    ],
+    "oracle": {
+      "exit": 0,
+      "stdout": "1\n",
+      "stderr": ""
+    },
+    "baseline": {
+      "exit": 0,
+      "stdout": "1\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "exit": 0,
+      "stdout": "0\n",
+      "stderr": ""
+    }
+  },
+  {
+    "args": [
+      "rev-list",
+      "--use-bitmap-index",
+      "--count",
+      "--ancestry-path=B",
+      "A..BC"
+    ],
+    "oracle": {
+      "exit": 0,
+      "stdout": "3\n",
+      "stderr": ""
+    },
+    "baseline": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "git: command failed: unsupported rev-list option --ancestry-path=B\n"
+    },
+    "candidate": {
+      "exit": 0,
+      "stdout": "2\n",
+      "stderr": ""
+    }
+  },
+  {
+    "args": [
+      "rev-list",
+      "--use-bitmap-index",
+      "--objects",
+      "--count",
+      "--ancestry-path=B",
+      "A..BC"
+    ],
+    "oracle": {
+      "exit": 0,
+      "stdout": "3\n",
+      "stderr": ""
+    },
+    "baseline": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "git: command failed: unsupported rev-list option --ancestry-path=B\n"
+    },
+    "candidate": {
+      "exit": 0,
+      "stdout": "2\n",
+      "stderr": ""
+    }
+  },
+  {
+    "args": [
+      "rev-list",
+      "--use-bitmap-index",
+      "--ancestry-path",
+      "CB..BC"
+    ],
+    "oracle": {
+      "exit": 0,
+      "stdout": "bd1466281bfa1b647a1003b895a96d60d4a347f8\n",
+      "stderr": ""
+    },
+    "baseline": {
+      "exit": 0,
+      "stdout": "bd1466281bfa1b647a1003b895a96d60d4a347f8\n",
+      "stderr": ""
+    },
+    "candidate": {
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  }
+]

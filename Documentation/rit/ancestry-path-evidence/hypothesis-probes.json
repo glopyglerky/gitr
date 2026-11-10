@@ -1,0 +1,54 @@
+[
+  {
+    "args": [
+      "rev-list",
+      "--ancestry-path",
+      "B..BC"
+    ],
+    "git": {
+      "exit": 0,
+      "stdout": "bd1466281bfa1b647a1003b895a96d60d4a347f8\n",
+      "stderr": ""
+    },
+    "rit": {
+      "exit": 0,
+      "stdout": "bd1466281bfa1b647a1003b895a96d60d4a347f8\na3e0adb704d79e7c3ce7d0c5f72bfdb1bfcba46c\n",
+      "stderr": ""
+    }
+  },
+  {
+    "args": [
+      "rev-list",
+      "--ancestry-path=B",
+      "A..BC"
+    ],
+    "git": {
+      "exit": 0,
+      "stdout": "bd1466281bfa1b647a1003b895a96d60d4a347f8\na37b283a1e4978da658ab51b1f6f9870bd234ca4\n",
+      "stderr": ""
+    },
+    "rit": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "git: command failed: unsupported rev-list option --ancestry-path=B\n"
+    }
+  },
+  {
+    "args": [
+      "log",
+      "--format=%s",
+      "--ancestry-path",
+      "B..BC"
+    ],
+    "git": {
+      "exit": 0,
+      "stdout": "BC\n",
+      "stderr": ""
+    },
+    "rit": {
+      "exit": 0,
+      "stdout": "BC\n",
+      "stderr": ""
+    }
+  }
+]

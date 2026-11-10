@@ -1,0 +1,67 @@
+ok 1 - setup
+ok 2 - log 
+ok 3 - log 
+ok 4 - log --topo-order
+ok 5 - log -- file
+ok 6 - log --parents -- file
+ok 7 - log --full-history -- file
+ok 8 - log --full-history --parents -- file
+ok 9 - log --simplify-merges -- file
+ok 10 - log --first-parent
+ok 11 - log --first-parent -- file
+ok 12 - log F..M
+ok 13 - log F..M --topo-order
+ok 14 - log F..M -- file
+ok 15 - log --parents F..M -- file
+ok 16 - log F..M --full-history -- file
+ok 17 - log F..M --full-history --parents -- file
+ok 18 - log F..M --simplify-merges -- file
+ok 19 - log F..M --ancestry-path
+ok 20 - log F..M --ancestry-path -- file
+ok 21 - log F..M --ancestry-path --parents -- file
+ok 22 - log F..M --ancestry-path --simplify-merges -- file
+ok 23 - log F..M --first-parent
+ok 24 - log F..M --first-parent -- file
+ok 25 - log E..M --ancestry-path
+ok 26 - log E..M --ancestry-path -- file
+ok 27 - log E..M --ancestry-path --parents -- file
+ok 28 - log E..M --ancestry-path --simplify-merges -- file
+ok 29 - log G..M
+ok 30 - log G..M --topo-order
+ok 31 - log G..M -- file
+ok 32 - log G..M --parents -- file
+ok 33 - log G..M --full-history -- file
+ok 34 - log G..M --full-history --parents -- file
+ok 35 - log G..M --simplify-merges -- file
+ok 36 - log G..M --ancestry-path
+ok 37 - log G..M --ancestry-path -- file
+ok 38 - log G..M --ancestry-path --parents -- file
+ok 39 - log G..M --ancestry-path --simplify-merges -- file
+ok 40 - log B..F
+ok 41 - log B..F -- file
+ok 42 - log B..F --parents -- file
+ok 43 - log B..F --full-history -- file
+ok 44 - log B..F --full-history --parents -- file
+ok 45 - log B..F --simplify-merges -- file
+ok 46 - log B..F --ancestry-path
+ok 47 - log B..F --ancestry-path -- file
+ok 48 - log B..F --ancestry-path --parents -- file
+ok 49 - log B..F --ancestry-path --simplify-merges -- file
+ok 50 - log B..F --first-parent
+ok 51 - log B..F --first-parent -- file
+ok 52 - log E F ^B -- file
+ok 53 - log E...F -- file
+ok 54 - log C..F
+ok 55 - log C..F -- file
+ok 56 - log C..F --parents -- file
+ok 57 - log C..F --full-history -- file
+ok 58 - log C..F --full-history --parents -- file
+ok 59 - log C..F --simplify-merges -- file
+ok 60 - log C..F --ancestry-path
+ok 61 - log C..F --ancestry-path -- file
+ok 62 - log C..F --ancestry-path --parents -- file
+ok 63 - log C..F --ancestry-path --simplify-merges -- file
+ok 64 - log C..F --first-parent
+ok 65 - log C..F --first-parent -- file
+# passed all 65 test(s)
+1..65

@@ -1,0 +1,8 @@
+{
+  "lustr_commit": "6339fbb104d6adda4be7e6be7dc637a6a9e5586b",
+  "lustr_binary_sha256": "3733905caacebf4470bc14029bf7aec0625c727453a46c4e2f6d55057df75350",
+  "rustc_verbose": "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1\n",
+  "reference_git_version": "git version 2.55.0",
+  "reference_git_sha256": "bb7047c1ae5ed48d5cf47084595e7a3be4463ecd177df81ead8bfdba41d7a036",
+  "local_route": "lustr --engine rustc; no produced BlueFe claim"
+}
