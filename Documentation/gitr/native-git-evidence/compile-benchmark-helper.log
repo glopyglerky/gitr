@@ -1,0 +1,5 @@
+program="/home/runner/work/gitr/gitr/.gitr-ci/native-produced-bluefe/bin/rustc"
+arguments=["--sysroot", "/home/runner/work/gitr/gitr/.gitr-ci/native-produced-bluefe", "--edition=2024", "-C", "opt-level=3", "-C", "debuginfo=0", "ci/benchmark_native.rs", "-o", "/home/runner/work/gitr/gitr/.gitr-ci/native-target/gitr-benchmark-native"]
+
+exit=exit status: 0
+elapsed_seconds=0.906

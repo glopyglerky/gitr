@@ -1,0 +1,4 @@
+{"format_version":1,"complete":true,"warmups_per_engine":1,"samples_per_engine":7,"ratio_definition":"gitr_median / git_median; greater than one means slower","summaries":[{"workload":"hash-blob-32mib","git_median_ms":71.984000,"gitr_median_ms":22.954420,"gitr_over_git":0.318882},
+{"workload":"status-1000-files","git_median_ms":1.821752,"gitr_median_ms":4.812936,"gitr_over_git":2.641927},
+{"workload":"log-200-commits","git_median_ms":3.167139,"gitr_median_ms":9.220970,"gitr_over_git":2.911451},
+{"workload":"ls-tree-1000-files","git_median_ms":1.173465,"gitr_median_ms":2.668416,"gitr_over_git":2.273963}]}

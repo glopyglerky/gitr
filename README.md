@@ -18,6 +18,11 @@ storage, catalog and actions. Source coverage and enabled product operations are
 different: reference-changing commands remain disabled until their publication
 paths meet Gitr's expected-old-value transaction contract. See the
 [import decision, exact source lineage and capability boundary](Documentation/gitr/rust-git-import.md).
+The [executed native qualification](Documentation/gitr/native-git-qualification.md)
+passed 146 root tests and 705 imported tests through produced BlueFe/Lustr. Its
+four-workload release benchmark found faster blob hashing and slower status, log
+and tree listing than reference Git; exact samples and limits are retained.
+
 The inherited C Git build,
 production sources and unused upstream shell corpus have been retired from the
 working tree; their exact recovery point remains in Git history. The GitHub fork

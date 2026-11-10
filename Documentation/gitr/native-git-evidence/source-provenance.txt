@@ -1,0 +1,6 @@
+bluefe=7005dc02c9fb6674380eade443022bbc04215276
+lustr=6339fbb104d6adda4be7e6be7dc637a6a9e5586b
+stage0=1c3a6506966e21845b31de0b075d2527660db132
+host=x86_64-unknown-linux-gnu
+target=wasm32-unknown-unknown
+cargo=upstream-stage0

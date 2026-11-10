@@ -1,0 +1,1337 @@
+program="/home/runner/work/gitr/gitr/.gitr-ci/native-produced-bluefe/bin/lustr"
+arguments=["--engine", "rustc", "--bluefe-root", "/home/runner/work/gitr/gitr/.gitr-ci/native-produced-bluefe", "test", "--manifest-path", "vendor/grit/Cargo.toml", "--locked", "--workspace", "--all-features", "--all-targets", "--no-fail-fast"]
+warning: unused workspace dependency `serde`
+  --> Cargo.toml:18:1
+   |
+18 | serde = { version = "1", features = ["derive"] }
+   | ^^^^^
+   |
+   = note: `cargo::unused_workspace_dependencies` is set to `warn` by default
+help: consider removing the workspace dependency `serde`
+warning: unused workspace dependency `serde_json`
+  --> Cargo.toml:19:1
+   |
+19 | serde_json = "1"
+   | ^^^^^^^^^^
+   |
+help: consider removing the workspace dependency `serde_json`
+warning: unused workspace dependency `terminal_size`
+  --> Cargo.toml:20:1
+   |
+20 | terminal_size = "0.4"
+   | ^^^^^^^^^^^^^
+   |
+help: consider removing the workspace dependency `terminal_size`
+warning: workspace (manifest) generated 3 warnings
+    Updating crates.io index
+ Downloading crates ...
+  Downloaded autocfg v1.5.0
+  Downloaded bitflags v2.11.0
+  Downloaded anyhow v1.0.102
+  Downloaded cfg_aliases v0.2.1
+  Downloaded aho-corasick v1.1.4
+  Downloaded deranged v0.5.8
+  Downloaded bstr v1.12.1
+  Downloaded clap_lex v1.1.0
+  Downloaded http v1.4.1
+  Downloaded clap_builder v4.6.0
+  Downloaded displaydoc v0.2.5
+  Downloaded find-msvc-tools v0.1.9
+  Downloaded clap v4.6.0
+  Downloaded flate2 v1.1.9
+  Downloaded http-body v1.0.1
+  Downloaded fastrand v2.3.0
+  Downloaded futures-core v0.3.32
+  Downloaded bytes v1.11.1
+  Downloaded cfg-if v1.0.4
+  Downloaded futures-task v0.3.32
+  Downloaded clap_complete v4.6.5
+  Downloaded clap_derive v4.6.0
+  Downloaded cpufeatures v0.3.0
+  Downloaded futures-channel v0.3.32
+  Downloaded http-body-util v0.1.3
+  Downloaded cc v1.2.59
+  Downloaded getrandom v0.4.2
+  Downloaded futures-util v0.3.32
+  Downloaded icu_normalizer_data v2.2.0
+  Downloaded filetime v0.2.27
+  Downloaded hyper-util v0.1.20
+  Downloaded crc32fast v1.5.0
+  Downloaded yoke v0.8.2
+  Downloaded icu_collections v2.2.0
+  Downloaded ureq-proto v0.6.0
+  Downloaded idna_adapter v1.2.1
+  Downloaded litemap v0.8.2
+  Downloaded encoding_rs v0.8.35
+  Downloaded icu_properties_data v2.2.0
+  Downloaded simd-adler32 v0.3.9
+  Downloaded socket2 v0.6.4
+  Downloaded similar v3.1.1
+  Downloaded proc-macro2 v1.0.106
+  Downloaded icu_normalizer v2.2.0
+  Downloaded zerofrom-derive v0.1.7
+  Downloaded powerfmt v0.2.0
+  Downloaded shlex v1.3.0
+  Downloaded smallvec v1.15.1
+  Downloaded potential_utf v0.1.5
+  Downloaded hybrid-array v0.4.12
+  Downloaded thiserror-impl v2.0.18
+  Downloaded rustls-pki-types v1.14.0
+  Downloaded synstructure v0.13.2
+  Downloaded time-macros v0.2.27
+  Downloaded tinystr v0.8.3
+  Downloaded writeable v0.6.3
+  Downloaded zerotrie v0.2.4
+  Downloaded mime v0.3.17
+  Downloaded quote v1.0.45
+  Downloaded miniz_oxide v0.8.9
+  Downloaded time-core v0.1.8
+  Downloaded utf16_iter v1.0.5
+  Downloaded utf8_iter v1.0.4
+  Downloaded num-integer v0.1.46
+  Downloaded zerofrom v0.1.7
+  Downloaded merge3 v0.2.0
+  Downloaded zerovec-derive v0.11.3
+  Downloaded sha2 v0.11.0
+  Downloaded yoke-derive v0.8.2
+  Downloaded icu_properties v2.2.0
+  Downloaded mio v1.2.1
+  Downloaded num-conv v0.2.1
+  Downloaded unicode-ident v1.0.24
+  Downloaded serde_core v1.0.228
+  Downloaded thiserror v2.0.18
+  Downloaded zeroize v1.8.2
+  Downloaded zmij v1.0.21
+  Downloaded zerovec v0.11.6
+  Downloaded tokio-macros v2.7.0
+  Downloaded icu_provider v2.2.0
+  Downloaded icu_locale_core v2.2.0
+  Downloaded rustls-webpki v0.103.10
+  Downloaded log v0.4.29
+  Downloaded serde v1.0.228
+  Downloaded memchr v2.8.0
+  Downloaded hyper v1.10.1
+  Downloaded serde_json v1.0.149
+  Downloaded ureq v3.3.0
+  Downloaded regex v1.12.3
+  Downloaded webpki-roots v1.0.6
+  Downloaded time v0.3.47
+  Downloaded rustix v1.1.4
+  Downloaded syn v2.0.117
+  Downloaded unicode-width v0.2.2
+  Downloaded regex-syntax v0.8.10
+  Downloaded rustls v0.23.37
+  Downloaded regex-automata v0.4.14
+  Downloaded libc v0.2.186
+  Downloaded tokio v1.52.3
+   Compiling proc-macro2 v1.0.106
+   Compiling unicode-ident v1.0.24
+   Compiling quote v1.0.45
+   Compiling libc v0.2.186
+   Compiling syn v2.0.117
+   Compiling cfg-if v1.0.4
+   Compiling bytes v1.11.1
+   Compiling smallvec v1.15.1
+   Compiling http v1.4.1
+   Compiling find-msvc-tools v0.1.9
+   Compiling shlex v1.3.0
+   Compiling cc v1.2.59
+   Compiling synstructure v0.13.2
+   Compiling writeable v0.6.3
+   Compiling log v0.4.29
+   Compiling zerofrom-derive v0.1.7
+   Compiling yoke-derive v0.8.2
+   Compiling zerovec-derive v0.11.3
+   Compiling zerofrom v0.1.7
+   Compiling yoke v0.8.2
+   Compiling displaydoc v0.2.5
+   Compiling litemap v0.8.2
+   Compiling zerovec v0.11.6
+   Compiling zerotrie v0.2.4
+   Compiling ring v0.17.14
+   Compiling utf8_iter v1.0.4
+   Compiling tinystr v0.8.3
+   Compiling potential_utf v0.1.5
+   Compiling icu_properties_data v2.2.0
+   Compiling icu_locale_core v2.2.0
+   Compiling memchr v2.8.0
+   Compiling icu_normalizer_data v2.2.0
+   Compiling hybrid-array v0.4.12
+   Compiling icu_provider v2.2.0
+   Compiling icu_collections v2.2.0
+   Compiling rustix v1.1.4
+   Compiling bitflags v2.11.0
+   Compiling zeroize v1.8.2
+   Compiling getrandom v0.4.2
+   Compiling rustls-pki-types v1.14.0
+   Compiling getrandom v0.2.17
+   Compiling utf16_iter v1.0.5
+   Compiling clap_lex v1.1.0
+   Compiling crc32fast v1.5.0
+   Compiling clap_builder v4.6.0
+   Compiling icu_normalizer v2.2.0
+   Compiling clap_derive v4.6.0
+   Compiling icu_properties v2.2.0
+   Compiling block-buffer v0.12.1
+   Compiling crypto-common v0.2.2
+   Compiling cfg_aliases v0.2.1
+   Compiling fastrand v2.3.0
+   Compiling simd-adler32 v0.3.9
+   Compiling rustls v0.23.37
+   Compiling miniz_oxide v0.8.9
+   Compiling digest v0.11.3
+   Compiling tempfile v3.27.0
+   Compiling nix v0.31.3
+   Compiling idna_adapter v1.2.1
+   Compiling clap v4.6.0
+   Compiling rustls-webpki v0.103.10
+   Compiling aho-corasick v1.1.4
+   Compiling regex-syntax v0.8.10
+   Compiling powerfmt v0.2.0
+   Compiling subtle v2.6.1
+   Compiling similar v3.1.1
+   Compiling thiserror v2.0.18
+   Compiling cpufeatures v0.3.0
+   Compiling regex-automata v0.4.14
+   Compiling deranged v0.5.8
+   Compiling ureq-proto v0.6.0
+   Compiling flate2 v1.1.9
+   Compiling idna v1.1.0
+   Compiling webpki-roots v1.0.6
+   Compiling thiserror-impl v2.0.18
+   Compiling time-core v0.1.8
+   Compiling num-conv v0.2.1
+   Compiling time v0.3.47
+   Compiling merge3 v0.2.0
+   Compiling ureq v3.3.0
+   Compiling url v2.5.8
+   Compiling imara-diff v0.2.0
+   Compiling regex v1.12.3
+   Compiling redb v4.5.0
+   Compiling sha1 v0.11.0
+   Compiling sha2 v0.11.0
+   Compiling encoding_rs v0.8.35
+   Compiling filetime v0.2.27
+   Compiling unicode-width v0.2.2
+   Compiling grit-test-support v0.5.0 (/home/runner/work/gitr/gitr/vendor/grit/grit-test-support)
+   Compiling autocfg v1.5.0
+   Compiling futures-core v0.3.32
+   Compiling serde_core v1.0.228
+   Compiling parking_lot_core v0.9.12
+   Compiling num-traits v0.2.19
+   Compiling errno v0.3.14
+   Compiling signal-hook-registry v1.4.8
+   Compiling parking_lot v0.12.5
+   Compiling grit-lib v0.5.0 (/home/runner/work/gitr/gitr/vendor/grit/grit-lib)
+   Compiling tokio-macros v2.7.0
+   Compiling http-body v1.0.1
+   Compiling mio v1.2.1
+   Compiling socket2 v0.6.4
+   Compiling tokio v1.52.3
+   Compiling num-complex v0.2.4
+   Compiling serde v1.0.228
+   Compiling zmij v1.0.21
+   Compiling tracing v0.1.44
+   Compiling futures-channel v0.3.32
+   Compiling futures-task v0.3.32
+   Compiling serde_json v1.0.149
+   Compiling hyper v1.10.1
+   Compiling futures-util v0.3.32
+   Compiling num-integer v0.1.46
+   Compiling http-body-util v0.1.3
+   Compiling mime v0.3.17
+   Compiling anyhow v1.0.102
+   Compiling axum-core v0.5.6
+   Compiling serde_urlencoded v0.7.1
+   Compiling ndarray v0.13.1
+   Compiling tower v0.5.3
+   Compiling hyper-util v0.1.20
+   Compiling serde_path_to_error v0.1.20
+   Compiling grit-git v0.5.0 (/home/runner/work/gitr/gitr/vendor/grit/grit-git)
+   Compiling hungarian v1.1.1
+   Compiling axum v0.8.9
+   Compiling clap_complete v4.6.5
+   Compiling atty v0.2.14
+    Finished `test` profile [unoptimized] target(s) in 2m 15s
+     Running unittests src/main.rs (.gitr-ci/native-target/debug/build/grit-git/98763d3b2937f410/out/grit_git-98763d3b2937f410)
+
+running 46 tests
+test commands::add_interactive::tests::apply_selection_in_range_out_of_range_single_item_no_panic ... ok
+test bundle_uri::tests::sort_token_bundles_desc_preserves_equal_token_relative_order ... ok
+test commands::add_interactive::tests::apply_selection_in_range_selects_in_bounds ... ok
+test commands::add_interactive::tests::parse_range_single_digit_beyond_list_end ... ok
+test commands::diff_files::stat_fast_path_tests::matching_racy_metadata_reads_content ... ok
+test commands::diff_files::stat_fast_path_tests::mismatching_ctime_reads_content ... ok
+test commands::diff_files::stat_fast_path_tests::stat_matching_regular_file_skips_content_hash ... ok
+test commands::init::safety_tests::incomplete_repository_keeps_objects_and_recovery_data ... ok
+test commands::ls_remote::parse_v2_ls_refs_tests::parse_v2_ls_refs_keeps_head_and_drops_traversal ... ok
+test commands::multi_pack_index::tests::verify_accepts_minimal_v1_header ... ok
+test commands::multi_pack_index::tests::verify_rejects_too_short ... ok
+test commands::push::checked_push_tests::every_sent_ref_requires_one_explicit_acknowledgement ... ok
+test commands::init::safety_tests::templates_and_stale_fresh_init_do_not_replace_existing_head ... ok
+test commands::receive_pack::checked::tests::command_parser_rejects_lossy_truncated_duplicate_and_atomic_input ... ok
+test commands::receive_pack::checked::tests::command_parser_requires_hex_headers_and_single_line_commands ... ok
+test commands::receive_pack::checked::tests::delta_preflight_rejects_expansion_beyond_declared_target ... ok
+test commands::receive_pack::checked::tests::pack_preflight_checks_version_and_checksum_before_unpacking ... ok
+test commands::receive_pack::checked::tests::rejected_quarantine_never_publishes_objects_refs_or_redb ... ok
+test commands::restore::path_safety_tests::invalid_symlink_target_does_not_remove_the_destination ... ok
+test commands::sh_i18n_envsubst::tests::subst_replaces_known_var ... ok
+test commands::sh_i18n_envsubst::tests::variables_list ... ok
+test http_smart::parse_v0_v1_advertisement_tests::drops_malicious_traversal_ref ... ok
+test http_smart::parse_v0_v1_advertisement_tests::keeps_valid_head_and_branch ... ok
+test http_smart::parse_v0_v1_advertisement_tests::parse_ls_refs_v2_keeps_head_and_drops_traversal ... ok
+test http_smart::upload_pack_streaming_tests::process_v2_fetch_response_ingests_sideband_pack ... ok
+test http_smart::upload_pack_streaming_tests::sideband_band_three_is_fatal ... ok
+test http_smart::upload_pack_streaming_tests::sideband_without_pack_fails ... ok
+test http_smart::upload_pack_streaming_tests::spooled_upload_pack_sideband_stream_ingests_pack ... ok
+test http_transport::tests::http_timeout_defaults_match_git ... ok
+test http_transport::tests::http_timeout_zero_disables_global ... ok
+test commands::receive_pack::checked::tests::checked_publication_uses_redb_and_preserves_current_branch_and_stale_refs ... ok
+test http_transport::tests::low_speed_only_when_both_configured ... ok
+test http_transport::tests::sideband_fatal_error_on_band_three ... ok
+test http_transport::tests::sideband_missing_pack_is_error ... ok
+test http_transport::tests::spooled_body_round_trips_through_into_vec ... ok
+test path_safety::tests::index_guard_rejects_byte_paths_and_symlink_targets ... ok
+test path_safety::tests::path_budget_rejects_deep_or_excessive_walks ... ok
+test path_safety::tests::tree_preflight_rejects_byte_names_and_symlink_payloads ... ok
+test path_safety::tests::worktree_guard_rejects_byte_names_and_targets_without_changing_files ... ok
+test path_safety::tests::worktree_guard_skips_git_internals_and_does_not_follow_links ... ok
+test read_safety::tests::rejects_effective_programs_without_logging_their_contents ... ok
+test read_safety::tests::respects_disabled_monitor_and_overridden_program ... ok
+test read_safety::tests::signature_program_keys_are_executable_configuration ... ok
+test read_safety::tests::whitespace_does_not_disguise_an_executable_path_as_a_disabled_helper ... ok
+test write_safety::tests::unqualified_reference_writers_fail_closed ... ok
+test http_transport::tests::low_speed_aborts_slow_transfer ... ok
+
+test result: ok. 46 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+     Running unittests src/bin/grit_git.rs (.gitr-ci/native-target/debug/build/grit-git/4beba7c81ebc822a/out/grit_git-4beba7c81ebc822a)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/grit_instaweb.rs (.gitr-ci/native-target/debug/build/grit-git/724a68f5afde3407/out/grit_instaweb-724a68f5afde3407)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/test_httpd.rs (.gitr-ci/native-target/debug/build/grit-git/9980dffca5b23ab7/out/test_httpd-9980dffca5b23ab7)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/checked_local_push.rs (.gitr-ci/native-target/debug/build/grit-git/2e52573978a211b6/out/checked_local_push-2e52573978a211b6)
+
+running 5 tests
+test corrupt_pack_stays_in_owned_quarantine_and_publishes_nothing ... ok
+test accepted_remote_push_does_not_overwrite_a_concurrent_tracking_change ... ok
+test protocol_stale_update_and_delete_are_rejected_but_valid_ref_is_published ... ok
+test native_local_push_creates_advances_and_deletes_with_empty_path ... ok
+test unsupported_atomic_and_receiving_hooks_fail_before_remote_publication ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.36s
+
+     Running tests/checkout_ref_safety.rs (.gitr-ci/native-target/debug/build/grit-git/dff73aa33c111e1b/out/checkout_ref_safety-dff73aa33c111e1b)
+
+running 8 tests
+test competing_head_branch_and_index_locks_fail_before_worktree_changes ... ok
+test force_checkout_still_respects_another_worktrees_branch ... ok
+test held_checkout_guard_rejects_a_real_competing_writer ... ok
+test existing_branch_new_branch_and_detached_checkout_round_trip ... ok
+test original_head_and_destination_expectations_are_checked_under_owned_locks ... ok
+test unborn_new_branch_changes_only_head_and_preserves_staged_content ... ok
+test unsupported_variants_and_dirty_conflicts_fail_without_side_effects ... ok
+test hooks_cannot_race_prepublication_and_post_checkout_edits_are_preserved ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+
+     Running tests/completions.rs (.gitr-ci/native-target/debug/build/grit-git/1776342baeba1b48/out/completions-1776342baeba1b48)
+
+running 4 tests
+test fish_completion_is_well_formed ... ok
+test missing_shell_argument_is_rejected ... ok
+test unknown_shell_is_rejected ... ok
+test all_supported_shells_emit_nonempty_scripts ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.23s
+
+     Running tests/full_name_scope.rs (.gitr-ci/native-target/debug/build/grit-git/49da78bc9bb501fc/out/full_name_scope-49da78bc9bb501fc)
+
+running 5 tests
+test ls_files_full_name_from_subdir_no_pathspec ... ok
+test ls_files_full_name_from_subdir_with_pathspec ... ok
+test ls_tree_full_name_from_subdir_no_pathspec ... ok
+test ls_tree_full_name_from_subdir_with_pathspec ... ok
+test ls_tree_full_name_is_not_full_tree ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests/native_boundary.rs (.gitr-ci/native-target/debug/build/grit-git/8d6fd89eefd2dbed/out/native_boundary-8d6fd89eefd2dbed)
+
+running 9 tests
+test chmtime_uses_native_file_times_and_preserves_access_time ... ok
+test builtin_diff_context_is_computed_without_an_external_grep ... ok
+test inspection_context_survives_alias_directory_and_config_transitions ... ok
+test inspection_alias_chains_cannot_execute_shell_or_dashed_helpers ... ok
+test non_utf8_arguments_fail_before_traces_or_repository_writes ... ok
+test self_update_fails_without_running_an_installer ... ok
+test signature_inspection_never_runs_a_configured_verifier ... ok
+test whitespace_named_monitor_is_not_treated_as_boolean_false ... ok
+test mergetool_requires_an_explicit_command_for_vimdiff ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s
+
+     Running tests/native_ref_safety.rs (.gitr-ci/native-target/debug/build/grit-git/8f83709606843310/out/native_ref_safety-8f83709606843310)
+
+running 1 test
+test tag_verification_never_accepts_armor_without_a_valid_signature ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/pathspec_normalize_root.rs (.gitr-ci/native-target/debug/build/grit-git/d251262f2c54050e/out/pathspec_normalize_root-d251262f2c54050e)
+
+running 3 tests
+test add_dot_slash_colon_bang_filename_does_not_exclude_other_files ... ok
+test command_environment_excludes_host_configuration_but_retains_local_config ... ok
+test add_dot_slash_dash_writes_tree_without_dot_entry ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/receive_pack_funny_ref.rs (.gitr-ci/native-target/debug/build/grit-git/c470b91881689b63/out/receive_pack_funny_ref-c470b91881689b63)
+
+running 2 tests
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: will change to "main" in Git 3.0. To configure the initial branch name
+hint: to use in all of your new repositories, which will suppress this warning,
+hint: call:
+hint:
+hint: 	git config --global init.defaultBranch <name>
+hint:
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint:
+hint: 	git branch -m <name>
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: will change to "main" in Git 3.0. To configure the initial branch name
+hint: to use in all of your new repositories, which will suppress this warning,
+hint: call:
+hint:
+hint: 	git config --global init.defaultBranch <name>
+hint:
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint:
+hint: 	git branch -m <name>
+Initialized empty Git repository in /tmp/.tmpBJKAYp/repo/
+Initialized empty Git repository in /tmp/.tmpwMr7sC/repo/
+test receive_pack_rejects_traversal_ref_delete ... ok
+test receive_pack_funny_ref_skips_reference_transaction_and_update_hooks ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+
+     Running tests/repo_info.rs (.gitr-ci/native-target/debug/build/grit-git/2776c97fdf85f1b4/out/repo_info-2776c97fdf85f1b4)
+
+running 5 tests
+test keys_list_includes_reference_storage_key ... ok
+test all_matches_keys_expansion ... ok
+test legacy_storage_format_key_name_rejected_when_renamed ... ok
+test unknown_key_errors_and_valid_key_still_prints ... ok
+test reference_storage_files_and_reftable ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/sha256_support.rs (.gitr-ci/native-target/debug/build/grit-git/3bef7e567a2e4438/out/sha256_support-3bef7e567a2e4438)
+
+running 21 tests
+test sha256_abbreviated_rev_parse_resolves ... ok
+test sha256_commit_graph_write_and_read ... ok
+test sha256_clone_fetch_push_roundtrip ... ok
+test sha256_commit_produces_sha256_oid_resolvable_by_grit ... ok
+test sha256_diff_raw_modify_and_delete ... ok
+test sha256_diff_raw_null_oid_is_64_zeros ... ok
+test sha256_fast_import_creates_sha256_objects ... ok
+test sha256_fsck_clean_loose_and_packed ... ok
+test sha256_grit_reads_git_delta_pack ... ok
+test sha256_log_reads_real_git_repo ... ok
+test sha256_init_and_commit_roundtrip_readable_by_git ... ok
+test sha256_notes_resolve ... ok
+test sha256_reads_git_written_pack ... ok
+test sha256_multi_pack_index_write_and_read ... ok
+test sha256_reflog_records_64_hex_oids ... ok
+test sha256_reftable_reflog_roundtrip ... ok
+test sha256_reftable_refs_roundtrip ... ok
+test sha256_rev_list_reads_real_git_repo ... ok
+test sha256_show_reads_real_git_repo ... ok
+test sha256_repack_pack_verified_by_git ... ok
+test sha256_split_index_roundtrip ... ok
+
+test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.57s
+
+     Running tests/submodule_init_command.rs (.gitr-ci/native-target/debug/build/grit-git/842545d5b3d0a71f/out/submodule_init_command-842545d5b3d0a71f)
+
+running 3 tests
+test init_does_not_copy_command_update_on_first_registration ... ok
+test init_does_not_overwrite_trusted_local_update ... ok
+test init_rejects_command_update_when_url_already_in_local_config ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s
+
+     Running tests/upload_pack_v2_shallow_want_ref_order.rs (.gitr-ci/native-target/debug/build/grit-git/5c56e98a0ff30a02/out/upload_pack_v2_shallow_want_ref_order-5c56e98a0ff30a02)
+
+running 1 test
+Initialized empty shared Git repository in /tmp/.tmpip5bCt/repo/.git/
+[main (root-commit) 4f005ab] a
+ 1 file changed, 1 insertion(+)
+[main abddbd9] b
+ 1 file changed, 1 insertion(+)
+[main 2bcd450] c
+ 1 file changed, 1 insertion(+)
+test upload_pack_v2_shallow_info_precedes_wanted_refs_for_want_ref_deepen ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+     Running unittests src/lib.rs (.gitr-ci/native-target/debug/build/grit-lib/ab5cdd5fb64a8e16/out/grit_lib-ab5cdd5fb64a8e16)
+
+running 472 tests
+test apply::tests::invalid_hunk_header_chains_inner_message ... ok
+test apply::tests::corrupt_hunk_is_reported_with_input_name_and_line ... ok
+test apply::tests::parse_hunk_header_parses_ranges ... ok
+test apply::tests::parses_simple_git_diff_into_one_file_patch ... ok
+test apply::tests::parses_new_file_mode_and_deletion ... ok
+test attributes::attr_cache_tests::info_attributes_is_stamped ... ok
+test attributes::attr_cache_tests::new_nested_gitattributes_is_detected ... ok
+test attributes::attr_cache_tests::modified_nested_gitattributes_follows_c_git_process_semantics ... ok
+test attributes::tests::d_yes_rule_clears_test_after_d_star ... ok
+test blame::tests::build_line_map_identity_for_equal_files ... ok
+test blame::tests::build_line_map_maps_unchanged_lines_and_drops_replaced ... ok
+test blame::tests::parse_diff_algorithm_name_known_and_unknown ... ok
+test check_ref_format::tests::at_brace_invalid ... ok
+test check_ref_format::tests::basic_valid ... ok
+test check_ref_format::tests::component_starts_with_dot ... ok
+test check_ref_format::tests::control_chars_invalid ... ok
+test check_ref_format::tests::dot_lock_invalid ... ok
+test check_ref_format::tests::double_dot_invalid ... ok
+test check_ref_format::tests::double_wildcard_invalid ... ok
+test check_ref_format::tests::empty_is_invalid ... ok
+test check_ref_format::tests::fetch_advertised_ref_rejects_traversal_and_illegal ... ok
+test attributes::attr_cache_tests::stack_cache_serves_same_stamp_and_invalidates_on_change ... ok
+test check_ref_format::tests::foo_dot_slash_bar_valid ... ok
+test check_ref_format::tests::forbidden_chars_invalid ... ok
+test check_ref_format::tests::leading_slash_without_normalize ... ok
+test check_ref_format::tests::normalize_collapses_slashes ... ok
+test check_ref_format::tests::lone_at_invalid ... ok
+test check_ref_format::tests::normalize_strips_leading_slash ... ok
+test check_ref_format::tests::one_level_requires_flag ... ok
+test check_ref_format::tests::receive_pack_refname_ok_rejects_funny_refs ... ok
+test check_ref_format::tests::symref_target_rejects_traversal ... ok
+test check_ref_format::tests::refname_is_safe_rejects_traversal_under_refs ... ok
+test check_ref_format::tests::trailing_dot_invalid ... ok
+test check_ref_format::tests::utf8_allowed ... ok
+test check_ref_format::tests::wildcard_requires_flag ... ok
+test commit::tests::assemble_identity_formats_now_without_override ... ok
+test commit_encoding::tests::latin1_round_trips_through_encode_and_decode ... ok
+test commit::tests::assemble_identity_parses_date_override ... ok
+test commit_encoding::tests::strict_utf8_accepts_plain_ascii_and_multibyte ... ok
+test commit_encoding::tests::strict_utf8_rejects_overlong_sequences ... ok
+test commit_encoding::tests::strict_utf8_rejects_noncharacters_rust_would_accept ... ok
+test commit_encoding::tests::strict_utf8_rejects_surrogates ... ok
+test commit_pretty::wrap_tests::wrap_simple_words ... ok
+test commit_pretty::wrap_tests::wrap_width_one_decoration_with_leading_newline ... ok
+test commit_pretty::wrap_tests::wrap_zero_width_is_indent_only ... ok
+test commit_trailers::tests::cherry_pick_x_after_sob_without_final_newline_no_extra_blank_before_cherry_line ... ok
+test commit_trailers::tests::cherry_pick_x_one_line_subject_inserts_blank_before_trailer ... ok
+test commit_trailers::tests::signoff_after_non_conforming_footer_inserts_blank_paragraph ... ok
+test commit_trailers::tests::signoff_after_other_sob_without_final_newline_single_separator ... ok
+test config::config_cache_tests::cache_invalidates_on_size_or_existence_change ... ok
+test config::config_cache_tests::cache_serves_same_stamp_and_config_write_evicts ... ok
+test config::config_cache_tests::missing_include_target_is_watched ... ok
+test config::config_cache_tests::include_targets_are_stamped_and_invalidate ... ok
+test config::config_cache_tests::onbranch_condition_follows_head ... ok
+test config::get_regexp_tests::get_regexp_invalid_pattern_is_error ... ok
+test config::get_regexp_tests::get_regexp_matches_section_prefix_like_git_config ... ok
+test config::get_regexp_tests::get_regexp_no_match_returns_empty_vec ... ok
+test config::get_regexp_tests::get_regexp_dot_matches_any_key ... ok
+test config::loose_compression_tests::loose_compression_cascade ... ok
+test config::pack_compression_tests::pack_objects_zlib_level_core_compression ... ok
+test config::pack_compression_tests::pack_objects_zlib_level_defaults_to_six ... ok
+test config::pack_compression_tests::pack_objects_zlib_level_later_core_does_not_override_earlier_pack ... ok
+test config::pack_compression_tests::pack_objects_zlib_level_loosecompression_does_not_block_core_pack_level ... ok
+test config::pack_compression_tests::pack_objects_zlib_level_pack_overrides_core ... ok
+test config::pack_compression_tests::pack_objects_zlib_level_pack_wins_after_loose_and_core ... ok
+test credentials::tests::parse_round_trips_named_fields ... ok
+test credentials::tests::serialize_uses_canonical_order ... ok
+test credentials::tests::target_url_reconstructed_from_fields ... ok
+test crlf::tests::attr_dir_only_pattern_does_not_match_same_named_file ... ok
+test crlf::tests::expand_filter_command_percent_f_quotes_path ... ok
+test crlf::tests::expand_ident_does_not_span_lines_for_partial_keyword ... ok
+test crlf::tests::expand_ident_preserves_foreign_id_with_internal_spaces ... ok
+test crlf::tests::smudge_lf_only_gets_crlf_with_autocrlf_true ... ok
+test crlf::tests::smudge_mixed_line_endings_unchanged_with_autocrlf_true ... ok
+test crlf::tests::test_crlf_to_lf ... ok
+test crlf::tests::test_expand_collapse_ident ... ok
+test crlf::tests::test_has_crlf ... ok
+test crlf::tests::test_is_binary ... ok
+test crlf::tests::test_lf_to_crlf ... ok
+test delta_encode::tests::roundtrip_lcp_delta ... ok
+test delta_encode::tests::roundtrip_prefix_delta ... ok
+test config::get_regexp_tests::get_regexp_returns_all_multi_value_entries_in_order ... ok
+test diff::gitlink_tree_worktree_tests::unpopulated_gitlink_matching_index_produces_no_diff_entry ... ok
+test diff::smudge_racily_clean_tests::leaves_matching_content_alone ... ok
+test diff::smudge_racily_clean_tests::leaves_matching_crlf_worktree_content_alone ... ok
+test diff::smudge_racily_clean_tests::leaves_matching_sha256_racy_content_alone ... ok
+test diff::smudge_racily_clean_tests::leaves_non_racy_entry_alone ... ok
+test diff::smudge_racily_clean_tests::skips_skip_worktree_and_intent_to_add ... ok
+test diff::smudge_racily_clean_tests::smudges_nothing_without_prior_index_mtime ... ok
+test diff::smudge_racily_clean_tests::smudges_racily_clean_modified_entry ... ok
+test diffstat::tests::diffstat_name_width_10_matches_git_padding ... ok
+test diffstat::tests::pad_name_matches_git_display_columns_for_wide_chars ... ok
+test difftool::tests::difftool_empty_extcmd_is_rejected_before_launch ... ok
+test difftool::tests::difftool_tool_lookup_checks_files_without_interpreting_names ... ok
+test fast_import::tests::fast_import_delimited_data_m_inline_and_note ... ok
+test fetch::fetch_advertised_ref_tests::parse_v2_ls_refs_drops_traversal_ref ... ok
+test fetch::fetch_advertised_ref_tests::refspec_maps_traversal_to_non_storable_local_name ... ok
+test fetch_head::tests::bare_url_line_for_merge ... ok
+test fetch_head::tests::double_tab_for_merge_branch ... ok
+test fetch_head::tests::not_for_merge_skipped ... ok
+test fmt_merge_msg::tests::append_joined_three ... ok
+test fmt_merge_msg::tests::append_joined_two ... ok
+test fmt_merge_msg::tests::custom_message ... ok
+test fmt_merge_msg::tests::empty_input ... ok
+test fmt_merge_msg::tests::into_name_shown_for_other ... ok
+test fmt_merge_msg::tests::into_name_suppressed_for_main ... ok
+test fmt_merge_msg::tests::multiple_branches ... ok
+test fmt_merge_msg::tests::not_for_merge_skipped ... ok
+test fmt_merge_msg::tests::single_branch_local ... ok
+test fmt_merge_msg::tests::single_branch_remote ... ok
+test fsck_standalone::tests::commit_missing_tree_matches_git ... ok
+test fsck_standalone::tests::empty_commit_is_unterminated_header ... ok
+test fsck_standalone::tests::mktag_preserves_a_sha256_target ... ok
+test fsck_standalone::tests::tree_truncated_is_bad_tree ... ok
+test fsck_standalone::tests::tree_validation_uses_the_repository_hash_width ... ok
+test git_path::git_path_component_tests::cleanup_path_keeps_internal_double_slashes ... ok
+test git_path::git_path_component_tests::cleanup_path_strips_leading_dot_slash ... ok
+test git_path::git_path_component_tests::git_path_component_drops_one_leading_slash_keeps_interior ... ok
+test git_path::git_path_component_tests::is_common_git_path_matches_git_common_list ... ok
+test git_path::git_path_component_tests::relative_path_preserves_interior_double_slash_suffix ... ok
+test ident::tests::non_numeric_author_date_is_non_numeric_tail ... ok
+test ident::tests::u128_max_digit_count_is_overflow_tail ... ok
+test ignore::gitignore_glob_tests::dir_star_extension_matches_nested_path ... ok
+test ignore::gitignore_glob_tests::dir_star_extension_unexpanded_when_parent_has_glob ... ok
+test ignore::gitignore_glob_tests::nested_dir_star_extension ... ok
+test ignore::sparse_checkout_tests::non_cone_default_init_patterns ... ok
+test ignore::sparse_checkout_tests::unanchored_glob_matches_path_components ... ok
+test index::tests::fsmonitor_extension_round_trip_matches_git_layout ... ok
+test index::tests::fsmonitor_extension_written_from_token_only_state ... ok
+test index::tests::fsmonitor_raw_not_reused_after_token_change ... ok
+test index::tests::fsmonitor_raw_not_reused_after_validity_change ... ok
+test index::tests::remove_descendants_under_path_drops_nested_only ... ok
+test index::tests::requested_v4_writes_v4_on_disk ... ok
+test index::tests::round_trip_empty_index ... ok
+test index::tests::round_trip_with_entries ... ok
+test instaweb::tests::list_display_refs_includes_heads_and_tags ... ok
+test diff::gitlink_tree_worktree_tests::untracked_only_in_checked_out_submodule_produces_no_diff_entry ... ok
+test instaweb::tests::load_summary_uses_work_tree_name ... ok
+test instaweb::tests::load_summary_reads_description ... ok
+test instaweb::tests::load_tree_and_blob_round_trip ... ok
+test instaweb::tests::peel_to_commit_through_annotated_tag ... ok
+test ls_remote::tests::pattern_matches_empty_allows_all ... ok
+test ls_remote::tests::pattern_matches_exact ... ok
+test ls_remote::tests::pattern_matches_suffix_component ... ok
+test mailmap::tests::name_entry_after_email_merges ... ok
+test mailmap::tests::single_pair_line_maps_name_only ... ok
+test mailmap::tests::whitespace_inside_angle_brackets_is_part_of_map_key ... ok
+test merge_base::tests::commits_reachable_errors_on_missing_parent_without_shallow ... ok
+test instaweb::tests::recent_commits_returns_subject ... ok
+test merge_base::tests::commits_reachable_excluding_stops_at_shallow_boundary ... ok
+test merge_file::tests::clean_insert_separated_from_modified_line ... ok
+test merge_file::tests::conflict ... ok
+test merge_file::tests::conflict_delete_vs_change ... ok
+test merge_file::tests::conflict_insert_before_modified_line ... ok
+test merge_file::tests::conflict_insert_before_modified_line_symmetric ... ok
+test merge_file::tests::conflict_replace_vs_insert_after_same_line ... ok
+test merge_file::tests::favor_ours ... ok
+test merge_file::tests::no_changes ... ok
+test merge_file::tests::only_ours ... ok
+test merge_file::tests::only_theirs ... ok
+test merge_file::tests::preserves_shared_and_superset_insertions ... ok
+test merge_file::tests::t4108_style_overlapping_edits_conflict ... ok
+test merge_file::tests::union_missing_lf ... ok
+test merge_file::tests::zdiff3_interesting_conflict_shape ... ok
+test merge_base::tests::commits_reachable_excluding_respects_limit ... ok
+test midx::tests::vanished_cached_tip_falls_back ... ok
+test midx::tests::read_after_in_process_pack_swap ... ok
+test objects::commit_parse_tests::parse_commit_skips_multiline_gpgsig_continuation ... ok
+test midx::tests::writer_evicts_tip_cache ... ok
+test odb::redb_store::tests::redb_objects_corrupt_chunks_refuse_read_and_duplicate_write ... ok
+test odb::redb_store::tests::redb_objects_external_file_corruption_returns_errors_without_panicking ... ok
+test odb::redb_store::tests::redb_objects_failed_batch_does_not_publish_earlier_items ... ok
+test odb::redb_store::tests::redb_objects_keep_exact_noncanonical_header ... ok
+test odb::redb_store::tests::redb_objects_missing_chunk_is_not_an_absent_object ... ok
+test odb::redb_store::tests::redb_objects_open_does_not_create_and_refuses_unrelated_schema ... ok
+test odb::redb_store::tests::redb_objects_concurrent_handles_preserve_all_writes ... ok
+test odb::redb_store::tests::redb_odb_corruption_is_not_hidden_by_valid_loose_mirror ... ok
+test odb::redb_store::tests::redb_odb_first_write_initializes_an_existing_empty_database ... ok
+test odb::redb_tests::redb_odb_concurrent_first_writers_initialize_one_complete_store ... ok
+test odb::redb_tests::redb_odb_every_write_entry_point_uses_the_store ... ok
+test odb::redb_tests::redb_odb_existing_objects_and_alternates_are_read_without_migration ... ok
+test odb::redb_tests::redb_odb_invalid_configuration_cannot_silently_disable_storage ... ok
+test odb::redb_tests::redb_odb_is_explicit_and_reading_missing_data_creates_nothing ... ok
+test odb::redb_tests::redb_odb_linked_worktrees_share_the_common_object_database ... ok
+test odb::redb_tests::redb_odb_memory_overlay_never_creates_durable_objects ... ok
+test odb::redb_tests::redb_odb_quarantine_does_not_publish_into_main_database ... ok
+test odb::redb_tests::redb_odb_refuses_database_symlinks ... ok
+test odb::redb_tests::redb_odb_rejects_a_conflicting_mirror_without_replacing_it ... ok
+test odb::redb_tests::redb_odb_simultaneous_mirror_publication_is_idempotent ... ok
+test odb::redb_tests::redb_odb_writes_both_formats_and_restores_a_missing_mirror ... ok
+test odb::streaming::tests::sized_hash_rejects_length_changes_and_matches_snapshot_hashing ... ok
+test odb::redb_store::tests::redb_objects_preserve_both_hash_formats_chunks_and_reopen ... ok
+test odb::tests::empty_tree_hash_virtual_reads_and_memory_overlay_do_not_publish ... ok
+test odb::tests::empty_tree_writes_publish_physical_objects_for_both_hash_formats ... ok
+test odb::tests::empty_tree_writes_reuse_real_alternates_and_freshen_stored_bytes ... ok
+test odb::tests::known_blob_hash ... ok
+test odb::tests::loose_write_honours_level ... ok
+test odb::tests::read_alternates_relative_path_and_symlinked_objects_dir ... ok
+test odb::tests::round_trip_blob ... ok
+test odb::tests::write_existing_loose_does_not_rewrite ... ok
+test odb::tests::write_skips_loose_when_object_in_pack_only ... ok
+test odb::tests::write_skips_loose_when_object_only_in_alternate ... ok
+test odb::tests::write_with_mem_overlay_stays_in_memory ... ok
+test pack::cached_lookup_tests::cached_lookup_hit_v1_idx ... ok
+test pack::cached_lookup_tests::cached_lookup_hit_v2_idx ... ok
+test pack::cached_lookup_tests::cached_lookup_loose_only ... ok
+test pack::cached_lookup_tests::cached_lookup_miss ... ok
+test pack::cached_lookup_tests::cached_lookup_multiple_packs ... ok
+test pack::cached_lookup_tests::content_addressed_pack_bytes_skip_stat_revalidation ... ok
+test pack::cached_lookup_tests::find_offset_fanout_bucket_first_last_and_miss ... ok
+test pack::cached_lookup_tests::packed_delta_base_oid_uses_cached_index ... ok
+test pack::cached_lookup_tests::temporary_pack_bytes_revalidated_after_change ... ok
+test pack::tests::corrupt_in_pack_base_rescued_from_loose ... ok
+test pack::tests::cyclic_ref_delta_chain_across_two_packs_errors ... ok
+test pack::tests::cyclic_ref_delta_chain_errors ... ok
+test pack::tests::read_object_from_pack_bytes_uses_in_memory_index_without_on_disk_idx ... ok
+test odb::streaming::tests::streaming_blob_matches_git_hash_and_rejects_a_corrupt_mirror ... ok
+test pack::tests::resolve_cross_pack_delta_without_index_clone ... ok
+test pack_geometry::tests::duplicate_small_packs_roll_up ... ok
+test pack_geometry::tests::progression_intact_split_is_zero ... ok
+test pack_name_hash::tests::name_hash_matches_git_test_vectors ... ok
+test path::tests::allows_normal_paths ... ok
+test path::tests::rejects_case_and_alias_under_protection ... ok
+test path::tests::rejects_dotgit_always ... ok
+test path::tests::rejects_dotgit_directory_component ... ok
+test path::tests::rejects_hfs_ignorable_dotgit ... ok
+test path::tests::rejects_symlinked_gitmodules_fold ... ok
+test pathspec::pathspec_list_tests::exclude_removes_paths_matching_icase_positive ... ok
+test pathspec::pathspec_list_tests::prefixed_attr_exclude_removes_matching_child_path ... ok
+test pathspec::resolve_pathspec_tests::dot_slash_colon_filename_stays_literal_not_exclude_magic ... ok
+test pathspec::resolve_pathspec_tests::prefixed_cwd_resolution_unchanged ... ok
+test pathspec::resolve_pathspec_tests::strips_leading_dot_slash_at_repo_root ... ok
+test pathspec::tree_entry_pathspec_tests::exclude_top_short_magic_subtracts_from_positive ... ok
+test pathspec::tree_entry_pathspec_tests::glob_double_star_txt_at_repo_root ... ok
+test pathspec::tree_entry_pathspec_tests::literal_prefix_and_exact ... ok
+test pathspec::tree_entry_pathspec_tests::ls_tree_bracket_in_name_is_literal_prefix ... ok
+test pathspec::tree_entry_pathspec_tests::t6130_bracket_filename_matches_pathspec ... ok
+test pathspec::tree_entry_pathspec_tests::trailing_slash_directory_only ... ok
+test pathspec::tree_entry_pathspec_tests::wildcards_cross_slash_by_default ... ok
+test porcelain::status::status_op_tests::status_detects_untracked_file_on_unborn_branch ... ok
+test porcelain::status::status_op_tests::status_untracked_mode_no_skips_walk ... ok
+test progress::tests::forwarding_impl_routes_to_inner ... ok
+test progress::tests::never_cancel_never_cancels ... ok
+test progress::tests::null_progress_is_inert ... ok
+test promisor_remote::tests::accept_all ... ok
+test promisor_remote::tests::accept_none_default ... ok
+test promisor_remote::tests::advertise_name_and_url ... ok
+test promisor_remote::tests::advertise_send_fields ... ok
+test promisor_remote::tests::known_url_mismatch_rejected ... ok
+test promisor_remote::tests::no_advertise_when_disabled ... ok
+test promisor_remote::tests::url_space_encoded ... ok
+test protocol_v2::tests::bundle_uri_bare_and_valued ... ok
+test protocol_v2::tests::cap_lines_empty_when_no_agent_or_format ... ok
+test protocol_v2::tests::cap_lines_forwards_agent_and_object_format ... ok
+test protocol_v2::tests::fetch_features_empty_without_fetch_cap ... ok
+test protocol_v2::tests::fetch_features_splits_on_whitespace ... ok
+test protocol_v2::tests::fetch_prelude_order_helper ... ok
+test protocol_v2::tests::fetch_response_section_order_matches_protocol_v2 ... ok
+test protocol_v2::tests::per_feature_helpers ... ok
+test prune_packed::tests::dry_run_does_not_delete_files ... ok
+test prune_packed::tests::no_packs_leaves_loose_objects_intact ... ok
+test push::tests::command_block_with_push_options_negotiates_cap_and_emits_lines ... ok
+test push::tests::command_block_without_push_options_has_no_capability_or_lines ... ok
+test push::tests::demux_separates_report_and_progress ... ok
+test push::tests::detects_v2_receive_pack_advertisement ... ok
+test push::tests::parses_empty_repo_capabilities_carrier ... ok
+test push::tests::parses_v0_receive_pack_advertisement_with_caps_and_have ... ok
+test push::tests::receive_pack_url_and_strip_preamble ... ok
+test push::tests::report_ng_demotes_to_remote_rejected ... ok
+test push::tests::report_unpack_failure_rejects_all_sent ... ok
+test push::tests::require_push_options_errors_typed_when_server_lacks_capability ... ok
+test push_cert::tests::nonce_changes_with_seed_and_path ... ok
+test push_cert::tests::nonce_matches_git_format ... ok
+test push_cert::tests::payload_has_expected_lines ... ok
+test push_cert::tests::payload_none_without_updates ... ok
+test push_report::tests::atomic_failure_message ... ok
+test push_report::tests::porcelain_orders_and_formats ... ok
+test push_report::tests::quiet_suppresses_when_no_errors ... ok
+test push_report::tests::remote_rejected_deletion_omits_delete_source ... ok
+test quote_path::tests::ascii_safe_unchanged ... ok
+test quote_path::tests::comma_forces_ls_tree_style_quotes ... ok
+test quote_path::tests::diff_git_prefix_quoting ... ok
+test quote_path::tests::t3902_expect_quoted ... ok
+test quote_path::tests::t3902_expect_raw_mode ... ok
+test ref_exclusions::tests::hide_refs_negation ... ok
+test ref_exclusions::tests::hide_refs_prefix_match ... ok
+test reflog::default_expire_tests::default_expire_total_is_ninety_days_before_now ... ok
+test reflog::default_expire_tests::default_expire_unreachable_is_thirty_days_before_now ... ok
+test refs::cas::tests::a_held_lock_and_stale_delete_leave_both_ref_representations_intact ... ok
+test refs::cas::tests::head_commit_checks_unborn_detached_and_retargeted_state ... ok
+test refs::cas::tests::namespace_conflicts_fixture ... ignored, isolated namespace fixture invoked by namespace_conflicts_use_storage_names
+test refs::cas::tests::namespace_conflicts_use_storage_names ... ok
+test refs::cas::tests::snapshots_reject_stale_updates_and_creation_for_both_backends ... ok
+test refs::cas::tests::two_writers_from_one_snapshot_cannot_both_publish ... ok
+test refs::read_raw_ref_tests::directory_where_ref_expected_is_is_directory ... ok
+test refs::read_raw_ref_tests::loose_ref_file_is_exists ... ok
+test refs::read_raw_ref_tests::missing_ref_is_not_found ... ok
+test refs::read_raw_ref_tests::packed_ref_name_is_exists ... ok
+test refs::ref_storage_traversal_guard_tests::delete_ref_rejects_traversal_refname ... ok
+test refs::ref_storage_traversal_guard_tests::write_ref_cached_rejects_traversal_refname ... ok
+test refs::ref_storage_traversal_guard_tests::write_ref_rejects_traversal_refname ... ok
+test refs::ref_storage_traversal_guard_tests::write_symbolic_ref_rejects_traversal_refname ... ok
+test refs::refname_available_tests::intermediate_directory_does_not_block_nested_create ... ok
+test refs::refname_available_tests::list_refs_finds_sibling_under_parent_directory ... ok
+test refs::refname_available_tests::loose_parent_blocks_child_create ... ok
+test refs::refname_available_tests::verify_blocks_parent_git_style_nested_path ... ok
+test refs::refname_available_tests::verify_blocks_parent_when_child_ref_exists ... ok
+test refs::refname_available_tests::verify_sees_loose_ref_after_canonical_git_dir ... ok
+test refspec::tests::bare_head_and_at ... ok
+test refspec::tests::delete_specs ... ok
+test refspec::tests::empty_and_colon ... ok
+test refspec::tests::glob_balance ... ok
+test refspec::tests::head_colon ... ok
+test refspec::tests::rev_expressions ... ok
+test refspec::tests::star_placements ... ok
+test refspec::tests::utf8_and_tab ... ok
+test reftable::tests::test_crc32 ... ok
+test reftable::tests::test_deletion_record ... ok
+test reftable::tests::test_empty_table ... ok
+test reftable::tests::test_log_roundtrip ... ok
+test reftable::tests::test_parse_identity ... ok
+test reftable::tests::test_symref_roundtrip ... ok
+test reftable::tests::test_unaligned_table ... ok
+test reftable::tests::test_varint_roundtrip ... ok
+test reftable::tests::test_write_read_multiple_refs ... ok
+test reftable::tests::test_write_read_single_ref ... ok
+test rev_parse::superproject_path_tests::nested_modules_yields_superproject_work_tree ... ok
+test rev_parse::superproject_path_tests::non_nested_returns_none ... ok
+test serve::receive_pack::tests::deny_current_branch_values ... ok
+test serve::receive_pack::tests::report_lists_unpack_status_then_each_ref ... ok
+test serve::tests::git_protocol_picks_highest_version ... ok
+test shallow::tests::add_shallow_boundaries_unions_existing ... ok
+test shallow::tests::apply_shallow_updates_adds_removes_and_deletes ... ok
+test shallow::tests::boundary_already_on_receiver_is_not_a_new_root ... ok
+test shallow::tests::boundary_not_on_receiver_is_a_new_root ... ok
+test shallow::tests::deepen_since_passes_through_bare_timestamp ... ok
+test shallow::tests::load_shallow_oids_reads_file_in_order ... ok
+test shallow::tests::no_boundaries_means_no_shallow_roots ... ok
+test shallow::tests::read_shallow_info_section_parses_shallow_and_unshallow ... ok
+test shallow::tests::read_shallow_info_section_stops_at_delim_for_v2 ... ok
+test signing::tests::add_header_signature_splices_gpgsig ... ok
+test signing::tests::double_exclusive_status_is_error ... ok
+test signing::tests::extract_none_when_unsigned ... ok
+test signing::tests::extract_round_trips_signature ... ok
+test signing::tests::format_detected_from_signature_armor ... ok
+test signing::tests::format_name_is_case_sensitive ... ok
+test signing::tests::literal_ssh_key_detection ... ok
+test signing::tests::min_trust_level_from_config_is_case_insensitive ... ok
+test signing::tests::parse_badsig ... ok
+test signing::tests::parse_goodsig_and_trust ... ok
+test signing::tests::parse_signed_buffer_none_when_unsigned ... ok
+test signing::tests::parse_signed_buffer_splits_appended_tag_signature ... ok
+test signing::tests::parse_ssh_output_bad_signature ... ok
+test signing::tests::parse_ssh_output_trusted_principal ... ok
+test signing::tests::parse_ssh_output_untrusted_unknown_key ... ok
+test signing::tests::payload_committer_timestamp_parsed ... ok
+test signing::tests::stripspace_keeps_line_terminators ... ok
+test sparse_checkout::cone_directory_inputs_for_add_tests::expanded_header_with_non_cone_body_preserves_literal_dir ... ok
+test sparse_checkout::cone_directory_inputs_for_add_tests::pure_expanded_cone_uses_recursive_dirs_only ... ok
+test sparse_checkout::path_in_expanded_cone_tests::expanded_cone_with_d_includes_d_tree_not_sibling_a ... ok
+test sparse_checkout::path_in_expanded_cone_tests::root_only_cone_includes_files_not_top_level_dirs ... ok
+test stripspace::tests::comment_lines_adds_trailing_newline ... ok
+test stripspace::tests::comment_lines_empty_input_yields_empty ... ok
+test stripspace::tests::comment_lines_empty_line_gets_bare_prefix ... ok
+test stripspace::tests::comment_lines_multiple_lines ... ok
+test stripspace::tests::comment_lines_prefixes_non_empty ... ok
+test stripspace::tests::comment_lines_tab_line_avoids_sp_ht ... ok
+test stripspace::tests::default_adds_trailing_newline_when_missing ... ok
+test stripspace::tests::default_all_whitespace_yields_empty ... ok
+test stripspace::tests::default_blank_lines_between_whitespace_only_lines ... ok
+test stripspace::tests::default_collapses_consecutive_blank_lines ... ok
+test stripspace::tests::default_preserves_leading_spaces_on_line ... ok
+test stripspace::tests::default_removes_leading_blank_lines ... ok
+test stripspace::tests::default_removes_trailing_blank_lines ... ok
+test stripspace::tests::default_strips_trailing_whitespace ... ok
+test stripspace::tests::strip_comments_keeps_non_comment_lines ... ok
+test stripspace::tests::strip_comments_multichar_prefix ... ok
+test stripspace::tests::strip_comments_removes_hash_lines ... ok
+test submodule_gitdir::submodule_modules_git_dir_tests::nested_path_under_single_modules_prefix ... ok
+test submodule_gitdir::submodule_modules_git_dir_tests::single_segment_one_modules_join ... ok
+test tab_expand::tests::bytes_expand_tabs_match_string_path ... ok
+test tab_expand::tests::bytes_give_up_alignment_after_invalid_utf8_before_tab ... ok
+test tab_expand::tests::bytes_preserve_invalid_utf8_verbatim ... ok
+test tab_expand::tests::expand_tabs_aligns_to_stop ... ok
+test tab_expand::tests::expand_tabs_ascii_simple ... ok
+test tab_expand::tests::expand_tabs_multiline ... ok
+test tab_expand::tests::indent_and_expand_combines ... ok
+test tab_expand::tests::indent_without_expand_preserves_tabs ... ok
+test transport::http::tests::detects_v2_preamble ... ok
+test transport::http::tests::effective_info_refs_url_uses_redirect_target ... ok
+test transport::http::tests::http_origin_distinguishes_localhost_from_loopback ... ok
+test transport::http::tests::parse_advertisement_drops_malicious_ref_and_symref ... ok
+test transport::http::tests::parses_symref_and_caps ... ok
+test transport::http::tests::rebase_redirect_none_when_no_change_or_unknown ... ok
+test transport::http::tests::rebase_redirect_strips_info_refs_and_query ... ok
+test transport::http::tests::strips_smart_service_preamble ... ok
+test transport::http::tests::url_helpers ... ok
+test transport::http::ureq_client::tests::credentials_include_http_path_when_configured ... ok
+test transport::http::ureq_client::tests::credentials_include_http_path_when_url_scoped ... ok
+test transport::http::ureq_client::tests::credentials_omit_http_path_by_default ... ok
+test transport::http::ureq_client::tests::empty_extra_header_resets_list ... ok
+test transport::http::ureq_client::tests::empty_proxy_disables_proxying ... ok
+test transport::http::ureq_client::tests::expired_cookie_does_not_match ... ok
+test transport::http::ureq_client::tests::extra_header_rules_apply_scoped_and_unscoped ... ok
+test transport::http::ureq_client::tests::header_cookie_parses_domain_and_path ... ok
+test transport::http::ureq_client::tests::host_only_cookie_file_cookie_respects_session_origin ... ok
+test transport::http::ureq_client::tests::http_proxy_config_builds ... ok
+test transport::http::ureq_client::tests::netscape_cookie_parses_and_matches ... ok
+test transport::http::ureq_client::tests::secure_cookie_only_matches_https ... ok
+test transport::http::ureq_client::tests::socks_proxy_is_rejected_clearly ... ok
+test transport::tests::is_ssh_url_classification ... ok
+test transport::tests::parse_advertisement_line_sha1_and_sha256 ... ok
+test transport::tests::parse_git_url_defaults_and_ports ... ok
+test transport::tests::parse_scp_style_url ... ok
+test transport::tests::parse_ssh_scheme_url_with_port ... ok
+test transport::tests::parse_ssh_url_ipv6_and_tilde ... ok
+test transport::tests::parse_ssh_url_rejects_bad_inputs ... ok
+test transport::tests::read_advertisement_captures_refs_caps_and_symref ... ok
+test transport::tests::read_advertisement_v2_captures_caps_and_no_refs ... ok
+test transport::tests::remote_command_is_shell_quoted ... ok
+test transport_path::tests::auth_like_material_kept_in_path ... ok
+test transport_path::tests::auth_material_is_redacted ... ok
+test transport_path::tests::bare_appends_git ... ok
+test transport_path::tests::configured_remote_base_worktree_and_bare ... ok
+test transport_path::tests::empty_name_is_error ... ok
+test transport_path::tests::empty_path_defaults_to_hostname ... ok
+test transport_path::tests::is_local_path_remote_url_classification ... ok
+test transport_path::tests::resolve_local_remote_git_dir_from_relative_url ... ok
+test transport_path::tests::scp_style_basic ... ok
+test transport_path::tests::should_store_absolute_local_clone_url_classification ... ok
+test transport_path::tests::ssh_url_basic ... ok
+test transport_path::tests::trailing_port_like_numbers_in_path_kept ... ok
+test transport_path::tests::trailing_slashes_and_git ... ok
+test unicode_normalization::tests::precompose_nfd_filename_to_nfc ... ok
+test unpack_objects::tests::test_apply_delta_copy_only ... ok
+test unpack_objects::tests::test_apply_delta_insert_only ... ok
+test unpack_objects::tests::test_apply_delta_simple ... ok
+test unpack_objects::tests::test_apply_delta_size_zero_means_65536 ... ok
+test unpack_objects::tests::test_apply_delta_source_size_mismatch ... ok
+test unpack_objects::tests::test_strict_skips_gitlink_tree_entries ... ok
+test unpack_objects::tests::test_unpack_objects_bad_signature ... ok
+test unpack_objects::tests::test_unpack_objects_blobs ... ok
+test unpack_objects::tests::test_unpack_objects_checksum_mismatch ... ok
+test unpack_objects::tests::test_unpack_objects_chunked_read_matches_full_buffer ... ok
+test unpack_objects::tests::test_unpack_objects_dry_run_writes_nothing ... ok
+test unpack_objects::tests::test_unpack_objects_empty_tree ... ok
+test untracked_cache::tests::untracked_extension_round_trip_shell ... ok
+test untracked_cache::tests::untracked_extension_round_trip_with_tree ... ok
+test userdiff::tests::unsupported_backreferences_are_rejected_without_external_matching ... ok
+test whitespace_rule::tests::blank_at_eol_only_strips_trailing_on_line ... ok
+test whitespace_rule::tests::default_rule_parses_like_git ... ok
+test whitespace_rule::tests::negated_blank_at_eol_preserves_trailing_spaces ... ok
+test wildmatch::tests::basic_match ... ok
+test wildmatch::tests::bracket ... ok
+test wildmatch::tests::casefold ... ok
+test wildmatch::tests::character_classes ... ok
+test wildmatch::tests::double_star_pathname ... ok
+test wildmatch::tests::malformed_class ... ok
+test wildmatch::tests::question_mark ... ok
+test wildmatch::tests::star ... ok
+test wildmatch::tests::starstar_deep_match ... ok
+test worktree::tests::allocate_unique_worktree_id ... ok
+test worktree::tests::list_main_worktree_only ... ok
+test worktree::tests::read_worktree_path_from_gitdir_file ... ok
+test worktree::tests::sanitize_funny_worktree_name ... ok
+test worktree::tests::strip_worktree_config_removes_core_bare_and_worktree ... ok
+test write_tree::tests::empty_index_publishes_its_tree_before_returning ... ok
+test write_tree::tests::writes_sorted_tree_with_canonical_modes ... ok
+test ws::tests::default_rule_parses ... ok
+test ws::tests::ws_check_trailing_space ... ok
+test ws::tests::ws_fix_tab_in_indent ... ok
+test pack::tests::reads_delta_chain_deeper_than_50 ... ok
+
+test result: ok. 471 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 2.06s
+
+     Running tests/bounded_limit_list.rs (.gitr-ci/native-target/debug/build/grit-lib/ad180abac994b669/out/bounded_limit_list-ad180abac994b669)
+
+running 4 tests
+test bounded_log_on_depth_one_shallow_does_not_emit_missing_parent ... ok
+test author_date_order_with_max_count_uses_author_timestamps ... ok
+test rev_list_errors_on_missing_parent_without_shallow ... ok
+test exclude_first_parent_only_with_max_count_matches_git ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/credentials.rs (.gitr-ci/native-target/debug/build/grit-lib/60a98cdf1c95b7af/out/credentials-60a98cdf1c95b7af)
+
+running 7 tests
+test credential_wire_format_round_trips ... ok
+test fill_returns_helper_username_and_password ... ok
+test approve_and_reject_invoke_helper_with_store_and_erase ... ok
+test fill_returns_typed_error_when_helper_supplies_nothing ... ok
+test fill_short_circuits_when_input_already_complete ... ok
+test fill_without_helper_returns_typed_non_interactive_error ... ok
+test url_scoped_helper_applies_only_to_matching_target ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+     Running tests/fetch_malicious_advertisement.rs (.gitr-ci/native-target/debug/build/grit-lib/eca4df3bdae90965/out/fetch_malicious_advertisement-eca4df3bdae90965)
+
+running 3 tests
+test fetch_v2_malicious_ls_refs_preserves_config ... ok
+test fetch_v0_malicious_advertisement_preserves_config ... ok
+test read_advertisement_v0_filters_malicious_ref_and_symref ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/matrix_completeness.rs (.gitr-ci/native-target/debug/build/grit-lib/72eeddb925a69aaf/out/matrix_completeness-72eeddb925a69aaf)
+
+running 11 tests
+test fetch_v0_sideband_band3_fatal_is_typed_error_not_hang ... ok
+test fetch_v0_err_after_done_is_typed_remote_error ... ok
+test git_daemon_connect_refused_port_is_typed_error_not_hang ... ok
+test push_http_propagates_discovery_transport_error_typed ... ok
+test push_http_rejects_v2_receive_pack_advertisement_typed ... ok
+test push_remote_rejects_protocol_v2_typed_before_touching_refs ... ok
+test read_advertisement_v0_err_line_is_typed_error ... ok
+test read_advertisement_v2_err_in_capability_block_is_typed_error ... ok
+test push_remote_unpack_failure_report_demotes_all_sent_refs ... ok
+test streaming_transports_reject_malformed_urls_typed ... ok
+test shallow_depth1_with_all_tags_over_git_daemon ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+     Running tests/matrix_credentials.rs (.gitr-ci/native-target/debug/build/grit-lib/4f828e1ebf86ba7e/out/matrix_credentials-4f828e1ebf86ba7e)
+
+running 13 tests
+test external_credential_store_helper_full_lifecycle_cross_checked_with_git ... ok
+test http_401::http_401_fill_basic_retry_with_helper_provider ... ok
+test is_complete_requires_nonempty_user_and_password ... ok
+test helper_quit_short_circuits_with_typed_error ... ok
+test multiple_helpers_chain_until_complete ... ok
+test parse_bytes_matches_parse_and_lines_without_equals_ignored ... ok
+test parse_stops_at_blank_line_and_tolerates_crlf ... ok
+test no_helper_fails_non_interactively_without_hanging ... ok
+test target_url_prefers_explicit_url_then_reconstructs_with_userinfo ... ok
+test shell_helper_fills_and_forwards_configured_args_and_dispatches_actions ... ok
+test url_scoped_helper_match_nonmatch_wildcard_and_reset ... ok
+test wire_format_preserves_extra_and_multivalued_keys_round_trip ... ok
+test use_http_path_reads_global_and_url_scoped_config ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+     Running tests/matrix_fetch.rs (.gitr-ci/native-target/debug/build/grit-lib/7ab9239e665f9359/out/matrix_fetch-7ab9239e665f9359)
+
+running 10 tests
+warning: You appear to have cloned an empty repository.
+warning: You appear to have cloned an empty repository.
+fatal: the remote end hung up unexpectedly
+test matrix_empty_unborn_remote ... ok
+test matrix_exact_refspec_single_head ... ok
+test matrix_head_symref_nondefault_branch ... ok
+test matrix_negative_refspec_excludes_head ... ok
+test matrix_incremental_shared_history ... ok
+fatal: the remote end hung up unexpectedly
+test matrix_prune_before_update_df_conflict ... ok
+fatal: the remote end hung up unexpectedly
+test matrix_prune_vanished_exact_ref ... ok
+fatal: the remote end hung up unexpectedly
+test matrix_prune_vanished_wildcard_ref ... ok
+test matrix_wildcard_refspec_all_heads ... ok
+test matrix_tag_modes_all_following_none ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.80s
+
+     Running tests/matrix_packs.rs (.gitr-ci/native-target/debug/build/grit-lib/dd25e1f15134e0a9/out/matrix_packs-dd25e1f15134e0a9)
+
+running 9 tests
+test build_pack_selects_only_new_objects ... ok
+test delta_pack_is_far_smaller_and_near_pack_objects ... ok
+test delta_depth_limit_caps_chain_length ... ok
+test ofs_vs_ref_delta_selection ... ok
+test sha256_repo_packs_index_and_fsck_clean ... ok
+test negotiated_push_pack_is_far_below_full_closure ... ok
+test thin_pack_references_external_ref_delta_base_and_resolves ... ok
+test whole_and_delta_packs_resolve_to_same_object_set ... ok
+test window_zero_disables_delta_selection ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.31s
+
+     Running tests/matrix_push.rs (.gitr-ci/native-target/debug/build/grit-lib/3e571eccfd808827/out/matrix_push-3e571eccfd808827)
+
+running 6 tests
+test push_matrix_over_smart_http ... ok
+test push_matrix_over_ssh ... ok
+test push_matrix_over_git_daemon ... ok
+test remote_rejection_surfaces_over_git_daemon ... ok
+test remote_rejection_surfaces_over_ssh ... ok
+test report_status_v1_and_v2_both_parse_over_ssh ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.77s
+
+     Running tests/matrix_sha256.rs (.gitr-ci/native-target/debug/build/grit-lib/73a01779dc6ef395/out/matrix_sha256-73a01779dc6ef395)
+
+running 4 tests
+test sha256_fetch_over_smart_http ... ok
+test sha256_fetch_over_git_daemon_v2 ... ok
+test sha256_push_over_smart_http ... ok
+test sha256_push_over_git_daemon ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+     Running tests/negotiator_tag_tip.rs (.gitr-ci/native-target/debug/build/grit-lib/f582d1ba8ba944d5/out/negotiator_tag_tip-f582d1ba8ba944d5)
+
+running 1 test
+test add_tip_accepts_annotated_tag ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/transfer_local_fetch.rs (.gitr-ci/native-target/debug/build/grit-lib/13ad482d681f573c/out/transfer_local_fetch-13ad482d681f573c)
+
+running 1 test
+test fetch_local_copies_refs_and_objects_then_fast_forwards ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/transfer_local_push.rs (.gitr-ci/native-target/debug/build/grit-lib/31aedc59bf351e11/out/transfer_local_push-31aedc59bf351e11)
+
+running 8 tests
+test push_local_atomic_rejects_all_on_any_failure ... ok
+test push_local_does_not_use_decoy_repo_when_parent_relative_target_missing ... ok
+test linked_worktree_resolves_relative_remote_from_worktree_root ... ok
+test push_local_honors_custom_fetch_refspec_for_tracking ... ok
+test push_local_missing_remote_is_error ... ok
+test push_local_up_to_date_refreshes_stale_remote_tracking_ref ... ok
+test push_local_full_lifecycle ... ok
+test push_local_updates_remote_tracking_ref_when_configured ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+     Running tests/transfer_maint.rs (.gitr-ci/native-target/debug/build/grit-lib/a8d49d16651f9544/out/transfer_maint-a8d49d16651f9544)
+
+running 4 tests
+test default_branch_is_main_for_normal_repo ... ok
+test prune_removes_unreachable_keeps_reachable ... ok
+test prune_respects_grace_window ... ok
+test update_refs_cas_and_atomicity ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/transfer_pack.rs (.gitr-ci/native-target/debug/build/grit-lib/99585ef0a0935d37/out/transfer_pack-99585ef0a0935d37)
+
+running 7 tests
+test build_pack_selects_only_new_objects ... ok
+test build_pack_with_empty_haves_packs_full_closure ... ok
+test delta_pack_reindexes_fscks_and_is_near_pack_objects_size ... ok
+test delta_pack_is_smaller_and_reparses ... ok
+test islands_forbid_cross_island_blob_delta ... ok
+test reuse_deltas_produces_valid_pack ... ok
+test thin_pack_omits_peer_held_base_and_resolves ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.39s
+
+     Running tests/transport_git_daemon.rs (.gitr-ci/native-target/debug/build/grit-lib/dcba6e39bd57e9c7/out/transport_git_daemon-dcba6e39bd57e9c7)
+
+running 1 test
+test fetch_over_git_daemon_lands_refs_and_objects ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+     Running tests/transport_git_daemon_v2.rs (.gitr-ci/native-target/debug/build/grit-lib/23d03bbe7cb45694/out/transport_git_daemon_v2-23d03bbe7cb45694)
+
+running 2 tests
+test fetch_over_git_daemon_v2_lands_refs_and_objects ... ok
+test fetch_over_git_daemon_v2_incremental_with_haves ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.31s
+
+     Running tests/transport_http.rs (.gitr-ci/native-target/debug/build/grit-lib/28c52c615d1e6361/out/transport_http-28c52c615d1e6361)
+
+running 4 tests
+test fetch_over_smart_http_lands_refs_and_objects ... ok
+test push_over_smart_http_lands_ref_and_objects_and_reports_rejection ... ok
+test push_then_fetch_roundtrip_and_server_side_rejection_over_http ... ok
+test fetch_over_smart_http_v2_lands_refs_and_objects ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/transport_http_auth.rs (.gitr-ci/native-target/debug/build/grit-lib/dfec83257bc19d51/out/transport_http_auth-dfec83257bc19d51)
+
+running 2 tests
+test push_over_authed_http_succeeds_with_right_credentials_and_fails_typed_otherwise ... ok
+test fetch_over_authed_http_succeeds_with_right_credentials_and_fails_typed_otherwise ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/transport_http_proxy_cookies.rs (.gitr-ci/native-target/debug/build/grit-lib/04f779f232abcf17/out/transport_http_proxy_cookies-04f779f232abcf17)
+
+running 4 tests
+test cookie_file_sends_cookie_header_to_server ... ok
+test extra_header_reaches_server ... ok
+test save_cookies_persists_set_cookie_to_file ... ok
+test http_proxy_routes_fetch_through_proxy ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/transport_http_redirect_auth.rs (.gitr-ci/native-target/debug/build/grit-lib/54ef6c4a980ed86d/out/transport_http_redirect_auth-54ef6c4a980ed86d)
+
+running 2 tests
+test cross_authority_redirect_does_not_forward_cached_basic_auth ... ok
+test cross_authority_redirect_does_not_forward_host_only_cookies ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/transport_http_shallow.rs (.gitr-ci/native-target/debug/build/grit-lib/8ba004f2ab9c0131/out/transport_http_shallow-8ba004f2ab9c0131)
+
+running 1 test
+test shallow_depth1_then_unshallow_over_smart_http_v1 ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/transport_push.rs (.gitr-ci/native-target/debug/build/grit-lib/d71c44537400ff14/out/transport_push-d71c44537400ff14)
+
+running 1 test
+test push_over_git_daemon_lands_ref_and_objects_and_reports_rejection ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.26s
+
+     Running tests/transport_push_options.rs (.gitr-ci/native-target/debug/build/grit-lib/3529ec403427c15f/out/transport_push_options-3529ec403427c15f)
+
+running 3 tests
+test push_options_are_delivered_to_receive_pack_hook_over_git_daemon ... ok
+test push_options_are_delivered_to_receive_pack_hook_over_ssh ... ok
+test pushing_options_to_server_without_capability_errors_typed ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.30s
+
+     Running tests/transport_shallow.rs (.gitr-ci/native-target/debug/build/grit-lib/739c3ce4c1d24aa7/out/transport_shallow-739c3ce4c1d24aa7)
+
+running 3 tests
+test shallow_depth1_fetch_over_git_daemon_v2 ... ok
+test shallow_depth1_fetch_over_git_daemon_v1 ... ok
+test shallow_then_unshallow_over_git_daemon_v2 ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.46s
+
+     Running tests/transport_ssh.rs (.gitr-ci/native-target/debug/build/grit-lib/f4ae26dd1813b3d3/out/transport_ssh-f4ae26dd1813b3d3)
+
+running 3 tests
+test fetch_over_ssh_program_lands_refs_and_objects ... ok
+test fetch_over_ssh_shell_command_lands_refs_and_objects ... ok
+test fetch_over_ssh_v2_lands_refs_and_objects ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s
+
+     Running tests/transport_ssh_push.rs (.gitr-ci/native-target/debug/build/grit-lib/e923e7c3a7cd5580/out/transport_ssh_push-e923e7c3a7cd5580)
+
+running 1 test
+test push_over_ssh_lands_ref_and_objects_and_reports_nonff_rejection ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+
+     Running tests/transport_v2_adversarial.rs (.gitr-ci/native-target/debug/build/grit-lib/da476ea48e14c62e/out/transport_v2_adversarial-da476ea48e14c62e)
+
+running 6 tests
+test v2_clone_from_scratch_no_haves_and_not_v0 ... ok
+test v2_incremental_offers_haves_and_pack_is_minimal ... ok
+test v2_ref_prefix_filtering_excludes_tags ... ok
+test v2_sha256_fetch_lands_refs_and_objects ... ok
+test v2_tag_modes_all_and_following ... ok
+test v2_unborn_remote_is_empty_and_does_not_hang ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.85s
+
+     Running unittests examples/cherry_pick.rs (.gitr-ci/native-target/debug/build/grit-lib/890db3811c1483a7/out/cherry_pick-890db3811c1483a7)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests examples/commit_tree.rs (.gitr-ci/native-target/debug/build/grit-lib/a83b7adc0ce5719b/out/commit_tree-a83b7adc0ce5719b)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests examples/ignore_match.rs (.gitr-ci/native-target/debug/build/grit-lib/dd13abf8c23b309c/out/ignore_match-dd13abf8c23b309c)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests examples/index_add.rs (.gitr-ci/native-target/debug/build/grit-lib/fc61761066a2cd68/out/index_add-fc61761066a2cd68)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests examples/merge_base.rs (.gitr-ci/native-target/debug/build/grit-lib/9f6ff483fbbcbbe7/out/merge_base-9f6ff483fbbcbbe7)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests examples/odb_blob.rs (.gitr-ci/native-target/debug/build/grit-lib/cf3b88fca535d1fb/out/odb_blob-cf3b88fca535d1fb)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests examples/pack_index.rs (.gitr-ci/native-target/debug/build/grit-lib/3f0d45ddd400e4fb/out/pack_index-3f0d45ddd400e4fb)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests examples/repo_init_and_open.rs (.gitr-ci/native-target/debug/build/grit-lib/cda14c4edbe725f7/out/repo_init_and_open-cda14c4edbe725f7)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests examples/rev_list.rs (.gitr-ci/native-target/debug/build/grit-lib/885480055eef6705/out/rev_list-885480055eef6705)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests examples/rev_parse.rs (.gitr-ci/native-target/debug/build/grit-lib/0b20bca7d75485fa/out/rev_parse-0b20bca7d75485fa)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests examples/walk_tree.rs (.gitr-ci/native-target/debug/build/grit-lib/60c2eb57118bc244/out/walk_tree-60c2eb57118bc244)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (.gitr-ci/native-target/debug/build/grit-test-support/4694499a3e9136d7/out/grit_test_support-4694499a3e9136d7)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+exit=exit status: 0
+elapsed_seconds=152.898

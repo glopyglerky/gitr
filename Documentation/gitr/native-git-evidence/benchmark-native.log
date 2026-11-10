@@ -1,0 +1,17 @@
+program="/home/runner/work/gitr/gitr/.gitr-ci/native-target/gitr-benchmark-native"
+arguments=["--gitr", "/home/runner/work/gitr/gitr/.gitr-ci/native-target/release/gitr", "--git", "/usr/bin/git", "--compiler-root", "/home/runner/work/gitr/gitr/.gitr-ci/native-produced-bluefe", "--fixture", "/home/runner/work/gitr/gitr/.gitr-ci/native-benchmark-fixture", "--output", "/home/runner/work/gitr/gitr/.gitr-ci/native-logs/benchmarks"]
+## Native command benchmark
+
+Release build with opt-level 3, LTO off and 16 codegen units. The repository's default release profile still uses thin LTO. Exact exit status, stdout and stderr matched reference Git before timing and for every sample.
+
+| Workload | Git median ms | Gitr median ms | Gitr / Git |
+|---|---:|---:|---:|
+| hash-blob-32mib | 71.984 | 22.954 | 0.319 |
+| status-1000-files | 1.822 | 4.813 | 2.642 |
+| log-200-commits | 3.167 | 9.221 | 2.911 |
+| ls-tree-1000-files | 1.173 | 2.668 | 2.274 |
+
+A ratio above 1 means Gitr was slower. Each executable had one warmup and seven measured invocations per workload; order alternated. Verification and warmups populated the shared OS page cache. Timings include process startup and output capture. The fixture has 1,000 tracked files, 20 modified files, 10 untracked files, and 200 linear commits sharing one tree. These are SHA-1 reads from ordinary Git loose objects. Redb performance and peak memory were not measured. Hosted runner contention and the packaged Git build can affect these results.
+
+exit=exit status: 0
+elapsed_seconds=1.604

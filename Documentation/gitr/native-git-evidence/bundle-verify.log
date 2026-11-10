@@ -1,0 +1,25 @@
+program="/home/runner/work/_temp/gitr-bluefe-bundle-helper"
+arguments=["verify"]
+Running "/home/runner/work/gitr/gitr/.gitr-ci/native-produced-bluefe/bin/rustc" "--version"
+rustc 1.102.0-dev (7005dc02c 2026-11-08)
+Running "/home/runner/work/gitr/gitr/.gitr-ci/native-produced-bluefe/bin/rustdoc" "--version"
+rustdoc 1.102.0-dev (7005dc02c 2026-11-08)
+Running "/home/runner/work/gitr/gitr/.gitr-ci/native-produced-bluefe/bin/cargo" "--version"
+cargo 1.101.0-nightly (31d3246e0 2026-10-27)
+Running "/home/runner/work/gitr/gitr/.gitr-ci/native-produced-bluefe/bin/lustr" "--version"
+lustr 0.1.0
+Running "/home/runner/work/gitr/gitr/.gitr-ci/native-produced-bluefe/bin/rustc" "/home/runner/work/_temp/gitr-bluefe-smoke/smoke.rs" "--edition=2024" "-o" "/home/runner/work/_temp/gitr-bluefe-smoke/smoke-native"
+Running "/home/runner/work/_temp/gitr-bluefe-smoke/smoke-native"
+Running "/home/runner/work/gitr/gitr/.gitr-ci/native-produced-bluefe/bin/rustc" "/home/runner/work/_temp/gitr-bluefe-smoke/smoke.rs" "--edition=2024" "--test" "-o" "/home/runner/work/_temp/gitr-bluefe-smoke/smoke-tests"
+Running "/home/runner/work/_temp/gitr-bluefe-smoke/smoke-tests"
+
+running 1 test
+test arithmetic ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+Running "/home/runner/work/gitr/gitr/.gitr-ci/native-produced-bluefe/bin/rustc" "/home/runner/work/_temp/gitr-bluefe-smoke/smoke.rs" "--edition=2024" "--target" "wasm32-unknown-unknown" "-o" "/home/runner/work/_temp/gitr-bluefe-smoke/smoke.wasm"
+Produced BlueFe bundle verified for native execution, libtest and wasm linking
+
+exit=exit status: 0
+elapsed_seconds=65.771

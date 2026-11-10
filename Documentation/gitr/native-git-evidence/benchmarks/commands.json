@@ -1,0 +1,4 @@
+[{"workload":"hash-blob-32mib","arguments":["--no-pager","hash-object","--no-filters","/home/runner/work/gitr/gitr/.gitr-ci/native-benchmark-fixture/blob-32mib.bin"]},
+{"workload":"status-1000-files","arguments":["--no-pager","status","--porcelain=v1","-z"]},
+{"workload":"log-200-commits","arguments":["--no-pager","log","--format=%H","-n","200","HEAD"]},
+{"workload":"ls-tree-1000-files","arguments":["--no-pager","ls-tree","-r","-z","--full-tree","HEAD"]}]

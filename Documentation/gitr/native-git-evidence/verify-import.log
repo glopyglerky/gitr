@@ -1,0 +1,12 @@
+program="/home/runner/work/gitr/gitr/.gitr-ci/native-produced-bluefe/bin/lustr"
+arguments=["--engine", "rustc", "--bluefe-root", "/home/runner/work/gitr/gitr/.gitr-ci/native-produced-bluefe", "run", "--example", "verify_import", "--locked"]
+   Compiling rustls v0.23.46
+   Compiling ureq v3.5.1
+   Compiling grit-git v0.5.0 (/home/runner/work/gitr/gitr/vendor/grit/grit-git)
+   Compiling gitr v0.1.0 (/home/runner/work/gitr/gitr)
+    Finished `dev` profile [unoptimized] target(s) in 1m 11s
+     Running `.gitr-ci/native-target/debug/examples/verify_import`
+Validated 450 original files (54 modified), 21 added files and 1 supplementary notices; exact inventory and local SHA-256 hashes match.
+
+exit=exit status: 0
+elapsed_seconds=72.500

@@ -240,8 +240,11 @@ source identity and executable smoke tests. Artifact retention therefore does
 not make future qualification depend on a month-old download or a latest-run
 fallback.
 
-Observed run links, pass/fail counts and benchmark measurements belong in the
-qualification evidence record. Configuration alone is not a successful run.
+The [executed qualification record](native-git-qualification.md) documents the
+2026-11-10 hosted pass: 146 root tests, 705 imported tests, source/policy checks,
+the optimized build and four output-verified benchmark workloads. It retains the
+exact tested tree, logs, source hashes, compiler provenance and timing samples.
+Hashing was faster in that run; status, log and tree listing were slower.
 The historical upstream shell-suite count must not be relabeled as Gitr's own
 coverage. Authenticated GitHub transport, all Git options/error modes, non-UTF-8
 paths, SHA-256 end-to-end operations and Windows/macOS still require qualification.

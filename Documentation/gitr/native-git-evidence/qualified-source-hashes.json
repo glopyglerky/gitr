@@ -1,0 +1,14 @@
+{
+  "qualified_tree": "932e504f41c8efe7fa908a53d79f6a494ae539e6",
+  "sha256": {
+    "Cargo.toml": "80c88e076ee88ef542252b659f12d1e4c4959300c79a6978625f7707e8fa805c",
+    "Cargo.lock": "2926043580d542a2a3f290c65e6bed7b5845ab3d7e4082438915f1c480af7962",
+    "vendor/grit/Cargo.toml": "ae579b92482738b413bab009f4a02b8dcbef62e6c0628c5cf6e00820774b50e2",
+    "vendor/grit/Cargo.lock": "7a06dc9c4a4698992a424b1323331b7f3723c3ca0e3c3b1a89b0917958b0e70b",
+    "vendor/grit/upstream-source.json": "73de35ec4a7a69d994d753db0dbf31d5c94cfcce3646bee296f74cc4b7f9ec4f",
+    "ci/qualify_native.rs": "a6d343054147fec6eb4c953463fd0d497028511182920a55b144f49868c19c93",
+    "ci/benchmark_native.rs": "12fff3bb2f86362d5a8e46df93d841d6f64aee67ac839564f08990635b34d94c",
+    "lustr-toolchain.json": "157d771e5a0fd167f244a807ba8dbed42684b09ceb7b5c926ba42d2f8fa84f9e",
+    ".github/workflows/gitr-native.yml": "ac62eeb7a2e6f8dd470c7d896f81edf2afe4b2eaa08236467eb22920fc411212"
+  }
+}

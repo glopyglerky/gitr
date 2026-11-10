@@ -1,0 +1,9 @@
+prepare	PASS	97.229s
+build-root	PASS	165.964s
+test-root	PASS	8.486s
+test-vendor	PASS	152.907s
+verify-import	PASS	72.510s
+policy	PASS	7.071s
+audit	PASS	0.043s
+build-release	PASS	489.598s
+benchmark	PASS	2.566s
