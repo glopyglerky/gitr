@@ -1,0 +1,2710 @@
+//! Git notes: read and write the tree-backed mapping from annotated object to
+//! note blob, reachable from `refs/notes/*`.
+//!
+//! Notes trees may use git's fanout layout (two-hex-digit subtrees); this crate
+//! reads any fanout depth and writes either flat trees or Git-compatible
+//! one-level fanout trees once the note count is large enough.
+
+#![allow(clippy::too_many_arguments)]
+
+use sley_config::GitConfig;
+use sley_core::{GitError, ObjectFormat, ObjectId, Result};
+use sley_object::{
+    BString, Commit, EncodedObject, ObjectType, Tree, TreeBuilder, TreeEntries, TreeEntry,
+    tree_entry_object_type,
+};
+use sley_odb::{FileObjectDatabase, ObjectReader, ObjectWriter};
+use sley_refs::{FileRefStore, RefTarget, RefUpdate, ReflogEntry};
+use sley_sequencer::{CommitCreate, create_commit};
+use std::collections::{BTreeMap, HashSet};
+use std::path::Path;
+
+/// Default notes ref when none is selected via `GIT_NOTES_REF` or `core.notesRef`.
+pub const DEFAULT_NOTES_REF: &str = "refs/notes/commits";
+
+/// A fully-qualified notes ref name (e.g. `refs/notes/commits`).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct NotesRef(pub String);
+
+impl NotesRef {
+    /// Qualify a notes ref name. Names already under `refs/notes/` are kept;
+    /// every other spelling is placed under `refs/notes/`.
+    pub fn expand(name: &str) -> Self {
+        Self(expand_notes_ref(name))
+    }
+
+    /// Borrow the underlying ref string.
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+impl From<&str> for NotesRef {
+    fn from(value: &str) -> Self {
+        Self::expand(value)
+    }
+}
+
+impl From<String> for NotesRef {
+    fn from(value: String) -> Self {
+        Self::expand(&value)
+    }
+}
+
+/// A single note: annotated object oid and the note blob oid.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Note {
+    pub annotated: ObjectId,
+    pub blob: ObjectId,
+}
+
+/// Author/committer lines for the notes commit (raw git identity bytes).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct NotesCommitIdentity {
+    pub author: Vec<u8>,
+    pub committer: Vec<u8>,
+}
+
+/// Result of an incremental note upsert at the repository level.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum UpsertNoteOutcome {
+    /// A new or updated note was written and the notes ref advanced.
+    Updated { notes_commit: ObjectId },
+    /// The annotated object already referenced this blob; no objects or ref were written.
+    Unchanged,
+}
+
+/// Controls whether an incremental note upsert may elide a redundant commit.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct UpsertNoteOptions {
+    /// Advance the notes ref with a new commit even when the note already
+    /// references the requested blob. Git's porcelain does this for a forced
+    /// overwrite; embedders default to the idempotent behavior.
+    pub commit_if_unchanged: bool,
+}
+
+/// Result of an incremental note removal at the repository level.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum RemoveNoteOutcome {
+    /// One or more notes were removed and the notes ref advanced.
+    Removed { notes_commit: ObjectId },
+    /// The notes ref was absent or none of the requested annotated objects had notes.
+    Unchanged,
+}
+
+/// Conflict resolution strategy for `git notes merge`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum NotesMergeStrategy {
+    Manual,
+    Ours,
+    Theirs,
+    Union,
+    CatSortUniq,
+}
+
+/// One unresolved note-level conflict from a notes merge.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct NotesMergeConflict {
+    pub annotated: ObjectId,
+    pub base: Option<ObjectId>,
+    pub local: Option<ObjectId>,
+    pub remote: Option<ObjectId>,
+}
+
+/// Result of merging one notes ref into another.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum NotesMergeOutcome {
+    /// The local ref was already up to date.
+    AlreadyUpToDate { result: ObjectId },
+    /// The merge fast-forwarded to the remote notes commit.
+    FastForward { result: ObjectId },
+    /// A merge commit was created and the local ref advanced to it.
+    Merged { result: ObjectId },
+    /// A partial merge commit was created; conflicts must be resolved by the caller.
+    Conflicted {
+        partial: ObjectId,
+        conflicts: Vec<NotesMergeConflict>,
+    },
+}
+
+/// Resolve the notes ref using git's precedence: explicit override, then
+/// `GIT_NOTES_REF`, then `core.notesRef`, then [`DEFAULT_NOTES_REF`].
+pub fn resolve_notes_ref(git_dir: &Path, ref_override: Option<&str>) -> Result<NotesRef> {
+    resolve_notes_ref_impl(git_dir, ref_override, None)
+}
+
+/// Like [`resolve_notes_ref`], but resolves `core.notesRef` against a
+/// caller-supplied effective config instead of re-reading `<git_dir>/config`
+/// blindly.
+///
+/// Callers that have already resolved the repository config — `include`/
+/// `includeIf` directives plus command-line `-c` / `GIT_CONFIG_*` overrides —
+/// pass it here so the notes ref honours the same `core.notesRef` the rest of the
+/// command sees. The explicit override and `GIT_NOTES_REF` still take precedence,
+/// matching git.
+pub fn resolve_notes_ref_with_config(
+    git_dir: &Path,
+    ref_override: Option<&str>,
+    config: &GitConfig,
+) -> Result<NotesRef> {
+    resolve_notes_ref_impl(git_dir, ref_override, Some(config))
+}
+
+fn resolve_notes_ref_impl(
+    git_dir: &Path,
+    ref_override: Option<&str>,
+    config: Option<&GitConfig>,
+) -> Result<NotesRef> {
+    if let Some(value) = ref_override {
+        return Ok(NotesRef::expand(value));
+    }
+    if let Ok(value) = std::env::var("GIT_NOTES_REF")
+        && !value.is_empty()
+    {
+        return Ok(NotesRef::expand(&value));
+    }
+    // Prefer the caller-resolved effective config; fall back to an include-aware
+    // read of `<git_dir>/config` when none was threaded in.
+    let owned_config;
+    let config = match config {
+        Some(config) => Some(config),
+        None => match read_repo_config(git_dir) {
+            Ok(config) => {
+                owned_config = config;
+                Some(&owned_config)
+            }
+            Err(_) => None,
+        },
+    };
+    if let Some(config) = config
+        && let Some(value) = config.get("core", None, "notesRef")
+        && !value.is_empty()
+    {
+        return Ok(NotesRef::expand(value));
+    }
+    Ok(NotesRef::expand(DEFAULT_NOTES_REF))
+}
+
+/// Lazy iterator over notes reachable from `notes_ref`.
+pub struct NotesIter {
+    db: FileObjectDatabase,
+    format: ObjectFormat,
+    stack: Vec<(ObjectId, String)>,
+    pending: Vec<Note>,
+}
+
+impl NotesIter {
+    fn new(
+        git_dir: &Path,
+        format: ObjectFormat,
+        store: &FileRefStore,
+        notes_ref: &NotesRef,
+    ) -> Result<Self> {
+        let Some(tree_oid) = notes_tree_oid(git_dir, format, store, notes_ref)? else {
+            return Ok(Self {
+                db: FileObjectDatabase::from_git_dir(git_dir, format),
+                format,
+                stack: Vec::new(),
+                pending: Vec::new(),
+            });
+        };
+        Ok(Self {
+            db: FileObjectDatabase::from_git_dir(git_dir, format),
+            format,
+            stack: vec![(tree_oid, String::new())],
+            pending: Vec::new(),
+        })
+    }
+}
+
+impl Iterator for NotesIter {
+    type Item = Result<Note>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        loop {
+            if let Some(note) = self.pending.pop() {
+                return Some(Ok(note));
+            }
+            let (tree_oid, prefix) = self.stack.pop()?;
+            let entries = match load_hex_tree_entries(&self.db, self.format, &tree_oid) {
+                Ok(entries) => entries,
+                Err(err) => return Some(Err(err)),
+            };
+            for (name, mode, oid) in entries.into_iter().rev() {
+                if tree_entry_object_type(mode) == ObjectType::Tree {
+                    let mut nested = prefix.clone();
+                    nested.push_str(&name);
+                    self.stack.push((oid, nested));
+                } else {
+                    let mut hex = prefix.clone();
+                    hex.push_str(&name);
+                    if hex.len() != self.format.hex_len() {
+                        continue;
+                    }
+                    let Ok(annotated) = ObjectId::from_hex(self.format, &hex) else {
+                        continue;
+                    };
+                    self.pending.push(Note {
+                        annotated,
+                        blob: oid,
+                    });
+                }
+            }
+        }
+    }
+}
+
+/// Stream notes from `notes_ref` without materializing the full list.
+pub fn iter_notes(
+    git_dir: &Path,
+    format: ObjectFormat,
+    store: &FileRefStore,
+    notes_ref: &NotesRef,
+) -> Result<NotesIter> {
+    NotesIter::new(git_dir, format, store, notes_ref)
+}
+
+/// List every note reachable from `notes_ref`, sorted by annotated-object hex.
+pub fn list_notes(
+    git_dir: &Path,
+    format: ObjectFormat,
+    store: &FileRefStore,
+    notes_ref: &NotesRef,
+) -> Result<Vec<Note>> {
+    let Some(tree_oid) = notes_tree_oid(git_dir, format, store, notes_ref)? else {
+        return Ok(Vec::new());
+    };
+    let db = FileObjectDatabase::from_git_dir(git_dir, format);
+    Ok(notes_vec_from_map(notes_map_from_tree(
+        git_dir, &db, format, tree_oid,
+    )?))
+}
+
+/// Return the note blob oid for `annotated`, if any (fanout-aware, no full scan).
+pub fn read_note_for(
+    git_dir: &Path,
+    format: ObjectFormat,
+    store: &FileRefStore,
+    notes_ref: &NotesRef,
+    annotated: &ObjectId,
+) -> Result<Option<ObjectId>> {
+    let Some(tree_oid) = notes_tree_oid(git_dir, format, store, notes_ref)? else {
+        return Ok(None);
+    };
+    let db = FileObjectDatabase::from_git_dir(git_dir, format);
+    lookup_note_for(git_dir, &db, format, &tree_oid, "", &annotated.to_hex())
+}
+
+/// Return the note blob oid for `annotated` from an already-resolved notes tree.
+pub fn read_note_from_tree(
+    git_dir: &Path,
+    format: ObjectFormat,
+    tree_oid: &ObjectId,
+    annotated: &ObjectId,
+) -> Result<Option<ObjectId>> {
+    let db = FileObjectDatabase::from_git_dir(git_dir, format);
+    lookup_note_for(git_dir, &db, format, tree_oid, "", &annotated.to_hex())
+}
+
+/// Return the note blob oid for `annotated`, if any.
+pub fn read_note(
+    git_dir: &Path,
+    format: ObjectFormat,
+    store: &FileRefStore,
+    notes_ref: &NotesRef,
+    annotated: &ObjectId,
+) -> Result<Option<ObjectId>> {
+    read_note_for(git_dir, format, store, notes_ref, annotated)
+}
+
+/// Return the note body bytes for `annotated`, if a note exists.
+pub fn read_note_bytes(
+    git_dir: &Path,
+    format: ObjectFormat,
+    store: &FileRefStore,
+    notes_ref: &NotesRef,
+    annotated: &ObjectId,
+) -> Result<Option<Vec<u8>>> {
+    let Some(blob) = read_note(git_dir, format, store, notes_ref, annotated)? else {
+        return Ok(None);
+    };
+    let db = FileObjectDatabase::from_git_dir(git_dir, format);
+    let object = db.read_object(&blob)?;
+    if object.object_type != ObjectType::Blob {
+        return Err(GitError::InvalidFormat(format!(
+            "note for {} is not a blob",
+            annotated.to_hex()
+        )));
+    }
+    Ok(Some(object.body.to_vec()))
+}
+
+/// Derive the compare-and-swap precondition used by legacy full-replace callers:
+/// [`Some`](RefTarget::Direct) when the notes ref exists as a direct oid, otherwise
+/// `None` (create-only).
+pub fn notes_ref_expected(store: &FileRefStore, notes_ref: &NotesRef) -> Result<Option<RefTarget>> {
+    Ok(match store.read_ref(notes_ref.as_str())? {
+        Some(RefTarget::Direct(oid)) => Some(RefTarget::Direct(oid)),
+        _ => None,
+    })
+}
+
+/// Rewrite the notes tree to exactly `notes` and advance `notes_ref` to a new
+/// commit. An empty set still records a commit on the empty tree.
+///
+/// `ref_expected` is the compare-and-swap precondition on the notes ref:
+/// `None` means the ref must not exist; [`Some`](RefTarget::Direct) means it must
+/// point at that oid. Use [`notes_ref_expected`] for legacy auto-detection.
+#[allow(clippy::too_many_arguments)]
+pub fn write_notes(
+    git_dir: &Path,
+    format: ObjectFormat,
+    store: &FileRefStore,
+    notes_ref: &NotesRef,
+    notes: &[Note],
+    message: &str,
+    identity: &NotesCommitIdentity,
+    ref_expected: Option<RefTarget>,
+) -> Result<()> {
+    commit_notes_update(
+        git_dir,
+        format,
+        store,
+        notes_ref,
+        notes,
+        message,
+        identity,
+        ref_expected,
+    )?;
+    Ok(())
+}
+
+/// Merge `remote_ref` into `local_ref`, matching Git's note-level three-way
+/// merge rules. The caller is responsible for persisting conflict worktree
+/// files when [`NotesMergeOutcome::Conflicted`] is returned.
+#[allow(clippy::too_many_arguments)]
+pub fn merge_notes(
+    git_dir: &Path,
+    format: ObjectFormat,
+    store: &FileRefStore,
+    local_ref: &NotesRef,
+    remote_ref: &NotesRef,
+    strategy: NotesMergeStrategy,
+    message: &str,
+    identity: &NotesCommitIdentity,
+) -> Result<NotesMergeOutcome> {
+    let local_oid = notes_head_oid(store, local_ref)?;
+    let remote_oid = notes_head_oid(store, remote_ref)?;
+
+    match (local_oid, remote_oid) {
+        (None, None) => {
+            return Err(GitError::InvalidFormat(format!(
+                "Cannot merge empty notes ref ({}) into empty notes ref ({})",
+                remote_ref.as_str(),
+                local_ref.as_str()
+            )));
+        }
+        (None, Some(remote)) => {
+            update_notes_ref_to_commit(
+                git_dir, format, store, local_ref, None, remote, message, identity,
+            )?;
+            return Ok(NotesMergeOutcome::FastForward { result: remote });
+        }
+        (Some(local), None) => {
+            return Ok(NotesMergeOutcome::AlreadyUpToDate { result: local });
+        }
+        (Some(local), Some(remote)) if local == remote => {
+            return Ok(NotesMergeOutcome::AlreadyUpToDate { result: local });
+        }
+        _ => {}
+    }
+
+    let (Some(local_oid), Some(remote_oid)) = (local_oid, remote_oid) else {
+        return Err(GitError::InvalidFormat(
+            "missing notes merge endpoint".into(),
+        ));
+    };
+    let db = FileObjectDatabase::from_git_dir(git_dir, format);
+    let bases = sley_rev::merge_bases(git_dir, format, &db, &local_oid, &remote_oid)?;
+    let base_oid = bases.first().copied();
+
+    if base_oid == Some(remote_oid) {
+        return Ok(NotesMergeOutcome::AlreadyUpToDate { result: local_oid });
+    }
+    if base_oid == Some(local_oid) {
+        update_notes_ref_to_commit(
+            git_dir,
+            format,
+            store,
+            local_ref,
+            Some(local_oid),
+            remote_oid,
+            message,
+            identity,
+        )?;
+        return Ok(NotesMergeOutcome::FastForward { result: remote_oid });
+    }
+
+    let base_tree = match base_oid {
+        Some(oid) => commit_tree_oid(&db, format, &oid)?,
+        None => ObjectId::empty_tree(format),
+    };
+    let local_tree = commit_tree_oid(&db, format, &local_oid)?;
+    let remote_tree = commit_tree_oid(&db, format, &remote_oid)?;
+
+    let base_notes = notes_map_from_tree(git_dir, &db, format, base_tree)?;
+    let local_notes = notes_map_from_tree(git_dir, &db, format, local_tree)?;
+    let remote_notes = notes_map_from_tree(git_dir, &db, format, remote_tree)?;
+    let mut merged = local_notes.clone();
+    let mut conflicts = Vec::new();
+
+    let mut candidates: Vec<ObjectId> = base_notes
+        .keys()
+        .chain(remote_notes.keys())
+        .copied()
+        .collect();
+    candidates.sort_by_key(|oid| oid.to_hex());
+    candidates.dedup();
+
+    for annotated in candidates {
+        let base = base_notes.get(&annotated).copied();
+        let local = local_notes.get(&annotated).copied();
+        let remote = remote_notes.get(&annotated).copied();
+
+        if base == remote || local == remote {
+            continue;
+        }
+        if local == base {
+            set_note_option(&mut merged, annotated, remote);
+            continue;
+        }
+
+        match strategy {
+            NotesMergeStrategy::Manual => {
+                merged.remove(&annotated);
+                conflicts.push(NotesMergeConflict {
+                    annotated,
+                    base,
+                    local,
+                    remote,
+                });
+            }
+            NotesMergeStrategy::Ours => {}
+            NotesMergeStrategy::Theirs => set_note_option(&mut merged, annotated, remote),
+            NotesMergeStrategy::Union => {
+                if let Some(blob) =
+                    combine_note_blobs(git_dir, &db, format, local, remote, NoteBlobCombine::Union)?
+                {
+                    merged.insert(annotated, blob);
+                }
+            }
+            NotesMergeStrategy::CatSortUniq => {
+                if let Some(blob) = combine_note_blobs(
+                    git_dir,
+                    &db,
+                    format,
+                    local,
+                    remote,
+                    NoteBlobCombine::CatSortUniq,
+                )? {
+                    merged.insert(annotated, blob);
+                }
+            }
+        }
+    }
+
+    let notes = notes_vec_from_map(merged);
+    let parents = vec![local_oid, remote_oid];
+    // git appends a "Conflicts:" section listing every conflicting object to the
+    // partial merge commit's message (`merge_one_change_manual`); `--commit`
+    // later reuses that message verbatim, so the finalized merge records which
+    // notes conflicted.
+    let mut commit_message = message.as_bytes().to_vec();
+    if !conflicts.is_empty() {
+        commit_message.extend_from_slice(b"\n\nConflicts:\n");
+        for conflict in &conflicts {
+            commit_message
+                .extend_from_slice(format!("\t{}\n", conflict.annotated.to_hex()).as_bytes());
+        }
+    }
+    let result = commit_notes_update_with_parents(
+        git_dir,
+        format,
+        store,
+        local_ref,
+        &notes,
+        &commit_message,
+        identity,
+        &parents,
+        Some(RefTarget::Direct(local_oid)),
+        conflicts.is_empty(),
+    )?;
+
+    if conflicts.is_empty() {
+        Ok(NotesMergeOutcome::Merged { result })
+    } else {
+        Ok(NotesMergeOutcome::Conflicted {
+            partial: result,
+            conflicts,
+        })
+    }
+}
+
+/// Finalize a previous conflicting notes merge by adding resolved worktree
+/// entries to the partial notes tree and creating the final merge commit.
+#[allow(clippy::too_many_arguments)]
+pub fn finalize_notes_merge(
+    git_dir: &Path,
+    format: ObjectFormat,
+    store: &FileRefStore,
+    notes_ref: &NotesRef,
+    partial_commit: ObjectId,
+    resolved: &[(ObjectId, Vec<u8>)],
+    identity: &NotesCommitIdentity,
+) -> Result<ObjectId> {
+    let db = FileObjectDatabase::from_git_dir(git_dir, format);
+    let partial = read_commit(&db, format, &partial_commit)?;
+    let mut notes = notes_map_from_tree(git_dir, &db, format, partial.tree)?;
+    let writable = FileObjectDatabase::from_git_dir(git_dir, format);
+    for (annotated, body) in resolved {
+        let blob = writable.write_object(EncodedObject::new(ObjectType::Blob, body.clone()))?;
+        notes.insert(*annotated, blob);
+    }
+    let expected = partial.parents.first().copied().map(RefTarget::Direct);
+    commit_notes_update_with_parents(
+        git_dir,
+        format,
+        store,
+        notes_ref,
+        &notes_vec_from_map(notes),
+        &partial.message,
+        identity,
+        &partial.parents,
+        expected,
+        true,
+    )
+}
+
+/// Incrementally upsert a single note, reading any fanout layout and writing a
+/// flat sorted tree. Returns [`UpsertNoteOutcome::Unchanged`] when `annotated`
+/// already maps to `blob`.
+#[allow(clippy::too_many_arguments)]
+pub fn upsert_note_for(
+    git_dir: &Path,
+    format: ObjectFormat,
+    store: &FileRefStore,
+    notes_ref: &NotesRef,
+    annotated: &ObjectId,
+    blob: ObjectId,
+    message: &str,
+    identity: &NotesCommitIdentity,
+    ref_expected: Option<RefTarget>,
+) -> Result<UpsertNoteOutcome> {
+    upsert_note_for_with_options(
+        git_dir,
+        format,
+        store,
+        notes_ref,
+        annotated,
+        blob,
+        message,
+        identity,
+        ref_expected,
+        UpsertNoteOptions::default(),
+    )
+}
+
+/// Like [`upsert_note_for`], with explicit redundant-commit behavior.
+#[allow(clippy::too_many_arguments)]
+pub fn upsert_note_for_with_options(
+    git_dir: &Path,
+    format: ObjectFormat,
+    store: &FileRefStore,
+    notes_ref: &NotesRef,
+    annotated: &ObjectId,
+    blob: ObjectId,
+    message: &str,
+    identity: &NotesCommitIdentity,
+    ref_expected: Option<RefTarget>,
+    options: UpsertNoteOptions,
+) -> Result<UpsertNoteOutcome> {
+    let mut snapshot = load_notes_snapshot(git_dir, format, store, notes_ref)?;
+    if snapshot.notes.get(annotated).copied() == Some(blob) && !options.commit_if_unchanged {
+        return Ok(UpsertNoteOutcome::Unchanged);
+    }
+    snapshot.notes.insert(*annotated, blob);
+    let notes = notes_vec_from_map(snapshot.notes);
+    let parents = snapshot.parent.into_iter().collect::<Vec<_>>();
+    let notes_commit = commit_notes_update_with_preloaded_non_notes(
+        git_dir,
+        format,
+        store,
+        notes_ref,
+        &notes,
+        format!("{message}\n").as_bytes(),
+        identity,
+        &parents,
+        ref_expected,
+        true,
+        &snapshot.non_notes,
+    )?;
+    Ok(UpsertNoteOutcome::Updated { notes_commit })
+}
+
+/// Write `body` as a blob, then call [`upsert_note_for`].
+#[allow(clippy::too_many_arguments)]
+pub fn upsert_note_bytes_for(
+    git_dir: &Path,
+    format: ObjectFormat,
+    store: &FileRefStore,
+    notes_ref: &NotesRef,
+    annotated: &ObjectId,
+    body: &[u8],
+    message: &str,
+    identity: &NotesCommitIdentity,
+    ref_expected: Option<RefTarget>,
+) -> Result<UpsertNoteOutcome> {
+    let db = FileObjectDatabase::from_git_dir(git_dir, format);
+    let blob = db.write_object(EncodedObject::new(ObjectType::Blob, body.to_vec()))?;
+    upsert_note_for(
+        git_dir,
+        format,
+        store,
+        notes_ref,
+        annotated,
+        blob,
+        message,
+        identity,
+        ref_expected,
+    )
+}
+
+/// Remove the note for a single annotated object, if present.
+#[allow(clippy::too_many_arguments)]
+pub fn remove_note_for(
+    git_dir: &Path,
+    format: ObjectFormat,
+    store: &FileRefStore,
+    notes_ref: &NotesRef,
+    annotated: &ObjectId,
+    message: &str,
+    identity: &NotesCommitIdentity,
+    ref_expected: Option<RefTarget>,
+) -> Result<RemoveNoteOutcome> {
+    remove_notes_for(
+        git_dir,
+        format,
+        store,
+        notes_ref,
+        std::slice::from_ref(annotated),
+        message,
+        identity,
+        ref_expected,
+    )
+}
+
+/// Remove notes for `annotated` in a single fast-forward commit when any are
+/// present. Returns [`RemoveNoteOutcome::Unchanged`] when the ref is absent or
+/// none of the oids have notes.
+#[allow(clippy::too_many_arguments)]
+pub fn remove_notes_for(
+    git_dir: &Path,
+    format: ObjectFormat,
+    store: &FileRefStore,
+    notes_ref: &NotesRef,
+    annotated: &[ObjectId],
+    message: &str,
+    identity: &NotesCommitIdentity,
+    ref_expected: Option<RefTarget>,
+) -> Result<RemoveNoteOutcome> {
+    if annotated.is_empty() {
+        return Ok(RemoveNoteOutcome::Unchanged);
+    }
+    let mut snapshot = load_notes_snapshot(git_dir, format, store, notes_ref)?;
+    if snapshot.parent.is_none() {
+        return Ok(RemoveNoteOutcome::Unchanged);
+    }
+    let targets: HashSet<_> = annotated.iter().collect();
+    let before = snapshot.notes.len();
+    snapshot
+        .notes
+        .retain(|annotated, _| !targets.contains(annotated));
+    if snapshot.notes.len() == before {
+        return Ok(RemoveNoteOutcome::Unchanged);
+    }
+    let notes = notes_vec_from_map(snapshot.notes);
+    let parents = snapshot.parent.into_iter().collect::<Vec<_>>();
+    let notes_commit = commit_notes_update_with_preloaded_non_notes(
+        git_dir,
+        format,
+        store,
+        notes_ref,
+        &notes,
+        format!("{message}\n").as_bytes(),
+        identity,
+        &parents,
+        ref_expected,
+        true,
+        &snapshot.non_notes,
+    )?;
+    Ok(RemoveNoteOutcome::Removed { notes_commit })
+}
+
+/// Replace (or insert) the note for `annotated` inside an in-memory note list.
+pub fn upsert_note(notes: &mut Vec<Note>, annotated: &ObjectId, blob: ObjectId) {
+    let target_hex = annotated.to_hex();
+    if let Some(existing) = notes
+        .iter_mut()
+        .find(|entry| entry.annotated.to_hex() == target_hex)
+    {
+        existing.blob = blob;
+    } else {
+        notes.push(Note {
+            annotated: *annotated,
+            blob,
+        });
+    }
+}
+
+/// Remove the note for `annotated` from an in-memory note list, if present.
+pub fn remove_note(notes: &mut Vec<Note>, annotated: &ObjectId) {
+    let target_hex = annotated.to_hex();
+    notes.retain(|entry| entry.annotated.to_hex() != target_hex);
+}
+
+/// Peel `notes_ref` to its root tree oid. Returns `None` when the ref is absent.
+pub fn notes_tree_oid(
+    git_dir: &Path,
+    format: ObjectFormat,
+    store: &FileRefStore,
+    notes_ref: &NotesRef,
+) -> Result<Option<ObjectId>> {
+    let Some(mut target) = store.read_ref(notes_ref.as_str())? else {
+        return Ok(None);
+    };
+    // Follow symref chains with git's shared hop budget (refs.c
+    // SYMREF_MAXDEPTH); oracle `git notes` resolves multi-hop notes refs.
+    let mut commit_oid = None;
+    for _ in 0..sley_core::MAX_SYMREF_DEPTH {
+        match target {
+            RefTarget::Direct(oid) => {
+                commit_oid = Some(oid);
+                break;
+            }
+            RefTarget::Symbolic(name) => match store.read_ref(&name)? {
+                Some(next) => target = next,
+                None => return Ok(None),
+            },
+        }
+    }
+    let Some(commit_oid) = commit_oid else {
+        return Ok(None);
+    };
+    let db = FileObjectDatabase::from_git_dir(git_dir, format);
+    let object = db.read_object(&commit_oid)?;
+    match object.object_type {
+        ObjectType::Commit => Ok(Some(Commit::parse_ref(format, &object.body)?.tree)),
+        ObjectType::Tree => Ok(Some(commit_oid)),
+        _ => Ok(None),
+    }
+}
+
+fn load_hex_tree_entries(
+    db: &FileObjectDatabase,
+    format: ObjectFormat,
+    tree_oid: &ObjectId,
+) -> Result<Vec<(String, u32, ObjectId)>> {
+    let object = db.read_object(tree_oid)?;
+    if object.object_type != ObjectType::Tree {
+        return Ok(Vec::new());
+    }
+    let mut out = Vec::new();
+    for entry in TreeEntries::new(format, &object.body) {
+        let entry = entry?;
+        let Ok(name) = std::str::from_utf8(entry.name) else {
+            continue;
+        };
+        if !is_hex_name(name) {
+            continue;
+        }
+        out.push((name.to_string(), entry.mode, entry.oid));
+    }
+    Ok(out)
+}
+
+fn lookup_note_for(
+    git_dir: &Path,
+    db: &FileObjectDatabase,
+    format: ObjectFormat,
+    tree_oid: &ObjectId,
+    prefix: &str,
+    target_hex: &str,
+) -> Result<Option<ObjectId>> {
+    let mut found = None;
+    for (name, mode, oid) in load_hex_tree_entries(db, format, tree_oid)? {
+        let mut hex = prefix.to_string();
+        hex.push_str(&name);
+        if tree_entry_object_type(mode) == ObjectType::Tree {
+            if !target_hex.starts_with(&hex) {
+                continue;
+            }
+            if let Some(blob) = lookup_note_for(git_dir, db, format, &oid, &hex, target_hex)? {
+                found = combine_loaded_note(git_dir, db, format, found, blob)?;
+            }
+        } else if hex == target_hex {
+            found = combine_loaded_note(git_dir, db, format, found, oid)?;
+        }
+    }
+    Ok(found)
+}
+
+fn is_hex_name(name: &str) -> bool {
+    !name.is_empty() && name.bytes().all(|byte| byte.is_ascii_hexdigit())
+}
+
+fn expand_notes_ref(name: &str) -> String {
+    if name.starts_with("refs/notes/") {
+        name.to_string()
+    } else {
+        format!("refs/notes/{name}")
+    }
+}
+
+/// Include-aware read of `<git_dir>/config` (resolves `include`/`includeIf` and
+/// layers inherited `GIT_CONFIG_*` overrides), shared with the rest of the
+/// library via [`sley_config::read_repo_config`]. Used as the fallback when a
+/// caller did not pass an already-resolved effective config to
+/// [`resolve_notes_ref_with_config`].
+fn read_repo_config(git_dir: &Path) -> Result<GitConfig> {
+    sley_config::read_repo_config(git_dir, None)
+}
+
+fn read_commit(db: &FileObjectDatabase, format: ObjectFormat, oid: &ObjectId) -> Result<Commit> {
+    let object = db.read_object(oid)?;
+    if object.object_type != ObjectType::Commit {
+        return Err(GitError::InvalidFormat(format!(
+            "{} is not a commit",
+            oid.to_hex()
+        )));
+    }
+    Commit::parse(format, &object.body)
+}
+
+fn commit_tree_oid(
+    db: &FileObjectDatabase,
+    format: ObjectFormat,
+    oid: &ObjectId,
+) -> Result<ObjectId> {
+    Ok(read_commit(db, format, oid)?.tree)
+}
+
+fn notes_head_oid(store: &FileRefStore, notes_ref: &NotesRef) -> Result<Option<ObjectId>> {
+    Ok(match store.read_ref(notes_ref.as_str())? {
+        Some(RefTarget::Direct(oid)) => Some(oid),
+        _ => None,
+    })
+}
+
+/// A mutation snapshot loads the current notes and the arbitrary non-note tree
+/// entries that Git preserves in one object-database pass.  Incremental notes
+/// operations previously walked every tree twice: once to materialize notes,
+/// then again immediately before writing to rediscover non-note entries.
+struct NotesSnapshot {
+    parent: Option<ObjectId>,
+    notes: BTreeMap<ObjectId, ObjectId>,
+    non_notes: Vec<NonNote>,
+}
+
+#[derive(Clone)]
+struct CachedTreeEntry {
+    name: Vec<u8>,
+    mode: u32,
+    oid: ObjectId,
+}
+
+struct NotesTreeCache<'a> {
+    db: &'a FileObjectDatabase,
+    format: ObjectFormat,
+    entries: BTreeMap<ObjectId, Vec<CachedTreeEntry>>,
+}
+
+impl<'a> NotesTreeCache<'a> {
+    fn new(db: &'a FileObjectDatabase, format: ObjectFormat) -> Self {
+        Self {
+            db,
+            format,
+            entries: BTreeMap::new(),
+        }
+    }
+
+    fn entries(&mut self, tree_oid: &ObjectId) -> Result<Vec<CachedTreeEntry>> {
+        if let Some(entries) = self.entries.get(tree_oid) {
+            return Ok(entries.clone());
+        }
+        let object = self.db.read_object(tree_oid)?;
+        let entries = if object.object_type == ObjectType::Tree {
+            TreeEntries::new(self.format, &object.body)
+                .map(|entry| {
+                    let entry = entry?;
+                    Ok(CachedTreeEntry {
+                        name: entry.name.to_vec(),
+                        mode: entry.mode,
+                        oid: entry.oid,
+                    })
+                })
+                .collect::<Result<Vec<_>>>()?
+        } else {
+            Vec::new()
+        };
+        self.entries.insert(*tree_oid, entries.clone());
+        Ok(entries)
+    }
+}
+
+fn load_notes_snapshot(
+    git_dir: &Path,
+    format: ObjectFormat,
+    store: &FileRefStore,
+    notes_ref: &NotesRef,
+) -> Result<NotesSnapshot> {
+    let db = FileObjectDatabase::from_git_dir(git_dir, format);
+    let Some(parent) = notes_head_oid(store, notes_ref)? else {
+        return Ok(NotesSnapshot {
+            parent: None,
+            notes: BTreeMap::new(),
+            non_notes: Vec::new(),
+        });
+    };
+    let commit = read_commit(&db, format, &parent)?;
+    let mut cache = NotesTreeCache::new(&db, format);
+    let mut notes = BTreeMap::new();
+    collect_notes_from_tree_cached(
+        git_dir,
+        &db,
+        format,
+        commit.tree,
+        "",
+        &mut notes,
+        &mut cache,
+    )?;
+    let mut non_notes = Vec::new();
+    collect_non_notes_rec_cached(format, &commit.tree, &[], 0, &mut non_notes, &mut cache)?;
+    Ok(NotesSnapshot {
+        parent: Some(parent),
+        notes,
+        non_notes,
+    })
+}
+
+#[allow(clippy::too_many_arguments)]
+fn collect_notes_from_tree_cached(
+    git_dir: &Path,
+    db: &FileObjectDatabase,
+    format: ObjectFormat,
+    tree_oid: ObjectId,
+    prefix: &str,
+    out: &mut BTreeMap<ObjectId, ObjectId>,
+    cache: &mut NotesTreeCache<'_>,
+) -> Result<()> {
+    for entry in cache.entries(&tree_oid)? {
+        let Ok(name) = std::str::from_utf8(&entry.name) else {
+            continue;
+        };
+        if !is_hex_name(name) {
+            continue;
+        }
+        let mut hex = prefix.to_string();
+        hex.push_str(name);
+        if tree_entry_object_type(entry.mode) == ObjectType::Tree {
+            collect_notes_from_tree_cached(git_dir, db, format, entry.oid, &hex, out, cache)?;
+        } else if hex.len() == format.hex_len()
+            && let Ok(annotated) = ObjectId::from_hex(format, &hex)
+        {
+            let combined =
+                combine_loaded_note(git_dir, db, format, out.get(&annotated).copied(), entry.oid)?;
+            match combined {
+                Some(blob) => {
+                    out.insert(annotated, blob);
+                }
+                None => {
+                    out.remove(&annotated);
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+fn collect_non_notes_rec_cached(
+    format: ObjectFormat,
+    tree_oid: &ObjectId,
+    prefix: &[u8],
+    consumed_hex: usize,
+    out: &mut Vec<NonNote>,
+    cache: &mut NotesTreeCache<'_>,
+) -> Result<()> {
+    let hex_len = format.hex_len();
+    for entry in cache.entries(tree_oid)? {
+        let name = &entry.name;
+        let name_len = name.len();
+        let is_tree = tree_entry_object_type(entry.mode) == ObjectType::Tree;
+        let is_hex = !name.is_empty() && name.iter().all(u8::is_ascii_hexdigit);
+
+        if consumed_hex < hex_len && name_len == hex_len - consumed_hex {
+            if !is_tree && is_hex {
+                continue;
+            }
+        } else if name_len == 2 && is_tree && is_hex {
+            let mut child_prefix = prefix.to_vec();
+            child_prefix.extend_from_slice(name);
+            child_prefix.push(b'/');
+            collect_non_notes_rec_cached(
+                format,
+                &entry.oid,
+                &child_prefix,
+                consumed_hex + 2,
+                out,
+                cache,
+            )?;
+            continue;
+        }
+
+        let mut full = prefix.to_vec();
+        full.extend_from_slice(name);
+        out.push(NonNote {
+            path: full,
+            mode: entry.mode,
+            oid: entry.oid,
+        });
+    }
+    Ok(())
+}
+
+fn notes_map_from_tree(
+    git_dir: &Path,
+    db: &FileObjectDatabase,
+    format: ObjectFormat,
+    tree_oid: ObjectId,
+) -> Result<BTreeMap<ObjectId, ObjectId>> {
+    let mut notes = BTreeMap::new();
+    if tree_oid == ObjectId::empty_tree(format) {
+        return Ok(notes);
+    }
+    collect_notes_from_tree(git_dir, db, format, tree_oid, "", &mut notes)?;
+    Ok(notes)
+}
+
+fn collect_notes_from_tree(
+    git_dir: &Path,
+    db: &FileObjectDatabase,
+    format: ObjectFormat,
+    tree_oid: ObjectId,
+    prefix: &str,
+    out: &mut BTreeMap<ObjectId, ObjectId>,
+) -> Result<()> {
+    for (name, mode, oid) in load_hex_tree_entries(db, format, &tree_oid)? {
+        let mut hex = prefix.to_string();
+        hex.push_str(&name);
+        if tree_entry_object_type(mode) == ObjectType::Tree {
+            collect_notes_from_tree(git_dir, db, format, oid, &hex, out)?;
+        } else if hex.len() == format.hex_len()
+            && let Ok(annotated) = ObjectId::from_hex(format, &hex)
+        {
+            let combined =
+                combine_loaded_note(git_dir, db, format, out.get(&annotated).copied(), oid)?;
+            match combined {
+                Some(blob) => {
+                    out.insert(annotated, blob);
+                }
+                None => {
+                    out.remove(&annotated);
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+fn combine_loaded_note(
+    git_dir: &Path,
+    db: &FileObjectDatabase,
+    format: ObjectFormat,
+    current: Option<ObjectId>,
+    next: ObjectId,
+) -> Result<Option<ObjectId>> {
+    if current.is_none() {
+        return Ok(Some(next));
+    }
+    if current == Some(next) {
+        return Ok(current);
+    }
+    combine_note_blobs(
+        git_dir,
+        db,
+        format,
+        current,
+        Some(next),
+        NoteBlobCombine::Union,
+    )
+}
+
+fn notes_vec_from_map(notes: BTreeMap<ObjectId, ObjectId>) -> Vec<Note> {
+    notes
+        .into_iter()
+        .map(|(annotated, blob)| Note { annotated, blob })
+        .collect()
+}
+
+fn set_note_option(
+    notes: &mut BTreeMap<ObjectId, ObjectId>,
+    annotated: ObjectId,
+    blob: Option<ObjectId>,
+) {
+    match blob {
+        Some(blob) => {
+            notes.insert(annotated, blob);
+        }
+        None => {
+            notes.remove(&annotated);
+        }
+    }
+}
+
+enum NoteBlobCombine {
+    Union,
+    CatSortUniq,
+}
+
+fn combine_note_blobs(
+    git_dir: &Path,
+    db: &FileObjectDatabase,
+    format: ObjectFormat,
+    local: Option<ObjectId>,
+    remote: Option<ObjectId>,
+    mode: NoteBlobCombine,
+) -> Result<Option<ObjectId>> {
+    match mode {
+        NoteBlobCombine::Union => combine_note_blobs_union(git_dir, db, format, local, remote),
+        NoteBlobCombine::CatSortUniq => {
+            combine_note_blobs_cat_sort_uniq(git_dir, db, format, local, remote)
+        }
+    }
+}
+
+fn read_blob_bytes(db: &FileObjectDatabase, oid: &ObjectId) -> Result<Option<Vec<u8>>> {
+    let object = db.read_object(oid)?;
+    if object.object_type != ObjectType::Blob || object.body.is_empty() {
+        return Ok(None);
+    }
+    Ok(Some(object.body.clone()))
+}
+
+fn combine_note_blobs_union(
+    git_dir: &Path,
+    db: &FileObjectDatabase,
+    format: ObjectFormat,
+    local: Option<ObjectId>,
+    remote: Option<ObjectId>,
+) -> Result<Option<ObjectId>> {
+    let Some(remote_oid) = remote else {
+        return Ok(local);
+    };
+    let Some(remote_body) = read_blob_bytes(db, &remote_oid)? else {
+        return Ok(local);
+    };
+    let Some(local_oid) = local else {
+        return Ok(Some(remote_oid));
+    };
+    let Some(mut local_body) = read_blob_bytes(db, &local_oid)? else {
+        return Ok(Some(remote_oid));
+    };
+    if local_body.last() == Some(&b'\n') {
+        local_body.pop();
+    }
+    local_body.extend_from_slice(b"\n\n");
+    local_body.extend_from_slice(&remote_body);
+    let writable = FileObjectDatabase::from_git_dir(git_dir, format);
+    writable
+        .write_object(EncodedObject::new(ObjectType::Blob, local_body))
+        .map(Some)
+}
+
+fn combine_note_blobs_cat_sort_uniq(
+    git_dir: &Path,
+    db: &FileObjectDatabase,
+    format: ObjectFormat,
+    local: Option<ObjectId>,
+    remote: Option<ObjectId>,
+) -> Result<Option<ObjectId>> {
+    let mut lines: Vec<Vec<u8>> = Vec::new();
+    for oid in [local, remote].into_iter().flatten() {
+        if let Some(body) = read_blob_bytes(db, &oid)? {
+            lines.extend(body.split(|byte| *byte == b'\n').map(|line| line.to_vec()));
+        }
+    }
+    lines.retain(|line| !line.is_empty());
+    if lines.is_empty() {
+        return Ok(None);
+    }
+    lines.sort();
+    lines.dedup();
+    let mut body = Vec::new();
+    for line in lines {
+        body.extend_from_slice(&line);
+        body.push(b'\n');
+    }
+    let writable = FileObjectDatabase::from_git_dir(git_dir, format);
+    writable
+        .write_object(EncodedObject::new(ObjectType::Blob, body))
+        .map(Some)
+}
+
+#[allow(clippy::too_many_arguments)]
+fn commit_notes_update(
+    git_dir: &Path,
+    format: ObjectFormat,
+    store: &FileRefStore,
+    notes_ref: &NotesRef,
+    notes: &[Note],
+    message: &str,
+    identity: &NotesCommitIdentity,
+    ref_expected: Option<RefTarget>,
+) -> Result<ObjectId> {
+    let parent = notes_head_oid(store, notes_ref)?;
+    let parents = parent.iter().cloned().collect::<Vec<_>>();
+    commit_notes_update_with_parents(
+        git_dir,
+        format,
+        store,
+        notes_ref,
+        notes,
+        format!("{message}\n").as_bytes(),
+        identity,
+        &parents,
+        ref_expected,
+        true,
+    )
+}
+
+#[allow(clippy::too_many_arguments)]
+fn commit_notes_update_with_parents(
+    git_dir: &Path,
+    format: ObjectFormat,
+    store: &FileRefStore,
+    notes_ref: &NotesRef,
+    notes: &[Note],
+    message: &[u8],
+    identity: &NotesCommitIdentity,
+    parents: &[ObjectId],
+    ref_expected: Option<RefTarget>,
+    update_ref: bool,
+) -> Result<ObjectId> {
+    let db = FileObjectDatabase::from_git_dir(git_dir, format);
+    let non_notes = match parents.first() {
+        Some(parent) => collect_non_notes_from_commit(&db, format, parent)?,
+        None => Vec::new(),
+    };
+    commit_notes_update_with_preloaded_non_notes(
+        git_dir,
+        format,
+        store,
+        notes_ref,
+        notes,
+        message,
+        identity,
+        parents,
+        ref_expected,
+        update_ref,
+        &non_notes,
+    )
+}
+
+#[allow(clippy::too_many_arguments)]
+fn commit_notes_update_with_preloaded_non_notes(
+    git_dir: &Path,
+    format: ObjectFormat,
+    store: &FileRefStore,
+    notes_ref: &NotesRef,
+    notes: &[Note],
+    message: &[u8],
+    identity: &NotesCommitIdentity,
+    parents: &[ObjectId],
+    ref_expected: Option<RefTarget>,
+    update_ref: bool,
+    non_notes: &[NonNote],
+) -> Result<ObjectId> {
+    let mut db = FileObjectDatabase::from_git_dir(git_dir, format);
+    // Preserve any non-note entries carried by the base notes commit. git keeps a
+    // sorted "non_note" list while loading a notes tree and weaves it back on
+    // write so arbitrary blobs/dirs living in a notes tree survive note edits
+    // (t3304). Incremental operations supply the entries collected alongside
+    // their notes snapshot; full-replace callers collect them before entering
+    // this shared write path.
+    let tree_oid = write_notes_tree_preserving(&mut db, notes, non_notes)?;
+
+    let commit_oid = create_commit(
+        &mut db,
+        CommitCreate {
+            tree: tree_oid,
+            parents: parents.to_vec(),
+            author: identity.author.clone(),
+            committer: identity.committer.clone(),
+            message: message.to_vec(),
+            encoding: None,
+            signature: None,
+        },
+    )?;
+
+    if !update_ref {
+        return Ok(commit_oid);
+    }
+    let old_oid = parents.first().copied().unwrap_or(ObjectId::null(format));
+    let mut tx = store.transaction();
+    let reflog_message = reflog_message_from_commit_message(message);
+    tx.update(RefUpdate {
+        name: notes_ref.as_str().to_string(),
+        expected: ref_expected,
+        new: RefTarget::Direct(commit_oid),
+        reflog: Some(ReflogEntry {
+            old_oid,
+            new_oid: commit_oid,
+            committer: identity.committer.clone(),
+            // git prefixes the notes reflog message with "notes: " (the commit
+            // message itself is left unprefixed).
+            message: reflog_message,
+        }),
+    });
+    tx.commit()?;
+    Ok(commit_oid)
+}
+
+fn update_notes_ref_to_commit(
+    git_dir: &Path,
+    format: ObjectFormat,
+    store: &FileRefStore,
+    notes_ref: &NotesRef,
+    old: Option<ObjectId>,
+    new: ObjectId,
+    message: &str,
+    identity: &NotesCommitIdentity,
+) -> Result<()> {
+    let old_oid = old.unwrap_or(ObjectId::null(format));
+    let mut tx = store.transaction();
+    tx.update(RefUpdate {
+        name: notes_ref.as_str().to_string(),
+        expected: old.map(RefTarget::Direct),
+        new: RefTarget::Direct(new),
+        reflog: Some(ReflogEntry {
+            old_oid,
+            new_oid: new,
+            committer: identity.committer.clone(),
+            message: format!("notes: {message}").into_bytes(),
+        }),
+    });
+    let _ = git_dir;
+    tx.commit()
+}
+
+fn reflog_message_from_commit_message(message: &[u8]) -> Vec<u8> {
+    let subject = message
+        .split(|byte| *byte == b'\n')
+        .next()
+        .unwrap_or(message);
+    let mut out = b"notes: ".to_vec();
+    out.extend_from_slice(subject);
+    out
+}
+
+fn write_notes_tree(db: &mut FileObjectDatabase, notes: &[Note]) -> Result<ObjectId> {
+    if notes.len() >= 256 {
+        write_fanout_notes_tree(db, notes)
+    } else {
+        write_flat_notes_tree(db, notes)
+    }
+}
+
+fn write_flat_notes_tree(db: &mut FileObjectDatabase, notes: &[Note]) -> Result<ObjectId> {
+    let mut entries: Vec<TreeEntry> = notes
+        .iter()
+        .map(|note| TreeEntry {
+            mode: 0o100644,
+            name: BString::from(note.annotated.to_hex().as_bytes()),
+            oid: note.blob,
+        })
+        .collect();
+    entries.sort_by(|left, right| left.name.cmp(&right.name));
+    db.write_object(EncodedObject::new(
+        ObjectType::Tree,
+        Tree { entries }.write(),
+    ))
+}
+
+fn write_fanout_notes_tree(db: &mut FileObjectDatabase, notes: &[Note]) -> Result<ObjectId> {
+    let mut groups: BTreeMap<String, Vec<TreeEntry>> = BTreeMap::new();
+    for note in notes {
+        let hex = note.annotated.to_hex();
+        let (prefix, suffix) = hex.split_at(2);
+        groups
+            .entry(prefix.to_string())
+            .or_default()
+            .push(TreeEntry {
+                mode: 0o100644,
+                name: BString::from(suffix.as_bytes()),
+                oid: note.blob,
+            });
+    }
+
+    let mut root_entries = Vec::new();
+    for (prefix, mut entries) in groups {
+        entries.sort_by(|left, right| left.name.cmp(&right.name));
+        let subtree_oid = db.write_object(EncodedObject::new(
+            ObjectType::Tree,
+            Tree { entries }.write(),
+        ))?;
+        root_entries.push(TreeEntry {
+            mode: 0o040000,
+            name: BString::from(prefix.as_bytes()),
+            oid: subtree_oid,
+        });
+    }
+    root_entries.sort_by(|left, right| left.name.cmp(&right.name));
+    db.write_object(EncodedObject::new(
+        ObjectType::Tree,
+        Tree {
+            entries: root_entries,
+        }
+        .write(),
+    ))
+}
+
+/// A flattened tree entry: full slash-separated path, mode, and object id.
+type PathEntry = (Vec<u8>, u32, ObjectId);
+
+/// A tree entry inside a notes tree that is *not* a note: an arbitrary blob or
+/// directory whose path does not spell out an object id under git's fanout
+/// scheme. git records these while loading a notes tree and writes them back
+/// untouched (`struct non_note` in upstream `notes.c`).
+#[derive(Debug, Clone)]
+struct NonNote {
+    /// Full slash-separated path from the notes-tree root (e.g. `de/adbeef`).
+    path: Vec<u8>,
+    mode: u32,
+    oid: ObjectId,
+}
+
+/// Read the non-note entries from a notes commit's tree, mirroring git's
+/// `load_subtree`: an entry is a note iff its name fills the remaining hex
+/// nibbles of an object id and is a hex blob; a two-hex directory is a fanout
+/// level to recurse into; everything else is a non-note recorded at its full
+/// path (a non-fanout directory is kept wholesale, not descended into).
+fn collect_non_notes_from_commit(
+    db: &FileObjectDatabase,
+    format: ObjectFormat,
+    commit_oid: &ObjectId,
+) -> Result<Vec<NonNote>> {
+    let object = db.read_object(commit_oid)?;
+    if object.object_type != ObjectType::Commit {
+        return Ok(Vec::new());
+    }
+    let commit = Commit::parse(format, &object.body)?;
+    let mut out = Vec::new();
+    collect_non_notes_rec(db, format, &commit.tree, &[], 0, &mut out)?;
+    Ok(out)
+}
+
+fn collect_non_notes_rec(
+    db: &FileObjectDatabase,
+    format: ObjectFormat,
+    tree_oid: &ObjectId,
+    prefix: &[u8],
+    consumed_hex: usize,
+    out: &mut Vec<NonNote>,
+) -> Result<()> {
+    let object = db.read_object(tree_oid)?;
+    if object.object_type != ObjectType::Tree {
+        return Ok(());
+    }
+    let hex_len = format.hex_len();
+    for entry in TreeEntries::new(format, &object.body) {
+        let entry = entry?;
+        let name = entry.name;
+        let name_len = name.len();
+        let is_tree = tree_entry_object_type(entry.mode) == ObjectType::Tree;
+        let is_hex = !name.is_empty() && name.iter().all(u8::is_ascii_hexdigit);
+
+        if consumed_hex < hex_len && name_len == hex_len - consumed_hex {
+            // Slot for the remainder of an object id: a hex blob here is a note.
+            if !is_tree && is_hex {
+                continue;
+            }
+        } else if name_len == 2 && is_tree && is_hex {
+            // A two-hex directory is a fanout level — descend, consuming 2 nibbles.
+            let mut child_prefix = prefix.to_vec();
+            child_prefix.extend_from_slice(name);
+            child_prefix.push(b'/');
+            collect_non_notes_rec(db, format, &entry.oid, &child_prefix, consumed_hex + 2, out)?;
+            continue;
+        }
+
+        // Anything else is a non-note: keep it at its full path, mode and oid.
+        let mut full = prefix.to_vec();
+        full.extend_from_slice(name);
+        out.push(NonNote {
+            path: full,
+            mode: entry.mode,
+            oid: entry.oid,
+        });
+    }
+    Ok(())
+}
+
+/// Write the notes tree, weaving in preserved non-note entries. With no
+/// non-notes this defers to the byte-identical flat/fanout writers so every
+/// existing notes tree is unaffected.
+fn write_notes_tree_preserving(
+    db: &mut FileObjectDatabase,
+    notes: &[Note],
+    non_notes: &[NonNote],
+) -> Result<ObjectId> {
+    if non_notes.is_empty() {
+        return write_notes_tree(db, notes);
+    }
+    write_woven_notes_tree(db, notes, non_notes)
+}
+
+/// The on-disk path for each note under the same flat-vs-fanout rule as
+/// [`write_notes_tree`] (flat below 256 notes, one-level 2/38 fanout above).
+fn note_disk_paths(notes: &[Note]) -> Vec<PathEntry> {
+    if notes.len() >= 256 {
+        notes
+            .iter()
+            .map(|note| {
+                let hex = note.annotated.to_hex();
+                let (prefix, suffix) = hex.split_at(2);
+                let mut path = prefix.as_bytes().to_vec();
+                path.push(b'/');
+                path.extend_from_slice(suffix.as_bytes());
+                (path, 0o100644u32, note.blob)
+            })
+            .collect()
+    } else {
+        notes
+            .iter()
+            .map(|note| (note.annotated.to_hex().into_bytes(), 0o100644u32, note.blob))
+            .collect()
+    }
+}
+
+fn write_woven_notes_tree(
+    db: &mut FileObjectDatabase,
+    notes: &[Note],
+    non_notes: &[NonNote],
+) -> Result<ObjectId> {
+    // Notes win on an exact path collision (git prefers the note), so seed the
+    // map with notes and only fill in a non-note where no note already sits.
+    let mut paths: BTreeMap<Vec<u8>, (u32, ObjectId)> = BTreeMap::new();
+    for (path, mode, oid) in note_disk_paths(notes) {
+        paths.insert(path, (mode, oid));
+    }
+    for non_note in non_notes {
+        paths
+            .entry(non_note.path.clone())
+            .or_insert((non_note.mode, non_note.oid));
+    }
+    let entries: Vec<PathEntry> = paths
+        .into_iter()
+        .map(|(path, (mode, oid))| (path, mode, oid))
+        .collect();
+    build_nested_tree(db, &entries)
+}
+
+/// Build (and write) nested tree objects from full slash-separated paths,
+/// returning the root tree oid. Entries are grouped by first path component;
+/// each level is emitted in git's canonical order via [`TreeBuilder`].
+fn build_nested_tree(db: &mut FileObjectDatabase, entries: &[PathEntry]) -> Result<ObjectId> {
+    let mut builder = TreeBuilder::new();
+    let mut subdirs: BTreeMap<Vec<u8>, Vec<PathEntry>> = BTreeMap::new();
+    for (path, mode, oid) in entries {
+        match path.iter().position(|byte| *byte == b'/') {
+            None => builder.upsert_raw(path.clone(), *mode, *oid),
+            Some(slash) => {
+                let component = path[..slash].to_vec();
+                let rest = path[slash + 1..].to_vec();
+                subdirs
+                    .entry(component)
+                    .or_default()
+                    .push((rest, *mode, *oid));
+            }
+        }
+    }
+    for (component, children) in subdirs {
+        let subtree_oid = build_nested_tree(db, &children)?;
+        builder.upsert_raw(component, 0o040000, subtree_oid);
+    }
+    db.write_object(EncodedObject::new(
+        ObjectType::Tree,
+        builder.build().write(),
+    ))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use sley_sequencer::format_commit_identity;
+    use std::fs;
+    use std::path::{Path, PathBuf};
+    use std::process::{Command, Stdio};
+    use std::time::{SystemTime, UNIX_EPOCH};
+
+    const NAME: &str = "Tester";
+    const EMAIL: &str = "tester@example.com";
+    const DATE: &str = "@1790000000 -0500";
+
+    fn unique_temp_dir(name: &str) -> PathBuf {
+        let nanos = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("system time before unix epoch")
+            .as_nanos();
+        std::env::temp_dir().join(format!("sley-notes-{name}-{}-{nanos}", std::process::id()))
+    }
+
+    fn git_available() -> bool {
+        Command::new("git")
+            .arg("--version")
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .status()
+            .map(|status| status.success())
+            .unwrap_or(false)
+    }
+
+    fn test_identity() -> NotesCommitIdentity {
+        NotesCommitIdentity {
+            author: format_commit_identity(NAME, EMAIL, DATE)
+                .expect("test operation should succeed"),
+            committer: format_commit_identity(NAME, EMAIL, DATE)
+                .expect("test operation should succeed"),
+        }
+    }
+
+    fn git_env(command: &mut Command) -> &mut Command {
+        command
+            .env("GIT_AUTHOR_NAME", NAME)
+            .env("GIT_AUTHOR_EMAIL", EMAIL)
+            .env("GIT_AUTHOR_DATE", DATE)
+            .env("GIT_COMMITTER_NAME", NAME)
+            .env("GIT_COMMITTER_EMAIL", EMAIL)
+            .env("GIT_COMMITTER_DATE", DATE)
+    }
+
+    fn init_repo_with_commit(root: &Path) -> (PathBuf, ObjectId) {
+        let mut init = Command::new("git");
+        git_env(init.current_dir(root).args(["init", "-q"]))
+            .status()
+            .expect("git init should succeed");
+        fs::write(root.join("f.txt"), b"content\n").expect("write worktree file");
+        let mut add = Command::new("git");
+        git_env(add.current_dir(root).args(["add", "f.txt"]))
+            .status()
+            .expect("git add should succeed");
+        let mut commit = Command::new("git");
+        git_env(commit.current_dir(root).args(["commit", "-q", "-m", "c1"]))
+            .status()
+            .expect("git commit should succeed");
+        let git_dir = root.join(".git");
+        let format = ObjectFormat::Sha1;
+        let store = FileRefStore::new(&git_dir, format);
+        let head = store
+            .read_ref("HEAD")
+            .expect("read HEAD")
+            .expect("HEAD should exist");
+        let oid = match head {
+            RefTarget::Direct(oid) => oid,
+            RefTarget::Symbolic(name) => match store.read_ref(&name).expect("read symref") {
+                Some(RefTarget::Direct(oid)) => oid,
+                other => panic!("unexpected symref target: {other:?}"),
+            },
+        };
+        (git_dir, oid)
+    }
+
+    fn write_blob(db: &mut FileObjectDatabase, bytes: &[u8]) -> Result<ObjectId> {
+        db.write_object(EncodedObject::new(ObjectType::Blob, bytes.to_vec()))
+    }
+
+    #[test]
+    fn notes_ref_expand_qualifies_names() {
+        assert_eq!(NotesRef::expand("commits").as_str(), "refs/notes/commits");
+        assert_eq!(
+            NotesRef::expand("refs/notes/review").as_str(),
+            "refs/notes/review"
+        );
+    }
+
+    #[test]
+    fn read_write_list_round_trip() {
+        let dir = unique_temp_dir("round-trip");
+        fs::create_dir_all(&dir).expect("create temp dir");
+        let (git_dir, target) = init_repo_with_commit(&dir);
+        let format = ObjectFormat::Sha1;
+        let store = FileRefStore::new(&git_dir, format);
+        let notes_ref = NotesRef::expand(DEFAULT_NOTES_REF);
+        let identity = test_identity();
+        let mut db = FileObjectDatabase::from_git_dir(&git_dir, format);
+        let blob = write_blob(&mut db, b"hello note\n").expect("test operation should succeed");
+
+        let mut notes = Vec::new();
+        upsert_note(&mut notes, &target, blob);
+        write_notes(
+            &git_dir,
+            format,
+            &store,
+            &notes_ref,
+            &notes,
+            "Notes added by test",
+            &identity,
+            notes_ref_expected(&store, &notes_ref).expect("ref expected"),
+        )
+        .expect("test operation should succeed");
+
+        let listed = list_notes(&git_dir, format, &store, &notes_ref)
+            .expect("test operation should succeed");
+        assert_eq!(listed.len(), 1);
+        assert_eq!(listed[0].annotated, target);
+        assert_eq!(listed[0].blob, blob);
+
+        let read_back = read_note(&git_dir, format, &store, &notes_ref, &target)
+            .expect("test operation should succeed");
+        assert_eq!(read_back, Some(blob));
+
+        let bytes = read_note_bytes(&git_dir, format, &store, &notes_ref, &target)
+            .expect("test operation should succeed");
+        assert_eq!(bytes.as_deref(), Some(b"hello note\n" as &[u8]));
+        let _ = fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn iter_notes_matches_list_notes() {
+        let dir = unique_temp_dir("iter-list");
+        fs::create_dir_all(&dir).expect("create temp dir");
+        let (git_dir, target) = init_repo_with_commit(&dir);
+        let format = ObjectFormat::Sha1;
+        let store = FileRefStore::new(&git_dir, format);
+        let mut db = FileObjectDatabase::from_git_dir(&git_dir, format);
+        let blob = write_blob(&mut db, b"iter note\n").expect("blob");
+        let notes_ref = NotesRef::expand(DEFAULT_NOTES_REF);
+        write_notes(
+            &git_dir,
+            format,
+            &store,
+            &notes_ref,
+            &[Note {
+                annotated: target,
+                blob,
+            }],
+            "note",
+            &test_identity(),
+            notes_ref_expected(&store, &notes_ref).expect("ref expected"),
+        )
+        .expect("write notes");
+
+        let listed = list_notes(&git_dir, format, &store, &notes_ref).expect("list");
+        let mut iter_collected = iter_notes(&git_dir, format, &store, &notes_ref)
+            .expect("iter")
+            .collect::<Result<Vec<_>>>()
+            .expect("collect");
+        iter_collected.sort_by_key(|entry| entry.annotated.to_hex());
+        assert_eq!(listed, iter_collected);
+        let _ = fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn iter_notes_yields_every_note_in_flat_tree() {
+        let dir = unique_temp_dir("iter-flat-multi");
+        fs::create_dir_all(&dir).expect("create temp dir");
+        let (git_dir, _) = init_repo_with_commit(&dir);
+        let format = ObjectFormat::Sha1;
+        let store = FileRefStore::new(&git_dir, format);
+        let mut db = FileObjectDatabase::from_git_dir(&git_dir, format);
+        let first =
+            ObjectId::from_hex(format, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa").expect("oid");
+        let second =
+            ObjectId::from_hex(format, "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb").expect("oid");
+        let blob_a = write_blob(&mut db, b"note a\n").expect("blob");
+        let blob_b = write_blob(&mut db, b"note b\n").expect("blob");
+        let notes_ref = NotesRef::expand(DEFAULT_NOTES_REF);
+        write_notes(
+            &git_dir,
+            format,
+            &store,
+            &notes_ref,
+            &[
+                Note {
+                    annotated: first,
+                    blob: blob_a,
+                },
+                Note {
+                    annotated: second,
+                    blob: blob_b,
+                },
+            ],
+            "notes",
+            &test_identity(),
+            notes_ref_expected(&store, &notes_ref).expect("ref expected"),
+        )
+        .expect("write notes");
+
+        let collected = iter_notes(&git_dir, format, &store, &notes_ref)
+            .expect("iter")
+            .collect::<Result<Vec<_>>>()
+            .expect("collect");
+        assert_eq!(collected.len(), 2);
+        let _ = fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn read_note_for_skips_unrelated_fanout_branches() {
+        let dir = unique_temp_dir("lookup");
+        fs::create_dir_all(&dir).expect("create temp dir");
+        let (git_dir, target) = init_repo_with_commit(&dir);
+        let format = ObjectFormat::Sha1;
+        let store = FileRefStore::new(&git_dir, format);
+        let target_hex = target.to_hex();
+        let mut db = FileObjectDatabase::from_git_dir(&git_dir, format);
+        let blob = write_blob(&mut db, b"lookup note\n").expect("blob");
+        let prefix = &target_hex[..2];
+        let suffix = &target_hex[2..];
+        let leaf = Tree {
+            entries: vec![TreeEntry {
+                mode: 0o100644,
+                name: BString::from(suffix.as_bytes()),
+                oid: blob,
+            }],
+        };
+        let leaf_oid = db
+            .write_object(EncodedObject::new(ObjectType::Tree, leaf.write()))
+            .expect("leaf");
+        let fanout = Tree {
+            entries: vec![TreeEntry {
+                mode: 0o040000,
+                name: BString::from(prefix.as_bytes()),
+                oid: leaf_oid,
+            }],
+        };
+        let fanout_oid = db
+            .write_object(EncodedObject::new(ObjectType::Tree, fanout.write()))
+            .expect("fanout");
+        let identity = test_identity();
+        let commit_oid = create_commit(
+            &mut db,
+            CommitCreate {
+                tree: fanout_oid,
+                parents: Vec::new(),
+                author: identity.author.clone(),
+                committer: identity.committer,
+                message: b"fanout notes\n".to_vec(),
+                encoding: None,
+                signature: None,
+            },
+        )
+        .expect("commit");
+        let mut tx = store.transaction();
+        tx.update(RefUpdate {
+            name: DEFAULT_NOTES_REF.to_string(),
+            expected: None,
+            new: RefTarget::Direct(commit_oid),
+            reflog: None,
+        });
+        tx.commit().expect("update ref");
+        let notes_ref = NotesRef::expand(DEFAULT_NOTES_REF);
+        let found = read_note_for(&git_dir, format, &store, &notes_ref, &target).expect("lookup");
+        assert_eq!(found, Some(blob));
+        let _ = fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn fanout_tree_is_readable() {
+        let dir = unique_temp_dir("fanout");
+        fs::create_dir_all(&dir).expect("create temp dir");
+        let (git_dir, target) = init_repo_with_commit(&dir);
+        let format = ObjectFormat::Sha1;
+        let store = FileRefStore::new(&git_dir, format);
+        let target_hex = target.to_hex();
+        let mut db = FileObjectDatabase::from_git_dir(&git_dir, format);
+        let blob = write_blob(&mut db, b"fanout note\n").expect("test operation should succeed");
+
+        // Build a two-level fanout tree: ab/<rest-of-hex> -> blob
+        let prefix = &target_hex[..2];
+        let suffix = &target_hex[2..];
+        let leaf = Tree {
+            entries: vec![TreeEntry {
+                mode: 0o100644,
+                name: BString::from(suffix.as_bytes()),
+                oid: blob,
+            }],
+        };
+        let leaf_oid = db
+            .write_object(EncodedObject::new(ObjectType::Tree, leaf.write()))
+            .expect("test operation should succeed");
+        let fanout = Tree {
+            entries: vec![TreeEntry {
+                mode: 0o040000,
+                name: BString::from(prefix.as_bytes()),
+                oid: leaf_oid,
+            }],
+        };
+        let fanout_oid = db
+            .write_object(EncodedObject::new(ObjectType::Tree, fanout.write()))
+            .expect("test operation should succeed");
+
+        let identity = test_identity();
+        let commit_oid = create_commit(
+            &mut db,
+            CommitCreate {
+                tree: fanout_oid,
+                parents: Vec::new(),
+                author: identity.author.clone(),
+                committer: identity.committer,
+                message: b"fanout notes\n".to_vec(),
+                encoding: None,
+                signature: None,
+            },
+        )
+        .expect("test operation should succeed");
+        let mut tx = store.transaction();
+        tx.update(RefUpdate {
+            name: DEFAULT_NOTES_REF.to_string(),
+            expected: None,
+            new: RefTarget::Direct(commit_oid),
+            reflog: None,
+        });
+        tx.commit().expect("test operation should succeed");
+
+        let notes_ref = NotesRef::expand(DEFAULT_NOTES_REF);
+        let read_back = read_note(&git_dir, format, &store, &notes_ref, &target)
+            .expect("test operation should succeed");
+        assert_eq!(read_back, Some(blob));
+        let _ = fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn note_bytes_match_system_git() {
+        if !git_available() {
+            return;
+        }
+        let dir = unique_temp_dir("git-interop");
+        fs::create_dir_all(&dir).expect("test operation should succeed");
+        let result = std::panic::catch_unwind(|| {
+            let (git_dir, target) = init_repo_with_commit(&dir);
+            let format = ObjectFormat::Sha1;
+            let store = FileRefStore::new(&git_dir, format);
+            let notes_ref = NotesRef::expand(DEFAULT_NOTES_REF);
+
+            let mut git_add_cmd = Command::new("git");
+            let git_add = git_env(git_add_cmd.current_dir(&dir).args([
+                "notes",
+                "add",
+                "-m",
+                "interop note",
+                "HEAD",
+            ]))
+            .output()
+            .expect("git notes add should run");
+            assert!(
+                git_add.status.success(),
+                "git notes add failed: {}",
+                String::from_utf8_lossy(&git_add.stderr)
+            );
+
+            let sley_bytes = read_note_bytes(&git_dir, format, &store, &notes_ref, &target)
+                .expect("test operation should succeed")
+                .expect("note should exist");
+
+            let mut git_show_cmd = Command::new("git");
+            let git_output = git_env(
+                git_show_cmd
+                    .current_dir(&dir)
+                    .args(["notes", "show", "HEAD"]),
+            )
+            .output()
+            .expect("test operation should succeed");
+            assert!(
+                git_output.status.success(),
+                "git notes show failed: {}",
+                String::from_utf8_lossy(&git_output.stderr)
+            );
+            assert_eq!(sley_bytes, git_output.stdout);
+        });
+        let _ = fs::remove_dir_all(&dir);
+        result.expect("note_bytes_match_system_git assertions");
+    }
+
+    fn heddle_notes_ref() -> NotesRef {
+        NotesRef::expand("refs/notes/heddle")
+    }
+
+    fn read_notes_head(store: &FileRefStore, notes_ref: &NotesRef) -> Option<ObjectId> {
+        match store.read_ref(notes_ref.as_str()).expect("read ref") {
+            Some(RefTarget::Direct(oid)) => Some(oid),
+            _ => None,
+        }
+    }
+
+    fn install_fanout_note(
+        git_dir: &Path,
+        store: &FileRefStore,
+        notes_ref: &NotesRef,
+        annotated: &ObjectId,
+        blob: ObjectId,
+        identity: &NotesCommitIdentity,
+    ) {
+        let format = ObjectFormat::Sha1;
+        let annotated_hex = annotated.to_hex();
+        let mut db = FileObjectDatabase::from_git_dir(git_dir, format);
+        let prefix = &annotated_hex[..2];
+        let suffix = &annotated_hex[2..];
+        let leaf = Tree {
+            entries: vec![TreeEntry {
+                mode: 0o100644,
+                name: BString::from(suffix.as_bytes()),
+                oid: blob,
+            }],
+        };
+        let leaf_oid = db
+            .write_object(EncodedObject::new(ObjectType::Tree, leaf.write()))
+            .expect("leaf");
+        let fanout = Tree {
+            entries: vec![TreeEntry {
+                mode: 0o040000,
+                name: BString::from(prefix.as_bytes()),
+                oid: leaf_oid,
+            }],
+        };
+        let fanout_oid = db
+            .write_object(EncodedObject::new(ObjectType::Tree, fanout.write()))
+            .expect("fanout");
+        let commit_oid = create_commit(
+            &mut db,
+            CommitCreate {
+                tree: fanout_oid,
+                parents: Vec::new(),
+                author: identity.author.clone(),
+                committer: identity.committer.clone(),
+                message: b"fanout notes\n".to_vec(),
+                encoding: None,
+                signature: None,
+            },
+        )
+        .expect("commit");
+        let mut tx = store.transaction();
+        tx.update(RefUpdate {
+            name: notes_ref.as_str().to_string(),
+            expected: notes_ref_expected(store, notes_ref).expect("ref expected"),
+            new: RefTarget::Direct(commit_oid),
+            reflog: None,
+        });
+        tx.commit().expect("update ref");
+    }
+
+    #[test]
+    fn upsert_note_for_unchanged_is_noop() {
+        let dir = unique_temp_dir("upsert-unchanged");
+        fs::create_dir_all(&dir).expect("create temp dir");
+        let (git_dir, target) = init_repo_with_commit(&dir);
+        let format = ObjectFormat::Sha1;
+        let store = FileRefStore::new(&git_dir, format);
+        let notes_ref = heddle_notes_ref();
+        let identity = test_identity();
+        let mut db = FileObjectDatabase::from_git_dir(&git_dir, format);
+        let blob = write_blob(&mut db, br#"{"status":"served"}"#).expect("blob");
+
+        let first = upsert_note_for(
+            &git_dir,
+            format,
+            &store,
+            &notes_ref,
+            &target,
+            blob.clone(),
+            "heddle: export",
+            &identity,
+            None,
+        )
+        .expect("first upsert");
+        let first_head = read_notes_head(&store, &notes_ref).expect("head");
+        assert!(matches!(first, UpsertNoteOutcome::Updated { .. }));
+
+        let second = upsert_note_for(
+            &git_dir,
+            format,
+            &store,
+            &notes_ref,
+            &target,
+            blob,
+            "heddle: export",
+            &identity,
+            Some(RefTarget::Direct(first_head)),
+        )
+        .expect("second upsert");
+        assert_eq!(second, UpsertNoteOutcome::Unchanged);
+        assert_eq!(read_notes_head(&store, &notes_ref), Some(first_head));
+        let _ = fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn upsert_note_for_can_commit_an_identical_blob() {
+        let dir = unique_temp_dir("upsert-identical-commit");
+        fs::create_dir_all(&dir).expect("create temp dir");
+        let (git_dir, target) = init_repo_with_commit(&dir);
+        let format = ObjectFormat::Sha1;
+        let store = FileRefStore::new(&git_dir, format);
+        let notes_ref = heddle_notes_ref();
+        let identity = test_identity();
+        let mut db = FileObjectDatabase::from_git_dir(&git_dir, format);
+        let blob = write_blob(&mut db, b"same note\n").expect("blob");
+
+        let first = upsert_note_for(
+            &git_dir, format, &store, &notes_ref, &target, blob, "first", &identity, None,
+        )
+        .expect("first upsert");
+        let UpsertNoteOutcome::Updated {
+            notes_commit: first_commit,
+        } = first
+        else {
+            panic!("expected first commit");
+        };
+        let second = upsert_note_for_with_options(
+            &git_dir,
+            format,
+            &store,
+            &notes_ref,
+            &target,
+            blob,
+            "forced",
+            &identity,
+            Some(RefTarget::Direct(first_commit)),
+            UpsertNoteOptions {
+                commit_if_unchanged: true,
+            },
+        )
+        .expect("forced identical upsert");
+        let UpsertNoteOutcome::Updated {
+            notes_commit: second_commit,
+        } = second
+        else {
+            panic!("expected redundant commit");
+        };
+        assert_ne!(first_commit, second_commit);
+        let second_object = db
+            .read_object(&second_commit)
+            .expect("second commit object");
+        let second_commit_data = Commit::parse(format, &second_object.body).expect("parse commit");
+        assert_eq!(second_commit_data.parents, vec![first_commit]);
+        let _ = fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn upsert_note_for_updates_blob() {
+        let dir = unique_temp_dir("upsert-update");
+        fs::create_dir_all(&dir).expect("create temp dir");
+        let (git_dir, target) = init_repo_with_commit(&dir);
+        let format = ObjectFormat::Sha1;
+        let store = FileRefStore::new(&git_dir, format);
+        let notes_ref = heddle_notes_ref();
+        let identity = test_identity();
+        let mut db = FileObjectDatabase::from_git_dir(&git_dir, format);
+        let blob_a = write_blob(&mut db, br#"{"v":1}"#).expect("blob a");
+        let blob_b = write_blob(&mut db, br#"{"v":2}"#).expect("blob b");
+
+        let first = upsert_note_for(
+            &git_dir,
+            format,
+            &store,
+            &notes_ref,
+            &target,
+            blob_a,
+            "heddle: export",
+            &identity,
+            None,
+        )
+        .expect("first upsert");
+        let UpsertNoteOutcome::Updated {
+            notes_commit: first_commit,
+        } = first
+        else {
+            panic!("expected first upsert to update");
+        };
+
+        let second = upsert_note_for(
+            &git_dir,
+            format,
+            &store,
+            &notes_ref,
+            &target,
+            blob_b,
+            "heddle: export",
+            &identity,
+            Some(RefTarget::Direct(first_commit)),
+        )
+        .expect("second upsert");
+        let UpsertNoteOutcome::Updated {
+            notes_commit: second_commit,
+        } = second
+        else {
+            panic!("expected second upsert to update");
+        };
+        assert_ne!(first_commit, second_commit);
+        assert_eq!(
+            read_note(&git_dir, format, &store, &notes_ref, &target).expect("read"),
+            Some(blob_b)
+        );
+        let _ = fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn upsert_note_for_creates_ref() {
+        let dir = unique_temp_dir("upsert-create");
+        fs::create_dir_all(&dir).expect("create temp dir");
+        let (git_dir, target) = init_repo_with_commit(&dir);
+        let format = ObjectFormat::Sha1;
+        let store = FileRefStore::new(&git_dir, format);
+        let notes_ref = heddle_notes_ref();
+        let identity = test_identity();
+        let mut db = FileObjectDatabase::from_git_dir(&git_dir, format);
+        let blob = write_blob(&mut db, br#"{"status":"served"}"#).expect("blob");
+
+        assert_eq!(read_notes_head(&store, &notes_ref), None);
+        let outcome = upsert_note_for(
+            &git_dir,
+            format,
+            &store,
+            &notes_ref,
+            &target,
+            blob,
+            "heddle: export",
+            &identity,
+            None,
+        )
+        .expect("upsert");
+        assert!(matches!(outcome, UpsertNoteOutcome::Updated { .. }));
+        assert!(read_notes_head(&store, &notes_ref).is_some());
+        let _ = fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn upsert_note_for_cas_mismatch_fails() {
+        let dir = unique_temp_dir("upsert-cas");
+        fs::create_dir_all(&dir).expect("create temp dir");
+        let (git_dir, target) = init_repo_with_commit(&dir);
+        let format = ObjectFormat::Sha1;
+        let store = FileRefStore::new(&git_dir, format);
+        let notes_ref = heddle_notes_ref();
+        let identity = test_identity();
+        let mut db = FileObjectDatabase::from_git_dir(&git_dir, format);
+        let blob_a = write_blob(&mut db, br#"{"v":1}"#).expect("blob a");
+        let blob_b = write_blob(&mut db, br#"{"v":2}"#).expect("blob b");
+
+        upsert_note_for(
+            &git_dir,
+            format,
+            &store,
+            &notes_ref,
+            &target,
+            blob_a,
+            "heddle: export",
+            &identity,
+            None,
+        )
+        .expect("seed note");
+        let head = read_notes_head(&store, &notes_ref).expect("head");
+        let wrong =
+            ObjectId::from_hex(format, "cccccccccccccccccccccccccccccccccccccccc").expect("oid");
+
+        let err = upsert_note_for(
+            &git_dir,
+            format,
+            &store,
+            &notes_ref,
+            &target,
+            blob_b,
+            "heddle: export",
+            &identity,
+            Some(RefTarget::Direct(wrong)),
+        )
+        .expect_err("cas mismatch");
+        assert!(matches!(err, GitError::Transaction(_)));
+        assert_eq!(read_notes_head(&store, &notes_ref), Some(head));
+        let _ = fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn remove_notes_for_partial_hit() {
+        let dir = unique_temp_dir("remove-partial");
+        fs::create_dir_all(&dir).expect("create temp dir");
+        let (git_dir, target) = init_repo_with_commit(&dir);
+        let format = ObjectFormat::Sha1;
+        let store = FileRefStore::new(&git_dir, format);
+        let notes_ref = heddle_notes_ref();
+        let identity = test_identity();
+        let mut db = FileObjectDatabase::from_git_dir(&git_dir, format);
+        let other =
+            ObjectId::from_hex(format, "dddddddddddddddddddddddddddddddddddddddd").expect("oid");
+        let blob_a = write_blob(&mut db, br#"{"a":1}"#).expect("blob a");
+        let blob_b = write_blob(&mut db, br#"{"b":2}"#).expect("blob b");
+
+        write_notes(
+            &git_dir,
+            format,
+            &store,
+            &notes_ref,
+            &[
+                Note {
+                    annotated: target,
+                    blob: blob_a,
+                },
+                Note {
+                    annotated: other,
+                    blob: blob_b,
+                },
+            ],
+            "seed",
+            &identity,
+            None,
+        )
+        .expect("seed notes");
+        let head = read_notes_head(&store, &notes_ref).expect("head");
+
+        let outcome = remove_notes_for(
+            &git_dir,
+            format,
+            &store,
+            &notes_ref,
+            &[target],
+            "heddle: retract",
+            &identity,
+            Some(RefTarget::Direct(head)),
+        )
+        .expect("remove");
+        assert!(matches!(outcome, RemoveNoteOutcome::Removed { .. }));
+        assert_eq!(
+            read_note(&git_dir, format, &store, &notes_ref, &target).expect("read"),
+            None
+        );
+        assert_eq!(
+            read_note(&git_dir, format, &store, &notes_ref, &other).expect("read"),
+            Some(blob_b)
+        );
+        let _ = fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn remove_notes_for_noop_when_missing() {
+        let dir = unique_temp_dir("remove-noop");
+        fs::create_dir_all(&dir).expect("create temp dir");
+        let (git_dir, target) = init_repo_with_commit(&dir);
+        let format = ObjectFormat::Sha1;
+        let store = FileRefStore::new(&git_dir, format);
+        let notes_ref = heddle_notes_ref();
+        let identity = test_identity();
+        let missing =
+            ObjectId::from_hex(format, "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee").expect("oid");
+
+        let absent = remove_notes_for(
+            &git_dir,
+            format,
+            &store,
+            &notes_ref,
+            &[target],
+            "heddle: retract",
+            &identity,
+            None,
+        )
+        .expect("remove absent ref");
+        assert_eq!(absent, RemoveNoteOutcome::Unchanged);
+
+        let mut db = FileObjectDatabase::from_git_dir(&git_dir, format);
+        let blob = write_blob(&mut db, br#"{"x":1}"#).expect("blob");
+        upsert_note_for(
+            &git_dir,
+            format,
+            &store,
+            &notes_ref,
+            &target,
+            blob,
+            "heddle: export",
+            &identity,
+            None,
+        )
+        .expect("seed");
+        let head = read_notes_head(&store, &notes_ref).expect("head");
+
+        let noop = remove_notes_for(
+            &git_dir,
+            format,
+            &store,
+            &notes_ref,
+            &[missing],
+            "heddle: retract",
+            &identity,
+            Some(RefTarget::Direct(head)),
+        )
+        .expect("remove missing oid");
+        assert_eq!(noop, RemoveNoteOutcome::Unchanged);
+        assert_eq!(read_notes_head(&store, &notes_ref), Some(head));
+        let _ = fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn remove_notes_for_batch_single_commit() {
+        let dir = unique_temp_dir("remove-batch");
+        fs::create_dir_all(&dir).expect("create temp dir");
+        let (git_dir, _) = init_repo_with_commit(&dir);
+        let format = ObjectFormat::Sha1;
+        let store = FileRefStore::new(&git_dir, format);
+        let notes_ref = heddle_notes_ref();
+        let identity = test_identity();
+        let mut db = FileObjectDatabase::from_git_dir(&git_dir, format);
+        let first =
+            ObjectId::from_hex(format, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa").expect("oid");
+        let second =
+            ObjectId::from_hex(format, "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb").expect("oid");
+        let third =
+            ObjectId::from_hex(format, "cccccccccccccccccccccccccccccccccccccccc").expect("oid");
+        let blob_a = write_blob(&mut db, b"a\n").expect("blob");
+        let blob_b = write_blob(&mut db, b"b\n").expect("blob");
+        let blob_c = write_blob(&mut db, b"c\n").expect("blob");
+
+        write_notes(
+            &git_dir,
+            format,
+            &store,
+            &notes_ref,
+            &[
+                Note {
+                    annotated: first,
+                    blob: blob_a,
+                },
+                Note {
+                    annotated: second,
+                    blob: blob_b,
+                },
+                Note {
+                    annotated: third,
+                    blob: blob_c,
+                },
+            ],
+            "seed",
+            &identity,
+            None,
+        )
+        .expect("seed");
+        let head = read_notes_head(&store, &notes_ref).expect("head");
+
+        let RemoveNoteOutcome::Removed { notes_commit } = remove_notes_for(
+            &git_dir,
+            format,
+            &store,
+            &notes_ref,
+            &[first, second],
+            "heddle: retract",
+            &identity,
+            Some(RefTarget::Direct(head)),
+        )
+        .expect("batch remove") else {
+            panic!("expected removal");
+        };
+
+        let db = FileObjectDatabase::from_git_dir(&git_dir, format);
+        let commit = db.read_object(&notes_commit).expect("read commit");
+        let commit = Commit::parse_ref(format, &commit.body).expect("parse");
+        assert_eq!(commit.parents.len(), 1);
+        assert_eq!(commit.parents[0], head);
+        assert_eq!(
+            list_notes(&git_dir, format, &store, &notes_ref)
+                .expect("list")
+                .len(),
+            1
+        );
+        let _ = fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn incremental_ops_read_fanout_legacy() {
+        let dir = unique_temp_dir("incremental-fanout");
+        fs::create_dir_all(&dir).expect("create temp dir");
+        let (git_dir, target) = init_repo_with_commit(&dir);
+        let format = ObjectFormat::Sha1;
+        let store = FileRefStore::new(&git_dir, format);
+        let notes_ref = heddle_notes_ref();
+        let identity = test_identity();
+        let mut db = FileObjectDatabase::from_git_dir(&git_dir, format);
+        let blob = write_blob(&mut db, br#"{"legacy":true}"#).expect("blob");
+
+        install_fanout_note(&git_dir, &store, &notes_ref, &target, blob, &identity);
+        let head = read_notes_head(&store, &notes_ref).expect("head");
+        let new_blob = write_blob(&mut db, br#"{"legacy":false}"#).expect("new blob");
+
+        upsert_note_for(
+            &git_dir,
+            format,
+            &store,
+            &notes_ref,
+            &target,
+            new_blob,
+            "heddle: export",
+            &identity,
+            Some(RefTarget::Direct(head)),
+        )
+        .expect("upsert fanout");
+
+        assert_eq!(
+            read_note_for(&git_dir, format, &store, &notes_ref, &target).expect("read"),
+            Some(new_blob)
+        );
+        let _ = fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn incremental_upsert_preserves_non_note_tree_entries() {
+        let dir = unique_temp_dir("incremental-non-note");
+        fs::create_dir_all(&dir).expect("create temp dir");
+        let (git_dir, target) = init_repo_with_commit(&dir);
+        let format = ObjectFormat::Sha1;
+        let store = FileRefStore::new(&git_dir, format);
+        let notes_ref = heddle_notes_ref();
+        let identity = test_identity();
+        let other =
+            ObjectId::from_hex(format, "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee").expect("oid");
+        let mut db = FileObjectDatabase::from_git_dir(&git_dir, format);
+        let first_blob = write_blob(&mut db, b"first note\n").expect("first blob");
+        let second_blob = write_blob(&mut db, b"second note\n").expect("second blob");
+        let metadata_blob = write_blob(&mut db, b"preserve me\n").expect("metadata blob");
+        let tree = Tree {
+            entries: vec![
+                TreeEntry {
+                    mode: 0o100644,
+                    name: BString::from(b"README"),
+                    oid: metadata_blob,
+                },
+                TreeEntry {
+                    mode: 0o100644,
+                    name: BString::from(target.to_hex().as_bytes()),
+                    oid: first_blob,
+                },
+            ],
+        };
+        let tree_oid = db
+            .write_object(EncodedObject::new(ObjectType::Tree, tree.write()))
+            .expect("tree");
+        let head = create_commit(
+            &mut db,
+            CommitCreate {
+                tree: tree_oid,
+                parents: Vec::new(),
+                author: identity.author.clone(),
+                committer: identity.committer.clone(),
+                message: b"seed notes\n".to_vec(),
+                encoding: None,
+                signature: None,
+            },
+        )
+        .expect("commit");
+        let mut tx = store.transaction();
+        tx.update(RefUpdate {
+            name: notes_ref.as_str().to_string(),
+            expected: None,
+            new: RefTarget::Direct(head),
+            reflog: None,
+        });
+        tx.commit().expect("update ref");
+
+        let UpsertNoteOutcome::Updated { notes_commit } = upsert_note_for(
+            &git_dir,
+            format,
+            &store,
+            &notes_ref,
+            &other,
+            second_blob,
+            "add second",
+            &identity,
+            Some(RefTarget::Direct(head)),
+        )
+        .expect("upsert") else {
+            panic!("expected update");
+        };
+
+        assert_eq!(
+            read_note_for(&git_dir, format, &store, &notes_ref, &target).expect("first note"),
+            Some(first_blob)
+        );
+        assert_eq!(
+            read_note_for(&git_dir, format, &store, &notes_ref, &other).expect("second note"),
+            Some(second_blob)
+        );
+        let commit = read_commit(&db, format, &notes_commit).expect("notes commit");
+        let root = db.read_object(&commit.tree).expect("root tree");
+        let metadata = TreeEntries::new(format, &root.body)
+            .map(|entry| entry.expect("tree entry"))
+            .find(|entry| entry.name == b"README")
+            .expect("preserved README");
+        assert_eq!(metadata.oid, metadata_blob);
+        let _ = fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn incremental_ops_ff_chain() {
+        let dir = unique_temp_dir("incremental-ff");
+        fs::create_dir_all(&dir).expect("create temp dir");
+        let (git_dir, target) = init_repo_with_commit(&dir);
+        let format = ObjectFormat::Sha1;
+        let store = FileRefStore::new(&git_dir, format);
+        let notes_ref = heddle_notes_ref();
+        let identity = test_identity();
+        let mut db = FileObjectDatabase::from_git_dir(&git_dir, format);
+        let other =
+            ObjectId::from_hex(format, "ffffffffffffffffffffffffffffffffffffffff").expect("oid");
+        let blob_a = write_blob(&mut db, br#"{"first":true}"#).expect("blob a");
+        let blob_b = write_blob(&mut db, br#"{"second":true}"#).expect("blob b");
+
+        let UpsertNoteOutcome::Updated {
+            notes_commit: first_commit,
+        } = upsert_note_for(
+            &git_dir,
+            format,
+            &store,
+            &notes_ref,
+            &target,
+            blob_a,
+            "heddle: export",
+            &identity,
+            None,
+        )
+        .expect("first upsert")
+        else {
+            panic!("expected update");
+        };
+
+        let UpsertNoteOutcome::Updated {
+            notes_commit: second_commit,
+        } = upsert_note_for(
+            &git_dir,
+            format,
+            &store,
+            &notes_ref,
+            &other,
+            blob_b,
+            "heddle: export",
+            &identity,
+            Some(RefTarget::Direct(first_commit)),
+        )
+        .expect("second upsert")
+        else {
+            panic!("expected update");
+        };
+
+        let db = FileObjectDatabase::from_git_dir(&git_dir, format);
+        let object = db.read_object(&second_commit).expect("read commit");
+        let commit = Commit::parse_ref(format, &object.body).expect("parse");
+        assert_eq!(commit.parents, vec![first_commit]);
+        let _ = fs::remove_dir_all(&dir);
+    }
+}

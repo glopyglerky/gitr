@@ -1,0 +1,1196 @@
+//! `git describe`: name a commit relative to the most recent reachable tag.
+//!
+//! The output for a commit that is not itself tagged is `<tag>-<n>-g<short>`,
+//! where `<n>` is the number of commits between the commit and the tag and
+//! `<short>` is the abbreviated commit object name. When the commit is exactly
+//! a tag, the bare tag name is printed (unless `--long` forces the long form).
+//!
+//! The selection algorithm mirrors upstream `git describe`: tags are gathered
+//! (one best tag per commit), then a commit-date-ordered priority walk from the
+//! target registers candidates as it reaches their tagged commits. A per-candidate
+//! flag is propagated to ancestors so each candidate's depth equals the count of
+//! commits reachable from the target but not from the candidate's tagged commit
+//! (`git rev-list <target> ^<tag>`). The winner is the candidate with the
+//! smallest depth, ties broken by registration order (which follows commit date).
+
+// Glob the crate root for shared plumbing; see commands::stash for rationale.
+use crate::*;
+
+/// The default number of most-recent tags to consider, matching git.
+const DEFAULT_CANDIDATES: usize = 10;
+/// The smallest abbreviation length git will ever emit for an object name.
+const MINIMUM_ABBREV: usize = 4;
+
+/// Compute the `%(describe[:opts])` string for a commit, mirroring git's
+/// `format_commit_one`/`describe` integration: failures (no names, no candidate)
+/// yield `Ok(None)` so the placeholder expands to an empty string instead of
+/// erroring. `tags`/`abbrev`/`matches`/`excludes` come from the `%(describe:...)`
+/// option parse.
+pub(crate) fn describe_for_format(
+    git_dir: &Path,
+    format: ObjectFormat,
+    db: &FileObjectDatabase,
+    target: &ObjectId,
+    use_tags: bool,
+    abbrev_opt: Option<usize>,
+    matches: &[String],
+    excludes: &[String],
+) -> Result<Option<String>> {
+    let mut options = DescribeOptions {
+        tags: use_tags,
+        ..DescribeOptions::default()
+    };
+    options.patterns.extend(matches.iter().cloned());
+    options.exclude_patterns.extend(excludes.iter().cloned());
+    if let Some(abbrev) = abbrev_opt {
+        options.abbrev = Some(abbrev);
+    }
+
+    let abbrev = resolve_describe_abbrev(git_dir, format, options.abbrev)?;
+    let tags = collect_describe_tags(git_dir, format, db, &options)?;
+    if tags.by_commit.is_empty() {
+        return Ok(None);
+    }
+
+    // git describe peels the requested object to a commit first (e.g. the
+    // %(describe) atom on an annotated tag is asked to describe the tag object).
+    // The by-commit map and the `-g<oid>` suffix are keyed on the commit, so
+    // resolve it once here.
+    let object = db.read_object(target)?;
+    let target = &match object.object_type {
+        ObjectType::Commit => *target,
+        ObjectType::Tag => sley_rev::peel_to_commit(db, format, target)?,
+        _ => return Ok(None),
+    };
+
+    // Exact match.
+    if let Some(best) = tags
+        .by_commit
+        .get(target)
+        .filter(|tag| describe_eligible(tag, &options))
+    {
+        if options.long {
+            return Ok(Some(format!(
+                "{}-0-g{}",
+                describe_tag_output_name(best, &options),
+                describe_abbrev_oid(db, target, abbrev)?
+            )));
+        }
+        return Ok(Some(describe_tag_output_name(best, &options)));
+    }
+
+    let (found, _traversed, _unannotated_cnt) =
+        run_describe_search(git_dir, format, db, &options, &tags.by_commit, target)?;
+    let Some((tagged, depth)) = found else {
+        return Ok(None);
+    };
+    let best = &tags.by_commit[&tagged];
+    let short = describe_abbrev_oid(db, target, abbrev)?;
+    if options.long || depth != 0 {
+        if abbrev == 0 {
+            Ok(Some(describe_tag_output_name(best, &options)))
+        } else {
+            Ok(Some(format!(
+                "{}-{}-g{short}",
+                describe_tag_output_name(best, &options),
+                depth
+            )))
+        }
+    } else {
+        Ok(Some(describe_tag_output_name(best, &options)))
+    }
+}
+
+pub(crate) fn cmd_describe(
+    cli_session: &crate::session::CliSession,
+    args: &[String],
+) -> Result<()> {
+    let mut options = DescribeOptions::default();
+    let mut commits: Vec<String> = Vec::new();
+    let mut positional_only = false;
+    let mut iter = args.iter();
+    while let Some(arg) = iter.next() {
+        if positional_only {
+            commits.push(arg.clone());
+            continue;
+        }
+        match arg.as_str() {
+            "--" => positional_only = true,
+            "-h" | "--help" => {
+                print_describe_usage(&mut io::stdout());
+                return Err(crate::cli_exit(129));
+            }
+            "--all" => options.all = true,
+            "--no-all" => options.all = false,
+            "--tags" => options.tags = true,
+            "--no-tags" => options.tags = false,
+            "--long" => options.long = true,
+            "--no-long" => options.long = false,
+            // `--exact-match` is an alias for `--candidates=0`.
+            "--exact-match" => options.max_candidates = 0,
+            "--no-exact-match" => options.max_candidates = DEFAULT_CANDIDATES,
+            "--first-parent" => options.first_parent = true,
+            "--no-first-parent" => options.first_parent = false,
+            "--always" => options.always = true,
+            "--no-always" => options.always = false,
+            "--debug" => options.debug = true,
+            "--no-debug" => options.debug = false,
+            "--contains" => options.contains = true,
+            "--no-contains" => options.contains = false,
+            "--dirty" => options.dirty = Some("-dirty".to_string()),
+            "--no-dirty" => options.dirty = None,
+            "--broken" => options.broken = Some("-broken".to_string()),
+            "--no-broken" => options.broken = None,
+            "--abbrev" => options.abbrev = Some(DEFAULT_ABBREV_SENTINEL),
+            "--no-abbrev" => options.abbrev = Some(0),
+            "--candidates" => {
+                let Some(value) = iter.next() else {
+                    return describe_option_requires_value_error("candidates");
+                };
+                options.max_candidates = parse_describe_candidates(value)?;
+            }
+            "--match" => {
+                let Some(value) = iter.next() else {
+                    return describe_option_requires_value_error("match");
+                };
+                options.patterns.push(value.clone());
+            }
+            "--no-match" => options.patterns.clear(),
+            "--exclude" => {
+                let Some(value) = iter.next() else {
+                    return describe_option_requires_value_error("exclude");
+                };
+                options.exclude_patterns.push(value.clone());
+            }
+            "--no-exclude" => options.exclude_patterns.clear(),
+            value if value.starts_with("--abbrev=") => {
+                let raw = &value["--abbrev=".len()..];
+                options.abbrev = Some(parse_describe_abbrev(raw)?);
+            }
+            value if value.starts_with("--candidates=") => {
+                options.max_candidates =
+                    parse_describe_candidates(&value["--candidates=".len()..])?;
+            }
+            value if value.starts_with("--dirty=") => {
+                options.dirty = Some(value["--dirty=".len()..].to_string());
+            }
+            value if value.starts_with("--broken=") => {
+                options.broken = Some(value["--broken=".len()..].to_string());
+            }
+            value if value.starts_with("--match=") => {
+                options.patterns.push(value["--match=".len()..].to_string());
+            }
+            value if value.starts_with("--exclude=") => {
+                options
+                    .exclude_patterns
+                    .push(value["--exclude=".len()..].to_string());
+            }
+            value if value.starts_with("--") => {
+                return describe_unknown_option_error(value.trim_start_matches("--"));
+            }
+            value if value.starts_with('-') && value.len() > 1 => {
+                let switch = value.chars().nth(1).unwrap_or('-');
+                return describe_unknown_switch_error(switch);
+            }
+            value => commits.push(value.to_string()),
+        }
+    }
+
+    if options.long && options.abbrev == Some(0) {
+        eprintln!("fatal: options '--long' and '--abbrev=0' cannot be used together");
+        return Err(crate::cli_exit(128));
+    }
+    if options.contains {
+        return describe_contains(cli_session, &options, &commits);
+    }
+    if options.dirty.is_some() && !commits.is_empty() {
+        eprintln!("fatal: option '--dirty' and commit-ishes cannot be used together");
+        return Err(crate::cli_exit(128));
+    }
+    if options.broken.is_some() && !commits.is_empty() {
+        eprintln!("fatal: option '--broken' and commit-ishes cannot be used together");
+        return Err(crate::cli_exit(128));
+    }
+
+    let repo = RepositoryContext::from_session(cli_session)?;
+    let repository = repo.repository();
+    let git_dir = repository.git_dir();
+    let format = repository.object_format();
+    let db = repository.object_database();
+
+    // Resolve the effective abbreviation length once: an unset/`--abbrev`
+    // sentinel falls back to the repository's `core.abbrev` (default 7).
+    let abbrev = resolve_describe_abbrev(git_dir, format, options.abbrev)?;
+
+    let tags = collect_describe_tags(git_dir, format, db, &options)?;
+
+    // git refuses to resolve any commit-ish when the (filtered) ref universe is
+    // empty and there is no `--always` fallback, reporting that no names exist
+    // before even looking at the requested revision. The ref universe includes
+    // unannotated tags, so a lightweight-only repo still reaches the walk (which
+    // then suggests `--tags`).
+    if tags.by_commit.is_empty() && !options.always {
+        eprintln!("fatal: No names found, cannot describe anything.");
+        return Err(crate::cli_exit(128));
+    }
+
+    if commits.is_empty() {
+        // Only resolve a worktree when --dirty/--broken need it. Bare repos
+        // (and `git --git-dir=… describe` from outside a worktree) have no
+        // worktree; requiring one would reject a valid bare describe.
+        let dirty_suffix = if options.dirty.is_some() || options.broken.is_some() {
+            describe_dirty_suffix(repo.worktree_root()?, git_dir, format, &options)?
+        } else {
+            None
+        };
+        let head = resolve_describe_commit(&repo, "HEAD")?;
+        describe_one(
+            git_dir,
+            format,
+            db,
+            &options,
+            abbrev,
+            &tags,
+            &head,
+            dirty_suffix.as_deref(),
+        )
+    } else {
+        // git describes each commit-ish in order and dies on the first failure,
+        // after printing the results of the commits already handled.
+        for commit in &commits {
+            match resolve_describe_target(&repo, commit)? {
+                DescribeTarget::Commit(target) => {
+                    describe_one(git_dir, format, db, &options, abbrev, &tags, &target, None)?;
+                }
+                DescribeTarget::Blob(blob) => {
+                    describe_blob(git_dir, format, db, &options, abbrev, &tags, &blob)?;
+                }
+            }
+        }
+        Ok(())
+    }
+}
+
+/// Sentinel meaning "user wrote `--abbrev` with no value": use the repo default.
+const DEFAULT_ABBREV_SENTINEL: usize = usize::MAX;
+
+struct DescribeOptions {
+    all: bool,
+    tags: bool,
+    long: bool,
+    first_parent: bool,
+    always: bool,
+    debug: bool,
+    contains: bool,
+    abbrev: Option<usize>,
+    max_candidates: usize,
+    dirty: Option<String>,
+    broken: Option<String>,
+    patterns: Vec<String>,
+    exclude_patterns: Vec<String>,
+}
+
+impl Default for DescribeOptions {
+    fn default() -> Self {
+        Self {
+            all: false,
+            tags: false,
+            long: false,
+            first_parent: false,
+            always: false,
+            debug: false,
+            contains: false,
+            abbrev: None,
+            max_candidates: DEFAULT_CANDIDATES,
+            dirty: None,
+            broken: None,
+            patterns: Vec::new(),
+            exclude_patterns: Vec::new(),
+        }
+    }
+}
+
+/// The single tag chosen to name a given commit. When several tags point at the
+/// same commit, git keeps the "best" one: annotated beats lightweight, then the
+/// newest date wins, then (via ref iteration order) the lexicographically first
+/// name. We capture the comparison keys so collection order does not matter.
+struct DescribeTag {
+    /// The display name (e.g. `v1.0`, or `tags/v1.0`/`heads/main` under --all).
+    name: String,
+    /// The tag name recorded inside an annotated tag object. When this differs
+    /// from the ref path, git prints the recorded name and warns about it.
+    annotated_name: Option<String>,
+    /// Priority: annotated tags (2) outrank lightweight tags / plain refs (1).
+    prio: u8,
+    /// Tagger date (annotated) or committer date (lightweight), for ordering.
+    date: i64,
+}
+
+impl DescribeTag {
+    /// True when `other` should replace `self` as a commit's chosen name, i.e.
+    /// `other` is strictly better under git's (prio, date, name) ordering.
+    fn outranked_by(&self, other: &DescribeTag) -> bool {
+        match other.prio.cmp(&self.prio) {
+            std::cmp::Ordering::Greater => true,
+            std::cmp::Ordering::Less => false,
+            std::cmp::Ordering::Equal => match other.date.cmp(&self.date) {
+                std::cmp::Ordering::Greater => true,
+                std::cmp::Ordering::Less => false,
+                std::cmp::Ordering::Equal => other.name < self.name,
+            },
+        }
+    }
+}
+
+/// Whether a tag may serve as a describe candidate under the current options.
+/// Annotated tags always qualify; unannotated tags/refs need `--tags` or `--all`.
+fn describe_eligible(tag: &DescribeTag, options: &DescribeOptions) -> bool {
+    tag.prio == 2 || options.tags || options.all
+}
+
+fn describe_tag_ref_basename<'a>(tag: &'a DescribeTag, options: &DescribeOptions) -> &'a str {
+    if options.all {
+        tag.name.strip_prefix("tags/").unwrap_or(&tag.name)
+    } else {
+        &tag.name
+    }
+}
+
+fn describe_tag_is_misnamed(tag: &DescribeTag, options: &DescribeOptions) -> bool {
+    tag.annotated_name
+        .as_deref()
+        .is_some_and(|name| name != describe_tag_ref_basename(tag, options))
+}
+
+fn describe_tag_output_name(tag: &DescribeTag, options: &DescribeOptions) -> String {
+    match tag.annotated_name.as_deref() {
+        Some(name) if options.all => format!("tags/{name}"),
+        Some(name) => name.to_string(),
+        None => tag.name.clone(),
+    }
+}
+
+fn warn_describe_misnamed_tag(tag: &DescribeTag, options: &DescribeOptions) {
+    if describe_tag_is_misnamed(tag, options)
+        && let Some(name) = tag.annotated_name.as_deref()
+    {
+        eprintln!(
+            "warning: tag '{}' is externally known as '{}'",
+            tag.name, name
+        );
+    }
+}
+
+/// The candidate ref universe for a describe run: the single best tag naming
+/// each commit. Lightweight tags are included even in the default (annotated
+/// only) mode — git keeps them in its name map so it can both detect that the
+/// ref universe is non-empty and, during the walk, suggest `--tags` when only
+/// unannotated tags are reachable. Eligibility is applied later at use sites.
+struct DescribeTags {
+    by_commit: HashMap<ObjectId, DescribeTag>,
+}
+
+/// Gather candidate tags/refs, honouring `--all`/`--match`/`--exclude`,
+/// collapsing multiple tags on one commit to the single best per git's rules.
+fn collect_describe_tags(
+    git_dir: &Path,
+    format: ObjectFormat,
+    db: &FileObjectDatabase,
+    options: &DescribeOptions,
+) -> Result<DescribeTags> {
+    let store = FileRefStore::new(git_dir, format);
+    let mut by_commit: HashMap<ObjectId, DescribeTag> = HashMap::new();
+    for reference in store.list_refs()? {
+        let RefTarget::Direct(oid) = &reference.target else {
+            // Symbolic refs (e.g. a packed HEAD) never name a commit directly.
+            continue;
+        };
+        let Some(names) = describe_ref_names(&reference.name, options) else {
+            continue;
+        };
+        if !describe_ref_passes_filters(&names.match_name, options) {
+            continue;
+        }
+        // Priority mirrors git: annotated tag (2) > lightweight tag (1) > any
+        // other ref such as a branch under `--all` (0).
+        let (commit, prio, date, annotated_name) = match describe_peel_commit(db, format, oid)? {
+            DescribePeel::Annotated { commit, date, name } if names.is_tag => {
+                (commit, 2, date, Some(name))
+            }
+            DescribePeel::Annotated { commit, .. } => {
+                (commit, 0, describe_commit_date(db, format, &commit)?, None)
+            }
+            DescribePeel::Lightweight { commit, date } => {
+                (commit, if names.is_tag { 1 } else { 0 }, date, None)
+            }
+            DescribePeel::NotACommit => continue,
+        };
+        let candidate = DescribeTag {
+            name: names.display,
+            annotated_name,
+            prio,
+            date,
+        };
+        match by_commit.get(&commit) {
+            Some(existing) if !existing.outranked_by(&candidate) => {}
+            _ => {
+                by_commit.insert(commit, candidate);
+            }
+        }
+    }
+
+    Ok(DescribeTags { by_commit })
+}
+
+/// The naming of a candidate ref: its display name, the name `--match`/`--exclude`
+/// test against, and whether it lives under `refs/tags/`.
+struct DescribeRefName {
+    display: String,
+    match_name: String,
+    is_tag: bool,
+}
+
+/// Compute the naming for a ref, or `None` if the ref is not eligible given
+/// `--all`. Without `--all`, only `refs/tags/*` are considered; `--all` admits
+/// every ref, displaying it with the leading `refs/` stripped.
+fn describe_ref_names(refname: &str, options: &DescribeOptions) -> Option<DescribeRefName> {
+    if let Some(tag) = refname.strip_prefix("refs/tags/") {
+        let display = if options.all {
+            format!("tags/{tag}")
+        } else {
+            tag.to_string()
+        };
+        return Some(DescribeRefName {
+            display,
+            match_name: tag.to_string(),
+            is_tag: true,
+        });
+    }
+    if !options.all {
+        return None;
+    }
+    if let Some(branch) = refname.strip_prefix("refs/heads/") {
+        return Some(DescribeRefName {
+            display: format!("heads/{branch}"),
+            match_name: branch.to_string(),
+            is_tag: false,
+        });
+    }
+    if let Some(remote) = refname.strip_prefix("refs/remotes/") {
+        return Some(DescribeRefName {
+            display: format!("remotes/{remote}"),
+            match_name: remote.to_string(),
+            is_tag: false,
+        });
+    }
+    if !options.patterns.is_empty() || !options.exclude_patterns.is_empty() {
+        return None;
+    }
+    // `--all` considers every ref; the display name drops the leading `refs/`.
+    let display = refname.strip_prefix("refs/").unwrap_or(refname).to_string();
+    Some(DescribeRefName {
+        match_name: display.clone(),
+        display,
+        is_tag: false,
+    })
+}
+
+/// `git describe --contains` is implemented upstream by delegating to
+/// `name-rev --peel-tag --name-only --no-undefined`, with tag-only filtering
+/// unless `--all` was requested. Keep that route so the two commands share the
+/// same naming walk and exact-tag handling.
+fn describe_contains(
+    cli_session: &crate::session::CliSession,
+    options: &DescribeOptions,
+    commits: &[String],
+) -> Result<()> {
+    let mut args = vec![
+        "--peel-tag".to_string(),
+        "--name-only".to_string(),
+        "--no-undefined".to_string(),
+    ];
+    if options.always {
+        args.push("--always".to_string());
+    }
+    if !options.all {
+        args.push("--tags".to_string());
+    }
+    for pattern in &options.patterns {
+        args.push(format!("--refs=refs/tags/{pattern}"));
+    }
+    for pattern in &options.exclude_patterns {
+        args.push(format!("--exclude=refs/tags/{pattern}"));
+    }
+    if options.all {
+        for pattern in &options.patterns {
+            args.push(format!("--refs=refs/heads/{pattern}"));
+            args.push(format!("--refs=refs/remotes/{pattern}"));
+        }
+        for pattern in &options.exclude_patterns {
+            args.push(format!("--exclude=refs/heads/{pattern}"));
+            args.push(format!("--exclude=refs/remotes/{pattern}"));
+        }
+    }
+    if commits.is_empty() {
+        args.push("HEAD".to_string());
+    } else {
+        args.extend(commits.iter().cloned());
+    }
+    crate::commands::name_rev::cmd_name_rev(cli_session, &args)
+}
+
+fn describe_ref_passes_filters(match_name: &str, options: &DescribeOptions) -> bool {
+    if !options.patterns.is_empty()
+        && !options
+            .patterns
+            .iter()
+            .any(|pattern| refname_pattern_matches(pattern, match_name))
+    {
+        return false;
+    }
+    if options
+        .exclude_patterns
+        .iter()
+        .any(|pattern| refname_pattern_matches(pattern, match_name))
+    {
+        return false;
+    }
+    true
+}
+
+/// Result of peeling a ref toward the commit it names.
+enum DescribePeel {
+    /// An annotated tag object naming a commit; date is the tagger date.
+    Annotated {
+        commit: ObjectId,
+        date: i64,
+        name: String,
+    },
+    /// A ref pointing straight at a commit (lightweight tag / branch); date is
+    /// that commit's committer date.
+    Lightweight { commit: ObjectId, date: i64 },
+    /// The ref does not resolve to a commit (e.g. a tag of a tree/blob).
+    NotACommit,
+}
+
+/// Peel a ref target to the commit it names. The returned date is used to order
+/// candidates so that, at equal depth, the newest tag wins: the tagger date for
+/// annotated tags, otherwise the committer date.
+fn describe_peel_commit(
+    db: &FileObjectDatabase,
+    format: ObjectFormat,
+    oid: &ObjectId,
+) -> Result<DescribePeel> {
+    let object = db.read_object(oid)?;
+    match object.object_type {
+        ObjectType::Commit => {
+            let commit = Commit::parse(format, &object.body)?;
+            let date = commit_identity_timestamp_i64(&commit.committer).unwrap_or(0);
+            Ok(DescribePeel::Lightweight { commit: *oid, date })
+        }
+        ObjectType::Tag => {
+            let tag = Tag::parse(format, &object.body)?;
+            // Prefer the tagger date; fall back to the peeled commit's date.
+            let Ok(commit) = sley_rev::peel_to_commit(db, format, &tag.object) else {
+                return Ok(DescribePeel::NotACommit);
+            };
+            let peeled = db.read_object(&commit)?;
+            if peeled.object_type != ObjectType::Commit {
+                return Ok(DescribePeel::NotACommit);
+            }
+            let parsed = Commit::parse(format, &peeled.body)?;
+            let date = tag
+                .tagger
+                .as_deref()
+                .and_then(|tagger| commit_identity_timestamp_i64(tagger).ok())
+                .or_else(|| commit_identity_timestamp_i64(&parsed.committer).ok())
+                .unwrap_or(0);
+            Ok(DescribePeel::Annotated {
+                commit,
+                date,
+                name: String::from_utf8_lossy(&tag.name).into_owned(),
+            })
+        }
+        _ => Ok(DescribePeel::NotACommit),
+    }
+}
+
+/// Describe a single target commit, printing the result (or an error per git).
+fn describe_one(
+    git_dir: &Path,
+    format: ObjectFormat,
+    db: &FileObjectDatabase,
+    options: &DescribeOptions,
+    abbrev: usize,
+    tags: &DescribeTags,
+    target: &ObjectId,
+    dirty_suffix: Option<&str>,
+) -> Result<()> {
+    let text = describe_commit_text(
+        git_dir,
+        format,
+        db,
+        options,
+        abbrev,
+        tags,
+        target,
+        dirty_suffix,
+    )?;
+    println!("{text}");
+    Ok(())
+}
+
+fn describe_commit_text(
+    git_dir: &Path,
+    format: ObjectFormat,
+    db: &FileObjectDatabase,
+    options: &DescribeOptions,
+    abbrev: usize,
+    tags: &DescribeTags,
+    target: &ObjectId,
+    dirty_suffix: Option<&str>,
+) -> Result<String> {
+    if options.debug {
+        eprintln!("describe {}", target.to_hex());
+    }
+
+    // Exact match: the target commit is itself named by an eligible tag.
+    if let Some(best) = tags
+        .by_commit
+        .get(target)
+        .filter(|tag| describe_eligible(tag, options))
+    {
+        warn_describe_misnamed_tag(best, options);
+        let suffix = dirty_suffix.unwrap_or("");
+        let name = describe_tag_output_name(best, options);
+        if options.long || describe_tag_is_misnamed(best, options) {
+            return Ok(format!(
+                "{}-0-g{}{suffix}",
+                name,
+                describe_abbrev_oid_for_suffix(db, target, abbrev)?
+            ));
+        }
+        return Ok(format!("{name}{suffix}"));
+    }
+
+    // Zero candidates (`--exact-match` or `--candidates=0`) means only exact
+    // matches are acceptable; without one, git errors even under `--always`.
+    if options.max_candidates == 0 {
+        eprintln!("fatal: no tag exactly matches '{}'", target.to_hex());
+        return Err(crate::cli_exit(128));
+    }
+
+    if options.debug {
+        eprintln!("No exact match on refs or tags, searching to describe");
+    }
+
+    let (found, traversed, unannotated_cnt) =
+        run_describe_search(git_dir, format, db, options, &tags.by_commit, target)?;
+
+    let Some((tagged, depth)) = found else {
+        // No candidate tag was reachable from the target.
+        return describe_no_candidate(db, options, abbrev, unannotated_cnt, target, dirty_suffix);
+    };
+
+    if options.debug {
+        eprintln!("traversed {traversed} commits");
+    }
+
+    let best = &tags.by_commit[&tagged];
+    let suffix = dirty_suffix.unwrap_or("");
+    let short = describe_abbrev_oid(db, target, abbrev)?;
+    let name = describe_tag_output_name(best, options);
+    warn_describe_misnamed_tag(best, options);
+    if options.long || depth != 0 || describe_tag_is_misnamed(best, options) {
+        if abbrev == 0 && !describe_tag_is_misnamed(best, options) {
+            // `--abbrev=0` without `--long`: print just the tag name.
+            Ok(format!("{name}{suffix}"))
+        } else {
+            let short = if abbrev == 0 {
+                describe_abbrev_oid_for_suffix(db, target, abbrev)?
+            } else {
+                short
+            };
+            Ok(format!("{}-{}-g{short}{suffix}", name, depth))
+        }
+    } else {
+        Ok(format!("{name}{suffix}"))
+    }
+}
+
+/// Bridge to the describe search core in `sley-rev`: project the gathered tag
+/// map into the engine's candidate shape, run the commit-date walk, and map the
+/// winner back to its tag plus depth.
+fn run_describe_search(
+    git_dir: &Path,
+    format: ObjectFormat,
+    db: &FileObjectDatabase,
+    options: &DescribeOptions,
+    tags: &HashMap<ObjectId, DescribeTag>,
+    target: &ObjectId,
+) -> Result<(Option<(ObjectId, u32)>, usize, usize)> {
+    let candidates: Vec<sley_rev::describe::DescribeCandidate> = tags
+        .iter()
+        .map(|(commit, tag)| sley_rev::describe::DescribeCandidate {
+            commit: *commit,
+            name: tag.name.clone(),
+            eligible: describe_eligible(tag, options),
+            annotated: tag.prio == 2,
+        })
+        .collect();
+    let walk = sley_rev::describe::DescribeWalkOptions {
+        max_candidates: options.max_candidates,
+        first_parent: options.first_parent,
+        debug: options.debug,
+    };
+    let outcome =
+        sley_rev::describe::describe_search(git_dir, format, db, &candidates, target, &walk)?;
+    Ok((
+        outcome
+            .winner
+            .map(|winner| (winner.tagged_commit, winner.depth)),
+        outcome.traversed,
+        outcome.unannotated_cnt,
+    ))
+}
+
+/// Handle the case where no reachable tag names the target: emit the abbreviated
+/// commit under `--always`, otherwise the appropriate fatal error. When some
+/// candidate refs exist but none are reachable, git distinguishes the
+/// "unannotated tags exist, try --tags" case from the generic "no tags" case.
+fn describe_no_candidate(
+    db: &FileObjectDatabase,
+    options: &DescribeOptions,
+    abbrev: usize,
+    unannotated_cnt: usize,
+    target: &ObjectId,
+    dirty_suffix: Option<&str>,
+) -> Result<String> {
+    if options.always {
+        // git's `--always` uses strbuf_add_unique_abbrev, where abbrev==0 means
+        // the FULL oid (unlike the `tag-N-g<short>` path where abbrev==0 drops
+        // the suffix entirely).
+        let short = if abbrev == 0 {
+            target.to_hex()
+        } else {
+            describe_abbrev_oid(db, target, abbrev)?
+        };
+        return Ok(format!("{short}{}", dirty_suffix.unwrap_or("")));
+    }
+    let oid = target.to_hex();
+    if unannotated_cnt > 0 {
+        eprintln!("fatal: No annotated tags can describe '{oid}'.");
+        eprintln!("However, there were unannotated tags: try --tags.");
+    } else {
+        eprintln!("fatal: No tags can describe '{oid}'.");
+        eprintln!("Try --always, or create some tags.");
+    }
+    Err(crate::cli_exit(128))
+}
+
+/// `--always` still respects an explicit `--abbrev=0` request by widening to the
+/// minimum, mirroring git's fallback which never prints a zero-length name.
+fn describe_commit_date(
+    db: &FileObjectDatabase,
+    format: ObjectFormat,
+    oid: &ObjectId,
+) -> Result<i64> {
+    let object = db.read_object(oid)?;
+    if object.object_type != ObjectType::Commit {
+        return Err(GitError::InvalidObject(format!(
+            "expected commit {}, found {}",
+            oid.to_hex(),
+            object.object_type.as_str()
+        )));
+    }
+    let commit = Commit::parse(format, &object.body)?;
+    Ok(commit_identity_timestamp_i64(&commit.committer).unwrap_or(0))
+}
+
+fn describe_commit_parents(
+    db: &FileObjectDatabase,
+    format: ObjectFormat,
+    oid: &ObjectId,
+    first_parent: bool,
+) -> Result<Vec<ObjectId>> {
+    let object = db.read_object(oid)?;
+    if object.object_type != ObjectType::Commit {
+        return Err(GitError::InvalidObject(format!(
+            "expected commit {}, found {}",
+            oid.to_hex(),
+            object.object_type.as_str()
+        )));
+    }
+    let commit = Commit::parse(format, &object.body)?;
+    if first_parent {
+        Ok(commit.parents.into_iter().take(1).collect())
+    } else {
+        Ok(commit.parents)
+    }
+}
+
+/// Resolve a commit-ish to the commit it names, peeling tags. On any resolution
+/// failure git prints `fatal: Not a valid object name <rev>` and exits 128.
+fn resolve_describe_commit(repo: &RepositoryContext, rev: &str) -> Result<ObjectId> {
+    let oid = match repo.resolve_revision(rev) {
+        Ok(oid) => oid,
+        Err(error) if crate::cli_reported_status(&error).is_some() => return Err(error),
+        Err(_) => {
+            eprintln!("fatal: Not a valid object name {rev}");
+            return Err(crate::cli_exit(128));
+        }
+    };
+    let object = repo.objects().read_object(&oid)?;
+    match object.object_type {
+        ObjectType::Commit => Ok(oid),
+        ObjectType::Tag => sley_rev::peel_to_commit(repo.objects(), repo.format(), &oid),
+        other => {
+            eprintln!("fatal: {} is neither a commit nor blob", oid.to_hex());
+            let _ = other;
+            Err(crate::cli_exit(128))
+        }
+    }
+}
+
+enum DescribeTarget {
+    Commit(ObjectId),
+    Blob(ObjectId),
+}
+
+fn resolve_describe_target(repo: &RepositoryContext, rev: &str) -> Result<DescribeTarget> {
+    let oid = match repo.resolve_revision(rev) {
+        Ok(oid) => oid,
+        Err(error) if crate::cli_reported_status(&error).is_some() => return Err(error),
+        Err(_) => {
+            eprintln!("fatal: Not a valid object name {rev}");
+            return Err(crate::cli_exit(128));
+        }
+    };
+    let object = repo.objects().read_object(&oid)?;
+    match object.object_type {
+        ObjectType::Commit => Ok(DescribeTarget::Commit(oid)),
+        ObjectType::Blob => Ok(DescribeTarget::Blob(oid)),
+        ObjectType::Tag => match sley_rev::peel_to_commit(repo.objects(), repo.format(), &oid) {
+            Ok(commit) => Ok(DescribeTarget::Commit(commit)),
+            Err(_) => {
+                eprintln!("fatal: {rev} is neither a commit nor blob");
+                Err(crate::cli_exit(128))
+            }
+        },
+        _ => {
+            eprintln!("fatal: {rev} is neither a commit nor blob");
+            Err(crate::cli_exit(128))
+        }
+    }
+}
+
+fn describe_blob(
+    git_dir: &Path,
+    format: ObjectFormat,
+    db: &FileObjectDatabase,
+    options: &DescribeOptions,
+    abbrev: usize,
+    tags: &DescribeTags,
+    blob: &ObjectId,
+) -> Result<()> {
+    let head = match sley_rev::RevisionResolver::new(git_dir, format, db).resolve("HEAD") {
+        Ok(oid) => oid,
+        Err(_) => {
+            eprintln!(
+                "fatal: cannot search for blob '{}' on an unborn branch",
+                blob.to_hex()
+            );
+            return Err(crate::cli_exit(128));
+        }
+    };
+    let head_object = db.read_object(&head)?;
+    if head_object.object_type != ObjectType::Commit {
+        eprintln!("fatal: blob '{}' not reachable from HEAD", blob.to_hex());
+        return Err(crate::cli_exit(128));
+    }
+
+    for commit_oid in describe_reachable_commits_reverse(format, db, &head)? {
+        let object = db.read_object(&commit_oid)?;
+        let commit = Commit::parse(format, &object.body)?;
+        if let Some(path) = describe_find_blob_path(db, format, &commit.tree, blob)? {
+            let text = describe_commit_text(
+                git_dir,
+                format,
+                db,
+                options,
+                abbrev,
+                tags,
+                &commit_oid,
+                None,
+            )?;
+            println!("{text}:{path}");
+            return Ok(());
+        }
+    }
+
+    eprintln!("fatal: blob '{}' not reachable from HEAD", blob.to_hex());
+    Err(crate::cli_exit(128))
+}
+
+fn describe_reachable_commits_reverse(
+    format: ObjectFormat,
+    db: &FileObjectDatabase,
+    head: &ObjectId,
+) -> Result<Vec<ObjectId>> {
+    let mut ordered = Vec::new();
+    let mut seen = HashSet::new();
+    let mut stack = vec![(*head, false)];
+    while let Some((oid, emit)) = stack.pop() {
+        if emit {
+            ordered.push(oid);
+            continue;
+        }
+        if !seen.insert(oid) {
+            continue;
+        }
+        stack.push((oid, true));
+        let mut parents = describe_commit_parents(db, format, &oid, false)?;
+        parents.reverse();
+        for parent in parents {
+            stack.push((parent, false));
+        }
+    }
+    Ok(ordered)
+}
+
+fn describe_find_blob_path(
+    db: &FileObjectDatabase,
+    format: ObjectFormat,
+    tree: &ObjectId,
+    blob: &ObjectId,
+) -> Result<Option<String>> {
+    let mut path = Vec::new();
+    describe_find_blob_path_inner(db, format, tree, blob, &mut path)
+}
+
+fn describe_find_blob_path_inner(
+    db: &FileObjectDatabase,
+    format: ObjectFormat,
+    tree: &ObjectId,
+    blob: &ObjectId,
+    path: &mut Vec<u8>,
+) -> Result<Option<String>> {
+    let object = db.read_object(tree)?;
+    if object.object_type != ObjectType::Tree {
+        return Ok(None);
+    }
+    for entry in TreeEntries::new(format, &object.body) {
+        let entry = entry?;
+        let previous_len = path.len();
+        if !path.is_empty() {
+            path.push(b'/');
+        }
+        path.extend_from_slice(entry.name);
+        match tree_entry_object_type(entry.mode) {
+            ObjectType::Blob if entry.oid == *blob => {
+                return Ok(Some(String::from_utf8_lossy(path).into_owned()));
+            }
+            ObjectType::Tree => {
+                if let Some(found) =
+                    describe_find_blob_path_inner(db, format, &entry.oid, blob, path)?
+                {
+                    return Ok(Some(found));
+                }
+            }
+            _ => {}
+        }
+        path.truncate(previous_len);
+    }
+    Ok(None)
+}
+
+/// Compute the dirty/broken suffix for the implicit HEAD case. `--dirty` appends
+/// its mark only when the tracked working tree differs from the index/HEAD;
+/// untracked files do not count. Errors computing status fall back to `--broken`.
+fn describe_dirty_suffix(
+    worktree_root: &Path,
+    git_dir: &Path,
+    format: ObjectFormat,
+    options: &DescribeOptions,
+) -> Result<Option<String>> {
+    if options.dirty.is_none() && options.broken.is_none() {
+        return Ok(None);
+    }
+    let mut dirty = false;
+    match sley_worktree::stream_short_status(worktree_root, git_dir, format, |entry| {
+        let index_dirty = entry.index != b' ' && entry.index != b'?' && entry.index != b'!';
+        let worktree_dirty =
+            entry.worktree != b' ' && entry.worktree != b'?' && entry.worktree != b'!';
+        if index_dirty || worktree_dirty {
+            dirty = true;
+            return Ok(sley_worktree::StreamControl::Stop);
+        }
+        Ok(sley_worktree::StreamControl::Continue)
+    }) {
+        Ok(()) => {
+            if options.dirty.is_some() && dirty {
+                return Ok(options.dirty.clone());
+            }
+            Ok(None)
+        }
+        Err(err) => {
+            if let Some(mark) = &options.broken {
+                Ok(Some(mark.clone()))
+            } else {
+                Err(err)
+            }
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Abbreviation
+// ---------------------------------------------------------------------------
+
+/// Resolve the requested abbreviation length to a concrete width. `None` and the
+/// `--abbrev` sentinel both fall back to `core.abbrev` (default 7). A non-zero
+/// width is clamped to at least `MINIMUM_ABBREV` and at most the full hex length.
+fn resolve_describe_abbrev(
+    git_dir: &Path,
+    format: ObjectFormat,
+    requested: Option<usize>,
+) -> Result<usize> {
+    let width = match requested {
+        None | Some(DEFAULT_ABBREV_SENTINEL) => repository_abbrev(git_dir, format)?.unwrap_or(0),
+        Some(0) => 0,
+        Some(width) => width,
+    };
+    Ok(clamp_describe_abbrev(width, format))
+}
+
+fn clamp_describe_abbrev(width: usize, format: ObjectFormat) -> usize {
+    if width == 0 {
+        0
+    } else {
+        width.max(MINIMUM_ABBREV).min(format.hex_len())
+    }
+}
+
+/// Abbreviate a commit object name to at least `width` hex digits, growing the
+/// prefix until it uniquely identifies an object in the repository (mirroring
+/// git's `find_unique_abbrev`). A `width` of 0 yields an empty string.
+fn describe_abbrev_oid(db: &FileObjectDatabase, oid: &ObjectId, width: usize) -> Result<String> {
+    let hex = oid.to_hex();
+    if width == 0 {
+        return Ok(String::new());
+    }
+    let mut len = width.max(MINIMUM_ABBREV).min(hex.len());
+    while len < hex.len() {
+        match db.resolve_prefix(&hex[..len]) {
+            Ok(ObjectPrefixResolution::Unique(_)) => break,
+            Ok(ObjectPrefixResolution::Ambiguous(_)) => len += 1,
+            // Missing should not happen for an object we hold; stop widening.
+            Ok(ObjectPrefixResolution::Missing) => break,
+            Err(_) => break,
+        }
+    }
+    Ok(hex[..len].to_string())
+}
+
+fn describe_abbrev_oid_for_suffix(
+    db: &FileObjectDatabase,
+    oid: &ObjectId,
+    width: usize,
+) -> Result<String> {
+    if width == 0 {
+        Ok(oid.to_hex())
+    } else {
+        describe_abbrev_oid(db, oid, width)
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Argument parsing helpers and errors
+// ---------------------------------------------------------------------------
+
+fn parse_describe_abbrev(value: &str) -> Result<usize> {
+    // `--abbrev` takes a plain integer (no k/m/g suffix). git treats zero as "no
+    // abbreviation" and negative values as a request for the default length.
+    match value.parse::<i64>() {
+        Ok(0) => Ok(0),
+        Ok(parsed) if parsed < 0 => Ok(DEFAULT_ABBREV_SENTINEL),
+        Ok(parsed) => Ok(parsed as usize),
+        Err(_) => {
+            eprintln!("error: option `abbrev' expects a numerical value");
+            Err(crate::cli_exit(129))
+        }
+    }
+}
+
+fn parse_describe_candidates(value: &str) -> Result<usize> {
+    // `--candidates` is a magnitude: a non-negative integer with an optional
+    // k/m/g (1024-based) suffix. Negative values clamp to zero (exact-match).
+    match parse_describe_magnitude(value) {
+        Some(parsed) if parsed < 0 => Ok(0),
+        Some(parsed) => Ok(parsed as usize),
+        None => {
+            eprintln!(
+                "error: option `candidates' expects an integer value with an optional k/m/g suffix"
+            );
+            Err(crate::cli_exit(129))
+        }
+    }
+}
+
+/// Parse an integer with an optional `k`/`m`/`g` (1024-based) suffix, saturating
+/// rather than overflowing. Returns `None` for non-numeric input.
+fn parse_describe_magnitude(value: &str) -> Option<i64> {
+    let (digits, multiplier) = match value.as_bytes().last().copied() {
+        Some(b'k' | b'K') => (&value[..value.len() - 1], 1024_i64),
+        Some(b'm' | b'M') => (&value[..value.len() - 1], 1024 * 1024),
+        Some(b'g' | b'G') => (&value[..value.len() - 1], 1024 * 1024 * 1024),
+        _ => (value, 1),
+    };
+    let base = digits.parse::<i64>().ok()?;
+    Some(base.saturating_mul(multiplier))
+}
+
+fn describe_option_requires_value_error(option: &str) -> Result<()> {
+    eprintln!("error: option `{option}' requires a value");
+    Err(crate::cli_exit(129))
+}
+
+fn describe_unknown_option_error(option: &str) -> Result<()> {
+    eprintln!("error: unknown option `{option}'");
+    print_describe_usage(&mut io::stderr());
+    Err(crate::cli_exit(129))
+}
+
+fn describe_unknown_switch_error(switch: char) -> Result<()> {
+    eprintln!("error: unknown switch `{switch}'");
+    print_describe_usage(&mut io::stderr());
+    Err(crate::cli_exit(129))
+}
+
+fn print_describe_usage(out: &mut impl Write) {
+    let _ = out.write_all(
+        br#"usage: git describe [--all] [--tags] [--contains] [--abbrev=<n>] [<commit-ish>...]
+   or: git describe [--all] [--tags] [--contains] [--abbrev=<n>] --dirty[=<mark>]
+   or: git describe <blob>
+
+    --[no-]contains       find the tag that comes after the commit
+    --[no-]debug          debug search strategy on stderr
+    --[no-]all            use any ref
+    --[no-]tags           use any tag, even unannotated
+    --[no-]long           always use long format
+    --[no-]first-parent   only follow first parent
+    --[no-]abbrev[=<n>]   use <n> digits to display object names
+    --[no-]exact-match    only output exact matches
+    --[no-]candidates <n> consider <n> most recent tags (default: 10)
+    --[no-]match <pattern>
+                          only consider tags matching <pattern>
+    --[no-]exclude <pattern>
+                          do not consider tags matching <pattern>
+    --[no-]always         show abbreviated commit object as fallback
+    --[no-]dirty[=<mark>] append <mark> on dirty working tree (default: "-dirty")
+    --[no-]broken[=<mark>]
+                          append <mark> on broken working tree (default: "-broken")
+
+"#,
+    );
+}

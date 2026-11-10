@@ -1,0 +1,17 @@
+[package]
+name = "sley-protocol"
+version.workspace = true
+description = "Native-Rust implementation of Git's wire protocol: pkt-line framing and protocol v0/v1/v2 codecs."
+repository.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[features]
+fetch-profile = ["sley-core/fetch-profile"]
+
+[dependencies]
+sley-core.workspace = true
+
+[lints]
+workspace = true

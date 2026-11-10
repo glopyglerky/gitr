@@ -1,5 +1,9 @@
 # Native Git import qualification (2026-11-10)
 
+> Historical record for the Grit/database-first implementation. The active
+> Sley composition and its current limits are in [sley-integration.md](sley-integration.md).
+
+
 [PR #1](https://github.com/glopyglerky/gitr/pull/1) merged the historical Rust Git
 source import into `master` at
 `5f4aea7467fd9c05d815c4bf1399d9e932f91267` after

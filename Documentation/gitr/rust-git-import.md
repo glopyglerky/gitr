@@ -1,5 +1,9 @@
 # Historical Grit source import and redb integration
 
+> Historical record for the Grit/database-first implementation. The active
+> Sley composition and its current limits are in [sley-integration.md](sley-integration.md).
+
+
 Gitr now contains the historical GitButler Grit Rust CLI, engine and Rust test
 support as a coherent source import. The product calls that code in process.
 This is a substantial source and implementation expansion; it is **not evidence

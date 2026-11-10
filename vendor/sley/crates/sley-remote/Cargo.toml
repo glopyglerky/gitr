@@ -1,0 +1,48 @@
+[package]
+name = "sley-remote"
+version.workspace = true
+description = "Callable fetch, push, clone, and ls-remote orchestration over the sley transport and object stack."
+repository.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[features]
+default = ["default-http-client", "tls-rustls", "ssh", "worktree"]
+# Smart-HTTP orchestration with a caller-supplied HttpClient; no HTTP backend.
+http = []
+# Built-in ureq client. TLS backend selection is independent.
+default-http-client = ["http", "sley-transport/http-client"]
+# Checkout and receive.denyCurrentBranch=updateInstead support.
+worktree = ["dep:sley-worktree", "dep:sley-index"]
+ssh = []
+# Forward ureq TLS backend selection to embedders (mutually exclusive in practice).
+tls-rustls = ["default-http-client", "sley-transport/tls-rustls"]
+tls-native-tls = ["default-http-client", "sley-transport/tls-native-tls"]
+tls-platform-verifier = ["default-http-client", "sley-transport/tls-platform-verifier"]
+fetch-profile = [
+    "sley-core/fetch-profile",
+    "sley-odb/fetch-profile",
+    "sley-pack/fetch-profile",
+    "sley-protocol/fetch-profile",
+]
+
+[dependencies]
+sley-config.workspace = true
+sley-diff-merge.workspace = true
+sley-core.workspace = true
+sley-formats.workspace = true
+sley-fsck.workspace = true
+sley-index = { workspace = true, optional = true }
+sley-object.workspace = true
+sley-odb.workspace = true
+sley-pack.workspace = true
+sley-protocol.workspace = true
+sley-refs.workspace = true
+sley-rev.workspace = true
+sley-transport = { path = "../sley-transport", version = "0.13.0", default-features = false } # inline: default-features override cant use workspace inherit
+sley-worktree = { workspace = true, optional = true }
+tempfile = "3.27.0"
+
+[lints]
+workspace = true

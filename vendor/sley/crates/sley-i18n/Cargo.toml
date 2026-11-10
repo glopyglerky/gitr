@@ -1,0 +1,15 @@
+[package]
+name = "sley-i18n"
+version.workspace = true
+description = "Git shell i18n compatibility helpers for Sley."
+repository.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+encoding_rs = "0.8.41"
+sley-core.workspace = true
+
+[lints]
+workspace = true

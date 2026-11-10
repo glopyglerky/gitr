@@ -25,6 +25,7 @@ terms. In particular:
 
   * Inherited Git material retains COPYING and any file-specific notices.
     COPYING expressly selects GPL version 2 unless otherwise stated.
+  * vendor/sley retains Apache-2.0, including its local adaptations.
   * vendor/grit/grit-git retains GPL-2.0-only, including its local adaptations.
   * vendor/grit/grit-lib and vendor/grit/grit-test-support retain MIT.
   * vendor/rbit-workflow retains MIT OR Apache-2.0 and both license texts.
@@ -38,18 +39,16 @@ otherwise. Future imports must retain their actual licenses and provenance.
 Current combined executable
 ---------------------------
 
-The current root package unconditionally links the GPL-2.0-only historical
-grit-git CLI. Distribution of that combined executable must comply with
-GPL-2.0-only and all applicable third-party notices and obligations. Use the
-MIT option for the dual-licensed project contributions in that composition.
-The --isolated-git runtime option does not remove grit-git from the build.
+The active root package links Sley's Apache-2.0 Rust engine and frontend.
+Historical grit-git and the deferred database/forge prototype are outside its
+dependency graph. Their GPL-2.0-only terms still apply to their retained source;
+this source migration does not relicense those files.
 
-This repository is therefore not a wholly MIT- or Apache-licensed product.
-Changing Gitr's own grant does not make Apache-2.0-only or GPLv3-only code
-compatible with the current GPL-2.0-only executable. A different combined
-license requires a compatible source/dependency composition or sufficient
-additional permission from the relevant rights holders.
+Gitr-controlled entrypoint contributions remain MIT OR Apache-2.0. Distribution
+of the active executable must retain Sley's Apache-2.0 terms and all applicable
+dependency notices. The whole source repository is not uniformly permissive:
+inherited Git, historical Grit and archived material retain their existing terms.
 
-See Documentation/gitr/licensing.md for the source map, import rules, and
-the path to compatible future compositions. Keep LICENSE, LICENSE-MIT,
-LICENSE-APACHE, COPYING and applicable upstream notices with distributions.
+See Documentation/gitr/licensing.md and vendor/sley/NOTICE.md. Keep LICENSE,
+LICENSE-MIT, LICENSE-APACHE, COPYING and applicable donor notices with source
+distributions.

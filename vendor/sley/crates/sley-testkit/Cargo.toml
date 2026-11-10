@@ -1,0 +1,24 @@
+[package]
+name = "sley-testkit"
+publish = false
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+sley-config.workspace = true
+sley-core.workspace = true
+sley-diff-merge.workspace = true
+sley-formats.workspace = true
+sley-index.workspace = true
+sley-object.workspace = true
+sley-odb.workspace = true
+sley-pack.workspace = true
+sley-refs.workspace = true
+sley-rev.workspace = true
+sley-sequencer.workspace = true
+sley-worktree.workspace = true
+
+[lints]
+workspace = true

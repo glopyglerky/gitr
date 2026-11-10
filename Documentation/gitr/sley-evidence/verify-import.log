@@ -1,0 +1,3 @@
+    Finished `dev` profile [unoptimized] target(s) in 0.05s
+     Running `/workspace/scratch/161a1b7c00ce/tooling/gitr-target/debug/examples/verify_import`
+Sley source verified: 673 files, 19 adapted, 4 added; exact donor revision and complete installed inventory

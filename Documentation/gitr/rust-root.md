@@ -1,5 +1,9 @@
 # Rust root migration qualification
 
+> Historical record for the Grit/database-first implementation. The active
+> Sley composition and its current limits are in [sley-integration.md](sley-integration.md).
+
+
 This is the historical root-migration record. The subsequent
 [licensing decision](licensing.md) changes the grant for reviewed Gitr-controlled
 contributions; the preserved donor terms and current combined build are

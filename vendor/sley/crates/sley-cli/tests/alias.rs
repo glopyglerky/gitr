@@ -1,0 +1,396 @@
+use std::fs;
+use std::path::{Path, PathBuf};
+use std::process::{Command, Output};
+use std::time::{SystemTime, UNIX_EPOCH};
+
+fn unique_temp_dir(name: &str) -> PathBuf {
+    let nanos = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .expect("system time before unix epoch")
+        .as_nanos();
+    std::env::temp_dir().join(format!("sley-{name}-{}-{nanos}", std::process::id()))
+}
+
+fn run_output(program: &str, cwd: &Path, args: &[&str]) -> Output {
+    Command::new(program)
+        .current_dir(cwd)
+        .args(args)
+        .output()
+        .unwrap_or_else(|err| panic!("failed to run {program} {args:?}: {err}"))
+}
+
+fn assert_status_stdout_stderr_match(upstream: &Path, rust: &Path, args: &[&str]) {
+    let expected = run_output(sley_testkit::oracle_git(), upstream, args);
+    let actual = run_output(sley_testkit::sley_bin!(), rust, args);
+    assert_eq!(
+        actual.status.code(),
+        expected.status.code(),
+        "sley status differed for {args:?}\nstdout:\n{}\nstderr:\n{}",
+        String::from_utf8_lossy(&actual.stdout),
+        String::from_utf8_lossy(&actual.stderr)
+    );
+    assert_eq!(
+        actual.stdout, expected.stdout,
+        "sley stdout differed for {args:?}"
+    );
+    assert_eq!(
+        actual.stderr, expected.stderr,
+        "sley stderr differed for {args:?}"
+    );
+}
+
+#[test]
+fn alias_init_via_dash_c_matches_upstream_git_outside_repo() {
+    let root = unique_temp_dir("alias-init-dash-c");
+    let upstream = root.join("upstream");
+    let rust = root.join("rust");
+    fs::create_dir_all(&upstream).expect("create upstream dir");
+    fs::create_dir_all(&rust).expect("create rust dir");
+    {
+        let args = ["-c", "alias.aliasedinit=init", "aliasedinit", "-q"];
+        assert_status_stdout_stderr_match(&upstream, &rust, &args);
+        assert!(upstream.join(".git").is_dir(), "upstream should init .git");
+        assert!(rust.join(".git").is_dir(), "sley should init .git");
+    }
+    let _ = fs::remove_dir_all(&root);
+}
+
+#[test]
+fn alias_init_via_config_matches_upstream_git_outside_repo() {
+    let root = unique_temp_dir("alias-init-config");
+    let upstream = root.join("upstream");
+    let rust = root.join("rust");
+    let upstream_config = root.join("upstream.gitconfig");
+    let rust_config = root.join("rust.gitconfig");
+    fs::create_dir_all(&upstream).expect("create upstream dir");
+    fs::create_dir_all(&rust).expect("create rust dir");
+    {
+        for (dir, config_path, program) in [
+            (&upstream, &upstream_config, sley_testkit::oracle_git()),
+            (&rust, &rust_config, sley_testkit::sley_bin!()),
+        ] {
+            let output = Command::new(program)
+                .current_dir(dir)
+                .env("GIT_CONFIG_GLOBAL", config_path)
+                .env_remove("GIT_CONFIG_SYSTEM")
+                .env_remove("XDG_CONFIG_HOME")
+                .env_remove("HOME")
+                .args([
+                    "config",
+                    "--file",
+                    config_path.to_str().expect("utf8 path"),
+                    "alias.aliasedinit",
+                    "init",
+                ])
+                .output()
+                .unwrap_or_else(|err| panic!("failed to run {program} config: {err}"));
+            assert!(
+                output.status.success(),
+                "{program} config alias failed: {}",
+                String::from_utf8_lossy(&output.stderr)
+            );
+        }
+        for (dir, config_path) in [(&upstream, &upstream_config), (&rust, &rust_config)] {
+            let expected = Command::new(sley_testkit::oracle_git())
+                .current_dir(dir)
+                .env("GIT_CONFIG_GLOBAL", config_path)
+                .env_remove("GIT_CONFIG_SYSTEM")
+                .env_remove("XDG_CONFIG_HOME")
+                .env_remove("HOME")
+                .args(["aliasedinit", "-q"])
+                .output()
+                .expect("upstream git aliasedinit");
+            let actual = Command::new(sley_testkit::sley_bin!())
+                .current_dir(dir)
+                .env("GIT_CONFIG_GLOBAL", config_path)
+                .env_remove("GIT_CONFIG_SYSTEM")
+                .env_remove("XDG_CONFIG_HOME")
+                .env_remove("HOME")
+                .args(["aliasedinit", "-q"])
+                .output()
+                .expect("sley aliasedinit");
+            assert_eq!(actual.status.code(), expected.status.code());
+            assert_eq!(actual.stdout, expected.stdout);
+            assert_eq!(actual.stderr, expected.stderr);
+            assert!(dir.join(".git").is_dir());
+        }
+    }
+    let _ = fs::remove_dir_all(&root);
+}
+
+#[test]
+fn alias_nested_expansion_matches_upstream_git() {
+    let root = unique_temp_dir("alias-nested");
+    let upstream = root.join("upstream");
+    let rust = root.join("rust");
+    fs::create_dir_all(&upstream).expect("create upstream dir");
+    fs::create_dir_all(&rust).expect("create rust dir");
+    {
+        let args = [
+            "-c",
+            "alias.outer=aliasedinit",
+            "-c",
+            "alias.aliasedinit=init",
+            "outer",
+            "-q",
+        ];
+        assert_status_stdout_stderr_match(&upstream, &rust, &args);
+        assert!(upstream.join(".git").is_dir());
+        assert!(rust.join(".git").is_dir());
+    }
+    let _ = fs::remove_dir_all(&root);
+}
+
+#[test]
+fn alias_dash_c_version_aliases_match_upstream_git() {
+    let root = unique_temp_dir("alias-config-cmds");
+    let upstream = root.join("upstream");
+    let rust = root.join("rust");
+    fs::create_dir_all(&upstream).expect("create upstream dir");
+    fs::create_dir_all(&rust).expect("create rust dir");
+    {
+        for (alias, expansion) in [("hello-world", "version"), ("CamelCase", "version")] {
+            let args = ["-c", &format!("alias.{alias}={expansion}"), alias];
+            assert_status_stdout_stderr_match(&upstream, &rust, &args);
+        }
+    }
+    let _ = fs::remove_dir_all(&root);
+}
+
+#[test]
+fn alias_checkconfig_expands_instead_of_unsupported_command() {
+    let root = unique_temp_dir("alias-checkconfig");
+    fs::create_dir_all(&root).expect("create temp dir");
+    {
+        let output = run_output(
+            sley_testkit::sley_bin!(),
+            &root,
+            &["-c", "alias.checkconfig=config --list", "checkconfig"],
+        );
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        assert!(
+            !stderr.contains("unsupported command checkconfig"),
+            "alias should expand checkconfig to config, got stderr: {stderr}"
+        );
+    }
+    let _ = fs::remove_dir_all(&root);
+}
+
+#[test]
+fn builtin_init_is_not_replaced_by_alias() {
+    let root = unique_temp_dir("alias-builtin-init");
+    let upstream = root.join("upstream");
+    let rust = root.join("rust");
+    fs::create_dir_all(&upstream).expect("create upstream dir");
+    fs::create_dir_all(&rust).expect("create rust dir");
+    {
+        // Built-in `init` must not be expanded even when alias.init is set.
+        let args = ["-c", "alias.init=version", "init", "-q"];
+        assert_status_stdout_stderr_match(&upstream, &rust, &args);
+        assert!(upstream.join(".git").is_dir());
+        assert!(rust.join(".git").is_dir());
+    }
+    let _ = fs::remove_dir_all(&root);
+}
+
+/// t0014 #12: `alias.simple.dotted = !echo …` expands as `git simple.dotted`.
+///
+/// git stores this as `[alias "simple"] dotted = …` and
+/// `config_alias_cb` falls back to the two-level name `simple.dotted`.
+#[test]
+fn simple_dotted_alias_syntax_matches_upstream_git() {
+    let root = unique_temp_dir("alias-simple-dotted");
+    let upstream = root.join("upstream");
+    let rust = root.join("rust");
+    fs::create_dir_all(&upstream).expect("create upstream dir");
+    fs::create_dir_all(&rust).expect("create rust dir");
+    {
+        for (dir, program) in [
+            (&upstream, sley_testkit::oracle_git()),
+            (&rust, sley_testkit::sley_bin!()),
+        ] {
+            let output = Command::new(program)
+                .current_dir(dir)
+                .args(["init", "-q"])
+                .output()
+                .unwrap_or_else(|err| panic!("failed to init with {program}: {err}"));
+            assert!(
+                output.status.success(),
+                "{program} init failed: {}",
+                String::from_utf8_lossy(&output.stderr)
+            );
+            let output = Command::new(program)
+                .current_dir(dir)
+                .args(["config", "alias.simple.dotted", "!echo ran-simple-dotted"])
+                .output()
+                .unwrap_or_else(|err| panic!("failed to set alias with {program}: {err}"));
+            assert!(
+                output.status.success(),
+                "{program} config alias failed: {}",
+                String::from_utf8_lossy(&output.stderr)
+            );
+        }
+        assert_status_stdout_stderr_match(&upstream, &rust, &["simple.dotted"]);
+    }
+    let _ = fs::remove_dir_all(&root);
+}
+
+/// t0014 #21: simple dotted aliases appear under `git help -a` by their
+/// dotted name (`simple.listed`), not only as a bare subsection.
+#[test]
+fn simple_dotted_aliases_listed_in_help_a_matches_upstream_git() {
+    let root = unique_temp_dir("alias-dotted-help-a");
+    let upstream = root.join("upstream");
+    let rust = root.join("rust");
+    fs::create_dir_all(&upstream).expect("create upstream dir");
+    fs::create_dir_all(&rust).expect("create rust dir");
+    {
+        for (dir, program) in [
+            (&upstream, sley_testkit::oracle_git()),
+            (&rust, sley_testkit::sley_bin!()),
+        ] {
+            let output = Command::new(program)
+                .current_dir(dir)
+                .args(["init", "-q"])
+                .output()
+                .unwrap_or_else(|err| panic!("failed to init with {program}: {err}"));
+            assert!(
+                output.status.success(),
+                "{program} init failed: {}",
+                String::from_utf8_lossy(&output.stderr)
+            );
+            let output = Command::new(program)
+                .current_dir(dir)
+                .args(["config", "alias.simple.listed", "!echo test"])
+                .output()
+                .unwrap_or_else(|err| panic!("failed to set alias with {program}: {err}"));
+            assert!(
+                output.status.success(),
+                "{program} config alias failed: {}",
+                String::from_utf8_lossy(&output.stderr)
+            );
+        }
+        let expected = run_output(sley_testkit::oracle_git(), &upstream, &["help", "-a"]);
+        let actual = run_output(sley_testkit::sley_bin!(), &rust, &["help", "-a"]);
+        assert_eq!(
+            actual.status.code(),
+            expected.status.code(),
+            "help -a status differed\nstderr:\n{}",
+            String::from_utf8_lossy(&actual.stderr)
+        );
+        let expected_out = String::from_utf8_lossy(&expected.stdout);
+        let actual_out = String::from_utf8_lossy(&actual.stdout);
+        assert!(
+            expected_out.contains("simple.listed"),
+            "oracle help -a missing simple.listed:\n{expected_out}"
+        );
+        assert!(
+            actual_out.contains("simple.listed"),
+            "sley help -a missing simple.listed:\n{actual_out}"
+        );
+    }
+    let _ = fs::remove_dir_all(&root);
+}
+
+/// t1308 #37 (alias path): bare `alias.br` without a value reports both
+/// `missing value for 'alias.br'` and `fatal: bad config line N in file …`.
+#[test]
+fn alias_missing_value_reports_line_and_file_matches_upstream_git() {
+    let root = unique_temp_dir("alias-missing-value");
+    let upstream = root.join("upstream");
+    let rust = root.join("rust");
+    fs::create_dir_all(&upstream).expect("create upstream dir");
+    fs::create_dir_all(&rust).expect("create rust dir");
+    {
+        for dir in [&upstream, &rust] {
+            let output = Command::new(sley_testkit::oracle_git())
+                .current_dir(dir)
+                .args(["init", "-q"])
+                .output()
+                .expect("git init");
+            assert!(output.status.success());
+            // Keep only the malformed alias section, matching t1308 #37.
+            fs::write(dir.join(".git/config"), "[alias]\n\tbr\n").expect("write malformed config");
+        }
+        assert_status_stdout_stderr_match(&upstream, &rust, &["br"]);
+    }
+    let _ = fs::remove_dir_all(&root);
+}
+
+#[test]
+fn malformed_local_config_does_not_fall_back_to_global_alias() {
+    let root = unique_temp_dir("alias-malformed-local");
+    let upstream = root.join("upstream");
+    let rust = root.join("rust");
+    let upstream_global = root.join("upstream.gitconfig");
+    let rust_global = root.join("rust.gitconfig");
+    fs::create_dir_all(&upstream).expect("create upstream dir");
+    fs::create_dir_all(&rust).expect("create rust dir");
+    {
+        for dir in [&upstream, &rust] {
+            let output = Command::new(sley_testkit::oracle_git())
+                .current_dir(dir)
+                .args(["init", "-q"])
+                .output()
+                .expect("git init");
+            assert!(output.status.success());
+            fs::write(dir.join(".git/config"), b"[broken\n").expect("write malformed local config");
+        }
+        fs::write(&upstream_global, b"[alias]\n\tfromglobal = version\n")
+            .expect("write upstream global alias");
+        fs::write(&rust_global, b"[alias]\n\tfromglobal = version\n")
+            .expect("write rust global alias");
+
+        let run = |program: &str, cwd: &Path, global: &Path| {
+            Command::new(program)
+                .current_dir(cwd)
+                .env("GIT_CONFIG_GLOBAL", global)
+                .env("GIT_CONFIG_NOSYSTEM", "1")
+                .args(["fromglobal"])
+                .output()
+                .unwrap_or_else(|err| panic!("failed to run malformed-config alias: {err}"))
+        };
+        let expected = run(sley_testkit::oracle_git(), &upstream, &upstream_global);
+        let actual = run(sley_testkit::sley_bin!(), &rust, &rust_global);
+        assert_eq!(actual.status.code(), expected.status.code());
+        assert!(actual.stdout.is_empty(), "global alias must not execute");
+        assert!(!actual.stderr.is_empty(), "malformed config must be fatal");
+    }
+    let _ = fs::remove_dir_all(&root);
+}
+
+#[test]
+fn alias_repository_switch_reapplies_precompose_to_expanded_tail() {
+    let root = unique_temp_dir("alias-precompose-switch");
+    let source = root.join("source");
+    let target = root.join("target");
+    fs::create_dir_all(&source).expect("create source dir");
+    fs::create_dir_all(&target).expect("create target dir");
+    {
+        for dir in [&source, &target] {
+            let output = Command::new(sley_testkit::oracle_git())
+                .current_dir(dir)
+                .args(["init", "-q"])
+                .output()
+                .expect("git init");
+            assert!(output.status.success());
+        }
+        let alias = "-C ../target -c core.precomposeunicode=true hash-object";
+        let output = Command::new(sley_testkit::oracle_git())
+            .current_dir(&source)
+            .args(["config", "alias.hop", alias])
+            .output()
+            .expect("configure alias");
+        assert!(output.status.success());
+
+        let nfc = "caf\u{e9}.txt";
+        let nfd = "cafe\u{301}.txt";
+        fs::write(target.join(nfc), b"payload\n").expect("write NFC target");
+        let expected = run_output(sley_testkit::oracle_git(), &target, &["hash-object", nfc]);
+        let actual = run_output(sley_testkit::sley_bin!(), &source, &["hop", nfd]);
+        assert_eq!(actual.status.code(), Some(0));
+        assert_eq!(actual.stdout, expected.stdout);
+        assert!(actual.stderr.is_empty());
+    }
+    let _ = fs::remove_dir_all(&root);
+}

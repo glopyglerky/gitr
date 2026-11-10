@@ -1,0 +1,95 @@
+{
+  "schema": 1,
+  "baseline_commit": "fe8e48a59e07c630b59f4a38c2c406b13f58c28b",
+  "donor_commit": "a71654f50de24b3c750f0df5f1829db7342491f6",
+  "imported_files": 673,
+  "imported_crates": 36,
+  "adapted_files": 19,
+  "local_added_files": 4,
+  "source_exclusions": 60,
+  "local_compiler": {
+    "coordinator": "lustr",
+    "revision": "6339fbb104d6adda4be7e6be7dc637a6a9e5586b",
+    "engine": "rustc",
+    "rustc_version": "1.99.1",
+    "rustc_commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
+    "host": "x86_64-unknown-linux-gnu",
+    "produced_bluefe": false
+  },
+  "oracle": {
+    "version": "2.55.0",
+    "revision": "e9019fcafe0040228b8631c30f97ae1adb61bcdc"
+  },
+  "results": {
+    "root_all_features_all_targets": {
+      "passed": 5,
+      "failed": 0,
+      "log": "root-final.log"
+    },
+    "selected_engine_libraries": {
+      "passed": 873,
+      "failed": 4,
+      "log": "vendor-libraries.log",
+      "failures": "AF_UNIX socket creation denied with EPERM; four worktree fsmonitor daemon tests remain enabled in hosted CI"
+    },
+    "i18n_library_after_source_exclusions": {
+      "passed": 11,
+      "failed": 0,
+      "log": "i18n-provenance-tests.log"
+    },
+    "native_archive_and_filter_refusal": {
+      "passed": 8,
+      "failed": 0,
+      "log": "native-service-provenance-tests.log"
+    },
+    "existing_archive_integration": {
+      "passed": 7,
+      "failed": 0,
+      "source": "agent executed Lustr selected test target"
+    },
+    "archive_library": {
+      "passed": 3,
+      "failed": 0,
+      "source": "agent executed Lustr library target"
+    },
+    "xtask": {
+      "passed": 6,
+      "failed": 0
+    },
+    "coordinator_archive_validation": {
+      "passed": 8,
+      "failed": 0
+    },
+    "import_verification": {
+      "passed": true,
+      "files": 673,
+      "adapted": 19,
+      "added": 4,
+      "log": "verify-import.log"
+    },
+    "composition_policy": {
+      "passed": true,
+      "log": "policy.log"
+    },
+    "tracked_source_inventory": {
+      "passed": true,
+      "log": "audit.log"
+    }
+  },
+  "not_claimed": [
+    "Full Git parity",
+    "Entire upstream Git test suite",
+    "Produced BlueFe local validation",
+    "Hosted CI pass before observation",
+    "Remote credential/SSH/HTTPS roundtrip validation",
+    "Windows/macOS validation",
+    "General performance advantage",
+    "Exclusively Rust or wholly memory-safe artifact"
+  ],
+  "source_fingerprints": "source-hashes.json",
+  "artifact_sha256": {
+    "gitr": "0f57921cf4990ced0bd6240b7050e54dade58d5b1d4a1405d97ad4d4638d68c4",
+    "git": "ea0bbea89883dbd294d81ee586ca8d1587f7e0ddc750152f3ccaca01044c7eb7",
+    "scalar": "bf25e7384a15bd26dd49d3144ade9413af4c72a26b3734892715e691de0cfec3"
+  }
+}

@@ -8,6 +8,10 @@ jobs:
     runs-on: [self-hosted, linux, gitr-bluefe]
     env:
       BLUEFE_ROOT: ${{ vars.GITR_BLUEFE_ROOT }}
+      # Manual qualification requires a provisioned Git 2.55.0 oracle too.
+      # The hosted native workflow builds its own pinned external oracle.
+      GITR_REFERENCE_GIT: ${{ vars.GITR_REFERENCE_GIT }}
+      SLEY_TEST_GIT: ${{ vars.GITR_REFERENCE_GIT }}
       CARGO_BUILD_JOBS: 2
       CARGO_TARGET_DIR: ${{ github.workspace }}/.gitr-ci/gitr-qualification-target
     steps:

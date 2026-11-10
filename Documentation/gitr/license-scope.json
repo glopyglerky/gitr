@@ -20,7 +20,8 @@
       "origin_git_blob": "5da12f42f09a5864406cecd6855867fea673ec9f",
       "origin_evidence_url": "https://github.com/glopyglerky/gitr/blob/2a0c5ee3bbd710f55d512e1168bf85c5bd7006b8/rust/gitr/Cargo.toml",
       "scope_rationale": "Added in the separate native Rust Gitr package; source inspected as dependency API adapters, project state, or generated project fixtures, rather than an inherited Git implementation file. Current package unconditionally depends on GPL-2.0-only grit-git; source contribution grant does not make the combined executable permissive.",
-      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms."
+      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms.",
+      "current_path": "Documentation/gitr/archive/database-first/Cargo.toml"
     },
     {
       "path": "ci/benchmark_native.rs",
@@ -110,7 +111,8 @@
       "origin_git_blob": "5260240e845577c353a1e6db8704b79b6768b28d",
       "origin_evidence_url": "https://github.com/glopyglerky/gitr/blob/1ac69467673c4e0e715bdfb2bd8c090cbc4ba72c/examples/verify_import.rs",
       "scope_rationale": "Project-specific validator for the Grit import inventory, hashes and retained license notices. Added alongside product qualification; imports dependency APIs but no donor implementation or embedded source.",
-      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms."
+      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms.",
+      "current_path": "Documentation/gitr/archive/database-first/examples/verify_import.rs"
     },
     {
       "path": "src/actions.rs",
@@ -120,7 +122,8 @@
       "origin_git_blob": "c05fb548357bed296c328c23011e244667597bb7",
       "origin_evidence_url": "https://github.com/glopyglerky/gitr/blob/c39a66ee238fb2ebf7079639cac829ad40e727c2/rust/gitr/src/actions.rs",
       "scope_rationale": "Project redb/Wasmi action implementation and tests; first-add message explicitly describes independent execution core.",
-      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms."
+      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms.",
+      "current_path": "Documentation/gitr/archive/database-first/src/actions.rs"
     },
     {
       "path": "src/actions_api.rs",
@@ -130,7 +133,8 @@
       "origin_git_blob": "29d03c5a81f5fffa023c0d4ce975539c30535cb9",
       "origin_evidence_url": "https://github.com/glopyglerky/gitr/blob/a9dc1d7a0bd4d7d60e29fc649017be707c14e7e6/rust/gitr/src/actions_api.rs",
       "scope_rationale": "Project authenticated HTTP API adapter over its redb action service.",
-      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms."
+      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms.",
+      "current_path": "Documentation/gitr/archive/database-first/src/actions_api.rs"
     },
     {
       "path": "src/actions_export.rs",
@@ -140,7 +144,8 @@
       "origin_git_blob": "636b92dbf274b75145e49e610f2937d6cff991e4",
       "origin_evidence_url": "https://github.com/glopyglerky/gitr/blob/8624639f02a0357df36027cff641ebbefc686da9/rust/gitr/src/actions_export.rs",
       "scope_rationale": "Project snapshot/export schema and integrity checks over its redb action service.",
-      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms."
+      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms.",
+      "current_path": "Documentation/gitr/archive/database-first/src/actions_export.rs"
     },
     {
       "path": "src/actions_forge.rs",
@@ -150,7 +155,8 @@
       "origin_git_blob": "3cd34b2221d2cd41422b7ee7d985c8c480fe54e4",
       "origin_evidence_url": "https://github.com/glopyglerky/gitr/blob/60616187139a8638e121f586c63fef91431ef340/rust/gitr/src/actions_forge.rs",
       "scope_rationale": "Project redb forge-record adapter and tests consuming Rbit domain APIs; imported Rbit source excluded; retained candidate files currently inactive.",
-      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms."
+      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms.",
+      "current_path": "Documentation/gitr/archive/database-first/src/actions_forge.rs"
     },
     {
       "path": "src/actions_forge_tests.rs",
@@ -160,7 +166,8 @@
       "origin_git_blob": "83fae291b560a0267ce2d6ac4b95366ac1cca6f9",
       "origin_evidence_url": "https://github.com/glopyglerky/gitr/blob/60616187139a8638e121f586c63fef91431ef340/rust/gitr/src/actions_forge_tests.rs",
       "scope_rationale": "Project redb forge-record adapter and tests consuming Rbit domain APIs; imported Rbit source excluded; retained candidate files currently inactive.",
-      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms."
+      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms.",
+      "current_path": "Documentation/gitr/archive/database-first/src/actions_forge_tests.rs"
     },
     {
       "path": "src/actions_runner.rs",
@@ -170,7 +177,8 @@
       "origin_git_blob": "8fed14ac6933cda1c80ad84b07a0ed4dc0a9d88c",
       "origin_evidence_url": "https://github.com/glopyglerky/gitr/blob/0c1fb3ebb6d6ea52b1b5aebcf54a52ee52356b61/rust/gitr/src/actions_runner.rs",
       "scope_rationale": "Project disposable Wasmi-worker protocol and execution fixtures; no imported engine implementation.",
-      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms."
+      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms.",
+      "current_path": "Documentation/gitr/archive/database-first/src/actions_runner.rs"
     },
     {
       "path": "src/actions_runner_tests.rs",
@@ -180,7 +188,8 @@
       "origin_git_blob": "5dd13a4dc10f1141bfafd0ee34e090a8986c6d18",
       "origin_evidence_url": "https://github.com/glopyglerky/gitr/blob/0c1fb3ebb6d6ea52b1b5aebcf54a52ee52356b61/rust/gitr/src/actions_runner_tests.rs",
       "scope_rationale": "Project disposable Wasmi-worker protocol and execution fixtures; no imported engine implementation.",
-      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms."
+      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms.",
+      "current_path": "Documentation/gitr/archive/database-first/src/actions_runner_tests.rs"
     },
     {
       "path": "src/actions_tests.rs",
@@ -190,7 +199,8 @@
       "origin_git_blob": "595dfd07c047087e6d44bb55928ec321729e9ecb",
       "origin_evidence_url": "https://github.com/glopyglerky/gitr/blob/c39a66ee238fb2ebf7079639cac829ad40e727c2/rust/gitr/src/actions_tests.rs",
       "scope_rationale": "Project redb/Wasmi action implementation and tests; first-add message explicitly describes independent execution core.",
-      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms."
+      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms.",
+      "current_path": "Documentation/gitr/archive/database-first/src/actions_tests.rs"
     },
     {
       "path": "src/actions_workflow.rs",
@@ -200,7 +210,8 @@
       "origin_git_blob": "7a2d3094386fb60b8eb88a95b433e674cac6fa07",
       "origin_evidence_url": "https://github.com/glopyglerky/gitr/blob/f33d5572c3bc44b444c58afd5596f917f03c649a/rust/gitr/src/actions_workflow.rs",
       "scope_rationale": "Project adapter and durable redb workflow state around separately vendored Rbit planner API; Rbit implementation and its notices are excluded.",
-      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms."
+      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms.",
+      "current_path": "Documentation/gitr/archive/database-first/src/actions_workflow.rs"
     },
     {
       "path": "src/actions_workflow_export.rs",
@@ -210,7 +221,8 @@
       "origin_git_blob": "3c3cb9f69cae051f55141f5380188cec015d24d0",
       "origin_evidence_url": "https://github.com/glopyglerky/gitr/blob/f33d5572c3bc44b444c58afd5596f917f03c649a/rust/gitr/src/actions_workflow_export.rs",
       "scope_rationale": "Project adapter and durable redb workflow state around separately vendored Rbit planner API; Rbit implementation and its notices are excluded.",
-      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms."
+      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms.",
+      "current_path": "Documentation/gitr/archive/database-first/src/actions_workflow_export.rs"
     },
     {
       "path": "src/actions_workflow_plan.rs",
@@ -220,7 +232,8 @@
       "origin_git_blob": "49a30d141c1cbc45782a02f1df4e14acfb72a9f1",
       "origin_evidence_url": "https://github.com/glopyglerky/gitr/blob/f33d5572c3bc44b444c58afd5596f917f03c649a/rust/gitr/src/actions_workflow_plan.rs",
       "scope_rationale": "Project adapter and durable redb workflow state around separately vendored Rbit planner API; Rbit implementation and its notices are excluded.",
-      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms."
+      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms.",
+      "current_path": "Documentation/gitr/archive/database-first/src/actions_workflow_plan.rs"
     },
     {
       "path": "src/actions_workflow_tests.rs",
@@ -230,7 +243,8 @@
       "origin_git_blob": "eb3d416046a9f79155879033c5d33fae41683ab7",
       "origin_evidence_url": "https://github.com/glopyglerky/gitr/blob/f33d5572c3bc44b444c58afd5596f917f03c649a/rust/gitr/src/actions_workflow_tests.rs",
       "scope_rationale": "Project adapter and durable redb workflow state around separately vendored Rbit planner API; Rbit implementation and its notices are excluded.",
-      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms."
+      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms.",
+      "current_path": "Documentation/gitr/archive/database-first/src/actions_workflow_tests.rs"
     },
     {
       "path": "src/assets.rs",
@@ -240,7 +254,8 @@
       "origin_git_blob": "6ec6cba946def72aa965c030b3f5caf484c1eb92",
       "origin_evidence_url": "https://github.com/glopyglerky/gitr/blob/2a0c5ee3bbd710f55d512e1168bf85c5bd7006b8/rust/gitr/src/assets.rs",
       "scope_rationale": "Added in the separate native Rust Gitr package; source inspected as dependency API adapters, project state, or generated project fixtures, rather than an inherited Git implementation file.",
-      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms."
+      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms.",
+      "current_path": "Documentation/gitr/archive/database-first/src/assets.rs"
     },
     {
       "path": "src/chunks.rs",
@@ -250,7 +265,8 @@
       "origin_git_blob": "aeb35a42714ab60ee4f8af82e3e962d1f68e02c4",
       "origin_evidence_url": "https://github.com/glopyglerky/gitr/blob/2a0c5ee3bbd710f55d512e1168bf85c5bd7006b8/rust/gitr/src/chunks.rs",
       "scope_rationale": "Added in the separate native Rust Gitr package; source inspected as dependency API adapters, project state, or generated project fixtures, rather than an inherited Git implementation file.",
-      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms."
+      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms.",
+      "current_path": "Documentation/gitr/archive/database-first/src/chunks.rs"
     },
     {
       "path": "src/db.rs",
@@ -260,7 +276,8 @@
       "origin_git_blob": "cc52ea80e6a930c54d8f726c313ac9a1b8613f6b",
       "origin_evidence_url": "https://github.com/glopyglerky/gitr/blob/2a0c5ee3bbd710f55d512e1168bf85c5bd7006b8/rust/gitr/src/db.rs",
       "scope_rationale": "Added in the separate native Rust Gitr package; source inspected as dependency API adapters, project state, or generated project fixtures, rather than an inherited Git implementation file.",
-      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms."
+      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms.",
+      "current_path": "Documentation/gitr/archive/database-first/src/db.rs"
     },
     {
       "path": "src/git.rs",
@@ -270,7 +287,8 @@
       "origin_git_blob": "947311214fd8caea804a15bffed7cb64d0f285a5",
       "origin_evidence_url": "https://github.com/glopyglerky/gitr/blob/2a0c5ee3bbd710f55d512e1168bf85c5bd7006b8/rust/gitr/src/git.rs",
       "scope_rationale": "Added in the separate native Rust Gitr package; source inspected as dependency API adapters, project state, or generated project fixtures, rather than an inherited Git implementation file.",
-      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms."
+      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms.",
+      "current_path": "Documentation/gitr/archive/database-first/src/git.rs"
     },
     {
       "path": "src/git_write.rs",
@@ -280,7 +298,8 @@
       "origin_git_blob": "4f21a610f18b37a2a53ea9424eb4b3dd60906043",
       "origin_evidence_url": "https://github.com/glopyglerky/gitr/blob/53d9f16dfe1dad8151a664c6b425d4bf28fe21fa/rust/gitr/src/git_write.rs",
       "scope_rationale": "Project object-authoring adapter and qualification fixtures using pinned Gitoxide API, not imported Git implementation.",
-      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms."
+      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms.",
+      "current_path": "Documentation/gitr/archive/database-first/src/git_write.rs"
     },
     {
       "path": "src/lfs.rs",
@@ -290,7 +309,8 @@
       "origin_git_blob": "f59b332b9b663c5d8172b85a69b96da1d53ec57f",
       "origin_evidence_url": "https://github.com/glopyglerky/gitr/blob/2a0c5ee3bbd710f55d512e1168bf85c5bd7006b8/rust/gitr/src/lfs.rs",
       "scope_rationale": "Added in the separate native Rust Gitr package; source inspected as dependency API adapters, project state, or generated project fixtures, rather than an inherited Git implementation file.",
-      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms."
+      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms.",
+      "current_path": "Documentation/gitr/archive/database-first/src/lfs.rs"
     },
     {
       "path": "src/lib.rs",
@@ -300,7 +320,8 @@
       "origin_git_blob": "f3fcaf723d0ea0d4ef3b08f82ca67f8354142a59",
       "origin_evidence_url": "https://github.com/glopyglerky/gitr/blob/2a0c5ee3bbd710f55d512e1168bf85c5bd7006b8/rust/gitr/src/lib.rs",
       "scope_rationale": "Added in the separate native Rust Gitr package; source inspected as dependency API adapters, project state, or generated project fixtures, rather than an inherited Git implementation file. Promotion commit 1e6cfcf4abe7c23b96db6f5d6f36e8fc789d8200 replaced the entire old Git module list with the exact former rust/gitr/src/lib.rs blob; reused pathname makes automated follow misleading.",
-      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms."
+      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms.",
+      "current_path": "Documentation/gitr/archive/database-first/src/lib.rs"
     },
     {
       "path": "src/main.rs",
@@ -310,7 +331,8 @@
       "origin_git_blob": "601573c04e866f28e20c7d29476457646841bfeb",
       "origin_evidence_url": "https://github.com/glopyglerky/gitr/blob/2a0c5ee3bbd710f55d512e1168bf85c5bd7006b8/rust/gitr/src/main.rs",
       "scope_rationale": "Added in the separate native Rust Gitr package; source inspected as dependency API adapters, project state, or generated project fixtures, rather than an inherited Git implementation file.",
-      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms."
+      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms.",
+      "current_path": "Documentation/gitr/archive/database-first/src/main.rs"
     },
     {
       "path": "src/native_cli.rs",
@@ -320,7 +342,8 @@
       "origin_git_blob": "6e51f0b44e80abf95217128f93e0b9d13df2d431",
       "origin_evidence_url": "https://github.com/glopyglerky/gitr/blob/632f3fa33fc206a833f0f8eb0df0b8cffb776702/src/native_cli.rs",
       "scope_rationale": "Project command-selection wrapper or product qualification tests added alongside separately licensed Grit import; vendor/grit implementation excluded.",
-      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms."
+      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms.",
+      "current_path": "Documentation/gitr/archive/database-first/src/native_cli.rs"
     },
     {
       "path": "src/remote.rs",
@@ -330,7 +353,8 @@
       "origin_git_blob": "870e8c55b0a8c525c3fdc2770be688e23e5e8ff5",
       "origin_evidence_url": "https://github.com/glopyglerky/gitr/blob/2a0c5ee3bbd710f55d512e1168bf85c5bd7006b8/rust/gitr/src/remote.rs",
       "scope_rationale": "Added in the separate native Rust Gitr package; source inspected as dependency API adapters, project state, or generated project fixtures, rather than an inherited Git implementation file.",
-      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms."
+      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms.",
+      "current_path": "Documentation/gitr/archive/database-first/src/remote.rs"
     },
     {
       "path": "tests/assets.rs",
@@ -340,7 +364,8 @@
       "origin_git_blob": "b104524420511c5da20417c776ec1195fd9ad74f",
       "origin_evidence_url": "https://github.com/glopyglerky/gitr/blob/2a0c5ee3bbd710f55d512e1168bf85c5bd7006b8/rust/gitr/tests/assets.rs",
       "scope_rationale": "Added in the separate native Rust Gitr package; source inspected as dependency API adapters, project state, or generated project fixtures, rather than an inherited Git implementation file.",
-      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms."
+      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms.",
+      "current_path": "Documentation/gitr/archive/database-first/tests/assets.rs"
     },
     {
       "path": "tests/chunks.rs",
@@ -350,7 +375,8 @@
       "origin_git_blob": "01cbdf67f97b47897255135328df16bc3d360e8c",
       "origin_evidence_url": "https://github.com/glopyglerky/gitr/blob/2a0c5ee3bbd710f55d512e1168bf85c5bd7006b8/rust/gitr/tests/chunks.rs",
       "scope_rationale": "Added in the separate native Rust Gitr package; source inspected as dependency API adapters, project state, or generated project fixtures, rather than an inherited Git implementation file.",
-      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms."
+      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms.",
+      "current_path": "Documentation/gitr/archive/database-first/tests/chunks.rs"
     },
     {
       "path": "tests/db.rs",
@@ -360,7 +386,8 @@
       "origin_git_blob": "bfe9bf7498c291fb66e04c3ed086facdf6c8b80e",
       "origin_evidence_url": "https://github.com/glopyglerky/gitr/blob/2a0c5ee3bbd710f55d512e1168bf85c5bd7006b8/rust/gitr/tests/db.rs",
       "scope_rationale": "Added in the separate native Rust Gitr package; source inspected as dependency API adapters, project state, or generated project fixtures, rather than an inherited Git implementation file.",
-      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms."
+      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms.",
+      "current_path": "Documentation/gitr/archive/database-first/tests/db.rs"
     },
     {
       "path": "tests/ephemeral_runner.rs",
@@ -370,7 +397,8 @@
       "origin_git_blob": "06471b5fa40bb6846240dcf46217dc6e57af3865",
       "origin_evidence_url": "https://github.com/glopyglerky/gitr/blob/0c1fb3ebb6d6ea52b1b5aebcf54a52ee52356b61/ci/fixtures/ephemeral_runner.rs",
       "scope_rationale": "Project disposable Wasmi-worker protocol and execution fixtures; no imported engine implementation.",
-      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms."
+      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms.",
+      "current_path": "Documentation/gitr/archive/database-first/tests/ephemeral_runner.rs"
     },
     {
       "path": "tests/git_compat.rs",
@@ -380,7 +408,8 @@
       "origin_git_blob": "fcf3c6202436f80abf7057f1badfcef71a21b7e7",
       "origin_evidence_url": "https://github.com/glopyglerky/gitr/blob/2a0c5ee3bbd710f55d512e1168bf85c5bd7006b8/rust/gitr/tests/git_compat.rs",
       "scope_rationale": "Added in the separate native Rust Gitr package; source inspected as dependency API adapters, project state, or generated project fixtures, rather than an inherited Git implementation file.",
-      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms."
+      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms.",
+      "current_path": "Documentation/gitr/archive/database-first/tests/git_compat.rs"
     },
     {
       "path": "tests/lfs_cache.rs",
@@ -390,7 +419,8 @@
       "origin_git_blob": "adad1c1bcd6f0f0fdc4e233294a05a5952aace05",
       "origin_evidence_url": "https://github.com/glopyglerky/gitr/blob/2a0c5ee3bbd710f55d512e1168bf85c5bd7006b8/rust/gitr/tests/lfs_cache.rs",
       "scope_rationale": "Added in the separate native Rust Gitr package; source inspected as dependency API adapters, project state, or generated project fixtures, rather than an inherited Git implementation file.",
-      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms."
+      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms.",
+      "current_path": "Documentation/gitr/archive/database-first/tests/lfs_cache.rs"
     },
     {
       "path": "tests/lfs_git_filter.rs",
@@ -400,7 +430,8 @@
       "origin_git_blob": "3df4fd3a34736b2869ea9633c884e49a0a67b459",
       "origin_evidence_url": "https://github.com/glopyglerky/gitr/blob/2a0c5ee3bbd710f55d512e1168bf85c5bd7006b8/rust/gitr/tests/lfs_git_filter.rs",
       "scope_rationale": "Added in the separate native Rust Gitr package; source inspected as dependency API adapters, project state, or generated project fixtures, rather than an inherited Git implementation file.",
-      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms."
+      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms.",
+      "current_path": "Documentation/gitr/archive/database-first/tests/lfs_git_filter.rs"
     },
     {
       "path": "tests/lfs_remote.rs",
@@ -410,7 +441,8 @@
       "origin_git_blob": "e56b64dd6a2ce0ed4c45d8dc52ed7be6720d2eaa",
       "origin_evidence_url": "https://github.com/glopyglerky/gitr/blob/2a0c5ee3bbd710f55d512e1168bf85c5bd7006b8/rust/gitr/tests/lfs_remote.rs",
       "scope_rationale": "Added in the separate native Rust Gitr package; source inspected as dependency API adapters, project state, or generated project fixtures, rather than an inherited Git implementation file.",
-      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms."
+      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms.",
+      "current_path": "Documentation/gitr/archive/database-first/tests/lfs_remote.rs"
     },
     {
       "path": "tests/native_history.rs",
@@ -420,7 +452,8 @@
       "origin_git_blob": "48149fb9e1d9fbb18a118979110e11b2dbe3a0df",
       "origin_evidence_url": "https://github.com/glopyglerky/gitr/blob/53d9f16dfe1dad8151a664c6b425d4bf28fe21fa/ci/candidates/native_history.rs",
       "scope_rationale": "Project object-authoring adapter and qualification fixtures using pinned Gitoxide API, not imported Git implementation.",
-      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms."
+      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms.",
+      "current_path": "Documentation/gitr/archive/database-first/tests/native_history.rs"
     },
     {
       "path": "tests/native_porcelain.rs",
@@ -430,7 +463,8 @@
       "origin_git_blob": "0a11555ceddf80d2945abd1cf73fbc4298b824fd",
       "origin_evidence_url": "https://github.com/glopyglerky/gitr/blob/632f3fa33fc206a833f0f8eb0df0b8cffb776702/tests/native_porcelain.rs",
       "scope_rationale": "Project command-selection wrapper or product qualification tests added alongside separately licensed Grit import; vendor/grit implementation excluded.",
-      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms."
+      "grant_scope": "Project-controlled original contributions only. Imported/copied/translated or separately licensed third-party material and dependency implementations retain their terms.",
+      "current_path": "Documentation/gitr/archive/database-first/tests/native_porcelain.rs"
     },
     {
       "path": "xtask/Cargo.toml",
@@ -469,11 +503,12 @@
   "authorization": "The repository owner expressly authorized changing Gitr-controlled licensing to support upstream reuse. This additional grant covers only rights the owner controls and preserves every third-party grant and notice.",
   "root_license_file": "LICENSE",
   "current_executable": {
-    "combined_license": "GPL-2.0-only with applicable third-party notice obligations",
-    "retained_constraint": "Unconditional in-process dependency on vendor/grit/grit-git",
-    "selected_project_license_option": "MIT",
-    "isolated_git_is_separate_build": false,
-    "apache_only_imports_cleared_for_current_binary": false
+    "engine": "Sley a71654f50de24b3c750f0df5f1829db7342491f6",
+    "engine_license": "Apache-2.0",
+    "project_contributions": "MIT OR Apache-2.0",
+    "historical_grit_linked": false,
+    "database_prototype_linked": false,
+    "note": "Other dependency licenses remain applicable. Retained source repository is mixed-license; no upstream code was relicensed."
   },
   "new_decision_material": {
     "paths": [
@@ -483,5 +518,21 @@
     ],
     "license": "MIT OR Apache-2.0",
     "scope": "New project-controlled explanatory text and origin metadata, excluding reproduced third-party license texts or other separately licensed material."
-  }
+  },
+  "previous_executable": {
+    "combined_license": "GPL-2.0-only with applicable third-party notice obligations",
+    "retained_constraint": "Unconditional in-process dependency on vendor/grit/grit-git",
+    "selected_project_license_option": "MIT",
+    "isolated_git_is_separate_build": false,
+    "apache_only_imports_cleared_for_current_binary": false
+  },
+  "sley_integration_paths": [
+    "src/lib.rs",
+    "src/main.rs",
+    "src/bin/git.rs",
+    "src/bin/scalar.rs",
+    "tests/git_workflows.rs",
+    "examples/verify_import.rs",
+    "tests/grep_patterns.rs"
+  ]
 }

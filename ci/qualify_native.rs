@@ -12,13 +12,14 @@ use std::path::{Component, Path, PathBuf};
 use std::process::{Command, ExitCode, Stdio};
 use std::sync::{Arc, Mutex};
 use std::thread;
-use std::time::Instant;
+use std::time::{Instant, SystemTime, UNIX_EPOCH};
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 const BLUEFE: &str = "7005dc02c9fb6674380eade443022bbc04215276";
 const LUSTR: &str = "6339fbb104d6adda4be7e6be7dc637a6a9e5586b";
 const ARCHIVE: &str = "gitr-produced-bluefe.tar.gz";
 const DIGEST: &str = "gitr-produced-bluefe.tar.gz.sha256";
+const ORACLE_GIT: &str = "e9019fcafe0040228b8631c30f97ae1adb61bcdc";
 
 struct Context {
     workspace: PathBuf,
@@ -251,7 +252,7 @@ fn prepare(context: &Context, verifier: &Path) -> Result<()> {
     );
     fs::write(context.logs.join("bundle-verified.txt"), proof)?;
     fs::write(context.logs.join("reference-git-version.txt"),
-        output(Command::new("git").arg("--version"))?)?;
+        output(Command::new(path_env("GITR_REFERENCE_GIT")?).arg("--version"))?)?;
     for name in ["source-provenance.txt", "rustc-version.txt", "cargo-version.txt"] {
         fs::copy(context.bundle.join(name), context.logs.join(name))?;
     }
@@ -272,6 +273,38 @@ fn require_verified_bundle(context: &Context) -> Result<()> {
     Ok(())
 }
 
+fn build_oracle(context: &Context) -> Result<()> {
+    // The C Git source is a pinned external test oracle. It is never linked
+    // into Gitr or copied into the committed product source.
+    let source = context.workspace.join(".gitr-ci/reference-git-source");
+    let prefix = context.workspace.join(".gitr-ci/reference-git");
+    let executable = prefix.join("bin/git");
+    if output(Command::new("git").arg("-C").arg(&source).args(["rev-parse", "HEAD"]))?.trim()
+        != ORACLE_GIT
+    {
+        return Err("reference Git checkout is not the pinned v2.55.0 commit".into());
+    }
+    for name in ["GITR_REFERENCE_GIT", "SLEY_TEST_GIT"] {
+        if path_env(name)? != executable {
+            return Err(format!("{name} must select the installed pinned test oracle").into());
+        }
+    }
+    let prefix_argument = format!("prefix={}", prefix.display());
+    logged(context, "build-oracle-install", Command::new("make").arg("-C").arg(&source)
+        .args(["-j2", "NO_TCLTK=YesPlease", "NO_GETTEXT=YesPlease", "install"])
+        .arg(prefix_argument))?;
+    let version = output(Command::new(&executable).arg("--version"))?;
+    if version.trim() != "git version 2.55.0" {
+        return Err("installed test oracle is not Git 2.55.0".into());
+    }
+    fs::write(context.logs.join("reference-git-version.txt"), version)?;
+    fs::write(context.logs.join("reference-git-provenance.txt"), format!(
+        "repository=https://github.com/git/git\nrevision={ORACLE_GIT}\nversion=2.55.0\nbinary_sha256={}\nsource={}\nexecutable={}\n",
+        checksum(&executable)?, source.display(), executable.display(),
+    ))?;
+    Ok(())
+}
+
 fn require_passed(context: &Context, phases: &[&str]) -> Result<()> {
     let records = fs::read_to_string(context.logs.join("phases.tsv"))?;
     for phase in phases {
@@ -289,15 +322,20 @@ fn require_passed(context: &Context, phases: &[&str]) -> Result<()> {
 fn application(context: &Context, phase: &str) -> Result<()> {
     require_verified_bundle(context)?;
     if phase == "build-release" {
-        require_passed(context, &["test-root", "test-vendor", "verify-import", "policy", "audit"])?;
+        require_passed(context, &["build-oracle", "test-root", "test-vendor", "test-vendor-cli", "verify-import", "policy", "audit"])?;
     }
     let root = context.bundle.to_str().ok_or("non-UTF8 compiler path")?;
     if root.chars().any(char::is_whitespace) {
         return Err("compiler path must not contain whitespace in RUSTDOCFLAGS".into());
     }
-    let mut paths = vec![context.bundle.join("bin")];
+    let mut paths = vec![context.bundle.join("bin"), context.workspace.join(".gitr-ci/reference-git/bin")];
     paths.extend(env::split_paths(&env::var_os("PATH").unwrap_or_default()));
     let mut command = Command::new(context.bundle.join("bin/lustr"));
+    // A fresh fixture parent prevents donor PID/counter temp names from being
+    // reused after an interrupted run or across separate test phases.
+    let temporary = context.workspace.join(".gitr-ci/native-temp").join(format!("{phase}-{}",
+        SystemTime::now().duration_since(UNIX_EPOCH)?.as_nanos()));
+    fs::create_dir_all(&temporary)?;
     command.current_dir(&context.workspace)
         .args(["--engine", "rustc", "--bluefe-root"]).arg(&context.bundle)
         .env("PATH", env::join_paths(paths)?)
@@ -315,6 +353,7 @@ fn application(context: &Context, phase: &str) -> Result<()> {
         .env("RUST_TEST_THREADS", "2")
         .env("CARGO_TERM_COLOR", "never")
         .env("RUST_BACKTRACE", "1");
+    command.env("TMPDIR", temporary);
     for key in ["RUSTC_WRAPPER", "RUSTC_WORKSPACE_WRAPPER", "CARGO_BUILD_RUSTC_WRAPPER",
         "CARGO_BUILD_RUSTC_WORKSPACE_WRAPPER", "CARGO_ENCODED_RUSTDOCFLAGS",
         "RUSTFLAGS", "RUSTC_BOOTSTRAP", "LUST_CRANELIFT_BACKEND"]
@@ -329,8 +368,20 @@ fn application(context: &Context, phase: &str) -> Result<()> {
             command.args(["test", "--manifest-path", "Cargo.toml", "--locked", "--all-features", "--all-targets", "--no-fail-fast"]);
         }
         "test-vendor" => {
-            command.args(["test", "--manifest-path", "vendor/grit/Cargo.toml", "--locked",
-                "--workspace", "--all-features", "--all-targets", "--no-fail-fast"]);
+            // Self-contained engine library tests. The complete upstream Git
+            // suite needs its separately pinned, externally built oracle and
+            // runner; passing this selection is not a claim of full parity.
+            command.args(["test", "--manifest-path", "vendor/sley/Cargo.toml", "--locked",
+                "--lib", "--no-fail-fast", "-p", "sley-core", "-p", "sley-object",
+                "-p", "sley-index", "-p", "sley-refs", "-p", "sley-odb",
+                "-p", "sley-pack", "-p", "sley-protocol", "-p", "sley-worktree",
+                "-p", "sley-pathspec", "-p", "sley-i18n", "-p", "sley-archive"]);
+        }
+        "test-vendor-cli" => {
+            require_passed(context, &["build-oracle"])?;
+            command.args(["test", "--manifest-path", "vendor/sley/Cargo.toml", "--locked",
+                "-p", "sley-cli", "--test", "upload_archive", "--test", "filter_branch_unavailable",
+                "--no-fail-fast"]);
         }
         "verify-import" => {
             command.args(["run", "--example", "verify_import", "--locked"]);
@@ -353,7 +404,7 @@ fn application(context: &Context, phase: &str) -> Result<()> {
 
 fn benchmark(context: &Context) -> Result<()> {
     require_verified_bundle(context)?;
-    require_passed(context, &["test-root", "test-vendor", "verify-import", "policy", "audit", "build-release"])?;
+    require_passed(context, &["build-oracle", "test-root", "test-vendor", "test-vendor-cli", "verify-import", "policy", "audit", "build-release"])?;
     let helper = context.target.join("gitr-benchmark-native");
     logged(context, "compile-benchmark-helper", Command::new(context.bundle.join("bin/rustc"))
         .current_dir(&context.workspace)
@@ -385,12 +436,13 @@ fn benchmark(context: &Context) -> Result<()> {
 fn run() -> Result<()> {
     let arguments: Vec<_> = env::args_os().skip(1).collect();
     let phase = arguments.first().and_then(|value| value.to_str()).ok_or(
-        "usage: qualify-native prepare /absolute/bluefe-helper | build-root | test-root | test-vendor | verify-import | policy | audit | build-release | benchmark")?;
+        "usage: qualify-native prepare /absolute/bluefe-helper | build-oracle | build-root | test-root | test-vendor | test-vendor-cli | verify-import | policy | audit | build-release | benchmark")?;
     let context = Context::load()?;
     let start = Instant::now();
     let result = match phase {
         "prepare" if arguments.len() == 2 => prepare(&context, Path::new(&arguments[1])),
-        "build-root" | "test-root" | "test-vendor" | "verify-import" | "policy" | "audit"
+        "build-oracle" if arguments.len() == 1 => build_oracle(&context),
+        "build-root" | "test-root" | "test-vendor" | "test-vendor-cli" | "verify-import" | "policy" | "audit"
             | "build-release" if arguments.len() == 1 => application(&context, phase),
         "benchmark" if arguments.len() == 1 => benchmark(&context),
         _ => Err("invalid qualification phase or argument count".into()),

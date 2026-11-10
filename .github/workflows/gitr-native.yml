@@ -21,7 +21,7 @@ jobs:
   native:
     needs: compiler
     runs-on: ubuntu-24.04
-    timeout-minutes: 120
+    timeout-minutes: 35
     env:
       # Use only this run's verified bundle, built from the exact source pins.
       # The compiler job verifies cache hits and rebuilds if its cache is absent.
@@ -41,10 +41,18 @@ jobs:
       CARGO_PROFILE_TEST_DEBUG: "0"
       CARGO_INCREMENTAL: "0"
       RUST_TEST_THREADS: "2"
-      GITR_REFERENCE_GIT: /usr/bin/git
+      GITR_REFERENCE_GIT: ${{ github.workspace }}/.gitr-ci/reference-git/bin/git
+      SLEY_TEST_GIT: ${{ github.workspace }}/.gitr-ci/reference-git/bin/git
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
+          persist-credentials: false
+      - name: Check out the pinned external Git conformance oracle
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: git/git
+          ref: e9019fcafe0040228b8631c30f97ae1adb61bcdc
+          path: .gitr-ci/reference-git-source
           persist-credentials: false
       # Stock Rust compiles only these two dependency-free orchestration files.
       - name: Prepare orchestration compiler
@@ -57,6 +65,8 @@ jobs:
         run: rustup run 1.99.1 rustc --edition=2024 --test ci/qualify_native.rs -o "${{ runner.temp }}/gitr-qualify-native-tests"
       - name: Test archive validation before downloading the compiler
         run: '"${{ runner.temp }}/gitr-qualify-native-tests"'
+      - name: Build and verify the external Git 2.55.0 test oracle
+        run: '"${{ runner.temp }}/gitr-qualify-native" build-oracle'
       - name: Download the pinned produced compiler bundle
         # Official actions/download-artifact v4.3.0, pinned to its release commit.
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
@@ -74,14 +84,18 @@ jobs:
         run: '"${{ runner.temp }}/gitr-qualify-native" build-root'
       - name: Run root tests through Lustr and BlueFe
         run: '"${{ runner.temp }}/gitr-qualify-native" test-root'
-      - name: Run imported library and CLI tests through Lustr and BlueFe
+      - name: Run selected Sley engine library tests through Lustr and BlueFe
         if: ${{ !cancelled() && steps.build_root.outcome == 'success' }}
-        # Includes redb, difftool, read-safety and reference CAS regressions.
+        # Includes checked reference publication and corrupt-graph repack tests.
+        # Full upstream Git conformance requires the external pinned harness.
         run: '"${{ runner.temp }}/gitr-qualify-native" test-vendor'
+      - name: Run native upload-archive interoperability tests
+        if: ${{ !cancelled() && steps.build_root.outcome == 'success' }}
+        run: '"${{ runner.temp }}/gitr-qualify-native" test-vendor-cli'
       - name: Verify imported source provenance through Lustr and BlueFe
         if: ${{ !cancelled() && steps.build_root.outcome == 'success' }}
         run: '"${{ runner.temp }}/gitr-qualify-native" verify-import'
-      - name: Check the redb storage policy through Lustr and BlueFe
+      - name: Check Git-first composition and retained redb policy through Lustr and BlueFe
         if: ${{ !cancelled() && steps.build_root.outcome == 'success' }}
         run: '"${{ runner.temp }}/gitr-qualify-native" policy'
       - name: Audit repository source through Lustr and BlueFe
@@ -102,7 +116,7 @@ jobs:
           path: |
             ${{ env.GITR_NATIVE_LOGS }}
             Cargo.lock
-            vendor/grit/Cargo.lock
+            vendor/sley/Cargo.lock
           if-no-files-found: warn
           include-hidden-files: true
           retention-days: 14

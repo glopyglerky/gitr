@@ -1,0 +1,900 @@
+use std::fs;
+use std::io::Write;
+use std::path::{Path, PathBuf};
+use std::process::{Command, Output, Stdio};
+use std::time::{SystemTime, UNIX_EPOCH};
+
+fn unique_temp_dir(name: &str) -> PathBuf {
+    let nanos = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .expect("system time before unix epoch")
+        .as_nanos();
+    std::env::temp_dir().join(format!("sley-{name}-{}-{nanos}", std::process::id()))
+}
+
+fn run(program: &str, cwd: &Path, args: &[&str]) -> Vec<u8> {
+    let output = Command::new(program)
+        .current_dir(cwd)
+        .args(args)
+        .output()
+        .unwrap_or_else(|err| panic!("failed to run {program} {args:?}: {err}"));
+    assert!(
+        output.status.success(),
+        "{program} {args:?} failed with status {:?}\nstdout:\n{}\nstderr:\n{}",
+        output.status.code(),
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+    output.stdout
+}
+
+fn run_with_stdin(program: &str, cwd: &Path, args: &[&str], stdin: &[u8]) -> Vec<u8> {
+    let output = run_output_with_stdin(program, cwd, args, stdin);
+    assert!(
+        output.status.success(),
+        "{program} {args:?} failed with status {:?}\nstdout:\n{}\nstderr:\n{}",
+        output.status.code(),
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+    output.stdout
+}
+
+fn run_output_with_stdin(program: &str, cwd: &Path, args: &[&str], stdin: &[u8]) -> Output {
+    let mut child = Command::new(program)
+        .current_dir(cwd)
+        .args(args)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .unwrap_or_else(|err| panic!("failed to run {program} {args:?}: {err}"));
+    sley_testkit::write_stdin_tolerating_early_exit(
+        child.stdin.as_mut().expect("stdin pipe"),
+        stdin,
+    );
+
+    child
+        .wait_with_output()
+        .unwrap_or_else(|err| panic!("failed to wait for {program} {args:?}: {err}"))
+}
+
+fn run_output_with_env(program: &str, cwd: &Path, args: &[&str], envs: &[(&str, &str)]) -> Output {
+    Command::new(program)
+        .current_dir(cwd)
+        .args(args)
+        .envs(envs.iter().copied())
+        .output()
+        .unwrap_or_else(|err| panic!("failed to run {program} {args:?}: {err}"))
+}
+
+fn assert_same_output(actual: Output, expected: Output, args: &[&str]) {
+    assert_eq!(
+        actual.status.code(),
+        expected.status.code(),
+        "status differed for {args:?}"
+    );
+    assert_eq!(
+        actual.stdout, expected.stdout,
+        "stdout differed for {args:?}"
+    );
+    assert_eq!(
+        actual.stderr, expected.stderr,
+        "stderr differed for {args:?}"
+    );
+}
+
+#[test]
+fn cat_file_usage_and_option_errors_exit_like_upstream_git() {
+    let root = unique_temp_dir("cat-file-usage");
+    fs::create_dir_all(&root).expect("create temp root");
+    {
+        git(&root, &["init", "-q", "-b", "main"]);
+        for args in [
+            vec!["cat-file", "-e", "--batch"],
+            vec!["cat-file", "-p", "--batch-check"],
+            vec!["cat-file", "-t", "-s", "HEAD"],
+            vec!["cat-file", "-e"],
+            vec!["cat-file", "--batch", "HEAD"],
+            vec!["cat-file", "--path=x", "--batch"],
+            vec!["cat-file", "-e", "HEAD", "extra"],
+            vec!["cat-file", "--batch-all-objects", "-e"],
+            vec!["cat-file", "-z"],
+            vec!["cat-file", "--textconv=value", "HEAD"],
+        ] {
+            let expected = run_output_with_stdin(sley_testkit::oracle_git(), &root, &args, b"");
+            let actual = run_output_with_stdin(sley_testkit::sley_bin!(), &root, &args, b"");
+            assert_eq!(
+                actual.status.code(),
+                expected.status.code(),
+                "sley exit status differed for {args:?}\nexpected stderr:\n{}\nactual stderr:\n{}",
+                String::from_utf8_lossy(&expected.stderr),
+                String::from_utf8_lossy(&actual.stderr)
+            );
+        }
+    }
+    let _ = fs::remove_dir_all(&root);
+}
+
+#[test]
+fn cat_file_reads_alternate_object_directories_like_upstream_git() {
+    let root = unique_temp_dir("cat-file-alternates");
+    let expected = root.join("expected");
+    let actual = root.join("actual");
+    let expected_alt = root.join("expected-alt");
+    let actual_alt = root.join("actual-alt");
+    fs::create_dir_all(&root).expect("create temp root");
+    {
+        for repo in [&expected, &actual, &expected_alt, &actual_alt] {
+            fs::create_dir_all(repo).expect("create repo dir");
+            git(repo, &["init", "-q", "-b", "main"]);
+        }
+        fs::write(expected_alt.join("blob.txt"), b"alternate blob\n").expect("write expected blob");
+        fs::write(actual_alt.join("blob.txt"), b"alternate blob\n").expect("write actual blob");
+        let oid = String::from_utf8(git(&expected_alt, &["hash-object", "-w", "blob.txt"]))
+            .expect("oid is utf8")
+            .trim()
+            .to_string();
+        git(&actual_alt, &["hash-object", "-w", "blob.txt"]);
+
+        fs::create_dir_all(expected.join(".git").join("objects").join("info"))
+            .expect("create expected alternates dir");
+        fs::create_dir_all(actual.join(".git").join("objects").join("info"))
+            .expect("create actual alternates dir");
+        fs::write(
+            expected
+                .join(".git")
+                .join("objects")
+                .join("info")
+                .join("alternates"),
+            b"../../../expected-alt/.git/objects\n",
+        )
+        .expect("write expected alternates");
+        fs::write(
+            actual
+                .join(".git")
+                .join("objects")
+                .join("info")
+                .join("alternates"),
+            b"../../../actual-alt/.git/objects\n",
+        )
+        .expect("write actual alternates");
+
+        let args = ["cat-file", "-p", oid.as_str()];
+        assert_same_output(
+            run_output_with_stdin(sley_testkit::sley_bin!(), &actual, &args, &[]),
+            run_output_with_stdin(sley_testkit::oracle_git(), &expected, &args, &[]),
+            &args,
+        );
+
+        fs::remove_file(
+            expected
+                .join(".git")
+                .join("objects")
+                .join("info")
+                .join("alternates"),
+        )
+        .expect("remove expected alternates");
+        fs::remove_file(
+            actual
+                .join(".git")
+                .join("objects")
+                .join("info")
+                .join("alternates"),
+        )
+        .expect("remove actual alternates");
+        let expected_alt_objects = expected_alt.join(".git").join("objects");
+        let actual_alt_objects = actual_alt.join(".git").join("objects");
+        let expected_alt_objects = expected_alt_objects.to_string_lossy().into_owned();
+        let actual_alt_objects = actual_alt_objects.to_string_lossy().into_owned();
+        let expected_env = [(
+            "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+            expected_alt_objects.as_str(),
+        )];
+        let actual_env = [(
+            "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+            actual_alt_objects.as_str(),
+        )];
+        assert_same_output(
+            run_output_with_env(sley_testkit::sley_bin!(), &actual, &args, &actual_env),
+            run_output_with_env(sley_testkit::oracle_git(), &expected, &args, &expected_env),
+            &args,
+        );
+    };
+    let _ = fs::remove_dir_all(&root);
+}
+
+#[test]
+fn cat_file_batch_all_objects_git_object_directory_matches_upstream_git() {
+    let root = unique_temp_dir("cat-file-batch-all-git-object-directory");
+    let expected = root.join("expected");
+    let actual = root.join("actual");
+    fs::create_dir_all(&expected).expect("create expected repo");
+    fs::create_dir_all(&actual).expect("create actual repo");
+    {
+        for repo in [&expected, &actual] {
+            git(repo, &["init", "-q", "-b", "main"]);
+            fs::create_dir_all(repo.join("custom-objects")).expect("create custom objects dir");
+            fs::write(repo.join("one.txt"), b"one\n").expect("write one");
+            fs::write(repo.join("two.txt"), b"two\n").expect("write two");
+            let envs = [("GIT_OBJECT_DIRECTORY", "custom-objects")];
+            for path in ["one.txt", "two.txt"] {
+                let output = run_output_with_env(
+                    sley_testkit::oracle_git(),
+                    repo,
+                    &["hash-object", "-w", path],
+                    &envs,
+                );
+                assert!(
+                    output.status.success(),
+                    "hash-object failed:\n{}",
+                    String::from_utf8_lossy(&output.stderr)
+                );
+            }
+        }
+        let envs = [("GIT_OBJECT_DIRECTORY", "custom-objects")];
+        for args in [
+            vec!["cat-file", "--batch-check", "--batch-all-objects"],
+            vec!["cat-file", "--batch", "--batch-all-objects"],
+        ] {
+            assert_same_output(
+                run_output_with_env(sley_testkit::sley_bin!(), &actual, &args, &envs),
+                run_output_with_env(sley_testkit::oracle_git(), &expected, &args, &envs),
+                &args,
+            );
+        }
+    };
+    let _ = fs::remove_dir_all(&root);
+}
+
+#[test]
+fn cat_file_storage_atoms_git_object_directory_match_upstream_git() {
+    let root = unique_temp_dir("cat-file-storage-git-object-directory");
+    let expected = root.join("expected");
+    let actual = root.join("actual");
+    fs::create_dir_all(&expected).expect("create expected repo");
+    fs::create_dir_all(&actual).expect("create actual repo");
+    {
+        for repo in [&expected, &actual] {
+            git(repo, &["init", "-q", "-b", "main"]);
+            fs::create_dir_all(repo.join("custom-objects")).expect("create custom objects dir");
+            fs::write(repo.join("one.txt"), b"one\n").expect("write one");
+            let envs = [("GIT_OBJECT_DIRECTORY", "custom-objects")];
+            let output = run_output_with_env(
+                sley_testkit::oracle_git(),
+                repo,
+                &["hash-object", "-w", "one.txt"],
+                &envs,
+            );
+            assert!(
+                output.status.success(),
+                "hash-object failed:\n{}",
+                String::from_utf8_lossy(&output.stderr)
+            );
+        }
+        let envs = [("GIT_OBJECT_DIRECTORY", "custom-objects")];
+        let args = [
+            "cat-file",
+            "--batch-check=%(objectname)|%(objectsize:disk)|%(deltabase)",
+            "--batch-all-objects",
+        ];
+        assert_same_output(
+            run_output_with_env(sley_testkit::sley_bin!(), &actual, &args, &envs),
+            run_output_with_env(sley_testkit::oracle_git(), &expected, &args, &envs),
+            &args,
+        );
+    };
+    let _ = fs::remove_dir_all(&root);
+}
+
+fn remove_loose_object(root: &Path, oid: &str) {
+    let (fanout, file) = oid.split_at(2);
+    let _ = fs::remove_file(root.join(".git").join("objects").join(fanout).join(file));
+}
+
+fn sley(cwd: &Path, args: &[&str], stdin: &[u8]) -> Vec<u8> {
+    run_with_stdin(sley_testkit::sley_bin!(), cwd, args, stdin)
+}
+
+fn git(cwd: &Path, args: &[&str]) -> Vec<u8> {
+    run(sley_testkit::oracle_git(), cwd, args)
+}
+
+fn git_stdin(cwd: &Path, args: &[&str], stdin: &[u8]) -> Vec<u8> {
+    run_with_stdin(sley_testkit::oracle_git(), cwd, args, stdin)
+}
+
+#[test]
+fn cat_file_typed_full_oid_lazily_hydrates_blob_none_promisor() {
+    let root = unique_temp_dir("cat-file-typed-promisor");
+    let origin = root.join("origin");
+    let client = root.join("client");
+    fs::create_dir_all(&root).expect("create fixture root");
+    run(
+        sley_testkit::sley_bin!(),
+        &root,
+        &["init", origin.to_str().expect("utf8 origin")],
+    );
+    run(
+        sley_testkit::sley_bin!(),
+        &root,
+        &["init", client.to_str().expect("utf8 client")],
+    );
+    let payload = b"promised typed blob\n";
+    let oid = String::from_utf8(run_with_stdin(
+        sley_testkit::sley_bin!(),
+        &origin,
+        &["hash-object", "-w", "--stdin"],
+        payload,
+    ))
+    .expect("utf8 oid");
+    let oid = oid.trim();
+    for args in [
+        vec!["config", "core.repositoryFormatVersion", "1"],
+        vec!["config", "extensions.partialClone", "origin"],
+        vec!["config", "remote.origin.promisor", "true"],
+        vec![
+            "config",
+            "remote.origin.url",
+            origin.to_str().expect("utf8 origin"),
+        ],
+        vec!["config", "remote.origin.partialCloneFilter", "blob:none"],
+    ] {
+        run(sley_testkit::sley_bin!(), &client, &args);
+    }
+
+    let actual = run_output_with_stdin(
+        sley_testkit::sley_bin!(),
+        &client,
+        &["cat-file", "blob", oid],
+        b"",
+    );
+    assert!(
+        actual.status.success(),
+        "typed lazy fetch failed: {}",
+        String::from_utf8_lossy(&actual.stderr)
+    );
+    assert_eq!(actual.stdout, payload);
+
+    let _ = fs::remove_dir_all(root);
+}
+
+#[test]
+fn cat_file_size_type_and_exists_lazily_hydrate_promisor_blob() {
+    let root = unique_temp_dir("cat-file-header-promisor");
+    let origin = root.join("origin");
+    let client = root.join("client");
+    fs::create_dir_all(&root).expect("create fixture root");
+    run(
+        sley_testkit::sley_bin!(),
+        &root,
+        &["init", origin.to_str().expect("utf8 origin")],
+    );
+    run(
+        sley_testkit::sley_bin!(),
+        &root,
+        &["init", client.to_str().expect("utf8 client")],
+    );
+    let payload = b"promised header blob\n";
+    let oid = String::from_utf8(run_with_stdin(
+        sley_testkit::sley_bin!(),
+        &origin,
+        &["hash-object", "-w", "--stdin"],
+        payload,
+    ))
+    .expect("utf8 oid");
+    let oid = oid.trim().to_string();
+    let configure = |client: &Path| {
+        run(
+            sley_testkit::sley_bin!(),
+            &root,
+            &["init", client.to_str().expect("utf8 client")],
+        );
+        for args in [
+            vec!["config", "core.repositoryFormatVersion", "1"],
+            vec!["config", "extensions.partialClone", "origin"],
+            vec!["config", "remote.origin.promisor", "true"],
+            vec![
+                "config",
+                "remote.origin.url",
+                origin.to_str().expect("utf8 origin"),
+            ],
+            vec!["config", "remote.origin.partialCloneFilter", "blob:none"],
+        ] {
+            run(sley_testkit::sley_bin!(), client, &args);
+        }
+    };
+
+    configure(&client);
+    let size = run_output_with_stdin(
+        sley_testkit::sley_bin!(),
+        &client,
+        &["cat-file", "-s", &oid],
+        b"",
+    );
+    assert!(
+        size.status.success(),
+        "cat-file -s did not lazy-fetch: {}",
+        String::from_utf8_lossy(&size.stderr)
+    );
+    assert_eq!(
+        String::from_utf8_lossy(&size.stdout).trim(),
+        payload.len().to_string()
+    );
+
+    let client_type = root.join("client-type");
+    configure(&client_type);
+    let kind = run_output_with_stdin(
+        sley_testkit::sley_bin!(),
+        &client_type,
+        &["cat-file", "-t", &oid],
+        b"",
+    );
+    assert!(
+        kind.status.success(),
+        "cat-file -t did not lazy-fetch: {}",
+        String::from_utf8_lossy(&kind.stderr)
+    );
+    assert_eq!(String::from_utf8_lossy(&kind.stdout).trim(), "blob");
+
+    let client_exists = root.join("client-exists");
+    configure(&client_exists);
+    let exists = run_output_with_stdin(
+        sley_testkit::sley_bin!(),
+        &client_exists,
+        &["cat-file", "-e", &oid],
+        b"",
+    );
+    assert!(
+        exists.status.success(),
+        "cat-file -e did not lazy-fetch: {}",
+        String::from_utf8_lossy(&exists.stderr)
+    );
+
+    let _ = fs::remove_dir_all(root);
+}
+
+#[test]
+fn cat_file_batch_modes_match_upstream_git() {
+    let root = unique_temp_dir("cat-file-batch-check");
+    fs::create_dir_all(&root).expect("create temp repo");
+    {
+        git(&root, &["init", "-q", "-b", "main"]);
+        fs::write(root.join("hello.txt"), b"hello\n").expect("write fixture");
+        git(&root, &["add", "hello.txt"]);
+        git(
+            &root,
+            &[
+                "-c",
+                "user.name=Example User",
+                "-c",
+                "user.email=example@example.invalid",
+                "commit",
+                "-m",
+                "initial",
+                "-q",
+            ],
+        );
+        git(
+            &root,
+            &[
+                "-c",
+                "user.name=Example User",
+                "-c",
+                "user.email=example@example.invalid",
+                "tag",
+                "-a",
+                "v1.0",
+                "-m",
+                "release",
+            ],
+        );
+        let head = String::from_utf8(git(&root, &["rev-parse", "HEAD"]))
+            .expect("HEAD oid is utf8")
+            .trim()
+            .to_string();
+        let tree = String::from_utf8(git(&root, &["rev-parse", "HEAD^{tree}"]))
+            .expect("tree oid is utf8")
+            .trim()
+            .to_string();
+        for args in [
+            vec!["cat-file", "--use-mailmap", "-p", "HEAD"],
+            vec!["cat-file", "-p", "--mailmap", "HEAD"],
+            vec!["cat-file", "-p", "HEAD", "--no-use-mailmap"],
+            vec!["cat-file", "--no-mailmap", "-s", "HEAD"],
+            vec![
+                "cat-file",
+                "--no-use-mailmap",
+                "--use-mailmap",
+                "-t",
+                "HEAD",
+            ],
+            vec!["cat-file", "-e", "--mailmap", "HEAD"],
+        ] {
+            let expected = git_stdin(&root, &args, b"");
+            let actual = sley(&root, &args, b"");
+            assert_eq!(actual, expected, "sley output differed for {args:?}");
+        }
+        for args in [
+            vec!["cat-file", "--use-mailmap=value", "-p", "HEAD"],
+            vec!["cat-file", "--mailmap=value", "-p", "HEAD"],
+            vec!["cat-file", "--no-use-mailmap=value", "-p", "HEAD"],
+            vec!["cat-file", "--no-mailmap=value", "-p", "HEAD"],
+        ] {
+            let expected = run_output_with_stdin(sley_testkit::oracle_git(), &root, &args, b"");
+            let actual = run_output_with_stdin(sley_testkit::sley_bin!(), &root, &args, b"");
+            assert_same_output(actual, expected, &args);
+        }
+        let input = format!("HEAD\n{head}\n{tree}\nrefs/tags/v1.0\nmissing\n\n");
+        for mode in ["--batch-check", "--batch"] {
+            let expected = git_stdin(&root, &["cat-file", mode], input.as_bytes());
+            let actual = sley(&root, &["cat-file", mode], input.as_bytes());
+            assert_eq!(actual, expected, "sley {mode} output differed");
+        }
+        for args in [
+            vec!["cat-file", "--batch", "--buffer"],
+            vec!["cat-file", "--buffer", "--batch"],
+            vec!["cat-file", "--batch", "--no-buffer"],
+            vec!["cat-file", "--batch-check", "--buffer"],
+            vec!["cat-file", "--batch-check", "--no-buffer"],
+            vec!["cat-file", "--batch", "--unordered"],
+            vec!["cat-file", "--batch", "--no-unordered"],
+            vec!["cat-file", "--batch", "--follow-symlinks"],
+            vec!["cat-file", "--batch", "--no-follow-symlinks"],
+            vec!["cat-file", "--use-mailmap", "--batch-check"],
+            vec!["cat-file", "--batch-check", "--mailmap"],
+            vec!["cat-file", "--batch", "--no-use-mailmap"],
+            vec!["cat-file", "--no-mailmap", "--batch"],
+        ] {
+            let expected = git_stdin(&root, &args, input.as_bytes());
+            let actual = sley(&root, &args, input.as_bytes());
+            assert_eq!(actual, expected, "sley output differed for {args:?}");
+        }
+        let nul_input = format!("HEAD\0{head}\0{tree}\0refs/tags/v1.0\0missing\0");
+        for args in [
+            vec!["cat-file", "--batch-check", "-z"],
+            vec!["cat-file", "--batch", "-z"],
+            vec!["cat-file", "--batch-check", "-Z"],
+            vec!["cat-file", "--batch", "-Z"],
+            vec!["cat-file", "-Z", "--batch-check"],
+            vec!["cat-file", "--batch", "--buffer", "-Z"],
+            vec![
+                "cat-file",
+                "--batch-check=%(objectname)|%(objecttype)",
+                "-z",
+            ],
+            vec![
+                "cat-file",
+                "--batch-check=%(objectname)|%(objecttype)",
+                "-Z",
+            ],
+        ] {
+            let expected = git_stdin(&root, &args, nul_input.as_bytes());
+            let actual = sley(&root, &args, nul_input.as_bytes());
+            assert_eq!(actual, expected, "sley output differed for {args:?}");
+        }
+        let nul_rest_input = format!("HEAD trailing tokens\0{head} raw\0missing extra\0");
+        for args in [
+            vec![
+                "cat-file",
+                "--batch-check=%(objectname)|%(rest)|%(objecttype)",
+                "-Z",
+            ],
+            vec![
+                "cat-file",
+                "--batch=%(objectname)|%(rest)|%(objecttype)",
+                "-Z",
+            ],
+        ] {
+            let expected = git_stdin(&root, &args, nul_rest_input.as_bytes());
+            let actual = sley(&root, &args, nul_rest_input.as_bytes());
+            assert_eq!(actual, expected, "sley output differed for {args:?}");
+        }
+        for (args, input) in [
+            (
+                vec![
+                    "cat-file",
+                    "--batch-check=%(objectname) %(objecttype) %(objectsize)",
+                ],
+                input.as_bytes().to_vec(),
+            ),
+            (
+                vec![
+                    "cat-file",
+                    "--batch=%(objectname) %(objecttype) %(objectsize)",
+                ],
+                input.as_bytes().to_vec(),
+            ),
+            (
+                vec![
+                    "cat-file",
+                    "--batch-check=%(objectname)|%(rest)|%(objecttype)",
+                ],
+                format!("HEAD trailing tokens\n{head} raw\nmissing extra\n").into_bytes(),
+            ),
+            (
+                vec!["cat-file", "--batch=%(objectname)|%(rest)|%(objecttype)"],
+                format!("HEAD trailing tokens\n{head} raw\nmissing extra\n").into_bytes(),
+            ),
+        ] {
+            let expected = git_stdin(&root, &args, &input);
+            let actual = sley(&root, &args, &input);
+            assert_eq!(actual, expected, "sley output differed for {args:?}");
+        }
+        for (args, input) in [
+            (
+                vec![
+                    "cat-file",
+                    "--batch-check=%(objectname)|%(objectsize:disk)|%(deltabase)|%(rest)",
+                ],
+                format!("HEAD trailing tokens\n{head} raw\n{tree} tree\nmissing extra\n")
+                    .into_bytes(),
+            ),
+            (
+                vec![
+                    "cat-file",
+                    "--batch=%(objectname)|%(objectsize:disk)|%(deltabase)|%(rest)",
+                ],
+                format!("HEAD trailing tokens\n{head} raw\n{tree} tree\nmissing extra\n")
+                    .into_bytes(),
+            ),
+            (
+                vec![
+                    "cat-file",
+                    "--batch-command=%(objectname)|%(objecttype)|%(objectsize:disk)|%(deltabase)",
+                ],
+                format!("info HEAD\ncontents {tree}\ninfo missing\n").into_bytes(),
+            ),
+        ] {
+            let expected = git_stdin(&root, &args, &input);
+            let actual = sley(&root, &args, &input);
+            assert_eq!(actual, expected, "sley output differed for {args:?}");
+        }
+        for args in [
+            vec!["cat-file", "--batch-check", "--batch-all-objects"],
+            vec!["cat-file", "--batch", "--batch-all-objects"],
+            vec![
+                "cat-file",
+                "--batch-check=%(objectname)|%(objecttype)|%(objectsize)|%(rest)",
+                "--batch-all-objects",
+            ],
+            vec!["cat-file", "--batch-check", "--batch-all-objects", "-Z"],
+        ] {
+            let expected = git_stdin(&root, &args, b"ignored\n");
+            let actual = sley(&root, &args, b"ignored\n");
+            assert_eq!(actual, expected, "sley output differed for {args:?}");
+        }
+        for (args, input) in [
+            (
+                vec!["cat-file", "--batch-command"],
+                format!("info HEAD\ncontents {head}\ninfo missing\n").into_bytes(),
+            ),
+            (
+                vec!["cat-file", "--batch-command", "--buffer"],
+                format!("info HEAD\nflush\ncontents {tree}\nflush\n").into_bytes(),
+            ),
+            (
+                vec!["cat-file", "--batch-command", "-z"],
+                format!("info HEAD\0contents {tree}\0info missing\0").into_bytes(),
+            ),
+            (
+                vec![
+                    "cat-file",
+                    "--batch-command=%(objectname)|%(objecttype)|%(objectsize)",
+                ],
+                format!("info HEAD\ncontents {tree}\n").into_bytes(),
+            ),
+            (
+                vec!["cat-file", "--batch-command", "-Z"],
+                format!("info HEAD\0contents {tree}\0info missing\0").into_bytes(),
+            ),
+            (
+                vec!["cat-file", "--batch-command", "--batch-all-objects"],
+                b"ignored\n".to_vec(),
+            ),
+            (
+                vec![
+                    "cat-file",
+                    "--batch-command=%(objectname)|%(objecttype)|%(objectsize)",
+                    "--batch-all-objects",
+                ],
+                b"ignored\n".to_vec(),
+            ),
+        ] {
+            let expected = git_stdin(&root, &args, &input);
+            let actual = sley(&root, &args, &input);
+            assert_eq!(actual, expected, "sley output differed for {args:?}");
+        }
+        git(&root, &["gc", "--quiet"]);
+        for (args, input) in [
+            (
+                vec![
+                    "cat-file",
+                    "--batch-check=%(objectname)|%(objectsize:disk)|%(deltabase)|%(rest)",
+                ],
+                format!("HEAD trailing tokens\n{head} raw\n{tree} tree\nmissing extra\n")
+                    .into_bytes(),
+            ),
+            (
+                vec![
+                    "cat-file",
+                    "--batch=%(objectname)|%(objectsize:disk)|%(deltabase)|%(rest)",
+                ],
+                format!("HEAD trailing tokens\n{head} raw\n{tree} tree\nmissing extra\n")
+                    .into_bytes(),
+            ),
+        ] {
+            let expected = git_stdin(&root, &args, &input);
+            let actual = sley(&root, &args, &input);
+            assert_eq!(actual, expected, "sley packed output differed for {args:?}");
+        }
+        for args in [
+            vec!["cat-file", "--batch-check", "--batch-all-objects"],
+            vec![
+                "cat-file",
+                "--batch-check=%(objectname)|%(objecttype)|%(objectsize)",
+                "--batch-all-objects",
+            ],
+            vec![
+                "cat-file",
+                "--batch-check=%(objectname)|%(objectsize:disk)|%(deltabase)",
+                "--batch-all-objects",
+            ],
+        ] {
+            let expected = git_stdin(&root, &args, b"ignored\n");
+            let actual = sley(&root, &args, b"ignored\n");
+            assert_eq!(actual, expected, "sley packed output differed for {args:?}");
+        }
+    };
+    let _ = fs::remove_dir_all(&root);
+}
+
+#[test]
+fn cat_file_batch_storage_atoms_match_upstream_for_delta_pack() {
+    let root = unique_temp_dir("cat-file-delta-storage-atoms");
+    fs::create_dir_all(&root).expect("create temp repo");
+    {
+        git(&root, &["init", "-q", "-b", "main"]);
+        let mut base = Vec::new();
+        for idx in 0..4000 {
+            writeln!(&mut base, "common payload line {idx:04}").expect("write base fixture");
+        }
+        let mut changed = b"changed header\n".to_vec();
+        changed.extend_from_slice(&base);
+        let base_oid =
+            String::from_utf8(git_stdin(&root, &["hash-object", "-w", "--stdin"], &base))
+                .expect("base oid utf8")
+                .trim()
+                .to_string();
+        let changed_oid = String::from_utf8(git_stdin(
+            &root,
+            &["hash-object", "-w", "--stdin"],
+            &changed,
+        ))
+        .expect("changed oid utf8")
+        .trim()
+        .to_string();
+        let pack_prefix = root
+            .join(".git")
+            .join("objects")
+            .join("pack")
+            .join("pack-delta");
+        let pack_prefix = pack_prefix.to_str().expect("pack prefix utf8");
+        let pack_input = format!("{base_oid}\n{changed_oid}\n");
+        git_stdin(
+            &root,
+            &["pack-objects", "--delta-base-offset", pack_prefix],
+            pack_input.as_bytes(),
+        );
+        remove_loose_object(&root, &base_oid);
+        remove_loose_object(&root, &changed_oid);
+        let input = format!("{base_oid}\n{changed_oid}\n");
+        let args = [
+            "cat-file",
+            "--batch-check=%(objectname)|%(objectsize:disk)|%(deltabase)",
+        ];
+        let expected = git_stdin(&root, &args, input.as_bytes());
+        let zero = "0000000000000000000000000000000000000000";
+        assert!(
+            String::from_utf8_lossy(&expected)
+                .lines()
+                .any(|line| !line.ends_with(zero)),
+            "fixture did not produce a packed delta object"
+        );
+        let actual = sley(&root, &args, input.as_bytes());
+        assert_eq!(actual, expected, "sley delta storage atom output differed");
+    };
+    let _ = fs::remove_dir_all(&root);
+}
+
+/// Adler-32 checksum (RFC 1950) over `data`, for the hand-rolled zlib trailer below.
+fn adler32(data: &[u8]) -> u32 {
+    let mut a: u32 = 1;
+    let mut b: u32 = 0;
+    for &byte in data {
+        a = (a + u32::from(byte)) % 65521;
+        b = (b + a) % 65521;
+    }
+    (b << 16) | a
+}
+
+/// Wrap `raw` in a minimal zlib stream using a single uncompressed ("stored") DEFLATE block.
+/// This lets the test mint arbitrary (including deliberately broken) loose objects without a
+/// compression dependency; `ZlibDecoder` — and git — inflate stored blocks the same as any other.
+fn zlib_stored(raw: &[u8]) -> Vec<u8> {
+    let mut out = vec![0x78, 0x01]; // zlib header: CMF=0x78 (deflate, 32K window), FLG=0x01
+    let len = u16::try_from(raw.len()).expect("stored block fixture stays under 64 KiB");
+    out.push(0x01); // one block, BFINAL=1, BTYPE=00 (stored)
+    out.extend_from_slice(&len.to_le_bytes());
+    out.extend_from_slice(&(!len).to_le_bytes()); // one's-complement of LEN
+    out.extend_from_slice(raw);
+    out.extend_from_slice(&adler32(raw).to_be_bytes());
+    out
+}
+
+/// Hand-write a loose object whose framed bytes are `"<otype> <content.len>\0<content>"`, named
+/// by its real sha1 (so git and sley agree on the path). `otype` may be bogus, letting us probe
+/// the broken-header diagnostics. Returns the lowercase-hex oid.
+fn write_loose_object(root: &Path, otype: &str, content: &[u8]) -> String {
+    let mut raw = format!("{otype} {}\0", content.len()).into_bytes();
+    raw.extend_from_slice(content);
+    let oid = sley_core::digest_bytes(sley_core::ObjectFormat::Sha1, &raw)
+        .expect("sha1 over framed bytes")
+        .to_hex();
+    let (fanout, rest) = oid.split_at(2);
+    let dir = root.join(".git").join("objects").join(fanout);
+    fs::create_dir_all(&dir).expect("create object fanout dir");
+    fs::write(dir.join(rest), zlib_stored(&raw)).expect("write loose object");
+    oid
+}
+
+/// A loose object whose `"<type> <size>\0"` header overflows git's 32-byte `MAX_HEADER_LEN`
+/// must surface git's exact diagnostics: the `error: header for <oid> too long, exceeds 32 bytes`
+/// line, then the per-cmd trailing `fatal:` (`-t`/`-s`: "could not get object info"; `-p`: "Not a
+/// valid object name <oid>"). A short-but-broken-type header keeps reporting `invalid object
+/// type`. Mirrors upstream t1006's "error on bogus full/short OID" cells (#208/#212/#216). Batch
+/// mode reports the over-long object as `missing` (with the `error:` line) and keeps going.
+#[test]
+fn cat_file_broken_loose_headers_match_upstream_git() {
+    let root = unique_temp_dir("cat-file-broken-headers");
+    fs::create_dir_all(&root).expect("create temp repo");
+    {
+        git(&root, &["init", "-q", "-b", "main"]);
+        // 33-char type → 35-byte header, overflowing the 32-byte window (upstream's bogus_long).
+        let long_oid = write_loose_object(&root, "abcdefghijklmnopqrstuvwxyz1234679", b"bogus");
+        // Short, unknown type → header fits but the type is rejected (upstream's bogus_short).
+        let short_oid = write_loose_object(&root, "bogus", b"bogus");
+
+        for oid in [long_oid.as_str(), short_oid.as_str()] {
+            for flag in ["-s", "-t", "-p", "-e"] {
+                let args = vec!["cat-file", flag, oid];
+                let expected = run_output_with_stdin(sley_testkit::oracle_git(), &root, &args, b"");
+                let actual = run_output_with_stdin(sley_testkit::sley_bin!(), &root, &args, b"");
+                assert_same_output(actual, expected, &args);
+            }
+        }
+
+        // Batch over each broken object: the over-long one is `missing` (non-fatal, with the
+        // `error:` line), the unknown-type one is a hard `fatal: invalid object type`.
+        for oid in [long_oid.as_str(), short_oid.as_str()] {
+            let input = format!("{oid}\n");
+            for mode in ["--batch", "--batch-check"] {
+                let args = vec!["cat-file", mode];
+                let expected = run_output_with_stdin(
+                    sley_testkit::oracle_git(),
+                    &root,
+                    &args,
+                    input.as_bytes(),
+                );
+                let actual = run_output_with_stdin(
+                    sley_testkit::sley_bin!(),
+                    &root,
+                    &args,
+                    input.as_bytes(),
+                );
+                assert_same_output(actual, expected, &args);
+            }
+        }
+    }
+    let _ = fs::remove_dir_all(&root);
+}

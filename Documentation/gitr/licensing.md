@@ -1,5 +1,26 @@
 # Gitr licensing and upstream imports
 
+## Current Sley composition
+
+The active root now links the pinned Apache-2.0 Sley engine and frontend. It no
+longer links the historical GPL-2.0-only Grit CLI. This is an actual dependency
+composition change, not a relabeling of inherited code. Gitr-owned entrypoints
+remain MIT OR Apache-2.0, and Sley files and local adaptations remain Apache-2.0.
+All dependency obligations still apply. The old Grit and Git source material
+retains its original terms in the repository and history.
+
+Sley declares Apache-2.0 in its Cargo workspace and README but supplies no
+license-text file at the imported commit. The import includes the standard
+Apache-2.0 text as `vendor/sley/LICENSE-APACHE`, preserves those declarations,
+and records its provenance in `vendor/sley/NOTICE.md`. No upstream copyright
+notice has been invented. See [Sley integration](sley-integration.md).
+
+**The remainder records the prior license decision at its original baseline.
+References below to the current GPL-only executable describe that baseline,
+not the new Sley executable.**
+
+## Historical decision
+
 Decision date: 2026-11-10. Source baseline:
 [`12fd77f5ed2e3f3ed6cc983c52ad7aa452ccd521`](https://github.com/glopyglerky/gitr/tree/12fd77f5ed2e3f3ed6cc983c52ad7aa452ccd521).
 

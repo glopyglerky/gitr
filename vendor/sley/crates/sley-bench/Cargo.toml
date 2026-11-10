@@ -1,0 +1,68 @@
+[package]
+name = "sley-bench"
+publish = false
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+sley-core.workspace = true
+sley-formats.workspace = true
+sley-mmap.workspace = true
+sley-object.workspace = true
+sley-odb.workspace = true
+sley-pack.workspace = true
+sley-refs.workspace = true
+sley-rev.workspace = true
+sley-worktree.workspace = true
+
+[dev-dependencies]
+criterion = { version = "0.8.2", features = ["html_reports"] }
+
+[[bench]]
+name = "cat_file"
+harness = false
+
+[[bench]]
+name = "batch_check_profile"
+harness = false
+
+[[bench]]
+name = "pack_install"
+harness = false
+
+[[bench]]
+name = "rev_parse"
+harness = false
+
+[[bench]]
+name = "count_objects"
+harness = false
+
+[[bench]]
+name = "rev_list"
+harness = false
+
+[[bench]]
+name = "ref_walk"
+harness = false
+
+[[bench]]
+name = "tree_walk"
+harness = false
+
+[[bench]]
+name = "worktree_ops"
+harness = false
+
+[[bench]]
+name = "pack_write_stream"
+harness = false
+
+[[bench]]
+name = "repack_measure"
+harness = false
+
+[lints]
+workspace = true

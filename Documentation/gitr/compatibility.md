@@ -1,5 +1,9 @@
 # Compatibility and limits
 
+> Historical record for the Grit/database-first implementation. The active
+> Sley composition and its current limits are in [sley-integration.md](sley-integration.md).
+
+
 The historical Grit Rust package family is imported, but full Git command parity
 is not qualified. Its source inventory is not a list of enabled product features.
 Unimplemented commands fail instead of silently invoking the C Git executable.

@@ -1,4 +1,4 @@
-name: Gitr redb policy
+name: Gitr Git-first composition and retained redb policy
 on:
   workflow_dispatch:
 permissions:
@@ -15,5 +15,5 @@ jobs:
           persist-credentials: false
       - name: Test Rust storage guard
         run: '"${{ vars.GITR_BLUEFE_ROOT }}/bin/lustr" --bluefe-root "${{ vars.GITR_BLUEFE_ROOT }}" test --manifest-path xtask/Cargo.toml --locked'
-      - name: Check active storage manifests and lockfiles
+      - name: Check active Git engine and retained database manifest pins
         run: '"${{ vars.GITR_BLUEFE_ROOT }}/bin/lustr" --bluefe-root "${{ vars.GITR_BLUEFE_ROOT }}" run --manifest-path xtask/Cargo.toml --locked -- policy'

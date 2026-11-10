@@ -1,0 +1,22 @@
+[package]
+name = "sley-pretty"
+version.workspace = true
+description = "Shared pretty/log-format compiler for sley."
+repository.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+sley-core.workspace = true
+sley-strbuf-expand.workspace = true
+sley-rev.workspace = true
+sley-refs.workspace = true
+sley-ref-filter.workspace = true
+sley-odb.workspace = true
+sley-object.workspace = true
+sley-config.workspace = true
+encoding_rs = "0.8.41"
+
+[lints]
+workspace = true

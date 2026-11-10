@@ -1,0 +1,867 @@
+//! `git ls-remote` command and formatting.
+#![allow(clippy::expect_used)]
+
+#[path = "ls_remote_options.rs"]
+mod ls_remote_options;
+use ls_remote_options::setup_ls_remote_options;
+
+use super::fetch::{
+    check_transport_allowed_url, configured_server_options, transport_policy_config_for_context,
+};
+use super::pack::{
+    client_requests_protocol_v2, configured_legacy_protocol, configured_protocol_version,
+    trace_configured_local_protocol_version, trace_protocol_v2_ls_refs_request,
+    trace_protocol_v2_upload_pack_capabilities,
+};
+use super::resolve::{RemoteCommandContext, ls_remote_git_dir};
+use crate::*;
+use sley_odb::ObjectReader;
+use sley_remote::LsRemoteRecord;
+use std::io::{Read, Write};
+use std::path::{Path, PathBuf};
+use std::process::Command as Proc;
+
+fn ls_remote_http_records(
+    context: &RemoteCommandContext,
+    repository: &str,
+    options: &LsRemoteOptions,
+    transport_config: &GitConfig,
+) -> Result<Option<(Vec<LsRemoteRecord>, ObjectFormat)>> {
+    let remote_url = context.resolved_remote(repository)?.url;
+    let parsed = parse_remote_url(&remote_url)?;
+    if !matches!(
+        parsed.transport,
+        RemoteTransport::Http | RemoteTransport::Https
+    ) {
+        return Ok(None);
+    }
+    let mut credentials = sley_remote::CredentialHelperProvider::new(context.config());
+    let source = sley_remote::LsRemoteSource::Http(parsed);
+    let filter = ls_remote_filter(options);
+    let outcome = sley_remote::ls_remote_with(
+        sley_remote::LsRemoteRequest {
+            policy: &context.remote_policy,
+            source: &source,
+            format: ObjectFormat::Sha1,
+            filter: &filter,
+            config: Some(transport_config),
+        },
+        &|name| ls_remote_ref_matches(name, &options.patterns),
+        &mut credentials,
+    )?;
+    Ok(Some((outcome.records, outcome.format)))
+}
+
+/// The library ref-class filter for the parsed ls-remote `options`.
+fn ls_remote_filter(options: &LsRemoteOptions) -> sley_remote::LsRemoteFilter {
+    sley_remote::LsRemoteFilter {
+        heads: options.heads,
+        tags: options.tags,
+        refs_only: options.refs_only,
+    }
+}
+
+#[derive(Debug, Default)]
+pub(super) struct LsRemoteOptions {
+    heads: bool,
+    tags: bool,
+    refs_only: bool,
+    symref: bool,
+    exit_code: bool,
+    quiet: bool,
+    get_url: bool,
+    sort: Option<LsRemoteSort>,
+    repository: Option<String>,
+    patterns: Vec<String>,
+    upload_pack_command: Option<String>,
+    server_options: Vec<String>,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub(super) enum LsRemoteSort {
+    Refname,
+    RefnameDescending,
+    VersionRefname,
+    VersionRefnameDescending,
+    ObjectName,
+    ObjectNameDescending,
+    ObjectType,
+    ObjectTypeDescending,
+    ObjectSize,
+    ObjectSizeDescending,
+    ObjectSizeDisk,
+    ObjectSizeDiskDescending,
+    AuthorDate,
+    AuthorDateDescending,
+    CommitterDate,
+    CommitterDateDescending,
+    TaggerDate,
+    TaggerDateDescending,
+    CreatorDate,
+    CreatorDateDescending,
+}
+
+/// git's `check_refname_format` for the refspec-validation path (refs.c).
+/// `allow_onelevel` mirrors `REFNAME_ALLOW_ONELEVEL`; `allow_pattern` mirrors
+/// `REFNAME_REFSPEC_PATTERN` (a single `*` somewhere in the ref).
+fn refspec_refname_ok(refname: &str, allow_onelevel: bool, allow_pattern: bool) -> bool {
+    let format = sley_core::RefnameFormat {
+        allow_onelevel,
+        refspec_pattern: allow_pattern,
+    };
+    sley_core::check_refname_format(refname.as_bytes(), format).is_ok()
+}
+
+/// Validate a configured `remote.<name>.fetch`/`push` refspec the way git's
+/// `parse_refspec` (refspec.c) does, dying-equivalent (returns `false`) on the
+/// same inputs git rejects. `fetch` selects the fetch vs push rule set.
+fn configured_refspec_valid(refspec: &str, fetch: bool) -> bool {
+    // Leading '+' (force) or '^' (negative) are stripped first (mutually
+    // exclusive in git: a negative refspec never carries force, but the parser
+    // only inspects one prefix char).
+    let mut lhs = refspec;
+    let mut negative = false;
+    if let Some(rest) = lhs.strip_prefix('+') {
+        lhs = rest;
+    } else if let Some(rest) = lhs.strip_prefix('^') {
+        negative = true;
+        lhs = rest;
+    }
+
+    // git uses strrchr(lhs, ':') — the LAST colon splits src from dst.
+    let rhs = lhs.rfind(':');
+
+    // Negative refspecs only have one side.
+    if negative && rhs.is_some() {
+        return false;
+    }
+
+    // Special case ":" (or "+:") as the matching push refspec.
+    if !fetch && matches!(rhs, Some(0)) && lhs.len() == 1 {
+        return true;
+    }
+
+    let (src, dst) = match rhs {
+        Some(pos) => (&lhs[..pos], Some(&lhs[pos + 1..])),
+        None => (lhs, None),
+    };
+    let dst_has_glob = dst.is_some_and(|d| d.contains('*'));
+    let src_has_glob = src.contains('*');
+
+    let mut is_glob = dst_has_glob && !dst.unwrap_or("").is_empty();
+    if src_has_glob {
+        // LHS has a glob: for a fetch with no RHS the source must look like a
+        // pattern; with an RHS the RHS must also be a glob.
+        if (dst.is_some() && !is_glob) || (dst.is_none() && !negative && fetch) {
+            return false;
+        }
+        is_glob = true;
+    } else if dst.is_some() && is_glob {
+        // RHS globbed but LHS did not.
+        return false;
+    }
+
+    let src = if src == "@" { "HEAD" } else { src };
+
+    if negative {
+        // Negative refspecs: LHS only, non-empty, not an exact sha1, valid ref.
+        if src.is_empty() {
+            return false;
+        }
+        return refspec_refname_ok(src, true, is_glob);
+    }
+
+    if fetch {
+        // LHS: empty ok (means HEAD); exact sha1 ok; else must be a valid ref.
+        if !src.is_empty() && !refspec_refname_ok(src, true, is_glob) {
+            return false;
+        }
+        // RHS: missing/empty ok; else must be a valid ref.
+        if let Some(d) = dst
+            && !d.is_empty()
+            && !refspec_refname_ok(d, true, is_glob)
+        {
+            return false;
+        }
+    } else {
+        // Push LHS: empty ok (delete); globbed must be a valid ref; else anything.
+        if !src.is_empty() && is_glob && !refspec_refname_ok(src, true, is_glob) {
+            return false;
+        }
+        // Push RHS: missing ok only if LHS is a valid ref; empty not allowed;
+        // else must be a valid ref.
+        match dst {
+            // No RHS: the LHS must be a valid-looking ref.
+            None => return refspec_refname_ok(src, true, is_glob),
+            // Empty RHS (`src:`) is never allowed for push.
+            Some("") => return false,
+            Some(d) if !refspec_refname_ok(d, true, is_glob) => return false,
+            Some(_) => {}
+        }
+    }
+    true
+}
+
+/// Mirror git's `remote_get` validating every configured `remote.<name>.fetch`
+/// and `remote.<name>.push` refspec via `refspec_append` (which dies on the
+/// first invalid value). Only runs when `repository` names a configured remote.
+fn validate_configured_remote_refspecs(config: Option<&GitConfig>, repository: &str) -> Result<()> {
+    let Some(config) = config else {
+        return Ok(());
+    };
+    for (key, fetch) in [("fetch", true), ("push", false)] {
+        for value in config.get_all("remote", Some(repository), key) {
+            let Some(value) = value else { continue };
+            let value = value.trim_start_matches([' ', '\t']);
+            if !configured_refspec_valid(value, fetch) {
+                eprintln!("fatal: invalid refspec '{value}'");
+                return Err(crate::cli_exit(128));
+            }
+        }
+    }
+    Ok(())
+}
+
+fn default_ls_remote_remote(context: &RemoteCommandContext) -> Result<String> {
+    let repository = context.required_repository()?;
+    let current_branch = repository.references().current_branch()?;
+    Ok(sley_remote::plan_fetch_repository(
+        context.required_config()?,
+        current_branch.as_deref(),
+        None,
+    )
+    .remote)
+}
+
+pub(crate) fn cmd_ls_remote(
+    cli_session: &crate::session::CliSession,
+    args: &[String],
+) -> Result<()> {
+    let context = RemoteCommandContext::from_session(cli_session);
+    let mut options = setup_ls_remote_options(args)?;
+    let implicit_repository = options.repository.is_none();
+    let repository = match options.repository.as_deref() {
+        Some(repository) => repository.to_string(),
+        None => default_ls_remote_remote(&context)?,
+    };
+    validate_configured_remote_refspecs(context.config(), &repository)?;
+    if options.get_url {
+        println!("{}", ls_remote_display_url(&context, &repository)?);
+        return Ok(());
+    }
+    let local_sort_git_dir = validate_ls_remote_sort_context(&context, options.sort)?;
+    let local_sort_format = local_sort_git_dir
+        .as_deref()
+        .map(repository_object_format)
+        .transpose()?;
+    let transport_config = transport_policy_config_for_context(&context)?;
+    if options.server_options.is_empty() {
+        options.server_options = configured_server_options(&transport_config, &repository)?;
+    } else if configured_legacy_protocol(Some(&transport_config)) {
+        eprintln!("fatal: server options require protocol version 2 or later");
+        eprintln!("fatal: see protocol.version in 'git help config' for more details");
+        return Err(crate::cli_exit(128));
+    }
+    let resolved_repository = context.resolved_remote(&repository)?.url;
+    check_transport_allowed_url(
+        &cli_session.remote_policy,
+        &resolved_repository,
+        Some(&transport_config),
+    )?;
+
+    if implicit_repository && !options.quiet {
+        eprintln!("From {}", ls_remote_display_url(&context, &repository)?);
+    }
+
+    if let Some((mut records, format)) =
+        ls_remote_ssh_records(&context, &repository, &options, &transport_config)?
+    {
+        if options.exit_code && records.is_empty() {
+            return Err(crate::cli_exit(2));
+        }
+        sort_ls_remote_records(
+            &mut records,
+            options.sort,
+            local_sort_git_dir.as_deref(),
+            local_sort_format.unwrap_or(format),
+        )?;
+        for record in records {
+            print_ls_remote_ref(&record, options.symref);
+        }
+        return Ok(());
+    }
+
+    if let Some((mut records, format)) =
+        ls_remote_git_records(&context, &repository, &options, &transport_config)?
+    {
+        if options.exit_code && records.is_empty() {
+            return Err(crate::cli_exit(2));
+        }
+        sort_ls_remote_records(
+            &mut records,
+            options.sort,
+            local_sort_git_dir.as_deref(),
+            local_sort_format.unwrap_or(format),
+        )?;
+        for record in records {
+            print_ls_remote_ref(&record, options.symref);
+        }
+        return Ok(());
+    }
+
+    if let Some((mut records, format)) =
+        ls_remote_http_records(&context, &repository, &options, &transport_config)?
+    {
+        if options.exit_code && records.is_empty() {
+            return Err(crate::cli_exit(2));
+        }
+        sort_ls_remote_records(
+            &mut records,
+            options.sort,
+            local_sort_git_dir.as_deref(),
+            local_sort_format.unwrap_or(format),
+        )?;
+        for record in records {
+            print_ls_remote_ref(&record, options.symref);
+        }
+        return Ok(());
+    }
+
+    if let Some(command) = options.upload_pack_command.as_deref() {
+        let (mut records, format) = ls_remote_upload_pack_command_records(
+            command,
+            &repository,
+            &options,
+            &transport_config,
+        )?;
+        if options.exit_code && records.is_empty() {
+            return Err(crate::cli_exit(2));
+        }
+        sort_ls_remote_records(
+            &mut records,
+            options.sort,
+            local_sort_git_dir.as_deref(),
+            local_sort_format.unwrap_or(format),
+        )?;
+        for record in records {
+            print_ls_remote_ref(&record, options.symref);
+        }
+        return Ok(());
+    }
+
+    if matches!(
+        parse_remote_url(&resolved_repository).map(|url| url.transport),
+        Ok(RemoteTransport::File | RemoteTransport::Local)
+    ) {
+        trace_configured_local_protocol_version(Some(&transport_config));
+        if configured_protocol_version(Some(&transport_config)) == Some(ProtocolVersion::V2) {
+            if let Ok(remote_git_dir) = ls_remote_git_dir(&context, &repository)
+                && let Ok(remote_common_git_dir) = common_git_dir_for_git_dir(&remote_git_dir)
+                && let Ok(format) = repository_object_format(&remote_common_git_dir)
+            {
+                trace_protocol_v2_upload_pack_capabilities(&remote_git_dir, format);
+            }
+            trace_protocol_v2_ls_refs_request(&options.server_options);
+        }
+    }
+
+    let git_dir = match ls_remote_git_dir(&context, &repository) {
+        Ok(git_dir) => git_dir,
+        Err(_) => return ls_remote_repository_not_found(&repository),
+    };
+    let common_git_dir = common_git_dir_for_git_dir(&git_dir)?;
+    let format = repository_object_format(&common_git_dir)?;
+    let source = sley_remote::LsRemoteSource::Local { git_dir };
+    let filter = ls_remote_filter(&options);
+    let outcome = sley_remote::ls_remote_with(
+        sley_remote::LsRemoteRequest {
+            policy: &cli_session.remote_policy,
+            source: &source,
+            format,
+            filter: &filter,
+            config: Some(&transport_config),
+        },
+        &|name| ls_remote_ref_matches(name, &options.patterns),
+        &mut sley_remote::NoCredentials,
+    )?;
+    let mut records = outcome.records;
+    let format = outcome.format;
+
+    if options.exit_code && records.is_empty() {
+        return Err(crate::cli_exit(2));
+    }
+    sort_ls_remote_records(
+        &mut records,
+        options.sort,
+        local_sort_git_dir.as_deref(),
+        local_sort_format.unwrap_or(format),
+    )?;
+    for record in records {
+        print_ls_remote_ref(&record, options.symref);
+    }
+    Ok(())
+}
+
+fn ls_remote_repository_not_found(repository: &str) -> Result<()> {
+    eprintln!("fatal: '{repository}' does not appear to be a git repository");
+    eprintln!("fatal: Could not read from remote repository.");
+    eprintln!();
+    eprintln!("Please make sure you have the correct access rights");
+    eprintln!("and the repository exists.");
+    Err(crate::cli_exit(128))
+}
+
+fn upload_pack_command_repository_argument(repository: &str) -> String {
+    match parse_remote_url(repository) {
+        Ok(url)
+            if matches!(
+                url.transport,
+                RemoteTransport::File | RemoteTransport::Local
+            ) =>
+        {
+            url.path
+        }
+        _ => repository.to_string(),
+    }
+}
+
+fn ls_remote_upload_pack_command_records(
+    command: &str,
+    repository: &str,
+    options: &LsRemoteOptions,
+    config: &GitConfig,
+) -> Result<(Vec<LsRemoteRecord>, ObjectFormat)> {
+    let argument = upload_pack_command_repository_argument(repository);
+    let command_line = format!("{command} {}", sley_config::sq_quote(&argument));
+    let protocol_v2 = client_requests_protocol_v2(Some(config));
+    let mut proc = Proc::new("/bin/sh");
+    proc.arg("-c").arg(&command_line);
+    if protocol_v2 {
+        proc.env("GIT_PROTOCOL", "version=2");
+    } else {
+        proc.env_remove("GIT_PROTOCOL");
+    }
+    proc.stdin(std::process::Stdio::piped())
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped());
+    let mut child = proc.spawn()?;
+    let mut stdin = child
+        .stdin
+        .take()
+        .ok_or_else(|| GitError::Command("upload-pack stdin was not piped".into()))?;
+    let mut stdout = child
+        .stdout
+        .take()
+        .ok_or_else(|| GitError::Command("upload-pack stdout was not piped".into()))?;
+    let stderr = child.stderr.take();
+    let stderr_thread = std::thread::spawn(move || {
+        let mut bytes = Vec::new();
+        if let Some(mut stderr) = stderr {
+            let _ = stderr.read_to_end(&mut bytes);
+        }
+        bytes
+    });
+    let (set, format) = if protocol_v2 {
+        let handshake = sley_protocol::read_protocol_v2_advertisement(&mut stdout)?;
+        let format = sley_protocol::protocol_v2_object_format(&handshake.capabilities)?;
+        let mut request = sley_protocol::ProtocolV2LsRefsRequest {
+            peel: true,
+            symrefs: true,
+            unborn: true,
+            ref_prefixes: vec!["HEAD".into(), "refs/heads/".into(), "refs/tags/".into()],
+        }
+        .to_command_request()?;
+        request.capabilities = sley_protocol::encode_protocol_v2_command_options(
+            &sley_protocol::ProtocolV2CommandOptions {
+                object_format: Some(format),
+                ..sley_protocol::ProtocolV2CommandOptions::default()
+            },
+        )?;
+        sley_protocol::write_protocol_v2_command_request(&mut stdin, &request)?;
+        stdin.flush()?;
+        drop(stdin);
+        let set = sley_protocol::read_protocol_v2_ls_refs_response_as_ref_advertisement_set(
+            format,
+            &mut stdout,
+        )?;
+        (set, format)
+    } else {
+        drop(stdin);
+        let (set, format) = sley_remote::read_discovered_upload_pack_advertisements(&mut stdout)?;
+        (set, format)
+    };
+    let status = child.wait()?;
+    let stderr = stderr_thread.join().unwrap_or_else(|_| Vec::new());
+    if !status.success() {
+        return Err(GitError::Command(format!(
+            "upload-pack command failed: {}",
+            String::from_utf8_lossy(&stderr).trim()
+        )));
+    }
+    let features = set
+        .refs
+        .first()
+        .map(|advertisement| sley_protocol::parse_upload_pack_features(&advertisement.capabilities))
+        .transpose()?
+        .unwrap_or_default();
+    let symrefs = features
+        .symrefs
+        .iter()
+        .filter_map(|symref| symref.split_once(':'))
+        .map(|(name, target)| (name.to_string(), target.to_string()))
+        .collect::<HashMap<_, _>>();
+    let mut records = Vec::new();
+    for advertisement in set.refs {
+        if advertisement.oid.is_null() {
+            continue;
+        }
+        if options.refs_only
+            && (advertisement.name == "HEAD" || advertisement.name.ends_with("^{}"))
+        {
+            continue;
+        }
+        if (options.heads || options.tags)
+            && !((options.heads && advertisement.name.starts_with("refs/heads/"))
+                || (options.tags && advertisement.name.starts_with("refs/tags/")))
+        {
+            continue;
+        }
+        if !ls_remote_ref_matches(&advertisement.name, &options.patterns) {
+            continue;
+        }
+        records.push(LsRemoteRecord {
+            oid: advertisement.oid,
+            symref: symrefs.get(&advertisement.name).cloned(),
+            name: advertisement.name,
+        });
+    }
+    Ok((records, format))
+}
+
+fn validate_ls_remote_sort_context(
+    context: &RemoteCommandContext,
+    sort: Option<LsRemoteSort>,
+) -> Result<Option<PathBuf>> {
+    if !matches!(
+        sort,
+        Some(
+            LsRemoteSort::ObjectName
+                | LsRemoteSort::ObjectNameDescending
+                | LsRemoteSort::ObjectType
+                | LsRemoteSort::ObjectTypeDescending
+                | LsRemoteSort::ObjectSize
+                | LsRemoteSort::ObjectSizeDescending
+                | LsRemoteSort::ObjectSizeDisk
+                | LsRemoteSort::ObjectSizeDiskDescending
+                | LsRemoteSort::AuthorDate
+                | LsRemoteSort::AuthorDateDescending
+                | LsRemoteSort::CommitterDate
+                | LsRemoteSort::CommitterDateDescending
+                | LsRemoteSort::TaggerDate
+                | LsRemoteSort::TaggerDateDescending
+                | LsRemoteSort::CreatorDate
+                | LsRemoteSort::CreatorDateDescending
+        )
+    ) {
+        return Ok(None);
+    }
+    let field = match sort {
+        Some(LsRemoteSort::ObjectName | LsRemoteSort::ObjectNameDescending) => "objectname",
+        Some(LsRemoteSort::ObjectType | LsRemoteSort::ObjectTypeDescending) => "objecttype",
+        Some(LsRemoteSort::ObjectSize | LsRemoteSort::ObjectSizeDescending) => "objectsize",
+        Some(LsRemoteSort::ObjectSizeDisk | LsRemoteSort::ObjectSizeDiskDescending) => {
+            "objectsize:disk"
+        }
+        Some(LsRemoteSort::AuthorDate | LsRemoteSort::AuthorDateDescending) => "authordate",
+        Some(LsRemoteSort::CommitterDate | LsRemoteSort::CommitterDateDescending) => {
+            "committerdate"
+        }
+        Some(LsRemoteSort::TaggerDate | LsRemoteSort::TaggerDateDescending) => "taggerdate",
+        Some(LsRemoteSort::CreatorDate | LsRemoteSort::CreatorDateDescending) => "creatordate",
+        _ => unreachable!("guard checked object-data sort"),
+    };
+    if let Some(git_dir) = context.git_dir() {
+        return Ok(Some(git_dir.to_path_buf()));
+    }
+    eprintln!(
+        "fatal: not a git repository, but the field '{field}' requires access to object data"
+    );
+    Err(crate::cli_exit(128))
+}
+
+/// Resolve `repository` to an SSH remote and list its advertisements via
+/// [`sley_remote::ls_remote`], returning `None` for non-SSH transports. URL/config
+/// resolution and the ref-name pattern matching stay here; the advertisement
+/// listing and class filtering live in the library, shared with the HTTP path. SSH
+/// does not authenticate at this layer, so no credential provider is supplied.
+fn ls_remote_ssh_records(
+    context: &RemoteCommandContext,
+    repository: &str,
+    options: &LsRemoteOptions,
+    transport_config: &GitConfig,
+) -> Result<Option<(Vec<LsRemoteRecord>, ObjectFormat)>> {
+    let parsed = parse_remote_url(&context.resolved_remote(repository)?.url)?;
+    if !matches!(
+        parsed.transport,
+        RemoteTransport::Ssh | RemoteTransport::Ext
+    ) {
+        return Ok(None);
+    }
+    let source = sley_remote::LsRemoteSource::Ssh(parsed);
+    let filter = ls_remote_filter(options);
+    let outcome = sley_remote::ls_remote_with(
+        sley_remote::LsRemoteRequest {
+            policy: &context.remote_policy,
+            source: &source,
+            format: ObjectFormat::Sha1,
+            filter: &filter,
+            config: Some(transport_config),
+        },
+        &|name| ls_remote_ref_matches(name, &options.patterns),
+        &mut sley_remote::NoCredentials,
+    )?;
+    Ok(Some((outcome.records, outcome.format)))
+}
+
+fn ls_remote_git_records(
+    context: &RemoteCommandContext,
+    repository: &str,
+    options: &LsRemoteOptions,
+    transport_config: &GitConfig,
+) -> Result<Option<(Vec<LsRemoteRecord>, ObjectFormat)>> {
+    let parsed = parse_remote_url(&context.resolved_remote(repository)?.url)?;
+    if parsed.transport != RemoteTransport::Git {
+        return Ok(None);
+    }
+    let source = sley_remote::LsRemoteSource::Git(parsed);
+    let filter = ls_remote_filter(options);
+    let outcome = sley_remote::ls_remote_with(
+        sley_remote::LsRemoteRequest {
+            policy: &context.remote_policy,
+            source: &source,
+            format: ObjectFormat::Sha1,
+            filter: &filter,
+            config: Some(transport_config),
+        },
+        &|name| ls_remote_ref_matches(name, &options.patterns),
+        &mut sley_remote::NoCredentials,
+    )?;
+    Ok(Some((outcome.records, outcome.format)))
+}
+
+fn ls_remote_display_url(context: &RemoteCommandContext, repository: &str) -> Result<String> {
+    Ok(context.resolved_remote(repository)?.url)
+}
+
+fn ls_remote_ref_matches(name: &str, patterns: &[String]) -> bool {
+    patterns.is_empty()
+        || patterns
+            .iter()
+            .any(|pattern| ls_remote_pattern_matches(name, pattern))
+}
+
+fn ls_remote_pattern_matches(name: &str, pattern: &str) -> bool {
+    if !pattern
+        .as_bytes()
+        .iter()
+        .any(|byte| matches!(byte, b'*' | b'?' | b'['))
+    {
+        return show_ref_filter_matches(name, pattern);
+    }
+    name == pattern
+        || refname_pattern_matches(pattern, name)
+        || name
+            .match_indices('/')
+            .map(|(index, _)| &name[index + 1..])
+            .any(|suffix| refname_pattern_matches(pattern, suffix))
+}
+
+fn sort_ls_remote_records(
+    records: &mut [LsRemoteRecord],
+    sort: Option<LsRemoteSort>,
+    local_git_dir: Option<&Path>,
+    format: ObjectFormat,
+) -> Result<()> {
+    let Some(sort) = sort else {
+        return Ok(());
+    };
+    let local_db = if matches!(
+        sort,
+        LsRemoteSort::ObjectType
+            | LsRemoteSort::ObjectTypeDescending
+            | LsRemoteSort::ObjectSize
+            | LsRemoteSort::ObjectSizeDescending
+            | LsRemoteSort::ObjectSizeDisk
+            | LsRemoteSort::ObjectSizeDiskDescending
+            | LsRemoteSort::AuthorDate
+            | LsRemoteSort::AuthorDateDescending
+            | LsRemoteSort::CommitterDate
+            | LsRemoteSort::CommitterDateDescending
+            | LsRemoteSort::TaggerDate
+            | LsRemoteSort::TaggerDateDescending
+            | LsRemoteSort::CreatorDate
+            | LsRemoteSort::CreatorDateDescending
+    ) {
+        Some(FileObjectDatabase::from_git_dir(
+            local_git_dir.expect("object-data sort validated local git dir"),
+            format,
+        ))
+    } else {
+        None
+    };
+    let mut keyed = records
+        .iter()
+        .cloned()
+        .enumerate()
+        .map(|(index, record)| {
+            Ok((
+                ls_remote_sort_key(&record, sort, local_db.as_ref(), local_git_dir)?,
+                index,
+                record,
+            ))
+        })
+        .collect::<Result<Vec<_>>>()?;
+    keyed.sort_by(|left, right| {
+        let ordering = match sort {
+            LsRemoteSort::Refname | LsRemoteSort::VersionRefname | LsRemoteSort::ObjectName => {
+                left.0.cmp(&right.0)
+            }
+            LsRemoteSort::ObjectType | LsRemoteSort::ObjectSize => left.0.cmp(&right.0),
+            LsRemoteSort::ObjectSizeDisk => left.0.cmp(&right.0),
+            LsRemoteSort::AuthorDate
+            | LsRemoteSort::CommitterDate
+            | LsRemoteSort::TaggerDate
+            | LsRemoteSort::CreatorDate => left.0.cmp(&right.0),
+            LsRemoteSort::RefnameDescending
+            | LsRemoteSort::VersionRefnameDescending
+            | LsRemoteSort::ObjectNameDescending
+            | LsRemoteSort::ObjectTypeDescending
+            | LsRemoteSort::ObjectSizeDescending
+            | LsRemoteSort::ObjectSizeDiskDescending
+            | LsRemoteSort::AuthorDateDescending
+            | LsRemoteSort::CommitterDateDescending
+            | LsRemoteSort::TaggerDateDescending
+            | LsRemoteSort::CreatorDateDescending => left.0.cmp(&right.0).reverse(),
+        };
+        ordering.then_with(|| left.1.cmp(&right.1))
+    });
+    for (destination, (_, _, record)) in records.iter_mut().zip(keyed) {
+        *destination = record;
+    }
+    Ok(())
+}
+
+#[derive(Debug, Clone, Eq, PartialEq)]
+enum LsRemoteSortKey {
+    Number(i128),
+    Text(String),
+    Version(String),
+}
+
+impl Ord for LsRemoteSortKey {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        match (self, other) {
+            (LsRemoteSortKey::Number(left), LsRemoteSortKey::Number(right)) => left.cmp(right),
+            (LsRemoteSortKey::Text(left), LsRemoteSortKey::Text(right)) => left.cmp(right),
+            (LsRemoteSortKey::Version(left), LsRemoteSortKey::Version(right)) => {
+                version_sort_cmp(left, right, &[])
+            }
+            (left, right) => ls_remote_sort_key_rank(left).cmp(&ls_remote_sort_key_rank(right)),
+        }
+    }
+}
+
+impl PartialOrd for LsRemoteSortKey {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+fn ls_remote_sort_key_rank(key: &LsRemoteSortKey) -> u8 {
+    match key {
+        LsRemoteSortKey::Number(_) => 0,
+        LsRemoteSortKey::Text(_) => 1,
+        LsRemoteSortKey::Version(_) => 2,
+    }
+}
+
+fn ls_remote_sort_key(
+    record: &LsRemoteRecord,
+    sort: LsRemoteSort,
+    local_db: Option<&FileObjectDatabase>,
+    local_git_dir: Option<&Path>,
+) -> Result<LsRemoteSortKey> {
+    match sort {
+        LsRemoteSort::Refname | LsRemoteSort::RefnameDescending => {
+            Ok(LsRemoteSortKey::Text(record.name.clone()))
+        }
+        LsRemoteSort::VersionRefname | LsRemoteSort::VersionRefnameDescending => {
+            Ok(LsRemoteSortKey::Version(record.name.clone()))
+        }
+        LsRemoteSort::ObjectName | LsRemoteSort::ObjectNameDescending => {
+            Ok(LsRemoteSortKey::Text(record.oid.to_hex()))
+        }
+        LsRemoteSort::ObjectType | LsRemoteSort::ObjectTypeDescending => {
+            let db = local_db.expect("objecttype sort requires local db");
+            let object = db.read_object(&record.oid).map_err(|_| {
+                eprintln!("fatal: missing object {} for {}", record.oid, record.name);
+                crate::cli_exit(128)
+            })?;
+            Ok(LsRemoteSortKey::Text(
+                object.object_type.as_str().to_string(),
+            ))
+        }
+        LsRemoteSort::ObjectSize | LsRemoteSort::ObjectSizeDescending => {
+            let db = local_db.expect("objectsize sort requires local db");
+            let object = db.read_object(&record.oid).map_err(|_| {
+                eprintln!("fatal: missing object {} for {}", record.oid, record.name);
+                crate::cli_exit(128)
+            })?;
+            Ok(LsRemoteSortKey::Number(object.body.len() as i128))
+        }
+        LsRemoteSort::ObjectSizeDisk | LsRemoteSort::ObjectSizeDiskDescending => {
+            let git_dir = local_git_dir.expect("objectsize:disk sort requires local git dir");
+            let storage = cat_file_object_storage(git_dir, record.oid.format(), &record.oid)
+                .map_err(|_| {
+                    eprintln!("fatal: missing object {} for {}", record.oid, record.name);
+                    crate::cli_exit(128)
+                })?;
+            Ok(LsRemoteSortKey::Number(storage.disk_size as i128))
+        }
+        LsRemoteSort::AuthorDate | LsRemoteSort::AuthorDateDescending => {
+            ls_remote_date_sort_key(record, local_db, ForEachRefDateSortField::Author)
+        }
+        LsRemoteSort::CommitterDate | LsRemoteSort::CommitterDateDescending => {
+            ls_remote_date_sort_key(record, local_db, ForEachRefDateSortField::Committer)
+        }
+        LsRemoteSort::TaggerDate | LsRemoteSort::TaggerDateDescending => {
+            ls_remote_date_sort_key(record, local_db, ForEachRefDateSortField::Tagger)
+        }
+        LsRemoteSort::CreatorDate | LsRemoteSort::CreatorDateDescending => {
+            ls_remote_date_sort_key(record, local_db, ForEachRefDateSortField::Creator)
+        }
+    }
+}
+
+fn ls_remote_date_sort_key(
+    record: &LsRemoteRecord,
+    local_db: Option<&FileObjectDatabase>,
+    field: ForEachRefDateSortField,
+) -> Result<LsRemoteSortKey> {
+    let db = local_db.expect("date sort requires local db");
+    let object = db.read_object(&record.oid).map_err(|_| {
+        eprintln!("fatal: missing object {} for {}", record.oid, record.name);
+        crate::cli_exit(128)
+    })?;
+    let contents = for_each_ref_contents(record.oid.format(), &object)?;
+    Ok(LsRemoteSortKey::Number(for_each_ref_sort_date_key(
+        contents, field,
+    )))
+}
+
+fn print_ls_remote_ref(record: &LsRemoteRecord, show_symref: bool) {
+    if show_symref && let Some(symref) = &record.symref {
+        println!("ref: {symref}\t{}", record.name);
+    }
+    println!("{}\t{}", record.oid, record.name);
+}

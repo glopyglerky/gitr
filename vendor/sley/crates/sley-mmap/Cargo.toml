@@ -1,0 +1,30 @@
+[package]
+name = "sley-mmap"
+version.workspace = true
+description = "Audited, safe read-only memory maps of immutable git files — the single home for sley's only unsafe code."
+repository.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+memmap2 = "0.9.11"
+
+# This crate is the single, audited home for the workspace's only `unsafe` (the
+# read-only mmap of immutable git files). It therefore does NOT inherit the workspace
+# `unsafe_code = "forbid"` lint; instead it allows unsafe locally while keeping the
+# same hygiene denies as everywhere else. Every other crate stays forbid.
+[lints.rust]
+unsafe_code = "allow"
+
+[lints.clippy]
+unwrap_used = "deny"
+dbg_macro = "deny"
+todo = "deny"
+redundant_clone = "deny"
+unused_peekable = "deny"
+iter_with_drain = "deny"
+suspicious_operation_groupings = "deny"
+large_stack_arrays = "deny"
+needless_collect = "deny"
+clone_on_copy = "allow"

@@ -1,0 +1,692 @@
+use crate::commands;
+use crate::setup;
+use crate::{GlobalConfigOverride, apply_global_options, session};
+use sley::{GitError, Result};
+use sley_protocol::set_packet_trace_identity;
+use std::env;
+use std::fs;
+use std::io::{self, Read};
+use std::path::{Path, PathBuf};
+
+pub(crate) fn dispatch_with_aliases(
+    cli_session: &session::CliSession,
+    args: &[String],
+    global_config: &[GlobalConfigOverride],
+    _alias_depth: usize,
+) -> Result<()> {
+    // git's `run_argv` loop: repeatedly expand the leading command name through
+    // the `alias.*` namespace until it resolves to a built-in (or external)
+    // command, tracking the expansion chain for loop detection.
+    let mut args: Vec<String> = args.to_vec();
+    let mut cli_session = cli_session.clone();
+    let mut expanded_aliases: Vec<String> = Vec::new();
+    for _ in 0..commands::alias::MAX_ALIAS_DEPTH {
+        let Some(command) = args.first().cloned() else {
+            return dispatch_command(&cli_session, &args, global_config);
+        };
+        // git's main-level dashed options/pseudo-commands (`--version`,
+        // `--list-cmds=...`, `--exec-path`, ...) are handled by `handle_options`
+        // before the `run_argv` alias loop; they are never alias or external
+        // command names (alias keys cannot start with `-`). Dispatch them
+        // directly so they reach `dispatch_command`'s option arms instead of
+        // being misdiagnosed as an unknown external command.
+        if command.starts_with('-') {
+            return dispatch_command(&cli_session, &args, global_config);
+        }
+        if args.iter().any(|arg| {
+            matches!(
+                arg.as_str(),
+                "--git-completion-helper" | "--git-completion-helper-all"
+            )
+        }) {
+            return dispatch_command(&cli_session, &args, global_config);
+        }
+        // Git's builtin classification is not the same as Sley's native
+        // implementation set. A reserved Git builtin must still expose its
+        // declarative usage, and every command in `--list-cmds=main` accepts
+        // the parse-options `--help-all` query outside a repository.
+        if args.len() == 2
+            && args.get(1).is_some_and(|arg| {
+                (arg == "-h" && commands::help::supports_usage_help(&command))
+                    || (arg == "--help-all" && commands::help::is_main_command(&command))
+            })
+        {
+            return dispatch_command(&cli_session, &args, global_config);
+        }
+        // A name is alias-expandable when it is not a built-in, or it is a
+        // *deprecated* built-in (which an alias is allowed to override).
+        let try_alias = !commands::alias::is_builtin_command(&command)
+            || commands::alias::is_deprecated_command(&command);
+        if try_alias {
+            match commands::alias::alias_lookup(&cli_session, &command)? {
+                commands::alias::AliasLookup::None => {}
+                commands::alias::AliasLookup::MissingValue(missing) => {
+                    // git's `config_error_nonbool` + config die trailer:
+                    //   error: missing value for 'alias.br'
+                    //   fatal: bad config line 2 in file .git/config
+                    eprintln!("error: missing value for '{}'", missing.key);
+                    match (missing.file.as_deref(), missing.line) {
+                        (Some(path), Some(line)) => {
+                            eprintln!("fatal: bad config line {line} in file {path}");
+                        }
+                        (Some(path), None) => {
+                            eprintln!("fatal: bad config line in file {path}");
+                        }
+                        (None, Some(line)) => {
+                            eprintln!("fatal: bad config line {line}");
+                        }
+                        (None, None) => {
+                            eprintln!("fatal: bad config line");
+                        }
+                    }
+                    return Err(crate::cli_exit(128));
+                }
+                commands::alias::AliasLookup::Value(alias_string) => {
+                    trace2_run_dashed(&command, expanded_aliases.len());
+                    // `git <alias> -h` prints what the alias resolves to.
+                    if args.len() == 2 && args[1] == "-h" {
+                        eprintln!("'{command}' is aliased to '{alias_string}'");
+                    }
+                    if let Some(shell) = alias_string.strip_prefix('!') {
+                        trace2_alias(&command, &[shell.to_string()]);
+                        trace2_alias_cmd_name("_run_shell_alias_", expanded_aliases.len());
+                        trace2_alias_child_command(
+                            &cli_session,
+                            "version",
+                            "_run_shell_alias_",
+                            expanded_aliases.len(),
+                        );
+                        return commands::alias::run_shell_alias(&cli_session, shell, &args[1..]);
+                    }
+                    let mut expanded = commands::alias::split_alias_value(&alias_string);
+                    trace2_alias(&command, &expanded);
+                    expanded.extend(args[1..].iter().cloned());
+                    // An alias body may begin with global options (`-c`, `-C`,
+                    // `--config-env`, ...); git re-parses those before the real
+                    // subcommand. Fold any `-c`/`--config-env` and apply `-C`,
+                    // then take the remaining argv (with the real command first)
+                    // for recursion / loop detection.
+                    let new_args = reapply_global_options(&mut cli_session, &expanded)?;
+                    let Some(real_command) = new_args.first().cloned() else {
+                        eprintln!("fatal: empty alias for {command}");
+                        return Err(crate::cli_exit(128));
+                    };
+                    if real_command == command {
+                        eprintln!("fatal: recursive alias: {command}");
+                        return Err(crate::cli_exit(128));
+                    }
+                    if commands::alias::is_builtin_command(&real_command) {
+                        trace2_alias_cmd_name("_run_git_alias_", expanded_aliases.len());
+                        trace2_alias_child_command(
+                            &cli_session,
+                            &real_command,
+                            "_run_git_alias_",
+                            expanded_aliases.len(),
+                        );
+                    }
+                    expanded_aliases.push(command);
+                    if let Some(seen) = expanded_aliases
+                        .iter()
+                        .position(|name| name == &real_command)
+                    {
+                        report_alias_loop(&expanded_aliases, seen);
+                        return Err(crate::cli_exit(128));
+                    }
+                    args = new_args;
+                    continue;
+                }
+            }
+        }
+        if commands::alias::is_builtin_command(&command) {
+            return dispatch_command(&cli_session, &args, global_config);
+        }
+        // Not a built-in and not an alias: try it as an external `git-<cmd>`,
+        // falling back to git's "not a git command" diagnostic.
+        return run_external_or_unknown(&cli_session, &command, &args);
+    }
+    // Backstop: exceeded the expansion-iteration limit without converging.
+    eprintln!("fatal: alias loop detected");
+    Err(crate::cli_exit(128))
+}
+
+fn trace2_dashed_hierarchy(alias_depth: usize) -> String {
+    std::iter::repeat_n("_run_dashed_", alias_depth + 1)
+        .collect::<Vec<_>>()
+        .join("/")
+}
+
+fn trace2_alias_hierarchy(kind: &str, alias_depth: usize) -> String {
+    let mut parts = Vec::with_capacity(alias_depth + 2);
+    parts.extend(std::iter::repeat_n("_run_dashed_", alias_depth + 1));
+    parts.push(kind);
+    parts.join("/")
+}
+
+fn trace2_run_dashed(command: &str, alias_depth: usize) {
+    let hierarchy = trace2_dashed_hierarchy(alias_depth);
+    sley_core::trace2::cmd_name("_run_dashed_", Some(&hierarchy));
+    sley_core::trace2::child_start("dashed", &[format!("git-{command}")]);
+}
+
+fn trace2_alias(command: &str, argv: &[String]) {
+    sley_core::trace2::alias(command, argv);
+}
+
+fn trace2_alias_cmd_name(kind: &str, alias_depth: usize) {
+    let hierarchy = trace2_alias_hierarchy(kind, alias_depth);
+    sley_core::trace2::cmd_name(kind, Some(&hierarchy));
+}
+
+fn trace2_alias_child_command(
+    cli_session: &session::CliSession,
+    command: &str,
+    alias_kind: &str,
+    alias_depth: usize,
+) {
+    let hierarchy = format!(
+        "{}/{}",
+        trace2_alias_hierarchy(alias_kind, alias_depth),
+        command
+    );
+    crate::trace2_emit_process_ancestry_at_depth(1, &["git"]);
+    sley_core::trace2::cmd_name_at_depth(1, command, Some(&hierarchy));
+    crate::trace2_emit_def_params_at_depth(cli_session, 1);
+}
+
+/// Re-parse leading global options on an expanded alias argv, applying them the
+/// same way the top-level parser does, and return the remaining argv.
+fn reapply_global_options(
+    cli_session: &mut session::CliSession,
+    expanded: &[String],
+) -> Result<Vec<String>> {
+    let nested = apply_global_options(expanded)?;
+    cli_session.refresh_cwd();
+    session::merge_global_overrides(
+        cli_session,
+        nested.git_dir.clone(),
+        nested.work_tree.clone(),
+        nested.attr_source.clone(),
+        nested.bare,
+        nested.lazy_fetch,
+        nested.pathspec_flags,
+    );
+    let mut args = nested.args.to_vec();
+    match cli_session.repository_snapshot() {
+        Ok(snapshot) => {
+            if args.len() > 1 {
+                snapshot.config.precompose_unicode().argv(&mut args[1..]);
+            }
+        }
+        Err(GitError::NotFound(_)) => {
+            // No repository configuration means no path precomposition.
+        }
+        Err(err) => return Err(crate::report_config_setup_error(err)),
+    }
+    Ok(args)
+}
+
+/// Print git's `alias loop detected` diagnostic for the accumulated expansion
+/// chain, marking the already-seen entry with ` <==` and the latest with ` ==>`.
+fn report_alias_loop(expanded_aliases: &[String], seen: usize) {
+    let mut chain = String::new();
+    let last = expanded_aliases.len().saturating_sub(1);
+    for (index, name) in expanded_aliases.iter().enumerate() {
+        chain.push_str("\n  ");
+        chain.push_str(name);
+        if index == seen {
+            chain.push_str(" <==");
+        } else if index == last {
+            chain.push_str(" ==>");
+        }
+    }
+    eprintln!(
+        "fatal: alias loop detected: expansion of '{}' does not terminate:{}",
+        expanded_aliases[0], chain
+    );
+}
+
+/// Dispatch a non-built-in, non-alias command as an external `git-<cmd>`,
+/// emitting git's `trace: run_command:` line and falling back to the
+/// "not a git command" diagnostic when no such external exists.
+fn run_external_or_unknown(
+    cli_session: &session::CliSession,
+    command: &str,
+    args: &[String],
+) -> Result<()> {
+    // `git-http-fetch` is a separate executable built from http-fetch.c in
+    // upstream. Emit the parent `_run_dashed_` / child `http-fetch` def_param
+    // pair even though sley does not ship a full implementation.
+    if command == "http-fetch" {
+        return run_dashed_http_fetch_stub(cli_session, &args[1..]);
+    }
+    if commands::help::is_reserved_git_core_helper(command) {
+        eprintln!(
+            "fatal: 'git-{command}' is a Git core helper without a native Sley implementation"
+        );
+        return Err(crate::cli_exit(128));
+    }
+    let external = format!("git-{command}");
+    let mut argv = Vec::with_capacity(args.len());
+    argv.push(external.clone());
+    argv.extend(args[1..].iter().cloned());
+    trace2_run_dashed(command, 0);
+    trace2_external_child_metadata(cli_session, command);
+    if setup::git_trace_enabled() {
+        let mut line = String::from("trace: run_command:");
+        for arg in &argv {
+            line.push(' ');
+            line.push_str(&setup::trace_quote_sq(arg));
+        }
+        setup::git_trace_line("run-command.c:672", &line);
+    }
+    if let Some(path) = locate_external_in_path(&external) {
+        let mut process = std::process::Command::new(path);
+        process.args(&args[1..]);
+        process.env(
+            "SLEY_TRACE2_DEPTH",
+            (sley_core::trace2::depth() + 1).to_string(),
+        );
+        let status = process.status().map_err(GitError::from)?;
+        return match status.code() {
+            Some(0) => Ok(()),
+            Some(code) => Err(crate::cli_exit(code)),
+            None => Err(crate::cli_exit(1)),
+        };
+    }
+    commands::help::unknown_command(command, 1)
+}
+
+/// Emit the two-layer trace2 events git produces when `git remote-http` spawns
+/// the `remote-curl` dashed helper, then run sley's in-process stub.
+fn run_dashed_remote_curl(
+    cli_session: &session::CliSession,
+    command: &str,
+    args: &[String],
+) -> Result<()> {
+    let mut child_argv = Vec::with_capacity(args.len() + 1);
+    child_argv.push(format!("git-{command}"));
+    child_argv.extend(args.iter().cloned());
+    let hierarchy = trace2_dashed_hierarchy(0);
+    sley_core::trace2::cmd_name("_run_dashed_", Some(&hierarchy));
+    sley_core::trace2::child_start("dashed", &child_argv);
+    let child_hierarchy = format!("{hierarchy}/remote-curl");
+    sley_core::trace2::cmd_name_at_depth(1, "remote-curl", Some(&child_hierarchy));
+    crate::trace2_emit_def_params_at_depth(cli_session, 1);
+    commands::remote::cmd_remote_http(args)
+}
+
+/// Emit the two-layer trace2 events git produces when `git http-fetch` spawns
+/// the dashed `git-http-fetch` helper. Full dumb-HTTP fetch is not implemented;
+/// after the oracle-matching events, fail with the reserved-helper diagnostic.
+fn run_dashed_http_fetch_stub(cli_session: &session::CliSession, args: &[String]) -> Result<()> {
+    let mut child_argv = Vec::with_capacity(args.len() + 1);
+    child_argv.push("git-http-fetch".to_string());
+    child_argv.extend(args.iter().cloned());
+    let hierarchy = trace2_dashed_hierarchy(0);
+    sley_core::trace2::cmd_name("_run_dashed_", Some(&hierarchy));
+    sley_core::trace2::child_start("dashed", &child_argv);
+    let child_hierarchy = format!("{hierarchy}/http-fetch");
+    sley_core::trace2::cmd_name_at_depth(1, "http-fetch", Some(&child_hierarchy));
+    crate::trace2_emit_def_params_at_depth(cli_session, 1);
+    eprintln!("fatal: 'git-http-fetch' is a Git core helper without a native Sley implementation");
+    Err(crate::cli_exit(128))
+}
+
+fn trace2_external_child_metadata(cli_session: &session::CliSession, command: &str) {
+    let child_name = match command {
+        "remote-http" | "remote-https" | "remote-ftp" | "remote-ftps" => "remote-curl",
+        other => other,
+    };
+    let hierarchy = format!("{}/{}", trace2_dashed_hierarchy(0), child_name);
+    sley_core::trace2::cmd_name_at_depth(1, child_name, Some(&hierarchy));
+    crate::trace2_emit_def_params_at_depth(cli_session, 1);
+}
+
+/// Locate an executable `git-<cmd>` on `PATH` (git's `locate_in_PATH`), or
+/// `None` when no such external command exists.
+fn locate_external_in_path(name: &str) -> Option<PathBuf> {
+    let path_var = env::var_os("PATH")?;
+    for dir in env::split_paths(&path_var) {
+        let candidate = if dir.as_os_str().is_empty() {
+            PathBuf::from(name)
+        } else {
+            dir.join(name)
+        };
+        if is_executable_file(&candidate) {
+            return Some(candidate);
+        }
+    }
+    None
+}
+
+#[cfg(unix)]
+fn is_executable_file(path: &Path) -> bool {
+    use std::os::unix::fs::PermissionsExt;
+    fs::metadata(path)
+        .map(|meta| meta.is_file() && meta.permissions().mode() & 0o111 != 0)
+        .unwrap_or(false)
+}
+
+#[cfg(not(unix))]
+fn is_executable_file(path: &Path) -> bool {
+    path.is_file()
+}
+
+fn dispatch_command(
+    cli_session: &session::CliSession,
+    args: &[String],
+    global_config: &[GlobalConfigOverride],
+) -> Result<()> {
+    // git emits `trace: built-in: git <argv>` immediately before running a
+    // builtin (git.c:502). Mirror it for the general GIT_TRACE key so harnesses
+    // that read the trace (t3701 "add -p does not expand argument lists") find a
+    // populated trace file and the run_command/built-in argv lines.
+    if setup::git_trace_enabled() {
+        let mut msg = String::from("trace: built-in: git");
+        for arg in args {
+            msg.push(' ');
+            msg.push_str(&setup::trace_quote_sq(arg));
+        }
+        setup::git_trace_line("git.c:502", &msg);
+    }
+    let Some(command) = args.first().map(String::as_str) else {
+        commands::help::print_common_help();
+        return Err(crate::cli_exit(1));
+    };
+    // GIT_TRACE_PACKET identity: git's `packet_trace_identity` is the running
+    // program's basename (the subcommand here). The transports' pkt-line traces
+    // are prefixed `packet: %12s` with this value (e.g. `ls-remote`, `clone`,
+    // `fetch`, `upload-pack`).
+    set_packet_trace_identity(command);
+    // Upstream builds `remote-http` / `remote-https` / `remote-ftp` / `remote-ftps`
+    // from remote-curl.c as dashed externals. Even though sley implements
+    // `remote-http` in-process, emit the parent `_run_dashed_` + child
+    // `remote-curl` def_param layers so t0211 oracle greps match.
+    if matches!(
+        command,
+        "remote-http" | "remote-https" | "remote-ftp" | "remote-ftps"
+    ) {
+        return run_dashed_remote_curl(cli_session, command, &args[1..]);
+    }
+    let trace2_command_name = match command {
+        "--exec-path" | "--html-path" | "--man-path" | "--info-path" => "_query_",
+        value if value.starts_with("--list-cmds=") => "_query_",
+        "-v" | "--version" => "version",
+        _ => command,
+    };
+    sley_core::trace2::cmd_name(trace2_command_name, None);
+    if commands::help::print_completion_helper(args) {
+        return Ok(());
+    }
+    if command != "help" && args.len() == 2 {
+        let help_arg = args.get(1).map(String::as_str);
+        let generic_short_help = help_arg == Some("-h")
+            && commands::help::supports_usage_help(command)
+            && !commands::help::has_command_specific_help(command);
+        let generic_full_help = help_arg == Some("--help-all")
+            && commands::help::is_main_command(command)
+            && (!commands::help::has_command_specific_help(command)
+                || (commands::help::runs_setup_before_command_help(command)
+                    && setup::setup_git_directory(cli_session).is_none()));
+        if generic_short_help || generic_full_help {
+            crate::command_synopsis::print_command_usage(command);
+            return Err(crate::cli_exit(129));
+        }
+    }
+    match command {
+        "help" => commands::help::cmd_help(cli_session, &args[1..]),
+        "--exec-path" => cmd_exec_path(),
+        "--html-path" | "--man-path" | "--info-path" => cmd_info_path(),
+        value if value.starts_with("--list-cmds=") => commands::help::print_list_cmds(
+            cli_session,
+            value.strip_prefix("--list-cmds=").unwrap_or_default(),
+        ),
+        "init" => commands::plumbing::cmd_init(cli_session, &args[1..], global_config),
+        // git.c: `{ "stage", cmd_add, ... }` — `git stage` is a synonym for `git add`.
+        "add" | "stage" => commands::plumbing::cmd_add(cli_session, &args[1..]),
+        "archive" => commands::plumbing::cmd_archive(cli_session, &args[1..]),
+        "upload-archive" => commands::plumbing::cmd_upload_archive(cli_session, &args[1..]),
+        "branch" => commands::branch::cmd_branch(cli_session, &args[1..]),
+        "bundle" => commands::plumbing::cmd_bundle(cli_session, &args[1..]),
+        "column" => commands::column::cmd_column(&args[1..]),
+        "hash-object" => commands::hash_object::cmd_hash_object(cli_session, &args[1..]),
+        "history" => commands::history::cmd_history(cli_session, &args[1..]),
+        "index-pack" => commands::pack::cmd_index_pack(cli_session, &args[1..]),
+        "pack-objects" => commands::pack_objects::cmd_pack_objects(cli_session, &args[1..]),
+        "cat-file" => commands::cat_file::cmd_cat_file(cli_session, &args[1..]),
+        "checkout" => commands::checkout::cmd_checkout(cli_session, &args[1..]),
+        "backfill" => commands::backfill::cmd_backfill(cli_session, &args[1..]),
+        "check-attr" => commands::attrs::cmd_check_attr(cli_session, &args[1..]),
+        "check-ignore" => commands::attrs::cmd_check_ignore(cli_session, &args[1..]),
+        "check-mailmap" => commands::utility::cmd_check_mailmap(cli_session, &args[1..]),
+        "check-ref-format" => commands::utility::cmd_check_ref_format(cli_session, &args[1..]),
+        "clean" => commands::plumbing::cmd_clean(cli_session, &args[1..]),
+        "clone" => commands::remote::cmd_clone(cli_session, &args[1..]),
+        "config" => commands::config_cmd::cmd_config(cli_session, &args[1..]),
+        "credential" => commands::credential::cmd_credential(cli_session, &args[1..]),
+        "credential-store" => commands::credential::cmd_credential_store(&args[1..]),
+        "credential-cache" => commands::credential::cmd_credential_cache(&args[1..]),
+        "credential-cache--daemon" => commands::credential::cmd_credential_cache_daemon(&args[1..]),
+        "count-objects" => commands::pack::cmd_count_objects(cli_session, &args[1..]),
+        "gc" => commands::pack::cmd_gc(cli_session, &args[1..]),
+        "maintenance" => commands::pack::cmd_maintenance(cli_session, &args[1..]),
+        "repack" => commands::pack::cmd_repack(cli_session, &args[1..]),
+        "pack-redundant" => commands::pack::cmd_pack_redundant(cli_session, &args[1..]),
+        "repo" => commands::utility::cmd_repo(cli_session, &args[1..]),
+        "apply" => commands::plumbing::cmd_apply(cli_session, &args[1..]),
+        "commit" => commands::commit::cmd_commit(cli_session, &args[1..]),
+        "commit-graph" => commands::plumbing::cmd_commit_graph(cli_session, &args[1..]),
+        "commit-tree" => commands::plumbing::cmd_commit_tree(cli_session, &args[1..]),
+        "diff" => commands::diff::cmd_diff(cli_session, &args[1..]),
+        "range-diff" => commands::range_diff::cmd_range_diff(cli_session, &args[1..]),
+        "difftool" => commands::difftool::cmd_difftool(cli_session, &args[1..]),
+        "fetch" => commands::remote::cmd_fetch(cli_session, &args[1..]),
+        "for-each-ref" => commands::for_each_ref::cmd_for_each_ref(cli_session, &args[1..]),
+        "for-each-repo" => commands::for_each_repo::cmd_for_each_repo(cli_session, &args[1..]),
+        "refs" => commands::refs::cmd_refs(cli_session, &args[1..]),
+        "fsmonitor--daemon" => commands::fsmonitor::cmd_fsmonitor_daemon(cli_session, &args[1..]),
+        "fsck" => commands::plumbing::cmd_fsck(cli_session, &args[1..]),
+        "get-tar-commit-id" => commands::utility::cmd_get_tar_commit_id(&args[1..]),
+        "ls-remote" => commands::remote::cmd_ls_remote(cli_session, &args[1..]),
+        "ls-files" => commands::index::cmd_ls_files(cli_session, &args[1..]),
+        "ls-tree" => commands::index::cmd_ls_tree(cli_session, &args[1..]),
+        "log" => commands::log::cmd_log(cli_session, &args[1..]),
+        "whatchanged" => commands::log::cmd_whatchanged(cli_session, &args[1..]),
+        "merge" => commands::merge_rebase::cmd_merge(cli_session, &args[1..]),
+        "merge-base" => commands::merge_rebase::cmd_merge_base(cli_session, &args[1..]),
+        "merge-recursive" => commands::merge_rebase::cmd_merge_recursive(cli_session, &args[1..]),
+        "fmt-merge-msg" => commands::merge_rebase::cmd_fmt_merge_msg(cli_session, &args[1..]),
+        "mergetool" => commands::mergetool::cmd_mergetool(cli_session, &args[1..]),
+        "pull" => {
+            // `-s`/`--strategy` pulls take a narrow dedicated path; the general
+            // pull implementation rejects the option.
+            if commands::pull_strategy::pull_has_strategy_option(&args[1..]) {
+                commands::pull_strategy::cmd_pull_with_strategy(cli_session, &args[1..])
+            } else {
+                commands::merge_rebase::cmd_pull(cli_session, &args[1..])
+            }
+        }
+        "replay" => commands::replay::cmd_replay(cli_session, &args[1..]),
+        "rebase" => commands::rebase::cmd_rebase(cli_session, &args[1..]),
+        "cherry-pick" => commands::replay::cmd_cherry_pick(cli_session, &args[1..]),
+        "revert" => commands::replay::cmd_revert(cli_session, &args[1..]),
+        "mktree" => commands::index::cmd_mktree(cli_session, &args[1..]),
+        "multi-pack-index" => commands::pack::cmd_multi_pack_index(cli_session, &args[1..]),
+        "mv" => commands::plumbing::cmd_mv(cli_session, &args[1..]),
+        "pack-refs" => commands::pack::cmd_pack_refs(cli_session, &args[1..]),
+        "prune" => commands::pack::cmd_prune(cli_session, &args[1..]),
+        "prune-packed" => commands::plumbing::cmd_prune_packed(cli_session, &args[1..]),
+        "push" => commands::remote::cmd_push(cli_session, &args[1..]),
+        "send-pack" => commands::remote::cmd_send_pack(cli_session, &args[1..]),
+        "fetch-pack" => commands::fetch_pack::cmd_fetch_pack(cli_session, &args[1..]),
+        "filter-branch" => commands::filter_branch::cmd_filter_branch(&args[1..]),
+        "unpack-objects" => commands::pack::cmd_unpack_objects(cli_session, &args[1..]),
+        "receive-pack" => commands::remote::cmd_receive_pack(cli_session, &args[1..]),
+        "upload-pack" => commands::remote::cmd_upload_pack(cli_session, &args[1..]),
+        "http-backend" => commands::remote::cmd_http_backend(cli_session, &args[1..]),
+        // `remote-http` / remote-curl family handled above as dashed helpers.
+        "daemon" => commands::daemon::cmd_daemon(&args[1..]),
+        "write-tree" => commands::trees::cmd_write_tree(cli_session, &args[1..]),
+        "worktree" => commands::worktree::cmd_worktree(cli_session, &args[1..]),
+        "update-index" => commands::index::cmd_update_index(cli_session, &args[1..]),
+        "update-ref" => commands::refs::cmd_update_ref(cli_session, &args[1..]),
+        "rev-parse" => commands::rev_parse::cmd_rev_parse(cli_session, &args[1..]),
+        "rev-list" => commands::rev_list::cmd_rev_list(cli_session, &args[1..]),
+        "reflog" => commands::refs::cmd_reflog(cli_session, &args[1..]),
+        "remote" => commands::remote::cmd_remote(cli_session, &args[1..]),
+        "replace" => commands::plumbing::cmd_replace(cli_session, &args[1..]),
+        "rerere" => commands::rerere::cmd_rerere(cli_session, &args[1..]),
+        "reset" => commands::reset::cmd_reset(cli_session, &args[1..]),
+        "restore" => commands::checkout::cmd_restore(cli_session, &args[1..]),
+        "rm" => commands::plumbing::cmd_rm(cli_session, &args[1..]),
+        "show-ref" => commands::refs::cmd_show_ref(cli_session, &args[1..]),
+        "show-index" => commands::utility::cmd_show_index(cli_session, &args[1..]),
+        "stripspace" => commands::utility::cmd_stripspace(cli_session, &args[1..]),
+        "stash" => commands::stash::cmd_stash(cli_session, &args[1..]),
+        "submodule" => commands::submodule::cmd_submodule(cli_session, &args[1..]),
+        "submodule--helper" => commands::submodule::cmd_submodule_helper(cli_session, &args[1..]),
+        "symbolic-ref" => commands::refs::cmd_symbolic_ref(cli_session, &args[1..]),
+        "status" => commands::status::cmd_status(cli_session, &args[1..]),
+        "switch" => commands::checkout::cmd_switch(cli_session, &args[1..]),
+        "tag" => commands::tag::cmd_tag(cli_session, &args[1..]),
+        #[cfg(feature = "testkit")]
+        "testkit" => {
+            commands::utility::cmd_testkit(cli_session.original_cwd.as_deref(), &args[1..])
+        }
+        "unpack-file" => commands::utility::cmd_unpack_file(cli_session, &args[1..]),
+        "update-server-info" => commands::refs::cmd_update_server_info(cli_session, &args[1..]),
+        "var" => commands::utility::cmd_var(cli_session, &args[1..]),
+        "verify-pack" => commands::pack::cmd_verify_pack(cli_session, &args[1..]),
+        "version" => commands::utility::cmd_version(&args[1..]),
+        "-v" | "--version" => commands::utility::cmd_version(&[]),
+        "show" => commands::show::cmd_show(cli_session, &args[1..]),
+        "blame" => commands::blame::cmd_blame(cli_session, &args[1..]),
+        "annotate" => commands::blame::cmd_annotate(cli_session, &args[1..]),
+        "bugreport" => commands::utility::cmd_bugreport(cli_session, &args[1..]),
+        "describe" => commands::describe::cmd_describe(cli_session, &args[1..]),
+        "diagnose" => commands::diagnose::cmd_diagnose(cli_session, &args[1..]),
+        "shortlog" => commands::shortlog::cmd_shortlog(cli_session, &args[1..]),
+        "grep" => commands::grep::cmd_grep(cli_session, &args[1..]),
+        "last-modified" => commands::last_modified::cmd_last_modified(cli_session, &args[1..]),
+        "hook" => commands::hooks::cmd_hook(cli_session, &args[1..]),
+        "notes" => commands::notes::cmd_notes(cli_session, &args[1..]),
+        "bisect" => commands::bisect::cmd_bisect(cli_session, &args[1..]),
+        "sparse-checkout" => {
+            commands::sparse_checkout::cmd_sparse_checkout(cli_session, &args[1..])
+        }
+        "format-patch" => commands::format_patch::cmd_format_patch(cli_session, &args[1..]),
+        "format-rev" => commands::format_rev::cmd_format_rev(cli_session, &args[1..]),
+        "am" => commands::am::cmd_am(cli_session, &args[1..]),
+        "read-tree" => commands::read_tree::cmd_read_tree(cli_session, &args[1..]),
+        "checkout-index" => commands::checkout_index::cmd_checkout_index(cli_session, &args[1..]),
+        "diff-tree" => commands::diff_tree::cmd_diff_tree(cli_session, &args[1..]),
+        "diff-index" => commands::diff_index::cmd_diff_index(cli_session, &args[1..]),
+        "diff-files" => commands::diff_files::cmd_diff_files(cli_session, &args[1..]),
+        "fast-export" => commands::fast_export::cmd_fast_export(cli_session, &args[1..]),
+        "fast-import" => commands::fast_import::cmd_fast_import(cli_session, &args[1..]),
+        #[cfg(feature = "git-compat-i18n")]
+        "sh-i18n--envsubst" => cmd_sh_i18n_envsubst(&args[1..]),
+        "merge-tree" => commands::merge_tree::cmd_merge_tree(cli_session, &args[1..]),
+        "merge-file" => commands::merge_file::cmd_merge_file(cli_session, &args[1..]),
+        "merge-index" => commands::merge_index::cmd_merge_index(cli_session, &args[1..]),
+        "name-rev" => commands::name_rev::cmd_name_rev(cli_session, &args[1..]),
+        "show-branch" => commands::show_branch::cmd_show_branch(cli_session, &args[1..]),
+        "verify-commit" => commands::verify_commit::cmd_verify_commit(cli_session, &args[1..]),
+        "verify-tag" => commands::verify_tag::cmd_verify_tag(cli_session, &args[1..]),
+        "mktag" => commands::mktag::cmd_mktag(cli_session, &args[1..]),
+        "patch-id" => commands::patch_id::cmd_patch_id(cli_session, &args[1..]),
+        "interpret-trailers" => {
+            commands::interpret_trailers::cmd_interpret_trailers(cli_session, &args[1..])
+        }
+        "imap-send" => commands::utility::cmd_imap_send(&args[1..]),
+        other if other.starts_with("credential-") => {
+            run_external_or_unknown(cli_session, other, args)
+        }
+        _ => commands::help::unknown_command(command, 1),
+    }
+}
+
+fn cmd_exec_path() -> Result<()> {
+    println!("{}", git_exec_path()?.display());
+    Ok(())
+}
+
+fn cmd_info_path() -> Result<()> {
+    println!("{}", git_exec_path()?.display());
+    Ok(())
+}
+
+fn git_exec_path() -> Result<PathBuf> {
+    #[cfg(feature = "git-compat-i18n")]
+    {
+        sley_i18n::materialize_git_i18n_helpers().map_err(GitError::from)
+    }
+    #[cfg(not(feature = "git-compat-i18n"))]
+    {
+        if let Ok(exe) = env::current_exe()
+            && let Some(parent) = exe.parent()
+        {
+            return Ok(parent.to_path_buf());
+        }
+        env::current_dir().map_err(GitError::from)
+    }
+}
+
+#[cfg(feature = "git-compat-i18n")]
+fn cmd_sh_i18n_envsubst(args: &[String]) -> Result<()> {
+    match args {
+        [] => {
+            eprintln!("error: we won't substitute all variables on stdin for you");
+        }
+        [format] => {
+            let mut input = String::new();
+            io::stdin().read_to_string(&mut input)?;
+            let expanded = sley_i18n::envsubst(&input, format, |name| env::var(name).ok());
+            print!("{expanded}");
+        }
+        [first, template] => {
+            if first != "--variables" {
+                eprintln!("error: first argument must be --variables when two are given");
+            }
+            for variable in sley_i18n::envsubst_variables(template) {
+                println!("{variable}");
+            }
+        }
+        _ => {
+            eprintln!("error: too many arguments");
+        }
+    }
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::commands::help::{is_builtin_command, is_reserved_git_core_helper};
+
+    #[test]
+    fn installed_git_core_helpers_are_reserved_for_native_implementations() {
+        for command in [
+            "archimport",
+            "checkout--worker",
+            "fsmonitor--daemon",
+            "http-fetch",
+            "http-push",
+            "remote-https",
+            "remote-ftp",
+            "remote-ftps",
+            "request-pull",
+            "send-email",
+            "submodule--helper",
+        ] {
+            assert!(is_reserved_git_core_helper(command));
+        }
+        assert!(is_builtin_command("http-backend"));
+        assert!(!is_reserved_git_core_helper("http-backend"));
+        assert!(is_builtin_command("upload-archive"));
+        assert!(!is_reserved_git_core_helper("upload-archive"));
+        assert!(is_builtin_command("remote-http"));
+        assert!(!is_reserved_git_core_helper("remote-http"));
+        assert!(!is_reserved_git_core_helper("lfs"));
+        assert!(!is_reserved_git_core_helper("credential-custom"));
+    }
+}

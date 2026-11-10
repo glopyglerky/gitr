@@ -1,0 +1,16 @@
+[package]
+name = "sley-refs"
+version.workspace = true
+description = "Native-Rust Git reference store for the sley engine: loose refs, packed-refs, reftables, and reflogs."
+repository.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+sley-config.workspace = true
+sley-core.workspace = true
+sley-formats.workspace = true
+
+[lints]
+workspace = true

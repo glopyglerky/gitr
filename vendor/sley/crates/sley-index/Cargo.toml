@@ -1,0 +1,15 @@
+[package]
+name = "sley-index"
+version.workspace = true
+description = "Native-Rust reader and writer for Git's index (staging area) file format, versions 2 through 4 plus the cache-tree extension."
+repository.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+sley-core.workspace = true
+sley-mmap.workspace = true
+
+[lints]
+workspace = true

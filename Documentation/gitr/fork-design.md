@@ -1,5 +1,9 @@
 # Gitr fork design and divergence
 
+> Historical record for the Grit/database-first implementation. The active
+> Sley composition and its current limits are in [sley-integration.md](sley-integration.md).
+
+
 The default `master` now builds the root Rust Gitr package. `src`, `tests`,
 `Cargo.toml` and `Cargo.lock` are owned Gitr; `crates/action-example` is the
 isolated Wasm guest; `vendor/rbit-workflow` retains the complete reviewed donor.

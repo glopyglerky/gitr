@@ -1,5 +1,9 @@
 # Implementation map
 
+> Historical record for the Grit/database-first implementation. The active
+> Sley composition and its current limits are in [sley-integration.md](sley-integration.md).
+
+
 Keep work on GitHub's default branch, `master`. Commit incremental validated
 improvements there; record incomplete requirements honestly. Each entry needs
 executable evidence before being marked complete. The user's goal is the full

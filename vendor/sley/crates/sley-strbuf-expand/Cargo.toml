@@ -1,0 +1,14 @@
+[package]
+name = "sley-strbuf-expand"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Git strbuf_expand-style format-string expansion for sley."
+
+[dependencies]
+sley-core.workspace = true
+
+[lints]
+workspace = true

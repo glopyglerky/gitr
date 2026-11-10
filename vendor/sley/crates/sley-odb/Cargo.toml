@@ -1,0 +1,38 @@
+[package]
+name = "sley-odb"
+version.workspace = true
+description = "Native-Rust Git object database for the sley engine: loose objects, packfiles, and multi-pack indexes."
+repository.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+# Backend selected by the mutually-exclusive zlib-rs/pure-rust features below;
+# no backend baked into the dep line (see sley-pack for the cfg-cascade rationale).
+crc32fast = "1.5.2"
+flate2 = { version = "1.1.10", default-features = false }
+parking_lot = "0.12.5"
+smallvec = "1.16.1"
+sley-core.workspace = true
+sley-formats.workspace = true
+sley-mmap.workspace = true
+sley-object.workspace = true
+sley-pack = { path = "../sley-pack", version = "0.13.0", default-features = false } # inline: default-features override cant use workspace inherit
+
+[features]
+default = ["zlib-rs"]
+# Default backend: zlib-rs (pure Rust, ~zlib-ng speed, no C). Forwarded to sley-pack.
+zlib-rs = ["flate2/zlib-rs", "sley-pack/zlib-rs"]
+# Fallback backend: flate2's miniz_oxide (`rust_backend`), forwarded to sley-pack.
+# For no-C/wasm targets; select with `--no-default-features --features pure-rust`.
+pure-rust = ["flate2/rust_backend", "sley-pack/pure-rust"]
+# Forward the hardware-accelerated SHA-1 backend (see sley-core).
+fast-sha1 = ["sley-core/fast-sha1", "sley-pack/fast-sha1"]
+# Memory-map pack files instead of reading them into the heap when opening them
+# for object reads. Fetch indexing always maps its completed staging file.
+mmap = []
+fetch-profile = ["sley-core/fetch-profile", "sley-pack/fetch-profile"]
+
+[lints]
+workspace = true

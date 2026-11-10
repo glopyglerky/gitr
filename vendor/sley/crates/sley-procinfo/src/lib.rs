@@ -1,0 +1,336 @@
+//! Process ancestry helpers for Git-compatible trace2 output.
+//!
+//! This crate intentionally exposes a tiny safe API and keeps platform
+//! inspection details local. Sley only calls it when trace2 targets are active,
+//! so normal command execution pays no process-walk cost.
+
+use std::sync::OnceLock;
+
+static PROCESS_ANCESTRY: OnceLock<Vec<String>> = OnceLock::new();
+
+/// Return the current process ancestry, starting with the immediate parent.
+///
+/// Names are cached after the first call because trace2 may need to emit both
+/// the current process row and a synthetic child row during in-process alias
+/// expansion.
+#[must_use]
+pub fn process_ancestry() -> &'static [String] {
+    PROCESS_ANCESTRY.get_or_init(platform::process_ancestry)
+}
+
+/// Return the operating system's hostname when it can be queried reliably.
+///
+/// Callers use `None` to make conservative decisions when this crate has no
+/// platform hostname implementation; environment variables are deliberately
+/// not treated as authoritative system identity.
+#[must_use]
+pub fn hostname() -> Option<String> {
+    platform::hostname()
+}
+
+#[cfg(unix)]
+pub fn duplicate_fd(fd: i32) -> std::io::Result<std::fs::File> {
+    use std::os::fd::FromRawFd;
+
+    // SAFETY: `dup` only inspects the numeric file descriptor and returns either
+    // a fresh descriptor owned by this process or -1 with errno set.
+    let duplicated = unsafe { libc::dup(fd) };
+    if duplicated < 0 {
+        return Err(std::io::Error::last_os_error());
+    }
+    // SAFETY: `duplicated` is a newly returned descriptor, so wrapping it in
+    // `File` gives Rust ownership and closes exactly that duplicate on drop.
+    Ok(unsafe { std::fs::File::from_raw_fd(duplicated) })
+}
+
+#[cfg(unix)]
+#[must_use]
+pub fn process_alive(pid: u32) -> bool {
+    platform::process_alive(pid)
+}
+
+#[cfg(not(unix))]
+#[must_use]
+pub fn process_alive(_pid: u32) -> bool {
+    // No portable liveness probe on this platform; callers must fail toward
+    // "alive" (conservative for lock-recovery decisions).
+    true
+}
+
+#[cfg(target_os = "macos")]
+mod platform {
+    use std::mem::{MaybeUninit, size_of};
+
+    const NR_PIDS_LIMIT: usize = 10;
+    const MAXCOMLEN: usize = 16;
+    const PROC_PIDTBSDINFO: libc::c_int = 3;
+
+    struct ProcInfo {
+        name: String,
+        ppid: libc::pid_t,
+    }
+
+    #[repr(C)]
+    struct ProcBsdInfo {
+        pbi_flags: u32,
+        pbi_status: u32,
+        pbi_xstatus: u32,
+        pbi_pid: u32,
+        pbi_ppid: u32,
+        pbi_uid: libc::uid_t,
+        pbi_gid: libc::gid_t,
+        pbi_ruid: libc::uid_t,
+        pbi_rgid: libc::gid_t,
+        pbi_svuid: libc::uid_t,
+        pbi_svgid: libc::gid_t,
+        rfu_1: u32,
+        pbi_comm: [libc::c_char; MAXCOMLEN],
+        pbi_name: [libc::c_char; 2 * MAXCOMLEN],
+        pbi_nfiles: u32,
+        pbi_pgid: u32,
+        pbi_pjobc: u32,
+        e_tdev: u32,
+        e_tpgid: u32,
+        pbi_nice: i32,
+        pbi_start_tvsec: u64,
+        pbi_start_tvusec: u64,
+    }
+
+    unsafe extern "C" {
+        fn proc_pidinfo(
+            pid: libc::c_int,
+            flavor: libc::c_int,
+            arg: u64,
+            buffer: *mut libc::c_void,
+            buffersize: libc::c_int,
+        ) -> libc::c_int;
+    }
+
+    pub(super) fn hostname() -> Option<String> {
+        super::unix_hostname()
+    }
+
+    pub(super) fn process_ancestry() -> Vec<String> {
+        // SAFETY: getppid has no preconditions and does not touch Rust-managed
+        // memory.
+        let mut pid = unsafe { libc::getppid() };
+        let mut names = Vec::new();
+        for _ in 0..NR_PIDS_LIMIT {
+            if pid <= 0 {
+                break;
+            }
+            let Some(info) = proc_info(pid) else {
+                break;
+            };
+            if !info.name.is_empty() {
+                names.push(info.name);
+            }
+            if info.ppid <= 0 || info.ppid == pid {
+                break;
+            }
+            pid = info.ppid;
+        }
+        names
+    }
+
+    pub(super) fn process_alive(pid: u32) -> bool {
+        // kill(pid, 0) probes existence/permission without signaling: rc == 0
+        // means the process exists and we may signal it; EPERM means it exists
+        // but runs under another uid; ESRCH means no such process.
+        let Ok(pid) = libc::pid_t::try_from(pid) else {
+            return false;
+        };
+        // SAFETY: signal 0 performs a read-only existence probe and touches no
+        // Rust-managed memory.
+        let rc = unsafe { libc::kill(pid, 0) };
+        rc == 0 || std::io::Error::last_os_error().raw_os_error() == Some(libc::EPERM)
+    }
+
+    fn proc_info(pid: libc::pid_t) -> Option<ProcInfo> {
+        let mut proc = MaybeUninit::<ProcBsdInfo>::uninit();
+        let size = size_of::<ProcBsdInfo>();
+        let buffer_size = libc::c_int::try_from(size).ok()?;
+
+        // SAFETY: `proc` points to a writable proc_bsdinfo-compatible buffer
+        // with `buffer_size` set to its exact byte length. PROC_PIDTBSDINFO is a
+        // read-only query and arg is unused for this flavor.
+        let rc = unsafe {
+            proc_pidinfo(
+                pid,
+                PROC_PIDTBSDINFO,
+                0,
+                proc.as_mut_ptr().cast(),
+                buffer_size,
+            )
+        };
+        if usize::try_from(rc).ok()? < size {
+            return None;
+        }
+
+        // SAFETY: proc_pidinfo reported that it wrote a full ProcBsdInfo.
+        let proc = unsafe { proc.assume_init() };
+        Some(ProcInfo {
+            name: comm_to_string(&proc.pbi_comm),
+            ppid: libc::pid_t::try_from(proc.pbi_ppid).ok()?,
+        })
+    }
+
+    fn comm_to_string(comm: &[libc::c_char]) -> String {
+        let bytes = comm
+            .iter()
+            .take_while(|ch| **ch != 0)
+            .map(|ch| *ch as u8)
+            .collect::<Vec<_>>();
+        String::from_utf8_lossy(&bytes).into_owned()
+    }
+}
+
+#[cfg(target_os = "linux")]
+mod platform {
+    use std::fs;
+    use std::path::PathBuf;
+
+    const NR_PIDS_LIMIT: usize = 10;
+
+    pub(super) fn hostname() -> Option<String> {
+        super::unix_hostname()
+    }
+
+    pub(super) fn process_ancestry() -> Vec<String> {
+        let mut names = Vec::new();
+        let Some(mut pid) = parent_pid(std::process::id()) else {
+            return names;
+        };
+        for _ in 0..NR_PIDS_LIMIT {
+            if pid == 0 {
+                break;
+            }
+            if let Some(name) = process_name(pid).filter(|name| !name.is_empty()) {
+                names.push(name);
+            }
+            let Some(next) = parent_pid(pid) else {
+                break;
+            };
+            if next == 0 || next == pid {
+                break;
+            }
+            pid = next;
+        }
+        names
+    }
+
+    pub(super) fn process_alive(pid: u32) -> bool {
+        // /proc/<pid> existence is the safe liveness probe on Linux.
+        let mut path = proc_path(pid);
+        path.push("stat");
+        fs::metadata(path).is_ok()
+    }
+
+    fn process_name(pid: u32) -> Option<String> {
+        let mut path = proc_path(pid);
+        path.push("comm");
+        if let Ok(raw) = fs::read_to_string(&path) {
+            return Some(raw.trim_end_matches('\n').to_string());
+        }
+        stat_name(pid)
+    }
+
+    fn parent_pid(pid: u32) -> Option<u32> {
+        let stat = stat(pid)?;
+        let close = stat.rfind(')')?;
+        let rest = stat.get(close + 1..)?.trim_start();
+        let mut fields = rest.split_whitespace();
+        let _state = fields.next()?;
+        fields.next()?.parse().ok()
+    }
+
+    fn stat_name(pid: u32) -> Option<String> {
+        let stat = stat(pid)?;
+        let open = stat.find('(')?;
+        let close = stat.rfind(')')?;
+        (close > open).then(|| stat[open + 1..close].to_string())
+    }
+
+    fn stat(pid: u32) -> Option<String> {
+        let mut path = proc_path(pid);
+        path.push("stat");
+        fs::read_to_string(path).ok()
+    }
+
+    fn proc_path(pid: u32) -> PathBuf {
+        let mut path = PathBuf::from("/proc");
+        path.push(pid.to_string());
+        path
+    }
+}
+
+#[cfg(not(any(target_os = "macos", target_os = "linux")))]
+mod platform {
+    pub(super) fn hostname() -> Option<String> {
+        None
+    }
+
+    pub(super) fn process_ancestry() -> Vec<String> {
+        Vec::new()
+    }
+
+    pub(super) fn process_alive(_pid: u32) -> bool {
+        true
+    }
+}
+
+#[cfg(any(target_os = "macos", target_os = "linux"))]
+fn unix_hostname() -> Option<String> {
+    // POSIX host names are bounded; 256 bytes covers the maximum host-name
+    // length on the Unix targets supported by this crate, including the NUL.
+    let mut buffer = [0_u8; 256];
+    // SAFETY: `buffer` is writable for exactly `buffer.len()` bytes and
+    // gethostname does not retain the pointer.
+    if unsafe { libc::gethostname(buffer.as_mut_ptr().cast(), buffer.len()) } != 0 {
+        return None;
+    }
+    let len = buffer.iter().position(|byte| *byte == 0)?;
+    if len == 0 {
+        return None;
+    }
+    Some(String::from_utf8_lossy(&buffer[..len]).into_owned())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn process_ancestry_is_cached() {
+        let first = process_ancestry().as_ptr();
+        let second = process_ancestry().as_ptr();
+        assert_eq!(first, second);
+    }
+
+    #[test]
+    fn process_ancestry_returns_valid_names() {
+        for name in process_ancestry() {
+            assert!(!name.contains('\0'));
+        }
+    }
+
+    #[test]
+    #[cfg(any(target_os = "macos", target_os = "linux"))]
+    fn hostname_is_nonempty_and_contains_no_nul() {
+        let hostname = hostname().expect("platform hostname should be available");
+        assert!(!hostname.is_empty());
+        assert!(!hostname.contains('\0'));
+    }
+
+    #[test]
+    #[cfg(unix)]
+    fn duplicate_fd_returns_distinct_owned_descriptor() {
+        use std::os::fd::AsRawFd;
+
+        let stderr = std::io::stderr();
+        let original = stderr.as_raw_fd();
+        let dup = duplicate_fd(original).expect("dup should succeed for stderr");
+        assert!(dup.as_raw_fd() >= 0);
+        assert_ne!(dup.as_raw_fd(), original);
+    }
+}

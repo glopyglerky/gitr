@@ -1,0 +1,27 @@
+[package]
+name = "sley-diff-merge"
+version.workspace = true
+description = "Native-Rust Git diff and three-way merge engine for the sley engine, including tree diffing and the textual renderer."
+repository.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+flate2 = { version = "1.1.10", default-features = false }
+sley-config.workspace = true
+sley-core.workspace = true
+sley-formats.workspace = true
+sley-index.workspace = true
+sley-object.workspace = true
+sley-odb.workspace = true
+sley-pack.workspace = true
+sley-pathspec.workspace = true
+sley-refs.workspace = true
+sley-grep.workspace = true
+
+[dev-dependencies]
+tempfile = "3.27.0"
+
+[lints]
+workspace = true

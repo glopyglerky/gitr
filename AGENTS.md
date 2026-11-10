@@ -1,173 +1,101 @@
 # Gitr development contract
 
-## Product
+## Current priority and canonical branch
 
-Gitr is Matt Mayhugh's Rust fork and rewrite of Git. Keep active work on the GitHub default branch, `master`. Commit implemented, tested changes directly to `master` when safe; never leave validated work stranded on `main`.
-Use current upstream Rust implementations where they provide correct, maintainable
-behavior. Priorities are Git and GitHub interoperability, ordinary development
-friction, large binary assets, game development, and safe concurrent writers.
-Build and qualify the Rust port with the pinned Lustr compiler coordinator.
+Gitr is Matt Mayhugh's Git-compatible Rust implementation. Active work belongs
+on the default branch, `master`; commit tested, reviewable changes there when
+safe. The owner's current instruction is full Git behavior first, assembled
+from reusable upstream Rust source, then database and performance improvements.
+The existing implementation and layout are replaceable. Scope each ChatGPT.com
+turn to a concrete, finishable change, with evidence and a commit.
 
-The user also wants a database-centered repository with relational, graph and
-vector search, automatic local embeddings, lightweight operation, and high
-availability. Preserve this requirement. Treat the checked-in database design
-and compatibility matrix as contracts, not evidence that unfinished features work.
+The active engine is the pinned Sley import. Preserve its coherent crate layout,
+Git-compatible CLI implementation, and useful tests. The CLI currently contains
+real command behavior; do not discard it as presentation-only code. Gitr's
+entrypoints must execute the engine, not merely inventory it.
 
-## Database: redb
+Full Git parity is an acceptance goal, not the current status. A command name,
+large source import, passing smoke test, or upstream assertion count does not
+prove complete command semantics. Never silently fall back to C Git and call
+that native Rust execution. Keep a reproducible pinned reference oracle outside
+the tracked product source. Do not reimport the C Git implementation to fill gaps.
 
-The user's latest instruction is **use redb**. It supersedes the earlier
-SurrealDB/SurrealKV/SurrealDS selection. redb is Gitr's selected database, not a
-fallback or a temporary migration source. Retain the reviewed redb 4.5.0 pin and
-lockfile unless a separately tested dependency update changes them. See
-`Documentation/gitr/redb-decision.md`.
+## Database, forge, and preserved work
 
-Keep the existing redb repository catalog and durable action database. Preserve
-all data, verified exports, transaction rollback, compare-and-swap, idempotency,
-worker fencing and atomic artifact/receipt publication. Do not convert or delete
-existing databases, impose a replacement service, or activate SurrealDB candidate
-artifacts. Retired experiments and their licenses are preserved under
-`Documentation/gitr/archive/surrealdb` for historical reference only.
+Redb remains the selected future database, with the reviewed 4.5.0 pin preserved
+in `Documentation/gitr/archive/database-first`. The archived root source,
+manifest, lockfile, and tests retain the catalog, object-store, Git LFS, chunking,
+Wasm actions, and forge work. They are not active product capabilities today.
+Do not delete, migrate, or open users' existing databases as part of this source
+reorganization. Later integration must preserve exact Git identities, durability,
+compare-and-swap, idempotency, worker fencing, atomic receipts and artifact
+publication, bounded-memory payloads, and independently verifiable exports.
 
-Build relational, graph and vector indexing as Gitr capabilities over redb with
-rebuildable, revision-addressed indexes. redb alone does not provide semantic
-embeddings, a query language or resolved code relationships. Preserve exact Git
-object identities and source provenance. Large Git/LFS/chunk payloads remain
-bounded-memory streaming data unless measurements justify a different layout.
+Do not activate SurrealDB, SurrealKV, or SurrealDS. Keep Gitr independently
+installable without mandatory Omnidia services. Search indexes are rebuildable
+and revision-addressed; embeddings never identify Git objects or decide merges.
+Retain the eventual self-contained Git, forge, CI/CD, Wasm action, and stateless
+API/MCP goals. They follow compatibility work; they do not justify an ever-growing
+research catalog instead of a working Git implementation. Multi-host HA needs
+real replication and consensus; sharing a writable redb file is not HA.
 
-Retain the Rust/Wasmi action runtime. Store code, inputs, jobs and receipts in
-redb; execute untrusted guests outside write transactions. Do not introduce
-Surrealism, SurrealDS or a vendor database license as a dependency of Gitr.
-Multi-host HA remains a separate Rust replication/consensus implementation and
-qualification requirement; local cooperating redb writers are not HA. Never
-share a writable redb file between machines as a substitute for replication.
+## Source, licensing, and upstream reuse
 
-## Integrated forge, actions and control
+Import coherent upstream modules and their tests instead of rewriting code that
+already works. Record the exact commit, every imported path and original blob,
+current SHA-256, exclusions, local patches, dependency locks, license declarations,
+and qualification. Keep donor updates reviewable. Preserve every donor notice;
+modifying imported code does not relicense it.
 
-The required product is one self-contained Rust Git implementation, repository
-service, coding forge, CI/CD/action worker and code-intelligence system. It must
-eventually replace the useful Git/Gitea/Forgejo capabilities and match or exceed
-Codebase Memory against reproducible source-grounded qualification. A lexical
-vector catalog is not resolved code intelligence or evidence of that parity.
-See `Documentation/gitr/forge-runtime-plan.md` for the complete acceptance gates.
+New independently authored Gitr code uses MIT OR Apache-2.0. Sley remains
+Apache-2.0. Historical Grit's GPL-2.0-only CLI must remain outside this executable's
+dependency graph. The root license file describes the mixed source repository;
+no permissive label overrides inherited Git/Grit material. Do not copy private
+or proprietary source into this public repository without explicit authorization.
 
-Use suitable upstream Rust/Wasm workflow and forge components. Study Anthropic
-Scion, Meta Sapling/Mononoke/EdenFS and other established alternatives, while
-preserving local/offline Git compatibility rather than importing their unique
-infrastructure assumptions. Learn from OmnidiaDB but keep Gitr independently
-installable, licensed, optimized and free of mandatory Omnidia services. Do not
-copy private/proprietary source into this public repository without an explicit
-publication and license decision.
+The current functionality-first integration supersedes the former blanket
+removal rule for foreign compatibility assets. Production Git algorithms should
+be Rust. Retain explicitly inventoried small native-dispatch shell adapters,
+caller-supplied Git hooks/filters, and generated donor test fixtures where needed
+for the Git contract. The copied shell filter-branch engine and git-sh-i18n
+library are excluded pending a resolved source-origin/license composition or
+qualified native replacements. Do not restore those fragments under the donor's
+blanket Apache label. Do not rename files or
+embed foreign code to conceal its language. Document these exceptions and native
+transitive dependencies; do not claim an exclusively Rust or wholly memory-safe
+artifact. Standalone upstream development scripts and the C Git oracle remain
+external. See `Documentation/gitr/rust-only-source.md`.
 
-Durable code, action inputs, claims, results and forge entities belong in the
-repository database. Compile and execute untrusted Wasm outside database write
-transactions. Keep guest capabilities explicit and deny ambient host authority.
-Publish artifacts and their receipt atomically; fence expired/cancelled workers.
-Execution retries are not an exactly-once guarantee for external deployment
-side effects. A local writer lock is not distributed consensus or HA.
+## Git correctness
 
-Stateless Rust API and official MCP adapters must share typed, repository-scoped
-authorization and operation services. Sessions and workers must not own durable
-state or write authority. A local JSON control command is not an authenticated
-HTTP API or a standards-compliant MCP transport. GitHub workflow syntax support
-is not automatically compatibility with JavaScript, Docker or shell actions.
+Git object bytes/IDs, refs, index/worktree behavior, configuration, CLI output,
+exit codes, and wire protocols are compatibility contracts. Writable refs require
+checked expected-old-value publication under the appropriate lock. Reject stale
+writers and preserve data on partial failure. Do not acknowledge references to
+incomplete objects or silently replace missing content with empty data.
 
-Native everyday Git completion remains a delivery track alongside the forge;
-do not replace implementation with an indefinitely growing research catalog.
+Test malformed objects, stale writes, concurrent publication, missing descendants,
+interrupted I/O, and authentication boundaries where touched. Preserve raw Unix
+filename bytes; never claim global byte-path parity from a staging-only fix.
+Keep credentials out of logs and command arguments, and do not forward endpoint
+authorization across origins. Git-compatible configured hooks, filters, aliases,
+and tools must remain explicit and auditable rather than triggering a blanket
+ban on otherwise unrelated commands.
 
-## Licensing and upstream reuse
+## Build and qualification
 
-The owner has changed the license of the reviewed Gitr-controlled contributions
-to **MIT OR Apache-2.0**. The effective scope and retained donor obligations are
-in `LICENSE`, `Documentation/gitr/licensing.md`, and the file-level origin record
-`Documentation/gitr/license-scope.json`. New independently authored reusable
-Gitr code uses this dual license by default. This grants a choice for the
-owner's contributions, not rights in somebody else's code.
+Use pinned Lustr. Its ordinary rustc route can validate local development; record
+that compiler/version honestly. Produced BlueFe qualification uses the exact
+bundle in `lustr-toolchain.json` and remains a separate CI gate. Native Lust does
+not compile arbitrary Rust dependencies; do not claim it does or fall back
+silently after a failed compiler route.
 
-Choose donors for code quality and integration fit. Apache, GPL and AGPL
-projects remain candidates; the current product's GPLv2-only composition is
-not a permanent licensing requirement. Select a lawful combined distribution
-for each implementation. The current executable still links GPL-2.0-only
-`grit-git` unconditionally; `--isolated-git` does not remove it from the build.
-Apache-2.0-only, GPLv3-only or AGPLv3-only imports cannot be linked into that
-unchanged executable. Resolve the inherited scope through replacement/removal,
-sufficient additional permission, or genuinely independent programs first.
+Run root workflows, changed engine tests, import verification, and source/storage
+policy checks. Record executed tests separately from configured or queued CI.
+The selected Sley library/CLI subset is not the full upstream Git suite. Preserve
+failing or excluded cases in the evidence. Performance claims need reproducible
+equal-work measurements, and platform support needs execution on that platform.
 
-Complete source copies, whole-crate/package-family imports and whole application
-forks are explicitly permitted when upstream terms and source provenance allow
-them. Prefer retaining coherent upstream modules, tests, fuzz fixtures and notices
-over unnecessary reimplementation or fragile snippet extraction. Record the exact
-upstream revision, imported paths/hashes, selected license alternatives, build
-closure, local patches, qualification and update method. Gitr still owns its ref,
-job and storage authority: a large donor import must not introduce competing
-masters or discard the selected redb/Wasmi/Git compatibility contracts.
-
-Preserve the inherited Git GPLv2-only scope and all donor notices and obligations.
-The root Cargo package uses `license-file = "LICENSE"` to describe its mixed
-scope accurately. Do not replace that with an unconditional permissive label
-while it includes the historical GPLv2-only CLI. Before expanding a relicensed
-scope, record file-level origin, copyright authority and the resolved
-build/release composition. Commit authorship or a separate Rust directory alone
-does not establish those rights. Preserve an imported file's actual license
-when modifying it; do not apply project SPDX headers throughout vendor trees.
-The broad donor catalog and scoped license assessment are in
-`Documentation/gitr/research/2026-11-08-upstream-survey`.
-The expanded import-sized recommendations, source findings and reproducible
-combined catalog are linked from `Documentation/gitr/upstream-reuse-expanded.md`.
-A dependency allowlist or source-only survey is not legal approval or executed
-runtime qualification; preserve that distinction in reports and release gates.
-
-## Repository layout
-
-- Root `src`, `Cargo.toml` and `Cargo.lock` build the standalone Rust Gitr executable.
-- `crates/action-example` and `vendor/rbit-workflow` are isolated support packages.
-- `vendor/grit` preserves the historical upstream Rust Git package family and
-  its licenses. Gitr's entry point enforces the product qualification boundary;
-  the standalone donor executable is a conformance/development target, not a
-  certified substitute for that boundary. See `Documentation/gitr/rust-git-import.md`.
-- Inherited C Git production/build/test sources were retired; recover them from
-  `bf628ff8c74da4ab03a4a99001edf6780d8d84a0`. Reference tests use installed Git.
-- `Documentation/gitr` records decisions, upstream reuse, qualification evidence,
-  and remaining implementation work. Its `archive` is not an active build target.
-
-## Correctness
-
-- Standard Git object bytes, object IDs, refs, index/worktree semantics and Git
-  wire protocols are compatibility contracts. Derived embeddings never identify
-  or replace Git objects and never decide history or merge correctness.
-- A writable ref requires compare-and-swap against an expected old value. No
-  silent last-writer-wins publication. Distributed authoritative refs additionally
-  need durable quorum replication and fencing before acknowledgement.
-- Blob and LFS caches use bounded-memory streaming, content verification and
-  atomic publication. Never acknowledge a pointer to partial local data.
-- LFS wire pointers and transfers must remain compatible with ordinary Git LFS.
-  Do not claim a client-side chunk cache changes GitHub's transfer protocol.
-- Read-only repository inspection must not execute repository-provided filters,
-  hooks, textconv commands or credential helpers.
-- Keep credentials out of logs, source files and command-line arguments. Do not
-  forward endpoint authorization to a different origin or follow redirects with it.
-- Unimplemented commands fail explicitly. Never silently fall back to C Git and
-  describe that execution as native Rust.
-- Preserve upstream licenses and provenance. A Rust wrapper over a C library is
-  not a Rust replacement. Record native transitive dependencies honestly.
-
-## Qualification
-
-Use Lustr for build and test. Record the selected engine. The `rustc` route uses
-Cargo/rustc; native Lust does not currently compile arbitrary Rust dependencies.
-Cranelift qualification must use Lustr's pinned backend and matching compiler.
-
-Differential tests compare supported operations with reference Git. Test hostile
-and malformed objects, stale writes, concurrent publication, corrupt asset data,
-interrupted IO and authentication boundaries where the change touches them.
-Record actual executed checks and distinguish CI configuration from observed CI
-results. Performance claims need a reproducible workload and measured results.
-Run the Rust storage guard: `lustr --bluefe-root "$BLUEFE_ROOT" run --manifest-path xtask/Cargo.toml --locked -- policy`.
-
-## Strict Rust-only source
-
-All checked-in implementation, tests and build/operational/qualification helpers
-must be Rust. Preserve notices, prose and declarative configuration/data. Do not
-retain executable foreign archives, embed foreign programs in Rust strings,
-rename extensions or mask languages. Reference source belongs in original
-upstream repositories or Git history. Parser inputs are data and must not be
-executed. See Documentation/gitr/rust-only-source.md for scope and limits.
+Run the Rust policy and inventory commands through Lustr:
+`run --manifest-path xtask/Cargo.toml --locked -- policy` and `audit`.
+The inventory's extension labels do not prove the absence of embedded programs.

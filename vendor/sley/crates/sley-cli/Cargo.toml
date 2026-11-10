@@ -1,0 +1,110 @@
+[package]
+name = "sley-cli"
+publish = false
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[lib]
+name = "sley_cli"
+path = "src/lib.rs"
+
+[[bin]]
+name = "sley"
+path = "src/main.rs"
+
+[[bin]]
+name = "scalar"
+path = "src/scalar_main.rs"
+
+[[bin]]
+name = "fetch-profile"
+path = "src/bin/fetch-profile.rs"
+required-features = ["fetch-profile"]
+
+[dependencies]
+sley-worktree.workspace = true
+sley-rev.workspace = true
+sley-remote.workspace = true
+sley-refs.workspace = true
+sley-pack.workspace = true
+sley-odb.workspace = true
+sley-object.workspace = true
+sley-index.workspace = true
+sley-hooks.workspace = true
+sley-formats.workspace = true
+sley-diff-merge.workspace = true
+sley-core.workspace = true
+sley-config.workspace = true
+# SIGINT/Ctrl-C → cooperative AtomicCancel for fetch/clone/push (no unsafe in sley).
+ctrlc = "3.5.2"
+filetime = "0.2.29"
+regex = "1.13.1"
+pprof = { version = "0.15", optional = true }
+sley = { workspace = true, features = ["full"] }
+sley-archive.workspace = true
+sley-grep.workspace = true
+sley-i18n = { workspace = true, optional = true }
+sley-mail.workspace = true
+sley-fsck.workspace = true
+sley-gc.workspace = true
+sley-notes.workspace = true
+sley-options.workspace = true
+sley-pathspec.workspace = true
+sley-pretty.workspace = true
+sley-procinfo.workspace = true
+sley-protocol.workspace = true
+sley-ref-filter.workspace = true
+sley-sequencer.workspace = true
+sley-strbuf-expand.workspace = true
+sley-submodule.workspace = true
+sley-testkit = { workspace = true, optional = true }
+sley-transport = { workspace = true, features = ["http-client", "tls-rustls"] }
+sley-unpack-trees.workspace = true
+
+[features]
+default = ["mmap", "fast-sha1", "git-compat-i18n"]
+# Opt-in parity-harness command (`sley testkit ...`) backed by the path-only
+# sley-testkit crate. Deliberately NOT default: keeps the test harness out of
+# production binaries.
+testkit = ["dep:sley-testkit"]
+# The (de)compression backend is the default-on zlib-rs (pure Rust, ~zlib-ng
+# speed, no C). The `pure-rust` miniz_oxide fallback is a leaf-crate feature on
+# sley-odb / sley-pack: a no-C/wasm consumer that needs it depends on those
+# crates directly with `default-features = false, features = ["pure-rust"]`. It
+# is NOT exposed here because the binary's many transitive sley-odb consumers
+# re-enable the default zlib-rs under Cargo feature unification, so a top-level
+# forward could not actually swap the backend.
+#
+# Build the sley binary with the hardware-accelerated SHA-1 backend (forwarded to
+# sley-core). Default-on for CLI builds; OIDs are byte-identical either way.
+fast-sha1 = ["sley/fast-sha1"]
+# Build the sley binary with memory-mapped pack reads (forwarded to sley-odb).
+# Pulls in sley-mmap (the only unsafe); default-on for CLI/facade builds.
+mmap = ["sley/mmap"]
+# TLS backend for HTTPS remotes (forwarded to sley-transport via sley-remote).
+tls-rustls = ["sley-transport/tls-rustls"]
+tls-native-tls = ["sley-transport/tls-native-tls"]
+tls-platform-verifier = ["sley-transport/tls-platform-verifier"]
+# Materialize native CLI adapters for Git's installed-layout contract.
+# The donor git-sh-i18n shell library is excluded pending source-provenance
+# resolution; native Rust gettext/envsubst remains available.
+git-compat-i18n = ["dep:sley-i18n"]
+fetch-profile = ["dep:pprof", "sley/fetch-profile", "sley-protocol/fetch-profile"]
+
+# Integration tests build low-level fixtures (commit-graph parsing, raw ODB
+# writes, object-format constants) directly. These are dev-only and do NOT
+# widen the shipped facade dependency surface (`[dependencies]` stays
+# sley + sley-options + the small facade set).
+[dev-dependencies]
+# Validate gzip archive interoperability by decoding both native and oracle
+# streams; valid DEFLATE encoders need not emit the same compressed bitstream.
+flate2 = { version = "1.1.10", default-features = false, features = ["zlib-rs"] }
+# Path-only (never published): integration tests drive the binary via
+# sley_testkit::sley_bin!. This is independent of the `testkit` feature above,
+# which only gates the in-binary `sley testkit` parity command.
+sley-testkit = { path = "../sley-testkit" }
+
+[lints]
+workspace = true
