@@ -52,6 +52,11 @@ presence upstream is not a claim that Gitr includes or qualifies those services.
 
 ## Source and license composition
 
+The later [licensing decision](licensing.md) grants MIT OR Apache-2.0 for
+reviewed Gitr-controlled contributions and records the root package's mixed
+scope in `LICENSE`. It preserves every imported grant below. The combined
+executable still incorporates the GPL-2.0-only historical CLI.
+
 `vendor/grit` includes `grit-lib`, `grit-git`, `grit-test-support`, their complete
 Rust sources/tests, declarative manifests and embedded help data. There are 450
 original imported file records. The source manifest records the exact upstream

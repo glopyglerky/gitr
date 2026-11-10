@@ -1,0 +1,55 @@
+Gitr licensing
+==============
+
+Effective 2026-11-10, the repository owner offers the copyright-controlled
+Gitr contributions identified in Documentation/gitr/license-scope.json under
+either of the following licenses, at the recipient's option:
+
+  * MIT, in LICENSE-MIT
+  * Apache License, Version 2.0, in LICENSE-APACHE
+
+SPDX expression for that contribution grant: MIT OR Apache-2.0.
+
+This is an additional license grant for the owner's contributions. It does
+not withdraw licenses already granted. The source-origin record identifies
+the reviewed files and historical paths. It does not claim ownership of
+third-party material within a file or grant rights the owner does not hold.
+Any such material remains subject to its original license and notices.
+
+Third-party and inherited material
+----------------------------------
+
+Third-party code, modifications of third-party code, imported documentation,
+fixtures, notices and archived material retain their applicable upstream
+terms. In particular:
+
+  * Inherited Git material retains COPYING and any file-specific notices.
+    COPYING expressly selects GPL version 2 unless otherwise stated.
+  * vendor/grit/grit-git retains GPL-2.0-only, including its local adaptations.
+  * vendor/grit/grit-lib and vendor/grit/grit-test-support retain MIT.
+  * vendor/rbit-workflow retains MIT OR Apache-2.0 and both license texts.
+  * Archived material and external dependencies retain their own grants.
+
+No root license, source-origin classification or package metadata overrides
+those terms. The project contribution grant excludes vendor/, inherited Git
+material, and Documentation/gitr/archive/ unless an explicit record states
+otherwise. Future imports must retain their actual licenses and provenance.
+
+Current combined executable
+---------------------------
+
+The current root package unconditionally links the GPL-2.0-only historical
+grit-git CLI. Distribution of that combined executable must comply with
+GPL-2.0-only and all applicable third-party notices and obligations. Use the
+MIT option for the dual-licensed project contributions in that composition.
+The --isolated-git runtime option does not remove grit-git from the build.
+
+This repository is therefore not a wholly MIT- or Apache-licensed product.
+Changing Gitr's own grant does not make Apache-2.0-only or GPLv3-only code
+compatible with the current GPL-2.0-only executable. A different combined
+license requires a compatible source/dependency composition or sufficient
+additional permission from the relevant rights holders.
+
+See Documentation/gitr/licensing.md for the source map, import rules, and
+the path to compatible future compositions. Keep LICENSE, LICENSE-MIT,
+LICENSE-APACHE, COPYING and applicable upstream notices with distributions.

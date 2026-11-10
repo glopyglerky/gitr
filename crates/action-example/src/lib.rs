@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
 //! A Rust-to-Wasm source policy action using only Gitr's explicit byte ABI.
 //! No WASI, host filesystem, network, environment or subprocess imports.
 #[link(wasm_import_module = "gitr_actions_v1")]

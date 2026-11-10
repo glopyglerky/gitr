@@ -11,8 +11,10 @@ together. No Gitr package uses them. Differential tests generate fixtures using
 an installed reference Git, which is test infrastructure, not a runtime fallback.
 Every removed path and blob/mode is recorded in `root-retirement.json`; recover
 original text using `git show bf628ff8c74da4ab03a4a99001edf6780d8d84a0:<path>`.
-All source/history and root COPYING/LGPL notices remain recoverable. No license
-scope or declaration changed. The old Git README is historical text; its links
+All source/history and root COPYING/LGPL notices remain recoverable. The root
+migration did not change license grants. The later [licensing decision](licensing.md)
+adds MIT OR Apache-2.0 for reviewed owner-controlled contributions while
+preserving inherited terms. The old Git README is historical text; its links
 refer to the old tree. No entire retired source tree was copied elsewhere.
 
 The migration and current compiler evidence are in [rust-root.md](rust-root.md).

@@ -3,7 +3,9 @@ name = "gitr"
 version = "0.1.0"
 edition = "2024"
 rust-version = "1.99.1"
-license = "GPL-2.0-only"
+# Project-controlled contributions and the combined executable have different
+# license scopes. LICENSE records both; inherited donor terms remain in force.
+license-file = "LICENSE"
 description = "Rust Git tooling with verified large-file storage and GitHub-compatible protocols"
 repository = "https://github.com/glopyglerky/gitr"
 publish = false

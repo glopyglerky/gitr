@@ -2,6 +2,13 @@
 
 Research date: 2026-11-08, America/Denver. Repository evidence pinned to `69a16ea1506d8efa20dff0e559b5716dc95743bd`.
 
+Update, 2026-11-10: the [effective licensing decision](../../licensing.md) now
+grants MIT OR Apache-2.0 for the reviewed owner-controlled contributions, with
+a [file-level source-origin record](../../license-scope.json). The current
+combined executable remains subject to the retained GPL-2.0-only Grit CLI.
+The assessment below is preserved as the historical evidence and requirements
+that preceded that scoped change.
+
 ## Recommendation
 
 Record the user's authorization to choose a better license for code they control. **Do not change the existing Rust or root license declarations solely because the 12 visible Rust-path commits share one GitHub author.** Complete a file-level provenance and build-composition audit first. This is a concrete evidence gap, not a request for additional permission.

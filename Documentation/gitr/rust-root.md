@@ -1,5 +1,10 @@
 # Rust root migration qualification
 
+This is the historical root-migration record. The subsequent
+[licensing decision](licensing.md) changes the grant for reviewed Gitr-controlled
+contributions; the preserved donor terms and current combined build are
+described there. The qualification below was performed before that change.
+
 The root Cargo package now builds Gitr, with `src/`, `tests/`, the reviewed
 `Cargo.lock`, isolated `crates/action-example`, and `vendor/rbit-workflow`.
 The default executable is Gitr. There is no root build script linking gitcore,

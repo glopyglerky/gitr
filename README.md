@@ -299,17 +299,23 @@ the configured Linux/macOS/Windows matrix.
 - [Libra component review and native push integration plan](Documentation/gitr/libra-integration.md)
 - [Next implementation work and acceptance gates](Documentation/gitr/roadmap.md)
 
-The authored Rust package currently declares GPL-2.0-only. The project owner
-has authorized a different license for code they control where lawful to enable
-the best product; existing declarations require a scoped provenance review before
-changing. See the [license assessment](Documentation/gitr/research/2026-11-08-upstream-survey/licensing-review.md).
-Upstream licenses remain intact. The imported Grit CLI is GPL-2.0-only; its
-library and test-support crate are MIT. Their original notices and full license
-texts remain under `vendor/grit`. Gitoxide and the vendored Rbit workflow crate use
-their offered MIT alternatives; both Rbit license notices are retained. No libgit2
-or inherited C Git library is linked into this package. TLS currently uses rustls
-with ring, whose cryptographic implementation includes native code. See the
-catalog before incorporating differently licensed upstream source.
+## Licensing
+
+Gitr-controlled contributions in the [reviewed source scope](Documentation/gitr/license-scope.json)
+are available under **MIT OR Apache-2.0**. The project uses permissive terms for
+its own code so future implementations can adopt the compatible upstream code
+they need. See [LICENSE](LICENSE) and the [licensing and import policy](Documentation/gitr/licensing.md).
+
+The **current combined executable remains subject to GPL-2.0-only** because it
+links the historical Grit CLI. The new grant does not relicense that CLI or make
+Apache-only code compatible with the unchanged combined build. Third-party
+imports retain their original terms and notices. Grit's library/test support are
+MIT; Gitoxide and Rbit can use their offered MIT alternatives in this build.
+Both Rbit license texts and all Grit notices remain intact. A future composition
+can use a different compatible product license after resolving inherited terms.
+
+No libgit2 or inherited C Git library is linked into this package. TLS uses
+rustls with ring, whose cryptographic implementation includes native code.
 
 ## Toolchain and memory-safety direction
 

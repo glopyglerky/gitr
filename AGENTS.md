@@ -76,10 +76,21 @@ do not replace implementation with an indefinitely growing research catalog.
 
 ## Licensing and upstream reuse
 
-The user authorizes choosing a different license for Gitr-controlled code where
-lawful when that enables the best product. Do not exclude Apache, GPL or AGPL
-donors solely because the current Rust manifest declares GPL-2.0-only. Assess
-their code quality and integration fit, then select a compatible composition.
+The owner has changed the license of the reviewed Gitr-controlled contributions
+to **MIT OR Apache-2.0**. The effective scope and retained donor obligations are
+in `LICENSE`, `Documentation/gitr/licensing.md`, and the file-level origin record
+`Documentation/gitr/license-scope.json`. New independently authored reusable
+Gitr code uses this dual license by default. This grants a choice for the
+owner's contributions, not rights in somebody else's code.
+
+Choose donors for code quality and integration fit. Apache, GPL and AGPL
+projects remain candidates; the current product's GPLv2-only composition is
+not a permanent licensing requirement. Select a lawful combined distribution
+for each implementation. The current executable still links GPL-2.0-only
+`grit-git` unconditionally; `--isolated-git` does not remove it from the build.
+Apache-2.0-only, GPLv3-only or AGPLv3-only imports cannot be linked into that
+unchanged executable. Resolve the inherited scope through replacement/removal,
+sufficient additional permission, or genuinely independent programs first.
 
 Complete source copies, whole-crate/package-family imports and whole application
 forks are explicitly permitted when upstream terms and source provenance allow
@@ -91,11 +102,13 @@ job and storage authority: a large donor import must not introduce competing
 masters or discard the selected redb/Wasmi/Git compatibility contracts.
 
 Preserve the inherited Git GPLv2-only scope and all donor notices and obligations.
-Before changing existing license declarations, record file-level source origin,
-copyright/relicensing authority and the resolved build/release composition.
-Commit authorship or a separate Rust directory alone does not establish those
-rights. For new independently authored reusable Rust components, MIT OR
-Apache-2.0 is a practical default; selected donor terms may require another scope.
+The root Cargo package uses `license-file = "LICENSE"` to describe its mixed
+scope accurately. Do not replace that with an unconditional permissive label
+while it includes the historical GPLv2-only CLI. Before expanding a relicensed
+scope, record file-level origin, copyright authority and the resolved
+build/release composition. Commit authorship or a separate Rust directory alone
+does not establish those rights. Preserve an imported file's actual license
+when modifying it; do not apply project SPDX headers throughout vendor trees.
 The broad donor catalog and scoped license assessment are in
 `Documentation/gitr/research/2026-11-08-upstream-survey`.
 The expanded import-sized recommendations, source findings and reproducible
