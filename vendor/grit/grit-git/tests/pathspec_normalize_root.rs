@@ -6,6 +6,7 @@
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::sync::atomic::{AtomicU32, Ordering};
+use grit_test_support::configure_git_env;
 
 const GRIT_BIN: &str = env!("CARGO_BIN_EXE_grit-git");
 
@@ -32,15 +33,9 @@ fn unique_tmp(tag: &str) -> PathBuf {
 }
 
 fn grit(args: &[&str], dir: &Path) -> Output {
-    let out = Command::new(GRIT_BIN)
+    let out = configure_git_env(&mut Command::new(GRIT_BIN))
         .args(args)
         .current_dir(dir)
-        .env("GIT_AUTHOR_NAME", "Test")
-        .env("GIT_AUTHOR_EMAIL", "test@example.com")
-        .env("GIT_COMMITTER_NAME", "Test")
-        .env("GIT_COMMITTER_EMAIL", "test@example.com")
-        .env("GIT_AUTHOR_DATE", "1700000000 +0000")
-        .env("GIT_COMMITTER_DATE", "1700000000 +0000")
         .output()
         .unwrap_or_else(|e| panic!("failed to spawn grit-git {args:?}: {e}"));
     Output {
@@ -112,4 +107,42 @@ fn add_dot_slash_colon_bang_filename_does_not_exclude_other_files() {
         "expected only literal :!foo staged, got: {:?}",
         names
     );
+}
+
+#[test]
+fn command_environment_excludes_host_configuration_but_retains_local_config() {
+    let temp = tempfile::tempdir().expect("tempdir");
+    let dir = temp.path();
+    assert!(grit(&["init"], dir).ok(), "init failed");
+    let local = grit(&["config", "fixture.local", "kept"], dir);
+    assert!(local.ok(), "local config setup failed: {}", local.stderr);
+    let host_config = dir.join("host-config");
+    std::fs::write(&host_config,
+        "[filter \"lfs\"]\nprocess = unavailable-host-helper\n[fixture]\nleaked = host\n")
+        .expect("host config fixture");
+
+    for args in [vec!["rev-parse", "--git-dir"], vec!["config", "--get-regexp", "^fixture\\."]] {
+        let mut command = Command::new(GRIT_BIN);
+        command.args(&args).current_dir(dir)
+            .env("GIT_CONFIG_GLOBAL", &host_config)
+            .env("GIT_CONFIG_SYSTEM", &host_config)
+            .env("GIT_CONFIG", &host_config)
+            .env("GIT_CONFIG_PARAMETERS", "'fixture.injected=parameters'")
+            .env("GIT_CONFIG_COUNT", "1")
+            .env("GIT_CONFIG_KEY_0", "fixture.injected")
+            .env("GIT_CONFIG_VALUE_0", "environment");
+        let output = configure_git_env(&mut command).output().expect("isolated command");
+        assert!(output.status.success(), "{args:?}: {}", String::from_utf8_lossy(&output.stderr));
+        if args[0] == "config" {
+            assert_eq!(String::from_utf8_lossy(&output.stdout).trim(), "fixture.local kept");
+        }
+    }
+
+    // An explicit test configuration applied afterward still reaches the
+    // production read guard. Isolation must not disable that guard.
+    let output = configure_git_env(&mut Command::new(GRIT_BIN))
+        .args(["rev-parse", "--git-dir"]).current_dir(dir)
+        .env("GIT_CONFIG_GLOBAL", &host_config).output().expect("explicit config command");
+    assert!(!output.status.success());
+    assert!(String::from_utf8_lossy(&output.stderr).contains("filter.lfs.process"));
 }

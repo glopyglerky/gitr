@@ -20,6 +20,7 @@
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::sync::atomic::{AtomicU32, Ordering};
+use grit_test_support::configure_git_env;
 
 const GRIT_BIN: &str = env!("CARGO_BIN_EXE_grit-git");
 
@@ -55,15 +56,9 @@ fn unique_tmp(tag: &str) -> PathBuf {
 
 /// Run a command in `dir` with a deterministic committer/author identity.
 fn run(bin: &str, args: &[&str], dir: &Path) -> Output {
-    let out = Command::new(bin)
+    let out = configure_git_env(&mut Command::new(bin))
         .args(args)
         .current_dir(dir)
-        .env("GIT_AUTHOR_NAME", "Test")
-        .env("GIT_AUTHOR_EMAIL", "test@example.com")
-        .env("GIT_COMMITTER_NAME", "Test")
-        .env("GIT_COMMITTER_EMAIL", "test@example.com")
-        .env("GIT_AUTHOR_DATE", "1700000000 +0000")
-        .env("GIT_COMMITTER_DATE", "1700000000 +0000")
         .output()
         .unwrap_or_else(|e| panic!("failed to spawn {bin} {args:?}: {e}"));
     Output {
@@ -85,15 +80,9 @@ fn git(args: &[&str], dir: &Path) -> Output {
 fn grit_stdin(args: &[&str], dir: &Path, stdin: &[u8]) -> Output {
     use std::io::Write;
     use std::process::Stdio;
-    let mut child = Command::new(GRIT_BIN)
+    let mut child = configure_git_env(&mut Command::new(GRIT_BIN))
         .args(args)
         .current_dir(dir)
-        .env("GIT_AUTHOR_NAME", "Test")
-        .env("GIT_AUTHOR_EMAIL", "test@example.com")
-        .env("GIT_COMMITTER_NAME", "Test")
-        .env("GIT_COMMITTER_EMAIL", "test@example.com")
-        .env("GIT_AUTHOR_DATE", "1700000000 +0000")
-        .env("GIT_COMMITTER_DATE", "1700000000 +0000")
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
@@ -533,6 +522,7 @@ fn sha256_clone_fetch_push_roundtrip() {
     );
     assert!(clone.ok(), "{}", clone.dump("grit clone"));
     let fmt = grit(&["rev-parse", "--show-object-format"], &dst);
+    assert!(fmt.ok(), "{}", fmt.dump("cloned repository object format"));
     assert_eq!(
         fmt.stdout.trim(),
         "sha256",

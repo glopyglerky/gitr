@@ -7,9 +7,16 @@ use grit_lib::protocol_v2::{fetch_prelude_shallow_before_wanted_refs, FetchRespo
 use std::io::{Read, Write};
 use std::process::{Command, Stdio};
 use tempfile::tempdir;
+use grit_test_support::configure_git_env;
+
+fn grit_command(grit: &str) -> Command {
+    let mut command = Command::new(grit);
+    configure_git_env(&mut command);
+    command
+}
 
 fn init_repo_with_linear_history(grit: &str, repo: &std::path::Path) -> ObjectId {
-    assert!(Command::new(grit)
+    assert!(grit_command(grit)
         .args(["init", "-b", "main", repo.to_str().unwrap()])
         .status()
         .unwrap()
@@ -18,7 +25,7 @@ fn init_repo_with_linear_history(grit: &str, repo: &std::path::Path) -> ObjectId
     for msg in ["a", "b", "c"] {
         let file = repo.join(format!("{msg}.txt"));
         std::fs::write(&file, msg).unwrap();
-        assert!(Command::new(grit)
+        assert!(grit_command(grit)
             .args([
                 "-C",
                 repo.to_str().unwrap(),
@@ -28,7 +35,7 @@ fn init_repo_with_linear_history(grit: &str, repo: &std::path::Path) -> ObjectId
             .status()
             .unwrap()
             .success());
-        assert!(Command::new(grit)
+        assert!(grit_command(grit)
             .args([
                 "-C",
                 repo.to_str().unwrap(),
@@ -43,14 +50,15 @@ fn init_repo_with_linear_history(grit: &str, repo: &std::path::Path) -> ObjectId
             .status()
             .unwrap()
             .success());
-        let out = Command::new(grit)
+        let out = grit_command(grit)
             .args(["-C", repo.to_str().unwrap(), "rev-parse", "HEAD"])
             .output()
             .unwrap();
+        assert!(out.status.success(), "rev-parse HEAD failed: {}", String::from_utf8_lossy(&out.stderr));
         tip =
             ObjectId::from_hex(std::str::from_utf8(out.stdout.as_slice()).unwrap().trim()).unwrap();
     }
-    assert!(Command::new(grit)
+    assert!(grit_command(grit)
         .args([
             "-C",
             repo.to_str().unwrap(),
@@ -128,7 +136,7 @@ fn upload_pack_v2_shallow_info_precedes_wanted_refs_for_want_ref_deepen() {
     let tip = init_repo_with_linear_history(grit, &repo);
 
     // Parent of tip (depth-1 boundary for a shallow clone of `main`).
-    let parent_out = Command::new(grit)
+    let parent_out = grit_command(grit)
         .args([
             "-C",
             repo.to_str().unwrap(),
@@ -137,6 +145,7 @@ fn upload_pack_v2_shallow_info_precedes_wanted_refs_for_want_ref_deepen() {
         ])
         .output()
         .unwrap();
+    assert!(parent_out.status.success(), "rev-parse parent failed: {}", String::from_utf8_lossy(&parent_out.stderr));
     let shallow_boundary = ObjectId::from_hex(
         std::str::from_utf8(parent_out.stdout.as_slice())
             .unwrap()
@@ -144,7 +153,7 @@ fn upload_pack_v2_shallow_info_precedes_wanted_refs_for_want_ref_deepen() {
     )
     .unwrap();
 
-    let mut child = Command::new(grit)
+    let mut child = grit_command(grit)
         .arg("upload-pack")
         .arg(&repo)
         .env("GIT_PROTOCOL", "version=2")

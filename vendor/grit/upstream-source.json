@@ -2329,7 +2329,7 @@
       "upstream_path": "grit-git/src/commands/push.rs",
       "path": "grit-git/src/commands/push.rs",
       "upstream_sha256": "b068b0115da8b2b92ec039fc04cb5376a7c52bdc2d97dab5006537b929233bb9",
-      "local_sha256": "9915027e017ca7b081d0d893f89eb17dfef8a2fdbaa0519d85a70e1ce797be66",
+      "local_sha256": "4bb709cddae61eba6c4e80e0d203f5ea8121e561b03c54b9f408d6d9b27284ad",
       "modified": true
     },
     {
@@ -3057,8 +3057,8 @@
       "upstream_path": "grit-git/tests/pathspec_normalize_root.rs",
       "path": "grit-git/tests/pathspec_normalize_root.rs",
       "upstream_sha256": "2198bf59e749e30567eb368d1a2ec771455c12626a7ee23a118f44b5778b06af",
-      "local_sha256": "2198bf59e749e30567eb368d1a2ec771455c12626a7ee23a118f44b5778b06af",
-      "modified": false
+      "local_sha256": "b65f0842428f28deed0ad7ce90bf2f47589965e5152cdb76f0272a253420fa25",
+      "modified": true
     },
     {
       "upstream_path": "grit-git/tests/receive_pack_funny_ref.rs",
@@ -3078,8 +3078,8 @@
       "upstream_path": "grit-git/tests/sha256_support.rs",
       "path": "grit-git/tests/sha256_support.rs",
       "upstream_sha256": "a0509676238cd528fb1e0770681093dce8061e927a1d93865157b388c3d31c6a",
-      "local_sha256": "a0509676238cd528fb1e0770681093dce8061e927a1d93865157b388c3d31c6a",
-      "modified": false
+      "local_sha256": "485a3d5173c66dc33f5d0b512a93c46053664880752c0307e3e5aeb9eb2f0d07",
+      "modified": true
     },
     {
       "upstream_path": "grit-git/tests/submodule_init_command.rs",
@@ -3092,8 +3092,8 @@
       "upstream_path": "grit-git/tests/upload_pack_v2_shallow_want_ref_order.rs",
       "path": "grit-git/tests/upload_pack_v2_shallow_want_ref_order.rs",
       "upstream_sha256": "98d2221e2f0999d11b514f6a33020815f5e07b0e5774450d1c63fd1f243975f2",
-      "local_sha256": "98d2221e2f0999d11b514f6a33020815f5e07b0e5774450d1c63fd1f243975f2",
-      "modified": false
+      "local_sha256": "a1be3540cf718ceefc6d4e875e83d4bd7879363b8f9a139fae03c58062c0443d",
+      "modified": true
     },
     {
       "upstream_path": "grit-git/upstream_help_synopsis.rs",
@@ -3127,7 +3127,7 @@
       "upstream_path": "grit-test-support/src/lib.rs",
       "path": "grit-test-support/src/lib.rs",
       "upstream_sha256": "5778010711a2e6bf548e582f136bc157bebc7926c07617e1f7dcf6a705ce02a4",
-      "local_sha256": "b8fbd8cf228d95600bdaea714ee0e07493fb989f25cc096afbbb9a10f08820a7",
+      "local_sha256": "b09bd05ac07b597fc15ae5d365dda1da01cd6b6ffca5bf2565476536a9292b29",
       "modified": true
     },
     {

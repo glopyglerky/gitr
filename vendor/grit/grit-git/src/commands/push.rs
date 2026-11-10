@@ -1118,7 +1118,14 @@ fn push_to_url(
         )
     })?;
 
-    if args.receive_pack.is_none() || is_default_receive_pack_program(args.receive_pack.as_deref()) {
+    // Preserve the historical native SHA-256 local transport in the standalone
+    // donor conformance target. The checked receiver currently accepts SHA-1
+    // only. Product calls must never reach this unconverted publication path,
+    // and SHA-1 donor pushes must retain the checked receiver and its CAS tests.
+    let standalone_sha256 = !crate::write_safety::is_product()
+        && repo.odb.hash_algo() == grit_lib::objects::HashAlgo::Sha256
+        && remote_repo.odb.hash_algo() == grit_lib::objects::HashAlgo::Sha256;
+    if is_default_receive_pack_program(args.receive_pack.as_deref()) && !standalone_sha256 {
         ensure_checked_push_options(args, config, push_all, effective_mirror)?;
         let remote_config = ConfigSet::load(Some(&remote_repo.git_dir), true)?;
         crate::commands::receive_pack::checked::ensure_supported(&remote_repo, &remote_config)?;

@@ -515,6 +515,8 @@ fn run_program(
 ///
 /// `cmd` is the child command being prepared. The returned mutable reference is
 /// the same command, allowing additional builder calls by the caller.
+/// Repository-local config remains active. Tests can set explicit configuration
+/// environment variables after this call when that configuration is the fixture.
 pub fn configure_git_env(cmd: &mut Command) -> &mut Command {
     cmd.env("GIT_AUTHOR_NAME", AUTHOR_NAME)
         .env("GIT_AUTHOR_EMAIL", AUTHOR_EMAIL)
@@ -524,6 +526,10 @@ pub fn configure_git_env(cmd: &mut Command) -> &mut Command {
         .env("GIT_COMMITTER_DATE", DETERMINISTIC_DATE)
         .env("GIT_CONFIG_GLOBAL", null_device())
         .env("GIT_CONFIG_SYSTEM", null_device())
+        .env_remove("GIT_CONFIG_NOSYSTEM")
+        .env_remove("GIT_CONFIG")
+        .env_remove("GIT_CONFIG_PARAMETERS")
+        .env_remove("GIT_CONFIG_COUNT")
 }
 
 fn null_device() -> &'static str {
