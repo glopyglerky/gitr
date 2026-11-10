@@ -28,7 +28,7 @@
     "source_fingerprints": {
       ".github/workflows/gitr-native.yml": "4e7558e55cbbec9bbdf71550e9e7ea01681099260769e8064a4b9ca69d5e7b2f",
       "Cargo.lock": "762a9dbdebf67e799e25201f90a8fb59995d5b9ac18bc55071a8b1a420e4ea82",
-      "ci/qualify_native.rs": "71e9885823c21344919fa230e2d5dae17ca85692258bac18382127fc0a9a96cd",
+      "ci/qualify_native.rs": "b858cf761dbe5ff37531bdaac0a23acd1bccb2d038e68a85d946a4ec3ac48287",
       "vendor/sley/Cargo.lock": "5267787d3cd6459b549c1f9166c18b898a173adbc9c822914f75ca68ec2565bb",
       "vendor/sley/crates/sley-cli/src/commands/plumbing/archive.rs": "ecfc1d8b54d7ee416a150ad9237b15d34bc1b3e6c5dac1597e71f7be5309aa1f",
       "vendor/sley/crates/sley-cli/src/commands/rev_parse.rs": "379f911c6a86821240410a0f0a1fff824db5c5553eb8a7534b2b903c3d551cbe",
@@ -43,7 +43,8 @@
       "vendor/sley/crates/sley-remote/src/lib.rs": "516d0cace02e0bd9311900a0a30204542966aa6a13c4de77e943675d83789d46",
       "vendor/sley/crates/sley-remote/src/ssh.rs": "b34d56bcf0c2ee3b650aae7881c57353f0d4dc4fb33fc4533844a39e4d546b04",
       "vendor/sley/crates/sley-rev/src/setup.rs": "2f747448bf32918c7b24a4112641c2d64ebc79c05044beb4669cb276a14a9457",
-      "xtask/src/main.rs": "d5cc1288d3c802a3b327e85af0435f7b9dc7ef0979c3c01251d34093edad1246"
+      "xtask/src/main.rs": "d5cc1288d3c802a3b327e85af0435f7b9dc7ef0979c3c01251d34093edad1246",
+      "Cargo.toml": "be1e922eba8827b3570da4acae301d924c3f6b6c29c2cf74b80438c0eb977946"
     },
     "sley_manifest_sha256": "76b495d736671a54fadbc6cff1f7e2f97daa3d9e42908ca594b56105a18d2672"
   },
@@ -190,5 +191,27 @@
   "independent_reviews": {
     "standards": "Archive descendant-stderr hang fixed with isolated groups and non-reaping completion cleanup; provenance completed.",
     "spec": "Client custom archive format inference fixed with server permission regressions; revision-selector review findings fixed and tested."
+  },
+  "oracle_build_isolation": {
+    "preceding_commit": "078fa7ca85be47de52bd7867e4ac593358087786",
+    "hosted_failure_run": "https://github.com/glopyglerky/gitr/actions/runs/42758073780",
+    "hosted_failure": "external oracle Cargo package incorrectly included in Gitr workspace",
+    "repairs": [
+      "explicit external oracle workspace exclusion",
+      "oracle-local CARGO_TARGET_DIR",
+      "explicit Rust 1.99.1 oracle toolchain"
+    ],
+    "local_build_oracle": "passed",
+    "source_unchanged": true,
+    "rust_library_at_expected_path": true,
+    "application_target_unused": true,
+    "local_evidence": [
+      "oracle-isolation-build.log",
+      "oracle-isolation-provenance.txt"
+    ],
+    "rechecked_root_tests_passed": 5,
+    "rechecked_coordinator_tests_passed": 8,
+    "rechecked_import_policy_audit": "passed",
+    "product_sources_unchanged_from_preceding_commit": true
   }
 }

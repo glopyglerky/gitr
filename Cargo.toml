@@ -10,7 +10,8 @@ publish = false
 default-run = "gitr"
 
 [workspace]
-exclude = ["vendor/sley", "vendor/grit", "vendor/rbit-workflow", "xtask", "crates/action-example", "crates/test-support", "Documentation/gitr/archive"]
+# The pinned external Git oracle has its own standalone Rust support crate.
+exclude = ["vendor/sley", "vendor/grit", "vendor/rbit-workflow", "xtask", "crates/action-example", "crates/test-support", "Documentation/gitr/archive", ".gitr-ci/reference-git-source"]
 
 [features]
 default = []

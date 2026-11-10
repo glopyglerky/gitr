@@ -291,6 +291,10 @@ fn build_oracle(context: &Context) -> Result<()> {
     }
     let prefix_argument = format!("prefix={}", prefix.display());
     logged(context, "build-oracle-install", Command::new("make").arg("-C").arg(&source)
+        // Git's Makefile links target/release/libgitcore.a relative to its
+        // own source. Do not leak Gitr's application target into this build.
+        .env("CARGO_TARGET_DIR", source.join("target"))
+        .env("RUSTUP_TOOLCHAIN", "1.99.1")
         .args(["-j2", "USE_LIBPCRE2=1", "NO_TCLTK=YesPlease", "NO_GETTEXT=YesPlease",
             "install", "t/helper/test-tool", "t/helper/test-fake-ssh"])
         .arg(prefix_argument))?;

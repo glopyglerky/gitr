@@ -82,6 +82,25 @@ and the archive/revision CLI tests. New CLI fixtures run against the actual root
 `gitr` binary in hosted qualification. The produced BlueFe and Lustr source pins
 are unchanged.
 
+The [first continuation run](https://github.com/glopyglerky/gitr/actions/runs/42758073780)
+passed the compiler job and progressed past the missing HTTP headers, then
+stopped while compiling Git's own Rust support library. Its nested checkout was
+being treated as a member of Gitr's Cargo workspace. The root workspace now
+explicitly excludes that external checkout. The oracle build also overrides the
+job's application `CARGO_TARGET_DIR` with its own `target` directory, matching
+the static-library location expected by Git's Makefile, and selects Rust 1.99.1.
+HTTP, PCRE2, and Git's Rust support remain enabled.
+
+The repaired `build-oracle` phase passed in a fresh local checkout nested at the
+same relative path, with an inherited application target directory reproducing
+the hosted environment. Git's source remained unchanged, its Rust static library
+was created at the Makefile's expected path, and the application target was
+unused. The build log and installed-oracle identity are retained in
+[`oracle-isolation-build.log`](coverage-evidence/oracle-isolation-build.log) and
+[`oracle-isolation-provenance.txt`](coverage-evidence/oracle-isolation-provenance.txt).
+The five root tests, eight coordinator tests, import verification, policy, and
+source audit also passed after this repair.
+
 ## What the coverage denominator means
 
 The pinned Git 2.55.0 source at

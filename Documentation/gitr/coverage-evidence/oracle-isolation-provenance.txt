@@ -1,0 +1,6 @@
+repository=https://github.com/git/git
+revision=e9019fcafe0040228b8631c30f97ae1adb61bcdc
+version=2.55.0
+binary_sha256=5c0a5db72deacebdce35c9b7a78c87c3d2e063be5ec146554a11018f57b036c4
+source=/workspace/scratch/717c1db38a84/gitr/.gitr-ci/reference-git-source
+executable=/workspace/scratch/717c1db38a84/gitr/.gitr-ci/reference-git/bin/git
