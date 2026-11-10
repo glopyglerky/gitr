@@ -1124,6 +1124,7 @@ pub struct MatchedRef {
 /// `rev-parse` and `rev-list` share one implementation of the matching rules.
 pub struct PseudoRefResolver {
     hidden_refs: HiddenRefs,
+    store: FileRefStore,
     refs: Vec<sley_refs::Ref>,
     pending_excludes: Vec<String>,
     pending_hidden: Option<HiddenRefsSection>,
@@ -1132,9 +1133,11 @@ pub struct PseudoRefResolver {
 impl PseudoRefResolver {
     pub fn new(git_dir: &Path, format: ObjectFormat, config: Option<&GitConfig>) -> Result<Self> {
         let store = FileRefStore::new(git_dir, format);
+        let refs = store.list_refs()?;
         Ok(Self {
             hidden_refs: HiddenRefs::from_config(config),
-            refs: store.list_refs()?,
+            store,
+            refs,
             pending_excludes: Vec::new(),
             pending_hidden: None,
         })
@@ -1229,7 +1232,17 @@ impl PseudoRefResolver {
             if !include_ref {
                 continue;
             }
-            if let RefTarget::Direct(oid) = reference.target {
+            let oid = match reference.target {
+                RefTarget::Direct(oid) => Some(oid),
+                RefTarget::Symbolic(_) => {
+                    match sley_refs::resolve_ref_peeled(&self.store, &reference.name) {
+                        Ok(oid) => oid,
+                        Err(GitError::InvalidFormat(_) | GitError::InvalidObjectId(_)) => None,
+                        Err(err) => return Err(err),
+                    }
+                }
+            };
+            if let Some(oid) = oid {
                 matched.push(MatchedRef {
                     name: reference.name.clone(),
                     oid,

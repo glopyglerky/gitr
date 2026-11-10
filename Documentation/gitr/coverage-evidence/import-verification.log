@@ -1,0 +1,8 @@
+command=['/workspace/scratch/161a1b7c00ce/tooling/lustr/target/release/lustr', '--engine', 'rustc', 'run', '--example', 'verify_import', '--locked']
+target=/workspace/scratch/161a1b7c00ce/tooling/gitr-target
+tmpdir=/tmp/gitr-coverage-root-6onve4ti
+   Compiling sley-cli v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-cli)
+   Compiling gitr v0.2.0 (/workspace/scratch/717c1db38a84/gitr)
+    Finished `dev` profile [unoptimized] target(s) in 20.54s
+     Running `/workspace/scratch/161a1b7c00ce/tooling/gitr-target/debug/examples/verify_import`
+Sley source verified: 676 files, 26 adapted, 7 added; exact donor revision and complete installed inventory

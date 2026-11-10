@@ -108,11 +108,12 @@ fn ssh_process_command_for_remote(
     service: GitService,
     options: SshTransportOptions,
     service_command: Option<&str>,
+    ssh_command: Option<&str>,
 ) -> Result<ServiceProcessCommand> {
     if remote.transport == RemoteTransport::Ext {
         return ext_process_command_for_remote(remote, service);
     }
-    let (program, mut args) = ssh_program_and_prefix_args()?;
+    let (program, mut args) = ssh_program_and_prefix_args_with_command(ssh_command)?;
     let variant = ssh_command_variant(&program, options.variant);
     let (protocol_args, protocol_env) = ssh_protocol_command_metadata(variant, options.protocol);
     args.extend(protocol_args);
@@ -169,6 +170,29 @@ impl StderrDrain {
 
     fn finish(self) -> Vec<u8> {
         self.handle.join().unwrap_or_default()
+    }
+
+    fn start_archive(mut stderr: ChildStderr) -> Self {
+        Self {
+            handle: std::thread::spawn(sley_core::diagnostics::inherit(move || {
+                // Drain concurrently so a verbose peer cannot block its archive
+                // stream. Retain a bounded diagnostic prefix, not its full stderr.
+                let mut sink = Vec::new();
+                let mut buffer = [0_u8; 8192];
+                loop {
+                    match stderr.read(&mut buffer) {
+                        Ok(0) => break,
+                        Ok(count) => {
+                            let keep = count.min(65_536_usize.saturating_sub(sink.len()));
+                            sink.extend_from_slice(&buffer[..keep]);
+                        }
+                        Err(error) if error.kind() == std::io::ErrorKind::Interrupted => continue,
+                        Err(_) => break,
+                    }
+                }
+                sink
+            })),
+        }
     }
 }
 
@@ -422,7 +446,16 @@ fn ssh_supports_openssh_config_probe(program: &str) -> bool {
 }
 
 fn ssh_program_and_prefix_args() -> Result<(String, Vec<String>)> {
-    if let Ok(command) = env::var("GIT_SSH_COMMAND") {
+    ssh_program_and_prefix_args_with_command(None)
+}
+
+fn ssh_program_and_prefix_args_with_command(
+    configured_command: Option<&str>,
+) -> Result<(String, Vec<String>)> {
+    if let Some(command) = env::var("GIT_SSH_COMMAND")
+        .ok()
+        .or_else(|| configured_command.map(str::to_string))
+    {
         let words = split_shell_words(&command)?;
         let Some((program, args)) = words.split_first() else {
             return Err(GitError::Command("GIT_SSH_COMMAND is empty".into()));
@@ -486,7 +519,26 @@ fn spawn_service_process(
     options: SshTransportOptions,
     service_command: Option<&str>,
 ) -> Result<(Child, Option<ChildStdin>, ChildStdout, StderrDrain)> {
-    let command = ssh_process_command_for_remote(remote, service, options, service_command)?;
+    spawn_service_process_with_ssh_command(
+        remote,
+        service,
+        keep_stdin,
+        options,
+        service_command,
+        None,
+    )
+}
+
+fn spawn_service_process_with_ssh_command(
+    remote: &RemoteUrl,
+    service: GitService,
+    keep_stdin: bool,
+    options: SshTransportOptions,
+    service_command: Option<&str>,
+    ssh_command: Option<&str>,
+) -> Result<(Child, Option<ChildStdin>, ChildStdout, StderrDrain)> {
+    let command =
+        ssh_process_command_for_remote(remote, service, options, service_command, ssh_command)?;
     let mut process = ProcessCommand::new(&command.program);
     process
         .args(&command.args)
@@ -499,6 +551,10 @@ fn spawn_service_process(
         })
         .stdout(Stdio::piped())
         .stderr(Stdio::piped());
+    if service == GitService::UploadArchive {
+        process.env_remove("GIT_PROTOCOL");
+        crate::archive::isolate_archive_process(&mut process);
+    }
     // Export effective `-c` / `GIT_CONFIG_PARAMETERS` so child upload-pack /
     // receive-pack processes inherit hideRefs and other overrides the parent
     // received on the command line (git mutates the real env; we cannot).
@@ -509,14 +565,29 @@ fn spawn_service_process(
     let stderr_drain = child
         .stderr
         .take()
-        .map(StderrDrain::start)
+        .map(|stderr| {
+            if service == GitService::UploadArchive {
+                StderrDrain::start_archive(stderr)
+            } else {
+                StderrDrain::start(stderr)
+            }
+        })
         .ok_or_else(|| GitError::Command("service stderr was not piped".into()))?;
     let mut stdin = child.stdin.take();
     if let Some(request) = &command.git_request {
-        let Some(input) = stdin.as_mut() else {
-            return Err(GitError::Command("remote-ext stdin was not piped".into()));
-        };
-        write_remote_ext_git_request(input, service, request)?;
+        let written = stdin
+            .as_mut()
+            .ok_or_else(|| GitError::Command("remote-ext stdin was not piped".into()))
+            .and_then(|input| write_remote_ext_git_request(input, service, request));
+        if let Err(error) = written {
+            if service == GitService::UploadArchive {
+                crate::archive::terminate_archive_process(&mut child);
+                drop(stdin);
+                let _ = child.wait();
+                let _ = stderr_drain.finish();
+            }
+            return Err(error);
+        }
     }
     if !keep_stdin {
         drop(stdin.take());
@@ -526,6 +597,117 @@ fn spawn_service_process(
         .take()
         .ok_or_else(|| GitError::Command("service stdout was not piped".into()))?;
     Ok((child, stdin, stdout, stderr_drain))
+}
+
+pub(crate) fn archive_via_ssh<W: Write + ?Sized>(
+    remote: &RemoteUrl,
+    request: &sley_protocol::UploadArchiveRequest,
+    config: &GitConfig,
+    service_command: Option<&str>,
+    writer: &mut W,
+    progress: &mut dyn ProgressSink,
+) -> Result<u64> {
+    let mut options = ssh_transport_options_from_config(config);
+    // Archive has its own ACK/sideband exchange, independent of upload-pack's
+    // v0/v1/v2 negotiation. Neither SendEnv nor inherited GIT_PROTOCOL belongs
+    // on this connection.
+    options.protocol = None;
+    let (child, stdin, stdout, stderr_drain) = spawn_service_process_with_ssh_command(
+        remote,
+        GitService::UploadArchive,
+        true,
+        options,
+        service_command,
+        config.get("core", None, "sshCommand"),
+    )?;
+    exchange_archive(
+        child,
+        stdin,
+        stdout,
+        stderr_drain,
+        request,
+        writer,
+        progress,
+    )
+}
+
+pub(crate) fn archive_via_local_command<W: Write + ?Sized>(
+    path: &str,
+    request: &sley_protocol::UploadArchiveRequest,
+    command: &str,
+    writer: &mut W,
+    progress: &mut dyn ProgressSink,
+) -> Result<u64> {
+    // This shell evaluates only the caller's explicit --exec command. The
+    // repository is a positional argument, never concatenated shell source.
+    let mut process = ProcessCommand::new("/bin/sh");
+    process
+        .args(["-c", &format!("{command} \"$@\""), "upload-archive", path])
+        .env_remove("GIT_PROTOCOL")
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped());
+    crate::archive::isolate_archive_process(&mut process);
+    let mut child = process.spawn()?;
+    let stdin = child.stdin.take();
+    let stdout = child
+        .stdout
+        .take()
+        .ok_or_else(|| GitError::Command("archive stdout was not piped".into()))?;
+    let stderr = child
+        .stderr
+        .take()
+        .ok_or_else(|| GitError::Command("archive stderr was not piped".into()))?;
+    exchange_archive(
+        child,
+        stdin,
+        stdout,
+        StderrDrain::start_archive(stderr),
+        request,
+        writer,
+        progress,
+    )
+}
+
+fn exchange_archive<W: Write + ?Sized>(
+    mut child: Child,
+    mut stdin: Option<ChildStdin>,
+    mut stdout: ChildStdout,
+    stderr_drain: StderrDrain,
+    request: &sley_protocol::UploadArchiveRequest,
+    writer: &mut W,
+    progress: &mut dyn ProgressSink,
+) -> Result<u64> {
+    let result = (|| {
+        let input = stdin
+            .as_mut()
+            .ok_or_else(|| GitError::Command("archive service stdin was not piped".into()))?;
+        sley_protocol::write_upload_archive_request(input, request)?;
+        input.flush()?;
+        drop(stdin.take());
+        sley_protocol::copy_upload_archive_response(&mut stdout, writer, |message| {
+            progress.diagnostic(&String::from_utf8_lossy(message));
+        })
+    })();
+    drop(stdin.take());
+    if result.is_err() {
+        // A failed writer or malformed peer must not leave an SSH child blocked
+        // trying to send the rest of an archive into an unread pipe.
+        crate::archive::terminate_archive_process(&mut child);
+    }
+    drop(stdout);
+    let status = crate::archive::wait_archive_process(&mut child)?;
+    let stderr = stderr_drain.finish();
+    if !stderr.is_empty() {
+        progress.diagnostic(&String::from_utf8_lossy(&stderr));
+    }
+    let copied = result?;
+    if !status.success() {
+        return Err(GitError::ChildProcessFailed {
+            status: status.code(),
+        });
+    }
+    Ok(copied)
 }
 
 fn ssh_command_failure_message(

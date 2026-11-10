@@ -54,6 +54,11 @@ jobs:
           ref: e9019fcafe0040228b8631c30f97ae1adb61bcdc
           path: .gitr-ci/reference-git-source
           persist-credentials: false
+      - name: Install external Git oracle build dependencies
+        # Keep HTTP and PCRE2 enabled in the reference used for qualification.
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends build-essential libcurl4-openssl-dev libexpat1-dev libpcre2-dev libssl-dev zlib1g-dev
       # Stock Rust compiles only these two dependency-free orchestration files.
       - name: Prepare orchestration compiler
         run: rustup toolchain install 1.99.1 --profile minimal
@@ -89,7 +94,7 @@ jobs:
         # Includes checked reference publication and corrupt-graph repack tests.
         # Full upstream Git conformance requires the external pinned harness.
         run: '"${{ runner.temp }}/gitr-qualify-native" test-vendor'
-      - name: Run native upload-archive interoperability tests
+      - name: Run native archive interoperability and revision-selector tests
         if: ${{ !cancelled() && steps.build_root.outcome == 'success' }}
         run: '"${{ runner.temp }}/gitr-qualify-native" test-vendor-cli'
       - name: Verify imported source provenance through Lustr and BlueFe

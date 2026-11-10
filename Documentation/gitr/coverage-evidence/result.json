@@ -1,0 +1,194 @@
+{
+  "schema": 1,
+  "recorded_local_date": "2026-11-09",
+  "timezone": "America/Denver",
+  "baseline_commit": "4d23776e19faaf161db66feb1768e64233a4620b",
+  "scope": [
+    "native remote archive client and subprocess completion",
+    "symbolic revision selectors",
+    "hosted oracle build prerequisites"
+  ],
+  "compiler": {
+    "coordinator_revision": "6339fbb104d6adda4be7e6be7dc637a6a9e5586b",
+    "coordinator_sha256": "3733905caacebf4470bc14029bf7aec0625c727453a46c4e2f6d55057df75350",
+    "route": "Lustr --engine rustc",
+    "rustc": "1.99.1",
+    "rustc_commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
+    "host": "x86_64-unknown-linux-gnu",
+    "local_produced_bluefe": false
+  },
+  "oracle": {
+    "version": "2.55.0",
+    "commit": "e9019fcafe0040228b8631c30f97ae1adb61bcdc",
+    "binary_sha256": "bb7047c1ae5ed48d5cf47084595e7a3be4463ecd177df81ead8bfdba41d7a036"
+  },
+  "candidate": {
+    "gitr_sha256": "a996d1599b3357d2e0a3424162cc12defe8a05fc36bf0b91719cb02a1012b0e1",
+    "upstream_lane_sha256": "a996d1599b3357d2e0a3424162cc12defe8a05fc36bf0b91719cb02a1012b0e1",
+    "source_fingerprints": {
+      ".github/workflows/gitr-native.yml": "4e7558e55cbbec9bbdf71550e9e7ea01681099260769e8064a4b9ca69d5e7b2f",
+      "Cargo.lock": "762a9dbdebf67e799e25201f90a8fb59995d5b9ac18bc55071a8b1a420e4ea82",
+      "ci/qualify_native.rs": "71e9885823c21344919fa230e2d5dae17ca85692258bac18382127fc0a9a96cd",
+      "vendor/sley/Cargo.lock": "5267787d3cd6459b549c1f9166c18b898a173adbc9c822914f75ca68ec2565bb",
+      "vendor/sley/crates/sley-cli/src/commands/plumbing/archive.rs": "ecfc1d8b54d7ee416a150ad9237b15d34bc1b3e6c5dac1597e71f7be5309aa1f",
+      "vendor/sley/crates/sley-cli/src/commands/rev_parse.rs": "379f911c6a86821240410a0f0a1fff824db5c5553eb8a7534b2b903c3d551cbe",
+      "vendor/sley/crates/sley-cli/tests/archive_remote.rs": "905c0a52676424a98ffe5f2fc15aff188047ba8034e1cb8eaaef6d72ede2a419",
+      "vendor/sley/crates/sley-cli/tests/rev_parse_pseudo_names.rs": "9e8b4eaafda194f85960532a41a1bafe5e2bec18c872bb3dfc3a07175546b19c",
+      "vendor/sley/crates/sley-protocol/src/sideband.rs": "435af5fd22e5145a79ef83263362bcfb3971737f53d4893eded0a997892ab5d5",
+      "vendor/sley/crates/sley-protocol/src/tests.rs": "979f106c97059d34ac4f5b423e850639b9dcd3230de4bd9453e2fc108f021844",
+      "vendor/sley/crates/sley-remote/Cargo.toml": "2df9a39788a64e53ef3b4c46ebc66e9ae38305e02dbc567da2ac7fbe8e9d90d5",
+      "vendor/sley/crates/sley-remote/src/archive.rs": "92047992c70f7ed6d8181ac977feee5bdaf706757ee0afde50aa122cc67817c2",
+      "vendor/sley/crates/sley-remote/src/git.rs": "c2f5ab1e952e1a7e3fae7908f012a21bb1b01c5abf238e7c4db3deb9df8fabf7",
+      "vendor/sley/crates/sley-remote/src/git_proxy.rs": "a58f1312b33627a76bd1b42e1fda06405f678c29a1cc32156b2ef975396731b2",
+      "vendor/sley/crates/sley-remote/src/lib.rs": "516d0cace02e0bd9311900a0a30204542966aa6a13c4de77e943675d83789d46",
+      "vendor/sley/crates/sley-remote/src/ssh.rs": "b34d56bcf0c2ee3b650aae7881c57353f0d4dc4fb33fc4533844a39e4d546b04",
+      "vendor/sley/crates/sley-rev/src/setup.rs": "2f747448bf32918c7b24a4112641c2d64ebc79c05044beb4669cb276a14a9457",
+      "xtask/src/main.rs": "d5cc1288d3c802a3b327e85af0435f7b9dc7ef0979c3c01251d34093edad1246"
+    },
+    "sley_manifest_sha256": "76b495d736671a54fadbc6cff1f7e2f97daa3d9e42908ca594b56105a18d2672"
+  },
+  "root_tests": {
+    "passed": 5,
+    "failed": 0,
+    "features": "all",
+    "targets": "all"
+  },
+  "cli_tests": {
+    "passed": 53,
+    "failed": 0,
+    "new_root_product_tests": 18,
+    "new_rev_parse_exact_oracle_comparisons": 272,
+    "targets": {
+      "archive": 7,
+      "archive_remote": 13,
+      "filter_branch_unavailable": 1,
+      "rev_parse": 20,
+      "rev_parse_pseudo_names": 5,
+      "upload_archive": 7
+    }
+  },
+  "engine_tests": {
+    "passed": 1165,
+    "failed": 4,
+    "crates": [
+      {
+        "crate": "sley_archive",
+        "passed": 3,
+        "failed": 0
+      },
+      {
+        "crate": "sley_core",
+        "passed": 95,
+        "failed": 0
+      },
+      {
+        "crate": "sley_i18n",
+        "passed": 11,
+        "failed": 0
+      },
+      {
+        "crate": "sley_index",
+        "passed": 24,
+        "failed": 0
+      },
+      {
+        "crate": "sley_object",
+        "passed": 33,
+        "failed": 0
+      },
+      {
+        "crate": "sley_odb",
+        "passed": 137,
+        "failed": 0
+      },
+      {
+        "crate": "sley_pack",
+        "passed": 130,
+        "failed": 0
+      },
+      {
+        "crate": "sley_pathspec",
+        "passed": 19,
+        "failed": 0
+      },
+      {
+        "crate": "sley_protocol",
+        "passed": 195,
+        "failed": 0
+      },
+      {
+        "crate": "sley_refs",
+        "passed": 91,
+        "failed": 0
+      },
+      {
+        "crate": "sley_remote",
+        "passed": 190,
+        "failed": 0
+      },
+      {
+        "crate": "sley_rev",
+        "passed": 85,
+        "failed": 0
+      },
+      {
+        "crate": "sley_worktree",
+        "passed": 152,
+        "failed": 4
+      }
+    ],
+    "failures": [
+      "fsmonitor::tests::daemon_exits_when_its_repository_is_deleted",
+      "fsmonitor::tests::daemon_lifecycle_uses_a_live_endpoint",
+      "fsmonitor::tests::long_git_directory_uses_a_short_address_without_changing_the_endpoint",
+      "fsmonitor::tests::stale_endpoint_is_replaced_before_serving"
+    ],
+    "failure_reason": "Unix socket operations return Operation not permitted in this execution environment; tests remain enabled in hosted CI."
+  },
+  "coordinator_tests": {
+    "passed": 8,
+    "failed": 0,
+    "compiler": "stock rustc 1.99.1, orchestration only"
+  },
+  "source_verification": {
+    "files": 676,
+    "adapted": 26,
+    "added": 7,
+    "passed": true
+  },
+  "upstream_inventory": {
+    "all_numbered_scripts": 1046,
+    "donor_curated_included": 891,
+    "donor_curated_excluded": 155,
+    "donor_manifest_sha256": "47d810c47c01a14ea4cb2be907e756114b67249fcebd844cee77664dbb218dce"
+  },
+  "selected_upstream_results": "upstream-results.json",
+  "selected_upstream_cell_vectors_unchanged_from_baseline": true,
+  "baseline_hosted_run": {
+    "id": 42754137566,
+    "conclusion": "failure",
+    "stage": "external Git oracle build",
+    "reason": "missing curl/curl.h"
+  },
+  "hosted_qualification": "Separate produced-BlueFe gate; this local record does not assert a hosted result.",
+  "limits": [
+    "Full Git coverage incomplete",
+    "filter-branch native rewrite remains inactive",
+    "shell i18n library remains excluded",
+    "Remote archive non-UTF-8 arguments refused",
+    "SSH authentication and live TCP not exercised",
+    "Windows/macOS execution not performed",
+    "Archive process completion cleanup outside Linux/macOS remains unqualified"
+  ],
+  "source_policy": {
+    "composition": "passed",
+    "inventory": "passed",
+    "policy_tests_passed": 6,
+    "policy_tests_failed": 0,
+    "raw_tap_retained": true
+  },
+  "independent_reviews": {
+    "standards": "Archive descendant-stderr hang fixed with isolated groups and non-reaping completion cleanup; provenance completed.",
+    "spec": "Client custom archive format inference fixed with server permission regressions; revision-selector review findings fixed and tested."
+  }
+}

@@ -19,17 +19,20 @@ pub(crate) struct GitConnection {
 }
 
 enum GitConnectionInner {
+    Closed,
     Tcp(TcpStream),
     Proxy {
         child: Child,
         stdin: Option<ChildStdin>,
         stdout: ChildStdout,
+        archive_process_group: bool,
     },
 }
 
 impl Read for GitConnection {
     fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
         match &mut self.inner {
+            GitConnectionInner::Closed => Ok(0),
             GitConnectionInner::Tcp(stream) => stream.read(buf),
             GitConnectionInner::Proxy { stdout, .. } => stdout.read(buf),
         }
@@ -39,6 +42,10 @@ impl Read for GitConnection {
 impl Write for GitConnection {
     fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
         match &mut self.inner {
+            GitConnectionInner::Closed => Err(std::io::Error::new(
+                std::io::ErrorKind::BrokenPipe,
+                "transport closed",
+            )),
             GitConnectionInner::Tcp(stream) => stream.write(buf),
             GitConnectionInner::Proxy { stdin, .. } => stdin
                 .as_mut()
@@ -51,6 +58,7 @@ impl Write for GitConnection {
 
     fn flush(&mut self) -> std::io::Result<()> {
         match &mut self.inner {
+            GitConnectionInner::Closed => Ok(()),
             GitConnectionInner::Tcp(stream) => stream.flush(),
             GitConnectionInner::Proxy { stdin, .. } => stdin
                 .as_mut()
@@ -63,8 +71,62 @@ impl Write for GitConnection {
 }
 
 impl GitConnection {
+    /// Archive success includes successful proxy termination. Close both pipes
+    /// before waiting so a peer cannot block sending bytes after its final flush.
+    pub(crate) fn finish_archive(mut self) -> Result<()> {
+        match std::mem::replace(&mut self.inner, GitConnectionInner::Closed) {
+            GitConnectionInner::Proxy {
+                mut child,
+                stdin,
+                stdout,
+                archive_process_group,
+            } => {
+                drop(stdin);
+                drop(stdout);
+                let status = if archive_process_group {
+                    crate::archive::wait_archive_process(&mut child)?
+                } else {
+                    child.wait()?
+                };
+                if !status.success() {
+                    return Err(GitError::ChildProcessFailed {
+                        status: status.code(),
+                    });
+                }
+                Ok(())
+            }
+            GitConnectionInner::Tcp(_) | GitConnectionInner::Closed => Ok(()),
+        }
+    }
+
+    /// Stop a failed streaming operation before Drop waits for a proxy that
+    /// might otherwise remain blocked writing into the unread stdout pipe.
+    pub(crate) fn abort(&mut self) {
+        match &mut self.inner {
+            GitConnectionInner::Closed => {}
+            GitConnectionInner::Tcp(stream) => {
+                let _ = stream.shutdown(Shutdown::Both);
+            }
+            GitConnectionInner::Proxy {
+                child,
+                stdin,
+                archive_process_group,
+                ..
+            } => {
+                drop(stdin.take());
+                if *archive_process_group {
+                    crate::archive::terminate_archive_process(child);
+                } else {
+                    let _ = child.kill();
+                }
+                let _ = child.wait();
+            }
+        }
+    }
+
     pub(crate) fn shutdown(&mut self, how: Shutdown) -> std::io::Result<()> {
         match &mut self.inner {
+            GitConnectionInner::Closed => Ok(()),
             GitConnectionInner::Tcp(stream) => stream.shutdown(how),
             GitConnectionInner::Proxy { stdin, .. } => {
                 if matches!(how, Shutdown::Write | Shutdown::Both) {
@@ -93,13 +155,14 @@ pub(crate) fn connect_git_transport(
     config: Option<&GitConfig>,
     host: &str,
     port: u16,
+    archive_process_group: bool,
 ) -> Result<GitConnection> {
     validate_git_daemon_host(host)?;
     let port_string = port.to_string();
     validate_git_daemon_port(&port_string)?;
 
     if let Some(command) = resolve_git_proxy_command(config, host) {
-        return spawn_git_proxy(&command, host, &port_string);
+        return spawn_git_proxy(&command, host, &port_string, archive_process_group);
     }
 
     let stream = TcpStream::connect((host, port))?;
@@ -108,9 +171,17 @@ pub(crate) fn connect_git_transport(
     })
 }
 
-fn spawn_git_proxy(command: &str, host: &str, port: &str) -> Result<GitConnection> {
+fn spawn_git_proxy(
+    command: &str,
+    host: &str,
+    port: &str,
+    archive_process_group: bool,
+) -> Result<GitConnection> {
     let mut process = Command::new(command);
     process.arg(host).arg(port);
+    if archive_process_group {
+        crate::archive::isolate_archive_process(&mut process);
+    }
     if let Some(path) = proxy_path_with_git_exec_path() {
         // A proxy commonly decodes the daemon request and executes
         // `git-upload-pack` by name. An installed Git exposes that helper from
@@ -139,6 +210,7 @@ fn spawn_git_proxy(command: &str, host: &str, port: &str) -> Result<GitConnectio
             child,
             stdin: Some(stdin),
             stdout,
+            archive_process_group,
         },
     })
 }

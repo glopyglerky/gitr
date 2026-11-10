@@ -22,6 +22,13 @@ integration record describes tested behavior and remaining gaps. Upstream
 small shell dispatch adapters and generated test fixtures are retained explicitly; this is not an assertion
 that every program embedded in a Rust file is implemented in Rust.
 
+The next Gitr adaptation adds a streaming remote archive client through the
+existing SSH/Git transports, checks explicit service termination, and repairs
+symbolic revision-selector rendering and symbolic-ref enumeration. The added
+Rust module and regression tests are independently authored Gitr code under
+MIT OR Apache-2.0. Generated shell fixtures model explicitly configured test
+services; no copied filter-branch or i18n shell implementation was restored.
+
 The historical Grit donor is outside the active executable's build graph.
 
 Two upstream embedded programs were excluded after source-origin review:

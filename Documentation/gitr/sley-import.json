@@ -8,10 +8,10 @@
   "files": [
     {
       "path": "Cargo.lock",
-      "sha256": "0cd13bc68a0744d0edb45e28645c3a410ce63d69a39c7c62bde90b64fbbac384",
+      "sha256": "5267787d3cd6459b549c1f9166c18b898a173adbc9c822914f75ca68ec2565bb",
       "upstream_blob": "3e9778531c3a9381c62c4bc4e7a92293a8b7ce1a",
       "upstream_sha256": "3063bb16b75c80f6786c8f03d83fcf0a125388ab6acc6aabbee3ed599deb33ae",
-      "change": "Add the archive integration test dependency on existing Rust flate2."
+      "change": "Add the archive integration test dependency on existing Rust flate2. Add the existing locked Rustix 1.1.5 process API to the remote crate without changing dependency versions."
     },
     {
       "path": "Cargo.toml",
@@ -38,7 +38,7 @@
     },
     {
       "path": "NOTICE.md",
-      "sha256": "e8ab51b9bf6701aaf97900c03fb12dd48331252645fb82025365c0be0824628b",
+      "sha256": "16b6184b154c2808cfe0bb392b321b1b87ef1edb51d6fa001997de113962f22e",
       "origin": "Gitr import provenance notice, authored for this integration."
     },
     {
@@ -58,264 +58,6 @@
       "sha256": "747b10ec4d284680da00134d2c9aefda2949d601cb0a5914cf4a40bac6fa95a5",
       "upstream_blob": "95e6a81b1b51cf61b6e000363bf2b4692fa55a0f",
       "upstream_sha256": "747b10ec4d284680da00134d2c9aefda2949d601cb0a5914cf4a40bac6fa95a5"
-    },
-    {
-      "path": "crates/sley/Cargo.toml",
-      "sha256": "d3b362a27c1c2e8ad3b25a34e7942c45959156b8d84ebf10449856ba749b6ecc",
-      "upstream_blob": "726a3ba06bed533a2f52a8df5ac4bc9f72eb8f6d",
-      "upstream_sha256": "d3b362a27c1c2e8ad3b25a34e7942c45959156b8d84ebf10449856ba749b6ecc"
-    },
-    {
-      "path": "crates/sley/src/config_edit.rs",
-      "sha256": "9c8057a60027593befe3a69c1040931382785b5034580d031ff6aa34d202f320",
-      "upstream_blob": "c2f0a6b23d5e457149f59e84b2dca3fea2cd78a7",
-      "upstream_sha256": "9c8057a60027593befe3a69c1040931382785b5034580d031ff6aa34d202f320"
-    },
-    {
-      "path": "crates/sley/src/diff.rs",
-      "sha256": "96697361e7244cbc0e92dc3f3a0824731629f57c3b698c7ac3725ed938540d2f",
-      "upstream_blob": "e16c526e6434c669f654c77997faedf80c2319aa",
-      "upstream_sha256": "96697361e7244cbc0e92dc3f3a0824731629f57c3b698c7ac3725ed938540d2f"
-    },
-    {
-      "path": "crates/sley/src/index_io.rs",
-      "sha256": "805f88b5bf3b6bff7c8888a7a59c0d5eedf9c2f8da97b84028d6f4ced6d26585",
-      "upstream_blob": "6ea8b42c21bbfab2525a6a0d9e67df0e17956fbd",
-      "upstream_sha256": "805f88b5bf3b6bff7c8888a7a59c0d5eedf9c2f8da97b84028d6f4ced6d26585"
-    },
-    {
-      "path": "crates/sley/src/lib.rs",
-      "sha256": "c4be3a73db37218dec25f0904b876fba4120a2e1b2c20f35f353dc74f2726fd4",
-      "upstream_blob": "2277f64052cb02e6d9c6b0e12ea6b5509e9fa966",
-      "upstream_sha256": "c4be3a73db37218dec25f0904b876fba4120a2e1b2c20f35f353dc74f2726fd4"
-    },
-    {
-      "path": "crates/sley/src/local_clone.rs",
-      "sha256": "ad791ae28df8f757d02c3a562697622acc6dcf33aa06df8cf797be893d3568a4",
-      "upstream_blob": "cf616504cb89ed326f9386b803a32408f7aeba1f",
-      "upstream_sha256": "ad791ae28df8f757d02c3a562697622acc6dcf33aa06df8cf797be893d3568a4"
-    },
-    {
-      "path": "crates/sley/src/notes_repo.rs",
-      "sha256": "f07d8c75494ba1a8c26d05fc706fe459f50776a51915e1dfb14df746aa568622",
-      "upstream_blob": "a428514aba6e982091babfb8686dd3ab76a6fc63",
-      "upstream_sha256": "f07d8c75494ba1a8c26d05fc706fe459f50776a51915e1dfb14df746aa568622"
-    },
-    {
-      "path": "crates/sley/src/objects.rs",
-      "sha256": "48d735f0b57d745bf3acde39cbebc5ae8422b658054c82408a98ab29e19e930e",
-      "upstream_blob": "a3d24ab4b8a71de5474fbf0360877d937256471e",
-      "upstream_sha256": "48d735f0b57d745bf3acde39cbebc5ae8422b658054c82408a98ab29e19e930e"
-    },
-    {
-      "path": "crates/sley/src/open_env.rs",
-      "sha256": "991e2355853cf7cebba695d845aa1becceccad6c4a90f5824c754d0047302987",
-      "upstream_blob": "67e33e587cdadf5603d8ca16a84d2bb5c52b8390",
-      "upstream_sha256": "991e2355853cf7cebba695d845aa1becceccad6c4a90f5824c754d0047302987"
-    },
-    {
-      "path": "crates/sley/src/pack_plan.rs",
-      "sha256": "4cdbd2f90c9043c03ec00c15a76162f435f72b598edf9866134e1ec4fcf40328",
-      "upstream_blob": "d3d885aadf28bc88160600bf77ffc06a314eb211",
-      "upstream_sha256": "4cdbd2f90c9043c03ec00c15a76162f435f72b598edf9866134e1ec4fcf40328"
-    },
-    {
-      "path": "crates/sley/src/refs.rs",
-      "sha256": "fb27405067072997caa68c615781f648f275e806222122f557087383aa5e8f86",
-      "upstream_blob": "6294c1a6589a9c4cdb5e88da4d0ed528421e98b2",
-      "upstream_sha256": "fb27405067072997caa68c615781f648f275e806222122f557087383aa5e8f86"
-    },
-    {
-      "path": "crates/sley/src/refspec.rs",
-      "sha256": "2d5ace92803daea6772cfd3f6c30e326a11e323501be25b704f083b9863aab25",
-      "upstream_blob": "cef4d65cdf7573b5f8e54c10582006898dfb5d7c",
-      "upstream_sha256": "2d5ace92803daea6772cfd3f6c30e326a11e323501be25b704f083b9863aab25"
-    },
-    {
-      "path": "crates/sley/src/remote.rs",
-      "sha256": "4fcd441eaa2d88ea710bddd8d6e116df37d8240034522d3fe323213af8c7705c",
-      "upstream_blob": "13fbeb53f13cd5065a303fcf03716ac9832abf65",
-      "upstream_sha256": "4fcd441eaa2d88ea710bddd8d6e116df37d8240034522d3fe323213af8c7705c"
-    },
-    {
-      "path": "crates/sley/src/remote_edit.rs",
-      "sha256": "4e8865e2954e7db9ec6ebae6c528cf89d26e578ae38a15b9682ca6ebde9d2994",
-      "upstream_blob": "56bb7a8164bd7200632a0a42c794a0438ec619ba",
-      "upstream_sha256": "4e8865e2954e7db9ec6ebae6c528cf89d26e578ae38a15b9682ca6ebde9d2994"
-    },
-    {
-      "path": "crates/sley/src/rev_graph.rs",
-      "sha256": "f39ec6d4eab1ce7dfadbcb29532741afa5353dde2f257613c6c0bd2d3e340825",
-      "upstream_blob": "524682a1eaf955691be56e5e4935cfb7df2b78ae",
-      "upstream_sha256": "f39ec6d4eab1ce7dfadbcb29532741afa5353dde2f257613c6c0bd2d3e340825"
-    },
-    {
-      "path": "crates/sley/src/status_plan.rs",
-      "sha256": "8b3fceee9fcdcdfb9eb7c761a1584c3af5b9a3e7d0d5b9de2781d8ea03d4af9b",
-      "upstream_blob": "51217cf8ae9e1527a0964286bb968bbcd13b6c6a",
-      "upstream_sha256": "8b3fceee9fcdcdfb9eb7c761a1584c3af5b9a3e7d0d5b9de2781d8ea03d4af9b"
-    },
-    {
-      "path": "crates/sley/src/tags.rs",
-      "sha256": "401fc9a4d0c680df030d07e02aa7e9cd7918b9b510415eab05528e8dd17aaf5e",
-      "upstream_blob": "8429f151e225ee7e2820aa0da0a6960ff596a358",
-      "upstream_sha256": "401fc9a4d0c680df030d07e02aa7e9cd7918b9b510415eab05528e8dd17aaf5e"
-    },
-    {
-      "path": "crates/sley/tests/config_edit.rs",
-      "sha256": "53b70f736b044c3f4e825ff651b3551999ddbd0a3988b9c6b18e16087dfce57c",
-      "upstream_blob": "7ae075167ee6ad18f098b3bfd45a0aa3a949e949",
-      "upstream_sha256": "53b70f736b044c3f4e825ff651b3551999ddbd0a3988b9c6b18e16087dfce57c"
-    },
-    {
-      "path": "crates/sley/tests/delete_broken_ref.rs",
-      "sha256": "9d61b4dbcc901c6ff5aedf9fde14ea84c9829852ff027bcf1691e5c76ef33d46",
-      "upstream_blob": "eb2aaca55b3817cf856269ef423016ec3bd60f68",
-      "upstream_sha256": "9d61b4dbcc901c6ff5aedf9fde14ea84c9829852ff027bcf1691e5c76ef33d46"
-    },
-    {
-      "path": "crates/sley/tests/index_from_tree.rs",
-      "sha256": "24ee608483a9e42f926c6466296325d4d0ab6d59d9e499ddd090494f725f0bf2",
-      "upstream_blob": "32210d4074a2d232c60c3d3ead4f593ad7280cdc",
-      "upstream_sha256": "24ee608483a9e42f926c6466296325d4d0ab6d59d9e499ddd090494f725f0bf2"
-    },
-    {
-      "path": "crates/sley/tests/index_io.rs",
-      "sha256": "0425dd6d7c2acbaecbec725fbde1f63b5867cb1d83598f302d3e6b1f1d166bd6",
-      "upstream_blob": "dc68f791453644c436f0ff8caf9f65a3fadd6a23",
-      "upstream_sha256": "0425dd6d7c2acbaecbec725fbde1f63b5867cb1d83598f302d3e6b1f1d166bd6"
-    },
-    {
-      "path": "crates/sley/tests/library_diagnostics.rs",
-      "sha256": "77d3e172d23bb9c1ff3a7e66b9b1b9a264a7632e1c70f50ccacaaac109fb10d9",
-      "upstream_blob": "db7b3ac0cec1c7b68e25491fc4126e7b4254cfa3",
-      "upstream_sha256": "77d3e172d23bb9c1ff3a7e66b9b1b9a264a7632e1c70f50ccacaaac109fb10d9"
-    },
-    {
-      "path": "crates/sley/tests/local_clone.rs",
-      "sha256": "2dfb5de88e0485b14cb2a6072bbe504df0275edaae8b235b600e74ff6521b20f",
-      "upstream_blob": "c999b923d77729407b68ea1845000abdd64c1598",
-      "upstream_sha256": "2dfb5de88e0485b14cb2a6072bbe504df0275edaae8b235b600e74ff6521b20f"
-    },
-    {
-      "path": "crates/sley/tests/parity/cat_file.rs",
-      "sha256": "d76f99acc4772c4e8fb979a5f3ff8232a8a5bb84d9390092aa888e46fb8d2bae",
-      "upstream_blob": "7811d745e0fe720221544b678259c8bcb1210f98",
-      "upstream_sha256": "d76f99acc4772c4e8fb979a5f3ff8232a8a5bb84d9390092aa888e46fb8d2bae"
-    },
-    {
-      "path": "crates/sley/tests/parity/common.rs",
-      "sha256": "837ace5e6b049f254baf5a3b411605801527b0177c11118bb33d9cecfaacb794",
-      "upstream_blob": "f0a78d354479cc02bea9c35f07c642312399af88",
-      "upstream_sha256": "837ace5e6b049f254baf5a3b411605801527b0177c11118bb33d9cecfaacb794"
-    },
-    {
-      "path": "crates/sley/tests/parity/config.rs",
-      "sha256": "4808aec5cbf83efc6ba5e3d039d5ea8fe0c680374bd990d7969d5c52796aab56",
-      "upstream_blob": "fbdd0248b33e8f220dcc0176a16a6d186bcec0f6",
-      "upstream_sha256": "4808aec5cbf83efc6ba5e3d039d5ea8fe0c680374bd990d7969d5c52796aab56"
-    },
-    {
-      "path": "crates/sley/tests/parity/diff.rs",
-      "sha256": "7fc5ea0d8d11ee81645d095130277830b4de4a84f83e96004fe57ac5039dba4a",
-      "upstream_blob": "f0ac66d3499bb19e40ff1cda54970a76c891e1db",
-      "upstream_sha256": "7fc5ea0d8d11ee81645d095130277830b4de4a84f83e96004fe57ac5039dba4a"
-    },
-    {
-      "path": "crates/sley/tests/parity/hash_object.rs",
-      "sha256": "2b6d36c81dd64b0679114634013cb3c0091c0494dc2303d30c991ea3403d5bef",
-      "upstream_blob": "aa5c6b03bc29229445ff5c9c35f0dbed5699bf20",
-      "upstream_sha256": "2b6d36c81dd64b0679114634013cb3c0091c0494dc2303d30c991ea3403d5bef"
-    },
-    {
-      "path": "crates/sley/tests/parity/index.rs",
-      "sha256": "06c488696b14810f87638d7539184ced7cc5af50f29294cbd04931fdd90499f6",
-      "upstream_blob": "33174c38e7ea38dde9a21050bb92d31544f92ac0",
-      "upstream_sha256": "06c488696b14810f87638d7539184ced7cc5af50f29294cbd04931fdd90499f6"
-    },
-    {
-      "path": "crates/sley/tests/parity/init.rs",
-      "sha256": "54aba6118594957fd83571ab9ea8e1d3cc1d7cd8a9397d1ebd9bab4f6e3e1caa",
-      "upstream_blob": "5d969523578fdd76d26244024b56c99686f4ff58",
-      "upstream_sha256": "54aba6118594957fd83571ab9ea8e1d3cc1d7cd8a9397d1ebd9bab4f6e3e1caa"
-    },
-    {
-      "path": "crates/sley/tests/parity/main.rs",
-      "sha256": "e8d5d5176cfcaed6c24abd7bf85d7e1991eb84a9aa0b77053007f4860f655bf3",
-      "upstream_blob": "ce7885eea4bb2f7a3e362264dfefb35cba66e1f5",
-      "upstream_sha256": "e8d5d5176cfcaed6c24abd7bf85d7e1991eb84a9aa0b77053007f4860f655bf3"
-    },
-    {
-      "path": "crates/sley/tests/parity/objects.rs",
-      "sha256": "999a6680df3e2ab4b7d92ebec3a753f19c43e2418132bbc2bce9e9b8ac7143de",
-      "upstream_blob": "ffcfc6921ecc1df337427b9cb11e1a5b4b51ec8e",
-      "upstream_sha256": "999a6680df3e2ab4b7d92ebec3a753f19c43e2418132bbc2bce9e9b8ac7143de"
-    },
-    {
-      "path": "crates/sley/tests/parity/refs.rs",
-      "sha256": "a733d90f8ea3e145f3a186ed84c3cd3f9a14ac7c8db01e49eae37153d05c33cb",
-      "upstream_blob": "583d2b0fb54a0a48cd0263621be6979748bb4344",
-      "upstream_sha256": "a733d90f8ea3e145f3a186ed84c3cd3f9a14ac7c8db01e49eae37153d05c33cb"
-    },
-    {
-      "path": "crates/sley/tests/parity/remote.rs",
-      "sha256": "f58a23589724e3db649c931eb7095caa1a62fa4480df019e41de5c06494862f0",
-      "upstream_blob": "cc25bb74e7962dd2c2478999dac8ff08707f624a",
-      "upstream_sha256": "f58a23589724e3db649c931eb7095caa1a62fa4480df019e41de5c06494862f0"
-    },
-    {
-      "path": "crates/sley/tests/parity/resolve_path.rs",
-      "sha256": "62ce09674ac8d0a128a4d52deeb869f8dcc569b411ea0d4720598f3c3f7cf273",
-      "upstream_blob": "7c71e5901926e73396a8ac5b52fb2c38c119e8c6",
-      "upstream_sha256": "62ce09674ac8d0a128a4d52deeb869f8dcc569b411ea0d4720598f3c3f7cf273"
-    },
-    {
-      "path": "crates/sley/tests/parity/rev_graph.rs",
-      "sha256": "54ed5a565b38aaccc2049c651402117f085b4f9f4df896ed22bf967f63ae23bc",
-      "upstream_blob": "b5c8f5fe72486dc4d67da633d47ca76fe36057d3",
-      "upstream_sha256": "54ed5a565b38aaccc2049c651402117f085b4f9f4df896ed22bf967f63ae23bc"
-    },
-    {
-      "path": "crates/sley/tests/parity/rev_parse.rs",
-      "sha256": "fa4affba870f1e0bd352ef219e06d9cc87cbebbe9ce7bc4d30e040a0cd72708b",
-      "upstream_blob": "519359df13fde402c59eefbeddb8a232009669a9",
-      "upstream_sha256": "fa4affba870f1e0bd352ef219e06d9cc87cbebbe9ce7bc4d30e040a0cd72708b"
-    },
-    {
-      "path": "crates/sley/tests/parity/update_index.rs",
-      "sha256": "f96ed9bbacde3c88dd141a282780cb548d4d4d7acdc8855b0a86386e680cdf0f",
-      "upstream_blob": "88f348bbd092fc8861c9a1bf3968a7d9938f22dd",
-      "upstream_sha256": "f96ed9bbacde3c88dd141a282780cb548d4d4d7acdc8855b0a86386e680cdf0f"
-    },
-    {
-      "path": "crates/sley/tests/parity/write_tree.rs",
-      "sha256": "01ebf21ce0424ece3e98ed11227a81789126e2a438b165da3935344f35e9f834",
-      "upstream_blob": "81700fce4cd5f10c113e32124be75638700b84f5",
-      "upstream_sha256": "01ebf21ce0424ece3e98ed11227a81789126e2a438b165da3935344f35e9f834"
-    },
-    {
-      "path": "crates/sley/tests/repository_policy_isolation.rs",
-      "sha256": "79ebea37eb91baaa6c26d9ad9da71a261a2a268bd6e7ca370bb8fc69345fec52",
-      "upstream_blob": "4c3ccb5ad1b16d81fd0d1813d32d0148da7f57d3",
-      "upstream_sha256": "79ebea37eb91baaa6c26d9ad9da71a261a2a268bd6e7ca370bb8fc69345fec52"
-    },
-    {
-      "path": "crates/sley/tests/signature.rs",
-      "sha256": "dcd3b80cfeaa7b29205e416a700e598eaafba6dbf946d030901fc7e4fc58d6df",
-      "upstream_blob": "324923d4e1c6bdbf3a2bde77fef7d9ee9d1df301",
-      "upstream_sha256": "dcd3b80cfeaa7b29205e416a700e598eaafba6dbf946d030901fc7e4fc58d6df"
-    },
-    {
-      "path": "crates/sley/tests/streaming_embedder_surface.rs",
-      "sha256": "10f41dc458f400723cfcccf946f23e762138f07f566e89e52c0e245485966b38",
-      "upstream_blob": "aac6323e591886559304f12b75b6caf0c8c192da",
-      "upstream_sha256": "10f41dc458f400723cfcccf946f23e762138f07f566e89e52c0e245485966b38"
-    },
-    {
-      "path": "crates/sley/tests/tree_editor.rs",
-      "sha256": "a36dd25d25e9f47cb7b1995c7c136485c898b6c30af3e867c64be54dffb8f34d",
-      "upstream_blob": "a6d8b7c11e94f35217adaa6ca5c821d3cea6267a",
-      "upstream_sha256": "a36dd25d25e9f47cb7b1995c7c136485c898b6c30af3e867c64be54dffb8f34d"
     },
     {
       "path": "crates/sley-archive/Cargo.toml",
@@ -493,6 +235,12 @@
       "sha256": "1013c8479fb5b057e726655b862fdeb9b980ba0be96df50761858e89f622bc90",
       "upstream_blob": "f95c7bbabcb573f82d99e2b2c76d639ced782787",
       "upstream_sha256": "1013c8479fb5b057e726655b862fdeb9b980ba0be96df50761858e89f622bc90"
+    },
+    {
+      "path": "crates/sley-cli/src/commands.rs",
+      "sha256": "91f07c10f8940fd8fe8e5237b0481aa77f3b6e0e278ccecac7049fda8d99125c",
+      "upstream_blob": "f6aa2f9d092dc90ce84b2c97d62fde69df16f62b",
+      "upstream_sha256": "91f07c10f8940fd8fe8e5237b0481aa77f3b6e0e278ccecac7049fda8d99125c"
     },
     {
       "path": "crates/sley-cli/src/commands/add_interactive.rs",
@@ -864,6 +612,12 @@
       "upstream_sha256": "bb7c61c4e8fa6e6a05772b62b7f208dc98fab19b7d2c3f30d75425bc176516fd"
     },
     {
+      "path": "crates/sley-cli/src/commands/log.rs",
+      "sha256": "299fe5a63bcbed287cbedfe1c060736b83dcd51ffba4be29cb811699c4d84aea",
+      "upstream_blob": "03763111013b75c4a50415cba4aa4fae24bb9274",
+      "upstream_sha256": "299fe5a63bcbed287cbedfe1c060736b83dcd51ffba4be29cb811699c4d84aea"
+    },
+    {
       "path": "crates/sley-cli/src/commands/log/diff.rs",
       "sha256": "68efdb030ea65ebc77ce4b2a71742065ca2a0c90c7bbba79156574bddb112478",
       "upstream_blob": "2848d65b3c0d1b9e0516ff03ef51f5c0d37ddd52",
@@ -894,12 +648,6 @@
       "upstream_sha256": "61d40bf546e4e7bcf78e64295eb122af90215dad1c6979590a46cff7de3463fe"
     },
     {
-      "path": "crates/sley-cli/src/commands/log.rs",
-      "sha256": "299fe5a63bcbed287cbedfe1c060736b83dcd51ffba4be29cb811699c4d84aea",
-      "upstream_blob": "03763111013b75c4a50415cba4aa4fae24bb9274",
-      "upstream_sha256": "299fe5a63bcbed287cbedfe1c060736b83dcd51ffba4be29cb811699c4d84aea"
-    },
-    {
       "path": "crates/sley-cli/src/commands/merge_file.rs",
       "sha256": "7645a968e7f7ef5ec56508f277593ac108a3de48b56ffbf7a8bbc3dc3dc9320b",
       "upstream_blob": "85d9069c1d536d839f194f439f6b8bad99b5d738",
@@ -910,6 +658,12 @@
       "sha256": "f5b6a7b8abe3d60dc7a43e4d086be80bea79dac2764d5e0003fdc9182e7f8d5f",
       "upstream_blob": "67530fba0736acf58c4905edab327fc0657ac3e8",
       "upstream_sha256": "f5b6a7b8abe3d60dc7a43e4d086be80bea79dac2764d5e0003fdc9182e7f8d5f"
+    },
+    {
+      "path": "crates/sley-cli/src/commands/merge_rebase.rs",
+      "sha256": "4bcce91c5a45f29f96f3e0875861055a8efa68094d7c2f0995e4a8af1a109a99",
+      "upstream_blob": "4ac423472683fe4d543952f2a89d63015195cd31",
+      "upstream_sha256": "4bcce91c5a45f29f96f3e0875861055a8efa68094d7c2f0995e4a8af1a109a99"
     },
     {
       "path": "crates/sley-cli/src/commands/merge_rebase/merge.rs",
@@ -934,12 +688,6 @@
       "sha256": "d4f3f04298353d998e6eb017d7b15b738996773ded0c65165fa5f09fd491ee77",
       "upstream_blob": "48479615a7278d5a3efcae96134b1ba1e193aa41",
       "upstream_sha256": "d4f3f04298353d998e6eb017d7b15b738996773ded0c65165fa5f09fd491ee77"
-    },
-    {
-      "path": "crates/sley-cli/src/commands/merge_rebase.rs",
-      "sha256": "4bcce91c5a45f29f96f3e0875861055a8efa68094d7c2f0995e4a8af1a109a99",
-      "upstream_blob": "4ac423472683fe4d543952f2a89d63015195cd31",
-      "upstream_sha256": "4bcce91c5a45f29f96f3e0875861055a8efa68094d7c2f0995e4a8af1a109a99"
     },
     {
       "path": "crates/sley-cli/src/commands/merge_tree.rs",
@@ -1004,10 +752,10 @@
     },
     {
       "path": "crates/sley-cli/src/commands/plumbing/archive.rs",
-      "sha256": "e38ed4f9acbb8b6575fbe1ff3b2eee37ab97c4f29d5a6388bb7570f433147b7d",
+      "sha256": "ecfc1d8b54d7ee416a150ad9237b15d34bc1b3e6c5dac1597e71f7be5309aa1f",
       "upstream_blob": "048e67f3bc5038e9e533363bdf4e1eb4ed227ec2",
       "upstream_sha256": "4bcda7c87d0f49d6f806d25b4a28aca0976d70999e0fcded8422c9524571e986",
-      "change": "Implement bounded native upload-archive server with request, repository, ref and format restrictions."
+      "change": "Implement bounded native upload-archive server with request, repository, ref and format restrictions. Dispatch native SSH/Git remote archive requests, use client format inference and server policy, and honor explicit service responses and failures."
     },
     {
       "path": "crates/sley-cli/src/commands/plumbing/bundle.rs",
@@ -1016,16 +764,16 @@
       "upstream_sha256": "81efeb1ba05cbb537adc9ada76c767eda6f3f006da52ea135f0490ca8bca9fec"
     },
     {
-      "path": "crates/sley-cli/src/commands/plumbing/clean/interactive.rs",
-      "sha256": "b2bd2e6f492535a4f0f4a9ae6e3f2a512e8c3c427c848ead31fd7161666eb282",
-      "upstream_blob": "9d2541016290d5c8131ac385964d54ecdd9bd6b9",
-      "upstream_sha256": "b2bd2e6f492535a4f0f4a9ae6e3f2a512e8c3c427c848ead31fd7161666eb282"
-    },
-    {
       "path": "crates/sley-cli/src/commands/plumbing/clean.rs",
       "sha256": "6965a047c5915016a64dc015df82d0e434bf53ceb2707568e2482ddbb91b532c",
       "upstream_blob": "b009669114ae47c03a28e4761b1ba542a269e7b9",
       "upstream_sha256": "6965a047c5915016a64dc015df82d0e434bf53ceb2707568e2482ddbb91b532c"
+    },
+    {
+      "path": "crates/sley-cli/src/commands/plumbing/clean/interactive.rs",
+      "sha256": "b2bd2e6f492535a4f0f4a9ae6e3f2a512e8c3c427c848ead31fd7161666eb282",
+      "upstream_blob": "9d2541016290d5c8131ac385964d54ecdd9bd6b9",
+      "upstream_sha256": "b2bd2e6f492535a4f0f4a9ae6e3f2a512e8c3c427c848ead31fd7161666eb282"
     },
     {
       "path": "crates/sley-cli/src/commands/plumbing/commit_graph.rs",
@@ -1228,9 +976,10 @@
     },
     {
       "path": "crates/sley-cli/src/commands/rev_parse.rs",
-      "sha256": "034921ee5b02d2d23aaaf944fa9a6cc936d5adb6e034feb748ba5bc0a5bcdc41",
+      "sha256": "379f911c6a86821240410a0f0a1fff824db5c5553eb8a7534b2b903c3d551cbe",
       "upstream_blob": "5116096c3aa8e17324b26e7c2f07e50ea04e8720",
-      "upstream_sha256": "034921ee5b02d2d23aaaf944fa9a6cc936d5adb6e034feb748ba5bc0a5bcdc41"
+      "upstream_sha256": "034921ee5b02d2d23aaaf944fa9a6cc936d5adb6e034feb748ba5bc0a5bcdc41",
+      "change": "Render reference selectors according to symbolic and abbreviation options, effective configuration, root refs, and ordered ambiguity diagnostics."
     },
     {
       "path": "crates/sley-cli/src/commands/shortlog.rs",
@@ -1351,12 +1100,6 @@
       "sha256": "9592a6afc3fdc7f99d909d3bf587fd64cd616f98783ea7ffc5a0308054f0efc4",
       "upstream_blob": "6e875aafe2d52a19a6005dcd6abe3f42a7ec2375",
       "upstream_sha256": "9592a6afc3fdc7f99d909d3bf587fd64cd616f98783ea7ffc5a0308054f0efc4"
-    },
-    {
-      "path": "crates/sley-cli/src/commands.rs",
-      "sha256": "91f07c10f8940fd8fe8e5237b0481aa77f3b6e0e278ccecac7049fda8d99125c",
-      "upstream_blob": "f6aa2f9d092dc90ce84b2c97d62fde69df16f62b",
-      "upstream_sha256": "91f07c10f8940fd8fe8e5237b0481aa77f3b6e0e278ccecac7049fda8d99125c"
     },
     {
       "path": "crates/sley-cli/src/commit_identity.rs",
@@ -1557,6 +1300,11 @@
       "sha256": "71c8b1309630c22de252e42ea8852f6f4d9366a72b674eee6d6c58ed7f74b764",
       "upstream_blob": "d90b884f2e6d4f2002a217693d5bc6c98e026d2a",
       "upstream_sha256": "71c8b1309630c22de252e42ea8852f6f4d9366a72b674eee6d6c58ed7f74b764"
+    },
+    {
+      "path": "crates/sley-cli/tests/archive_remote.rs",
+      "sha256": "905c0a52676424a98ffe5f2fc15aff188047ba8034e1cb8eaaef6d72ede2a419",
+      "origin": "Independently authored Gitr archive interoperability and failure regressions with explicitly configured generated test-service shims; MIT OR Apache-2.0."
     },
     {
       "path": "crates/sley-cli/tests/bisect.rs",
@@ -2044,6 +1792,11 @@
       "upstream_sha256": "e31d3dc223dd77fb645dcf6c9606e8eddc593abdd971e2f164cafcf818fc86c4"
     },
     {
+      "path": "crates/sley-cli/tests/rev_parse_pseudo_names.rs",
+      "sha256": "9e8b4eaafda194f85960532a41a1bafe5e2bec18c872bb3dfc3a07175546b19c",
+      "origin": "Independently authored Gitr differential reference-selector tests against an external pinned Git oracle; MIT OR Apache-2.0."
+    },
+    {
       "path": "crates/sley-cli/tests/rm.rs",
       "sha256": "31d2299bbcf4d494df70142abb29e84d7e6dd82230627b07209cb85bb5f8a3a3",
       "upstream_blob": "4a5624f79f81a45adb19dceb5d3f8e1a7674c264",
@@ -2499,6 +2252,12 @@
       "upstream_sha256": "e3bb563422900e9f0da9b397a343fd4dcf4254515eaf1ad396a026fd8e6cb8ef"
     },
     {
+      "path": "crates/sley-formats/src/discovery.rs",
+      "sha256": "6901b210582046211e95129af0dd17ceb81b10ebff94244f8adccc365a32c3f3",
+      "upstream_blob": "5a38175dab043641b107499b739d6b9bd9a78c99",
+      "upstream_sha256": "6901b210582046211e95129af0dd17ceb81b10ebff94244f8adccc365a32c3f3"
+    },
+    {
       "path": "crates/sley-formats/src/discovery/ownership.rs",
       "sha256": "cfae10e44ddb483d081219a9b763fef2b3aef3863ac1f9503416e1de689a5ecd",
       "upstream_blob": "a29294231081f5470cdf032701cedef15b2b0e6d",
@@ -2515,12 +2274,6 @@
       "sha256": "f8778f4a4b48b9fc76a9bd56cb66e17fa2ca29d77e3d013f86d0604fcc6fbbeb",
       "upstream_blob": "c9e62f34ce218e85d75cac37599d2fdcde924f3a",
       "upstream_sha256": "f8778f4a4b48b9fc76a9bd56cb66e17fa2ca29d77e3d013f86d0604fcc6fbbeb"
-    },
-    {
-      "path": "crates/sley-formats/src/discovery.rs",
-      "sha256": "6901b210582046211e95129af0dd17ceb81b10ebff94244f8adccc365a32c3f3",
-      "upstream_blob": "5a38175dab043641b107499b739d6b9bd9a78c99",
-      "upstream_sha256": "6901b210582046211e95129af0dd17ceb81b10ebff94244f8adccc365a32c3f3"
     },
     {
       "path": "crates/sley-formats/src/lib.rs",
@@ -3085,17 +2838,17 @@
     },
     {
       "path": "crates/sley-protocol/src/sideband.rs",
-      "sha256": "4b8567c071fe978e04ab9e3134801033523d5530beaaa5c573240741488cb8b0",
+      "sha256": "435af5fd22e5145a79ef83263362bcfb3971737f53d4893eded0a997892ab5d5",
       "upstream_blob": "1a67c752026442da33675a671e022899fb915db3",
       "upstream_sha256": "1325c9e1116728a1e4ee513b1f5804678c0fbea4702c7a8e3d60413ea05b5472",
-      "change": "Emit upload-archive ACK framing with a separate flush before data sidebands."
+      "change": "Emit upload-archive ACK framing with a separate flush before data sidebands. Stream upload-archive ACK/sideband replies into a writer while validating status, framing, progress, and fatal errors."
     },
     {
       "path": "crates/sley-protocol/src/tests.rs",
-      "sha256": "6c2c2a2d9b9fe7f2c157780fa15a43b3e702ce47a88f0f02bf12d7b1d2f28ba4",
+      "sha256": "979f106c97059d34ac4f5b423e850639b9dcd3230de4bd9453e2fc108f021844",
       "upstream_blob": "cecc89282cd07ea13f9dc5d2e6a176baddb2671c",
       "upstream_sha256": "ba8b70591eea077710d1b8e95fce64d63ce19c1b66e3fa545f4d1b51a0da4998",
-      "change": "Cover upload-archive ACK/flush framing."
+      "change": "Cover upload-archive ACK/flush framing. Add streaming archive reply tests for payload/progress separation, malformed or truncated replies, and writer errors."
     },
     {
       "path": "crates/sley-protocol/src/upload_pack.rs",
@@ -3220,15 +2973,21 @@
     },
     {
       "path": "crates/sley-remote/Cargo.toml",
-      "sha256": "b4f6b2fddfcee1aede01d22f9ef078341c998a013b1446bfbfd9e7b1ed562ce7",
+      "sha256": "2df9a39788a64e53ef3b4c46ebc66e9ae38305e02dbc567da2ac7fbe8e9d90d5",
       "upstream_blob": "cdd3bdd40d9ad1a617e595c3886afe0228a72b6b",
-      "upstream_sha256": "b4f6b2fddfcee1aede01d22f9ef078341c998a013b1446bfbfd9e7b1ed562ce7"
+      "upstream_sha256": "b4f6b2fddfcee1aede01d22f9ef078341c998a013b1446bfbfd9e7b1ed562ce7",
+      "change": "Use the already locked Rustix 1.1.5 process feature on Unix for safe archive process-group cleanup."
     },
     {
       "path": "crates/sley-remote/src/admin.rs",
       "sha256": "08ee6d1eed19b6dcfbd2f9a516cd0acdaac5522607b02015a3d213d3b7ab8c3a",
       "upstream_blob": "26c8b06b35a0bb9e6de52993e5da804741865767",
       "upstream_sha256": "08ee6d1eed19b6dcfbd2f9a516cd0acdaac5522607b02015a3d213d3b7ab8c3a"
+    },
+    {
+      "path": "crates/sley-remote/src/archive.rs",
+      "sha256": "92047992c70f7ed6d8181ac977feee5bdaf706757ee0afde50aa122cc67817c2",
+      "origin": "Independently authored Gitr Rust remote-archive request coordination and process lifecycle support; MIT OR Apache-2.0."
     },
     {
       "path": "crates/sley-remote/src/bundle.rs",
@@ -3286,15 +3045,17 @@
     },
     {
       "path": "crates/sley-remote/src/git.rs",
-      "sha256": "1981d5c592472e54b105c1b932f7d1640dd51f78a0fe2d479199ff37417b6390",
+      "sha256": "c2f5ab1e952e1a7e3fae7908f012a21bb1b01c5abf238e7c4db3deb9df8fabf7",
       "upstream_blob": "f83d512377954fbb23e99ae9c470ae67ff85390f",
-      "upstream_sha256": "1981d5c592472e54b105c1b932f7d1640dd51f78a0fe2d479199ff37417b6390"
+      "upstream_sha256": "1981d5c592472e54b105c1b932f7d1640dd51f78a0fe2d479199ff37417b6390",
+      "change": "Run upload-archive through the Git transport without upload-pack negotiation, checking proxy completion and cleaning up failures."
     },
     {
       "path": "crates/sley-remote/src/git_proxy.rs",
-      "sha256": "0c797b6cb73503bc169c4a0b6697fa72c6339c7925247fa3021abbab63af9058",
+      "sha256": "a58f1312b33627a76bd1b42e1fda06405f678c29a1cc32156b2ef975396731b2",
       "upstream_blob": "b0ab98a04d1b0666601ae621398de0b5433c78c6",
-      "upstream_sha256": "0c797b6cb73503bc169c4a0b6697fa72c6339c7925247fa3021abbab63af9058"
+      "upstream_sha256": "0c797b6cb73503bc169c4a0b6697fa72c6339c7925247fa3021abbab63af9058",
+      "change": "Isolate archive proxy process groups, terminate failed descendants, and preserve checked exit status without reusing a reaped leader PID."
     },
     {
       "path": "crates/sley-remote/src/helper.rs",
@@ -3322,9 +3083,10 @@
     },
     {
       "path": "crates/sley-remote/src/lib.rs",
-      "sha256": "90fb63a89d573e03bf5dea9366b9fcedfe0eed8aa1418af9d7a934456200a382",
+      "sha256": "516d0cace02e0bd9311900a0a30204542966aa6a13c4de77e943675d83789d46",
       "upstream_blob": "ce1482cd50c3bfad705165920e03f951d28121d9",
-      "upstream_sha256": "90fb63a89d573e03bf5dea9366b9fcedfe0eed8aa1418af9d7a934456200a382"
+      "upstream_sha256": "90fb63a89d573e03bf5dea9366b9fcedfe0eed8aa1418af9d7a934456200a382",
+      "change": "Expose the native remote archive request API."
     },
     {
       "path": "crates/sley-remote/src/limits.rs",
@@ -3400,9 +3162,10 @@
     },
     {
       "path": "crates/sley-remote/src/ssh.rs",
-      "sha256": "bfc64eec8167d4d1ed17442f86f4d2ab1aeccd288c87a44a9fc93a412647b1b8",
+      "sha256": "b34d56bcf0c2ee3b650aae7881c57353f0d4dc4fb33fc4533844a39e4d546b04",
       "upstream_blob": "05cac1c6d56189805dfc62b51f79d65c05272b0b",
-      "upstream_sha256": "bfc64eec8167d4d1ed17442f86f4d2ab1aeccd288c87a44a9fc93a412647b1b8"
+      "upstream_sha256": "bfc64eec8167d4d1ed17442f86f4d2ab1aeccd288c87a44a9fc93a412647b1b8",
+      "change": "Stream SSH and explicit local archive services with bounded diagnostics, isolated process cleanup, and checked service termination."
     },
     {
       "path": "crates/sley-remote/tests/injected_http.rs",
@@ -3484,9 +3247,10 @@
     },
     {
       "path": "crates/sley-rev/src/setup.rs",
-      "sha256": "dd5ab7318a428bdd42587e9e46ddeacda5baa5cc52872a1f45521f0c9a7c8f44",
+      "sha256": "2f747448bf32918c7b24a4112641c2d64ebc79c05044beb4669cb276a14a9457",
       "upstream_blob": "c2475596d88cad57b843bc20722abc01a1d8a93d",
-      "upstream_sha256": "dd5ab7318a428bdd42587e9e46ddeacda5baa5cc52872a1f45521f0c9a7c8f44"
+      "upstream_sha256": "dd5ab7318a428bdd42587e9e46ddeacda5baa5cc52872a1f45521f0c9a7c8f44",
+      "change": "Include valid symbolic aliases in ref selectors and omit missing, cyclic, or malformed targets without dropping valid refs."
     },
     {
       "path": "crates/sley-sequencer/Cargo.toml",
@@ -3956,6 +3720,264 @@
       "sha256": "f821c422ca692ae8f7d78a3bcf88589b198e1923b0c2528ae700f3613d4e60ed",
       "upstream_blob": "43dd6a6b543b1ce2eed60c2c564b73a0358c6479",
       "upstream_sha256": "f821c422ca692ae8f7d78a3bcf88589b198e1923b0c2528ae700f3613d4e60ed"
+    },
+    {
+      "path": "crates/sley/Cargo.toml",
+      "sha256": "d3b362a27c1c2e8ad3b25a34e7942c45959156b8d84ebf10449856ba749b6ecc",
+      "upstream_blob": "726a3ba06bed533a2f52a8df5ac4bc9f72eb8f6d",
+      "upstream_sha256": "d3b362a27c1c2e8ad3b25a34e7942c45959156b8d84ebf10449856ba749b6ecc"
+    },
+    {
+      "path": "crates/sley/src/config_edit.rs",
+      "sha256": "9c8057a60027593befe3a69c1040931382785b5034580d031ff6aa34d202f320",
+      "upstream_blob": "c2f0a6b23d5e457149f59e84b2dca3fea2cd78a7",
+      "upstream_sha256": "9c8057a60027593befe3a69c1040931382785b5034580d031ff6aa34d202f320"
+    },
+    {
+      "path": "crates/sley/src/diff.rs",
+      "sha256": "96697361e7244cbc0e92dc3f3a0824731629f57c3b698c7ac3725ed938540d2f",
+      "upstream_blob": "e16c526e6434c669f654c77997faedf80c2319aa",
+      "upstream_sha256": "96697361e7244cbc0e92dc3f3a0824731629f57c3b698c7ac3725ed938540d2f"
+    },
+    {
+      "path": "crates/sley/src/index_io.rs",
+      "sha256": "805f88b5bf3b6bff7c8888a7a59c0d5eedf9c2f8da97b84028d6f4ced6d26585",
+      "upstream_blob": "6ea8b42c21bbfab2525a6a0d9e67df0e17956fbd",
+      "upstream_sha256": "805f88b5bf3b6bff7c8888a7a59c0d5eedf9c2f8da97b84028d6f4ced6d26585"
+    },
+    {
+      "path": "crates/sley/src/lib.rs",
+      "sha256": "c4be3a73db37218dec25f0904b876fba4120a2e1b2c20f35f353dc74f2726fd4",
+      "upstream_blob": "2277f64052cb02e6d9c6b0e12ea6b5509e9fa966",
+      "upstream_sha256": "c4be3a73db37218dec25f0904b876fba4120a2e1b2c20f35f353dc74f2726fd4"
+    },
+    {
+      "path": "crates/sley/src/local_clone.rs",
+      "sha256": "ad791ae28df8f757d02c3a562697622acc6dcf33aa06df8cf797be893d3568a4",
+      "upstream_blob": "cf616504cb89ed326f9386b803a32408f7aeba1f",
+      "upstream_sha256": "ad791ae28df8f757d02c3a562697622acc6dcf33aa06df8cf797be893d3568a4"
+    },
+    {
+      "path": "crates/sley/src/notes_repo.rs",
+      "sha256": "f07d8c75494ba1a8c26d05fc706fe459f50776a51915e1dfb14df746aa568622",
+      "upstream_blob": "a428514aba6e982091babfb8686dd3ab76a6fc63",
+      "upstream_sha256": "f07d8c75494ba1a8c26d05fc706fe459f50776a51915e1dfb14df746aa568622"
+    },
+    {
+      "path": "crates/sley/src/objects.rs",
+      "sha256": "48d735f0b57d745bf3acde39cbebc5ae8422b658054c82408a98ab29e19e930e",
+      "upstream_blob": "a3d24ab4b8a71de5474fbf0360877d937256471e",
+      "upstream_sha256": "48d735f0b57d745bf3acde39cbebc5ae8422b658054c82408a98ab29e19e930e"
+    },
+    {
+      "path": "crates/sley/src/open_env.rs",
+      "sha256": "991e2355853cf7cebba695d845aa1becceccad6c4a90f5824c754d0047302987",
+      "upstream_blob": "67e33e587cdadf5603d8ca16a84d2bb5c52b8390",
+      "upstream_sha256": "991e2355853cf7cebba695d845aa1becceccad6c4a90f5824c754d0047302987"
+    },
+    {
+      "path": "crates/sley/src/pack_plan.rs",
+      "sha256": "4cdbd2f90c9043c03ec00c15a76162f435f72b598edf9866134e1ec4fcf40328",
+      "upstream_blob": "d3d885aadf28bc88160600bf77ffc06a314eb211",
+      "upstream_sha256": "4cdbd2f90c9043c03ec00c15a76162f435f72b598edf9866134e1ec4fcf40328"
+    },
+    {
+      "path": "crates/sley/src/refs.rs",
+      "sha256": "fb27405067072997caa68c615781f648f275e806222122f557087383aa5e8f86",
+      "upstream_blob": "6294c1a6589a9c4cdb5e88da4d0ed528421e98b2",
+      "upstream_sha256": "fb27405067072997caa68c615781f648f275e806222122f557087383aa5e8f86"
+    },
+    {
+      "path": "crates/sley/src/refspec.rs",
+      "sha256": "2d5ace92803daea6772cfd3f6c30e326a11e323501be25b704f083b9863aab25",
+      "upstream_blob": "cef4d65cdf7573b5f8e54c10582006898dfb5d7c",
+      "upstream_sha256": "2d5ace92803daea6772cfd3f6c30e326a11e323501be25b704f083b9863aab25"
+    },
+    {
+      "path": "crates/sley/src/remote.rs",
+      "sha256": "4fcd441eaa2d88ea710bddd8d6e116df37d8240034522d3fe323213af8c7705c",
+      "upstream_blob": "13fbeb53f13cd5065a303fcf03716ac9832abf65",
+      "upstream_sha256": "4fcd441eaa2d88ea710bddd8d6e116df37d8240034522d3fe323213af8c7705c"
+    },
+    {
+      "path": "crates/sley/src/remote_edit.rs",
+      "sha256": "4e8865e2954e7db9ec6ebae6c528cf89d26e578ae38a15b9682ca6ebde9d2994",
+      "upstream_blob": "56bb7a8164bd7200632a0a42c794a0438ec619ba",
+      "upstream_sha256": "4e8865e2954e7db9ec6ebae6c528cf89d26e578ae38a15b9682ca6ebde9d2994"
+    },
+    {
+      "path": "crates/sley/src/rev_graph.rs",
+      "sha256": "f39ec6d4eab1ce7dfadbcb29532741afa5353dde2f257613c6c0bd2d3e340825",
+      "upstream_blob": "524682a1eaf955691be56e5e4935cfb7df2b78ae",
+      "upstream_sha256": "f39ec6d4eab1ce7dfadbcb29532741afa5353dde2f257613c6c0bd2d3e340825"
+    },
+    {
+      "path": "crates/sley/src/status_plan.rs",
+      "sha256": "8b3fceee9fcdcdfb9eb7c761a1584c3af5b9a3e7d0d5b9de2781d8ea03d4af9b",
+      "upstream_blob": "51217cf8ae9e1527a0964286bb968bbcd13b6c6a",
+      "upstream_sha256": "8b3fceee9fcdcdfb9eb7c761a1584c3af5b9a3e7d0d5b9de2781d8ea03d4af9b"
+    },
+    {
+      "path": "crates/sley/src/tags.rs",
+      "sha256": "401fc9a4d0c680df030d07e02aa7e9cd7918b9b510415eab05528e8dd17aaf5e",
+      "upstream_blob": "8429f151e225ee7e2820aa0da0a6960ff596a358",
+      "upstream_sha256": "401fc9a4d0c680df030d07e02aa7e9cd7918b9b510415eab05528e8dd17aaf5e"
+    },
+    {
+      "path": "crates/sley/tests/config_edit.rs",
+      "sha256": "53b70f736b044c3f4e825ff651b3551999ddbd0a3988b9c6b18e16087dfce57c",
+      "upstream_blob": "7ae075167ee6ad18f098b3bfd45a0aa3a949e949",
+      "upstream_sha256": "53b70f736b044c3f4e825ff651b3551999ddbd0a3988b9c6b18e16087dfce57c"
+    },
+    {
+      "path": "crates/sley/tests/delete_broken_ref.rs",
+      "sha256": "9d61b4dbcc901c6ff5aedf9fde14ea84c9829852ff027bcf1691e5c76ef33d46",
+      "upstream_blob": "eb2aaca55b3817cf856269ef423016ec3bd60f68",
+      "upstream_sha256": "9d61b4dbcc901c6ff5aedf9fde14ea84c9829852ff027bcf1691e5c76ef33d46"
+    },
+    {
+      "path": "crates/sley/tests/index_from_tree.rs",
+      "sha256": "24ee608483a9e42f926c6466296325d4d0ab6d59d9e499ddd090494f725f0bf2",
+      "upstream_blob": "32210d4074a2d232c60c3d3ead4f593ad7280cdc",
+      "upstream_sha256": "24ee608483a9e42f926c6466296325d4d0ab6d59d9e499ddd090494f725f0bf2"
+    },
+    {
+      "path": "crates/sley/tests/index_io.rs",
+      "sha256": "0425dd6d7c2acbaecbec725fbde1f63b5867cb1d83598f302d3e6b1f1d166bd6",
+      "upstream_blob": "dc68f791453644c436f0ff8caf9f65a3fadd6a23",
+      "upstream_sha256": "0425dd6d7c2acbaecbec725fbde1f63b5867cb1d83598f302d3e6b1f1d166bd6"
+    },
+    {
+      "path": "crates/sley/tests/library_diagnostics.rs",
+      "sha256": "77d3e172d23bb9c1ff3a7e66b9b1b9a264a7632e1c70f50ccacaaac109fb10d9",
+      "upstream_blob": "db7b3ac0cec1c7b68e25491fc4126e7b4254cfa3",
+      "upstream_sha256": "77d3e172d23bb9c1ff3a7e66b9b1b9a264a7632e1c70f50ccacaaac109fb10d9"
+    },
+    {
+      "path": "crates/sley/tests/local_clone.rs",
+      "sha256": "2dfb5de88e0485b14cb2a6072bbe504df0275edaae8b235b600e74ff6521b20f",
+      "upstream_blob": "c999b923d77729407b68ea1845000abdd64c1598",
+      "upstream_sha256": "2dfb5de88e0485b14cb2a6072bbe504df0275edaae8b235b600e74ff6521b20f"
+    },
+    {
+      "path": "crates/sley/tests/parity/cat_file.rs",
+      "sha256": "d76f99acc4772c4e8fb979a5f3ff8232a8a5bb84d9390092aa888e46fb8d2bae",
+      "upstream_blob": "7811d745e0fe720221544b678259c8bcb1210f98",
+      "upstream_sha256": "d76f99acc4772c4e8fb979a5f3ff8232a8a5bb84d9390092aa888e46fb8d2bae"
+    },
+    {
+      "path": "crates/sley/tests/parity/common.rs",
+      "sha256": "837ace5e6b049f254baf5a3b411605801527b0177c11118bb33d9cecfaacb794",
+      "upstream_blob": "f0a78d354479cc02bea9c35f07c642312399af88",
+      "upstream_sha256": "837ace5e6b049f254baf5a3b411605801527b0177c11118bb33d9cecfaacb794"
+    },
+    {
+      "path": "crates/sley/tests/parity/config.rs",
+      "sha256": "4808aec5cbf83efc6ba5e3d039d5ea8fe0c680374bd990d7969d5c52796aab56",
+      "upstream_blob": "fbdd0248b33e8f220dcc0176a16a6d186bcec0f6",
+      "upstream_sha256": "4808aec5cbf83efc6ba5e3d039d5ea8fe0c680374bd990d7969d5c52796aab56"
+    },
+    {
+      "path": "crates/sley/tests/parity/diff.rs",
+      "sha256": "7fc5ea0d8d11ee81645d095130277830b4de4a84f83e96004fe57ac5039dba4a",
+      "upstream_blob": "f0ac66d3499bb19e40ff1cda54970a76c891e1db",
+      "upstream_sha256": "7fc5ea0d8d11ee81645d095130277830b4de4a84f83e96004fe57ac5039dba4a"
+    },
+    {
+      "path": "crates/sley/tests/parity/hash_object.rs",
+      "sha256": "2b6d36c81dd64b0679114634013cb3c0091c0494dc2303d30c991ea3403d5bef",
+      "upstream_blob": "aa5c6b03bc29229445ff5c9c35f0dbed5699bf20",
+      "upstream_sha256": "2b6d36c81dd64b0679114634013cb3c0091c0494dc2303d30c991ea3403d5bef"
+    },
+    {
+      "path": "crates/sley/tests/parity/index.rs",
+      "sha256": "06c488696b14810f87638d7539184ced7cc5af50f29294cbd04931fdd90499f6",
+      "upstream_blob": "33174c38e7ea38dde9a21050bb92d31544f92ac0",
+      "upstream_sha256": "06c488696b14810f87638d7539184ced7cc5af50f29294cbd04931fdd90499f6"
+    },
+    {
+      "path": "crates/sley/tests/parity/init.rs",
+      "sha256": "54aba6118594957fd83571ab9ea8e1d3cc1d7cd8a9397d1ebd9bab4f6e3e1caa",
+      "upstream_blob": "5d969523578fdd76d26244024b56c99686f4ff58",
+      "upstream_sha256": "54aba6118594957fd83571ab9ea8e1d3cc1d7cd8a9397d1ebd9bab4f6e3e1caa"
+    },
+    {
+      "path": "crates/sley/tests/parity/main.rs",
+      "sha256": "e8d5d5176cfcaed6c24abd7bf85d7e1991eb84a9aa0b77053007f4860f655bf3",
+      "upstream_blob": "ce7885eea4bb2f7a3e362264dfefb35cba66e1f5",
+      "upstream_sha256": "e8d5d5176cfcaed6c24abd7bf85d7e1991eb84a9aa0b77053007f4860f655bf3"
+    },
+    {
+      "path": "crates/sley/tests/parity/objects.rs",
+      "sha256": "999a6680df3e2ab4b7d92ebec3a753f19c43e2418132bbc2bce9e9b8ac7143de",
+      "upstream_blob": "ffcfc6921ecc1df337427b9cb11e1a5b4b51ec8e",
+      "upstream_sha256": "999a6680df3e2ab4b7d92ebec3a753f19c43e2418132bbc2bce9e9b8ac7143de"
+    },
+    {
+      "path": "crates/sley/tests/parity/refs.rs",
+      "sha256": "a733d90f8ea3e145f3a186ed84c3cd3f9a14ac7c8db01e49eae37153d05c33cb",
+      "upstream_blob": "583d2b0fb54a0a48cd0263621be6979748bb4344",
+      "upstream_sha256": "a733d90f8ea3e145f3a186ed84c3cd3f9a14ac7c8db01e49eae37153d05c33cb"
+    },
+    {
+      "path": "crates/sley/tests/parity/remote.rs",
+      "sha256": "f58a23589724e3db649c931eb7095caa1a62fa4480df019e41de5c06494862f0",
+      "upstream_blob": "cc25bb74e7962dd2c2478999dac8ff08707f624a",
+      "upstream_sha256": "f58a23589724e3db649c931eb7095caa1a62fa4480df019e41de5c06494862f0"
+    },
+    {
+      "path": "crates/sley/tests/parity/resolve_path.rs",
+      "sha256": "62ce09674ac8d0a128a4d52deeb869f8dcc569b411ea0d4720598f3c3f7cf273",
+      "upstream_blob": "7c71e5901926e73396a8ac5b52fb2c38c119e8c6",
+      "upstream_sha256": "62ce09674ac8d0a128a4d52deeb869f8dcc569b411ea0d4720598f3c3f7cf273"
+    },
+    {
+      "path": "crates/sley/tests/parity/rev_graph.rs",
+      "sha256": "54ed5a565b38aaccc2049c651402117f085b4f9f4df896ed22bf967f63ae23bc",
+      "upstream_blob": "b5c8f5fe72486dc4d67da633d47ca76fe36057d3",
+      "upstream_sha256": "54ed5a565b38aaccc2049c651402117f085b4f9f4df896ed22bf967f63ae23bc"
+    },
+    {
+      "path": "crates/sley/tests/parity/rev_parse.rs",
+      "sha256": "fa4affba870f1e0bd352ef219e06d9cc87cbebbe9ce7bc4d30e040a0cd72708b",
+      "upstream_blob": "519359df13fde402c59eefbeddb8a232009669a9",
+      "upstream_sha256": "fa4affba870f1e0bd352ef219e06d9cc87cbebbe9ce7bc4d30e040a0cd72708b"
+    },
+    {
+      "path": "crates/sley/tests/parity/update_index.rs",
+      "sha256": "f96ed9bbacde3c88dd141a282780cb548d4d4d7acdc8855b0a86386e680cdf0f",
+      "upstream_blob": "88f348bbd092fc8861c9a1bf3968a7d9938f22dd",
+      "upstream_sha256": "f96ed9bbacde3c88dd141a282780cb548d4d4d7acdc8855b0a86386e680cdf0f"
+    },
+    {
+      "path": "crates/sley/tests/parity/write_tree.rs",
+      "sha256": "01ebf21ce0424ece3e98ed11227a81789126e2a438b165da3935344f35e9f834",
+      "upstream_blob": "81700fce4cd5f10c113e32124be75638700b84f5",
+      "upstream_sha256": "01ebf21ce0424ece3e98ed11227a81789126e2a438b165da3935344f35e9f834"
+    },
+    {
+      "path": "crates/sley/tests/repository_policy_isolation.rs",
+      "sha256": "79ebea37eb91baaa6c26d9ad9da71a261a2a268bd6e7ca370bb8fc69345fec52",
+      "upstream_blob": "4c3ccb5ad1b16d81fd0d1813d32d0148da7f57d3",
+      "upstream_sha256": "79ebea37eb91baaa6c26d9ad9da71a261a2a268bd6e7ca370bb8fc69345fec52"
+    },
+    {
+      "path": "crates/sley/tests/signature.rs",
+      "sha256": "dcd3b80cfeaa7b29205e416a700e598eaafba6dbf946d030901fc7e4fc58d6df",
+      "upstream_blob": "324923d4e1c6bdbf3a2bde77fef7d9ee9d1df301",
+      "upstream_sha256": "dcd3b80cfeaa7b29205e416a700e598eaafba6dbf946d030901fc7e4fc58d6df"
+    },
+    {
+      "path": "crates/sley/tests/streaming_embedder_surface.rs",
+      "sha256": "10f41dc458f400723cfcccf946f23e762138f07f566e89e52c0e245485966b38",
+      "upstream_blob": "aac6323e591886559304f12b75b6caf0c8c192da",
+      "upstream_sha256": "10f41dc458f400723cfcccf946f23e762138f07f566e89e52c0e245485966b38"
+    },
+    {
+      "path": "crates/sley/tests/tree_editor.rs",
+      "sha256": "a36dd25d25e9f47cb7b1995c7c136485c898b6c30af3e867c64be54dffb8f34d",
+      "upstream_blob": "a6d8b7c11e94f35217adaa6ca5c821d3cea6267a",
+      "upstream_sha256": "a36dd25d25e9f47cb7b1995c7c136485c898b6c30af3e867c64be54dffb8f34d"
     },
     {
       "path": "docs/HTTP_EMBEDDING.md",

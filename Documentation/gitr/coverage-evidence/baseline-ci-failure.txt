@@ -1,0 +1,21 @@
+https://github.com/glopyglerky/gitr/actions/runs/42754137566
+2026-11-10T04:14:30.6514635Z     CC shell.o
+2026-11-10T04:14:30.7448737Z     CC http.o
+2026-11-10T04:14:30.7952738Z     CC http-walker.o
+2026-11-10T04:14:30.8319396Z In file included from http.c:5:
+2026-11-10T04:14:30.8320200Z git-curl-compat.h:3:10: fatal error: curl/curl.h: No such file or directory
+2026-11-10T04:14:30.8320922Z     3 | #include <curl/curl.h>
+2026-11-10T04:14:30.8321691Z       |          ^~~~~~~~~~~~~
+2026-11-10T04:14:30.8322184Z compilation terminated.
+2026-11-10T04:14:30.8347553Z make: *** [Makefile:2922: http.o] Error 1
+2026-11-10T04:14:30.8348175Z make: *** Waiting for unfinished jobs....
+2026-11-10T04:14:30.8836703Z In file included from http-walker.c:8:
+2026-11-10T04:14:30.8837325Z http.h:9:10: fatal error: curl/curl.h: No such file or directory
+2026-11-10T04:14:30.8837880Z     9 | #include <curl/curl.h>
+2026-11-10T04:14:30.8838259Z       |          ^~~~~~~~~~~~~
+2026-11-10T04:14:30.8838635Z compilation terminated.
+2026-11-10T04:14:30.8863672Z make: *** [Makefile:2922: http-walker.o] Error 1
+2026-11-10T04:14:30.8867159Z make: Leaving directory '/home/runner/work/gitr/gitr/.gitr-ci/reference-git-source'
+2026-11-10T04:14:30.8881592Z build-oracle-install failed with exit status: 2; see build-oracle-install.log
+2026-11-10T04:14:30.8897582Z ##[error]Process completed with exit code 1.
+2026-11-10T04:14:30.9071370Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02

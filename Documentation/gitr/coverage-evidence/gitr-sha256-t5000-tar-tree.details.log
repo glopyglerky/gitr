@@ -1,0 +1,752 @@
+Initialized empty Git repository in /workspace/scratch/717c1db38a84/upstream-final/gitr-sha256-t5000-tar-tree/trash directory.t5000-tar-tree/.git/
+expecting success of 5000.1 'setup': 
+	test_oid_cache <<-EOF
+	obj sha1:19f9c8273ec45a8938e6999cb59b3ff66739902a
+	obj sha256:3c666f798798601571f5cec0adb57ce4aba8546875e7693177e0535f34d2c49b
+	EOF
+
+
+ok 1 - setup
+expecting success of 5000.2 '--list notices extra parameters': 
+	test_must_fail git archive --list blah &&
+	test_must_fail git archive --remote=. --list blah
+
+
+ok 2 - --list notices extra parameters
+expecting success of 5000.3 'end-of-options is correctly eaten': 
+	git archive --list --end-of-options &&
+	git archive --remote=. --list --end-of-options
+
+tar
+tgz
+tar.gz
+zip
+tar
+tgz
+tar.gz
+zip
+
+ok 3 - end-of-options is correctly eaten
+expecting success of 5000.4 'populate workdir': 
+	mkdir a &&
+	echo "a files_named_a" >.gitattributes &&
+	git add .gitattributes &&
+	echo simple textfile >a/a &&
+	ten=0123456789 &&
+	hundred="$ten$ten$ten$ten$ten$ten$ten$ten$ten$ten" &&
+	echo long filename >"a/four$hundred" &&
+	mkdir a/bin &&
+	test-tool genrandom "frotz" 500000 >a/bin/sh &&
+	printf "A\$Format:%s\$O" "$SUBSTFORMAT" >a/substfile1 &&
+	printf "A not substituted O" >a/substfile2 &&
+	if test_have_prereq SYMLINKS
+	then
+		ln -s a a/l1
+	else
+		printf %s a >a/l1
+	fi &&
+	(
+		p=long_path_to_a_file &&
+		cd a &&
+		for depth in 1 2 3 4 5
+		do
+			mkdir $p &&
+			cd $p || exit 1
+		done &&
+		echo text >file_with_long_path
+	) &&
+	(cd a && find .) | sort >a.lst
+
+checking prerequisite: SYMLINKS
+
+mkdir -p "$TRASH_DIRECTORY/prereq-test-dir-SYMLINKS" &&
+(
+	cd "$TRASH_DIRECTORY/prereq-test-dir-SYMLINKS" &&
+	# test whether the filesystem supports symbolic links
+	ln -s x y && test -h y
+
+)
+prerequisite SYMLINKS ok
+
+ok 4 - populate workdir
+expecting success of 5000.5 'add ignored file': echo ignore me >a/ignored &&
+     mkdir .git/info &&
+     echo ignored export-ignore >.git/info/attributes
+ok 5 - add ignored file
+
+expecting success of 5000.6 'add files to repository': 
+	git add a &&
+	GIT_COMMITTER_DATE="2005-05-27 22:00" git commit -m initial
+
+[master (root-commit) c340490] initial
+ Author: A U Thor <author@example.com>
+ 9 files changed, 8 insertions(+)
+ create mode 100644 .gitattributes
+ create mode 100644 a/a
+ create mode 100644 a/bin/sh
+ create mode 100644 a/four0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ create mode 100644 a/ignored
+ create mode 120000 a/l1
+ create mode 100644 a/long_path_to_a_file/long_path_to_a_file/long_path_to_a_file/long_path_to_a_file/long_path_to_a_file/file_with_long_path
+ create mode 100644 a/substfile1
+ create mode 100644 a/substfile2
+
+expecting success of 5000.7 'setup export-subst': 
+	echo "substfile?" export-subst >>.git/info/attributes &&
+	git log --max-count=1 "--pretty=format:A${SUBSTFORMAT}O" HEAD \
+		>a/substfile1
+
+ok 6 - add files to repository
+
+ok 7 - setup export-subst
+expecting success of 5000.8 'create bare clone': 
+	git clone --template= --bare . bare.git &&
+	mkdir bare.git/info &&
+	cp .git/info/attributes bare.git/info/attributes
+
+Cloning into bare repository 'bare.git'...
+done.
+
+ok 8 - create bare clone
+expecting success of 5000.9 'remove ignored file': 
+	rm a/ignored
+
+
+ok 9 - remove ignored file
+expecting success of 5000.10 'git archive': 
+	git archive HEAD >b.tar
+
+
+ok 10 - git archive
+expecting success of 5000.11 ' extract tar archive': 
+		(mkdir $dir && cd $dir && "$TAR" xf -) <$tarfile
+	
+
+ok 11 -  extract tar archive
+checking prerequisite: TAR_NEEDS_PAX_FALLBACK
+
+mkdir -p "$TRASH_DIRECTORY/prereq-test-dir-TAR_NEEDS_PAX_FALLBACK" &&
+(
+	cd "$TRASH_DIRECTORY/prereq-test-dir-TAR_NEEDS_PAX_FALLBACK" &&
+	(
+		mkdir pax &&
+		cd pax &&
+		"$TAR" xf "$TEST_DIRECTORY"/t5000/pax.tar &&
+		test -f PaxHeaders.1791/file
+	)
+
+)
+prerequisite TAR_NEEDS_PAX_FALLBACK not satisfied
+
+ok 12 # skip  interpret pax headers (missing TAR_NEEDS_PAX_FALLBACK)
+expecting success of 5000.13 ' validate filenames': 
+		(cd ${dir_with_prefix}a && find .) | sort >$listfile &&
+		test_cmp a.lst $listfile
+	
+
+ok 13 -  validate filenames
+expecting success of 5000.14 ' validate file contents': 
+		diff -r a ${dir_with_prefix}a
+	
+
+ok 14 -  validate file contents
+expecting success of 5000.15 ' validate mtime of a/a': 
+		test-tool chmtime --get $dir/$path_in_archive >actual.mtime &&
+		echo $mtime >expect.mtime &&
+		test_cmp expect.mtime actual.mtime
+	
+
+ok 15 -  validate mtime of a/a
+expecting success of 5000.16 'git archive --mtime': 
+	git archive --mtime=2002-02-02T02:02:02-0200 HEAD >with_mtime.tar
+
+
+ok 16 - git archive --mtime
+expecting success of 5000.17 ' extract tar archive': 
+		(mkdir $dir && cd $dir && "$TAR" xf -) <$tarfile
+	
+
+ok 17 -  extract tar archive
+
+ok 18 # skip  interpret pax headers (missing TAR_NEEDS_PAX_FALLBACK)
+expecting success of 5000.19 ' validate filenames': 
+		(cd ${dir_with_prefix}a && find .) | sort >$listfile &&
+		test_cmp a.lst $listfile
+	
+
+ok 19 -  validate filenames
+expecting success of 5000.20 ' validate file contents': 
+		diff -r a ${dir_with_prefix}a
+	
+
+ok 20 -  validate file contents
+expecting success of 5000.21 ' validate mtime of a/a': 
+		test-tool chmtime --get $dir/$path_in_archive >actual.mtime &&
+		echo $mtime >expect.mtime &&
+		test_cmp expect.mtime actual.mtime
+	
+
+ok 21 -  validate mtime of a/a
+expecting success of 5000.22 'git archive --prefix=prefix/': 
+	git archive --prefix=prefix/ HEAD >with_prefix.tar
+
+
+ok 22 - git archive --prefix=prefix/
+expecting success of 5000.23 ' extract tar archive': 
+		(mkdir $dir && cd $dir && "$TAR" xf -) <$tarfile
+	
+
+ok 23 -  extract tar archive
+
+ok 24 # skip  interpret pax headers (missing TAR_NEEDS_PAX_FALLBACK)
+expecting success of 5000.25 ' validate filenames': 
+		(cd ${dir_with_prefix}a && find .) | sort >$listfile &&
+		test_cmp a.lst $listfile
+	
+
+ok 25 -  validate filenames
+expecting success of 5000.26 ' validate file contents': 
+		diff -r a ${dir_with_prefix}a
+	
+
+expecting success of 5000.27 'git-archive --prefix=olde-': 
+	git archive --prefix=olde- HEAD >with_olde-prefix.tar
+
+ok 26 -  validate file contents
+
+ok 27 - git-archive --prefix=olde-
+expecting success of 5000.28 ' extract tar archive': 
+		(mkdir $dir && cd $dir && "$TAR" xf -) <$tarfile
+	
+
+ok 28 -  extract tar archive
+
+expecting success of 5000.30 ' validate filenames': 
+		(cd ${dir_with_prefix}a && find .) | sort >$listfile &&
+		test_cmp a.lst $listfile
+	
+ok 29 # skip  interpret pax headers (missing TAR_NEEDS_PAX_FALLBACK)
+
+ok 30 -  validate filenames
+expecting success of 5000.31 ' validate file contents': 
+		diff -r a ${dir_with_prefix}a
+	
+
+ok 31 -  validate file contents
+expecting success of 5000.32 'git archive --add-file': 
+	echo untracked >untracked &&
+	git archive --add-file=untracked HEAD >with_untracked.tar
+
+
+ok 32 - git archive --add-file
+expecting success of 5000.33 ' extract tar archive': 
+		(mkdir $dir && cd $dir && "$TAR" xf -) <$tarfile
+	
+
+ok 33 -  extract tar archive
+
+ok 34 # skip  interpret pax headers (missing TAR_NEEDS_PAX_FALLBACK)
+expecting success of 5000.35 ' validate filenames': 
+		(cd ${dir_with_prefix}a && find .) | sort >$listfile &&
+		test_cmp a.lst $listfile
+	
+
+ok 35 -  validate filenames
+expecting success of 5000.36 ' validate file contents': 
+		diff -r a ${dir_with_prefix}a
+	
+
+ok 36 -  validate file contents
+expecting success of 5000.37 ' validate extra file untracked': 
+		diff -r $path_in_fs $dir/$path_in_archive
+	
+
+ok 37 -  validate extra file untracked
+expecting success of 5000.38 'git archive --add-file twice': 
+	echo untracked >untracked &&
+	git archive --prefix=one/ --add-file=untracked \
+		--prefix=two/ --add-file=untracked \
+		--prefix= HEAD >with_untracked2.tar
+
+
+ok 38 - git archive --add-file twice
+expecting success of 5000.39 ' extract tar archive': 
+		(mkdir $dir && cd $dir && "$TAR" xf -) <$tarfile
+	
+
+ok 39 -  extract tar archive
+
+ok 40 # skip  interpret pax headers (missing TAR_NEEDS_PAX_FALLBACK)
+expecting success of 5000.41 ' validate filenames': 
+		(cd ${dir_with_prefix}a && find .) | sort >$listfile &&
+		test_cmp a.lst $listfile
+	
+
+ok 41 -  validate filenames
+expecting success of 5000.42 ' validate file contents': 
+		diff -r a ${dir_with_prefix}a
+	
+
+ok 42 -  validate file contents
+expecting success of 5000.43 ' validate extra file one/untracked': 
+		diff -r $path_in_fs $dir/$path_in_archive
+	
+
+ok 43 -  validate extra file one/untracked
+expecting success of 5000.44 ' validate extra file two/untracked': 
+		diff -r $path_in_fs $dir/$path_in_archive
+	
+
+ok 44 -  validate extra file two/untracked
+expecting success of 5000.45 'git archive on large files': 
+	test_config core.bigfilethreshold 1 &&
+	git archive HEAD >b3.tar &&
+	test_cmp_bin b.tar b3.tar
+
+
+ok 45 - git archive on large files
+expecting success of 5000.46 'git archive in a bare repo': 
+	git --git-dir bare.git archive HEAD >b3.tar
+
+
+ok 46 - git archive in a bare repo
+expecting success of 5000.47 'git archive vs. the same in a bare repo': 
+	test_cmp_bin b.tar b3.tar
+
+
+ok 47 - git archive vs. the same in a bare repo
+expecting success of 5000.48 'git archive with --output': 
+	git archive --output=b4.tar HEAD &&
+	test_cmp_bin b.tar b4.tar
+
+
+ok 48 - git archive with --output
+expecting success of 5000.49 'git archive --remote': 
+	git archive --remote=. HEAD >b5.tar &&
+	test_cmp_bin b.tar b5.tar
+
+
+ok 49 - git archive --remote
+expecting success of 5000.50 'git archive --remote with configured remote': 
+	git config remote.foo.url . &&
+	(
+		cd a &&
+		git archive --remote=foo --output=../b5-nick.tar HEAD
+	) &&
+	test_cmp_bin b.tar b5-nick.tar
+
+
+expecting success of 5000.51 'git get-tar-commit-id': 
+	git get-tar-commit-id <b.tar >actual &&
+	git rev-parse HEAD >expect &&
+	test_cmp expect actual
+
+ok 50 - git archive --remote with configured remote
+
+expecting success of 5000.52 'git archive with --output, override inferred format': 
+	git archive --format=tar --output=d4.zip HEAD &&
+	test_cmp_bin b.tar d4.zip
+
+ok 51 - git get-tar-commit-id
+ok 52 - git archive with --output, override inferred format
+
+checking prerequisite: GZIP
+
+mkdir -p "$TRASH_DIRECTORY/prereq-test-dir-GZIP" &&
+(
+	cd "$TRASH_DIRECTORY/prereq-test-dir-GZIP" &&gzip --version
+)
+gzip 1.13
+Copyright (C) 2023 Free Software Foundation, Inc.
+Copyright (C) 1993 Jean-loup Gailly.
+This is free software.  You may redistribute copies of it under the terms of
+the GNU General Public License <https://www.gnu.org/licenses/gpl.html>.
+There is NO WARRANTY, to the extent permitted by law.
+
+Written by Jean-loup Gailly.
+prerequisite GZIP ok
+expecting success of 5000.53 'git archive with --output and --remote creates .tgz': 
+	git archive --output=d5.tgz --remote=. HEAD &&
+	gzip -d -c <d5.tgz >d5.tar &&
+	test_cmp_bin b.tar d5.tar
+
+
+ok 53 - git archive with --output and --remote creates .tgz
+expecting success of 5000.54 'git archive --list outside of a git repo': 
+	nongit git archive --list
+
+tar
+tgz
+tar.gz
+zip
+
+ok 54 - git archive --list outside of a git repo
+expecting success of 5000.55 'git archive --remote outside of a git repo': 
+	git archive HEAD >expect.tar &&
+	nongit git archive --remote="$PWD" HEAD >actual.tar &&
+	test_cmp_bin expect.tar actual.tar
+
+
+ok 55 - git archive --remote outside of a git repo
+expecting success of 5000.56 'clients cannot access unreachable commits': 
+	test_commit unreachable &&
+	sha1=$(git rev-parse HEAD) &&
+	git reset --hard HEAD^ &&
+	git archive $sha1 >remote.tar &&
+	test_must_fail git archive --remote=. $sha1 >remote.tar
+
+[master 6cf85af] unreachable
+ Author: A U Thor <author@example.com>
+ 1 file changed, 1 insertion(+)
+ create mode 100644 unreachable.t
+HEAD is now at c340490 initial
+git: command failed: no such ref: 6cf85afdf95448c81e4c9e6ae02e2993dd19f8ed7bd22c50e532ef82da862718
+
+ok 56 - clients cannot access unreachable commits
+expecting success of 5000.57 'upload-archive can allow unreachable commits': 
+	test_commit unreachable1 &&
+	sha1=$(git rev-parse HEAD) &&
+	git reset --hard HEAD^ &&
+	git archive $sha1 >remote.tar &&
+	test_config uploadarchive.allowUnreachable true &&
+	git archive --remote=. $sha1 >remote.tar
+
+[master 24a8d11] unreachable1
+ Author: A U Thor <author@example.com>
+ 1 file changed, 1 insertion(+)
+ create mode 100644 unreachable1.t
+HEAD is now at c340490 initial
+
+ok 57 - upload-archive can allow unreachable commits
+expecting success of 5000.58 'setup tar filters': 
+	git config tar.tar.foo.command "tr ab ba" &&
+	git config tar.bar.command "tr ab ba" &&
+	git config tar.bar.remote true &&
+	git config tar.invalid baz
+
+
+ok 58 - setup tar filters
+expecting success of 5000.59 'archive --list mentions user filter': 
+	git archive --list >output &&
+	grep "^tar\.foo\$" output &&
+	grep "^bar\$" output
+
+tar.foo
+bar
+
+ok 59 - archive --list mentions user filter
+expecting success of 5000.60 'archive --list shows only enabled remote filters': 
+	git archive --list --remote=. >output &&
+	! grep "^tar\.foo\$" output &&
+	grep "^bar\$" output
+
+bar
+
+ok 60 - archive --list shows only enabled remote filters
+expecting success of 5000.61 'invoke tar filter by format': 
+	git archive --format=tar.foo HEAD >config.tar.foo &&
+	tr ab ba <config.tar.foo >config.tar &&
+	test_cmp_bin b.tar config.tar &&
+	git archive --format=bar HEAD >config.bar &&
+	tr ab ba <config.bar >config.tar &&
+	test_cmp_bin b.tar config.tar
+
+
+ok 61 - invoke tar filter by format
+expecting success of 5000.62 'invoke tar filter by extension': 
+	git archive -o config-implicit.tar.foo HEAD &&
+	test_cmp_bin config.tar.foo config-implicit.tar.foo &&
+	git archive -o config-implicit.bar HEAD &&
+	test_cmp_bin config.tar.foo config-implicit.bar
+
+
+expecting success of 5000.63 'default output format remains tar': 
+	git archive -o config-implicit.baz HEAD &&
+	test_cmp_bin b.tar config-implicit.baz
+
+ok 62 - invoke tar filter by extension
+
+ok 63 - default output format remains tar
+expecting success of 5000.64 'extension matching requires dot': 
+	git archive -o config-implicittar.foo HEAD &&
+	test_cmp_bin b.tar config-implicittar.foo
+
+
+ok 64 - extension matching requires dot
+expecting success of 5000.65 'only enabled filters are available remotely': 
+	test_must_fail git archive --remote=. --format=tar.foo HEAD \
+		>remote.tar.foo &&
+	git archive --remote=. --format=bar >remote.bar HEAD &&
+	test_cmp_bin remote.bar config.bar
+
+
+ok 65 - only enabled filters are available remotely
+expecting success of 5000.66 'invalid filter is reported only once': 
+	test_must_fail git -c tar.invalid.command= archive --format=invalid \
+		HEAD >out 2>err &&
+	test_must_be_empty out &&
+	test_line_count = 1 err
+
+
+ok 66 - invalid filter is reported only once
+expecting success of 5000.67 'git archive --format=tgz': 
+	git archive --format=tgz HEAD >j.tgz
+
+
+ok 67 - git archive --format=tgz
+expecting success of 5000.68 'git archive --format=tar.gz': 
+	git archive --format=tar.gz HEAD >j1.tar.gz &&
+	test_cmp_bin j.tgz j1.tar.gz
+
+
+ok 68 - git archive --format=tar.gz
+expecting success of 5000.69 'infer tgz from .tgz filename': 
+	git archive --output=j2.tgz HEAD &&
+	test_cmp_bin j.tgz j2.tgz
+
+
+ok 69 - infer tgz from .tgz filename
+expecting success of 5000.70 'infer tgz from .tar.gz filename': 
+	git archive --output=j3.tar.gz HEAD &&
+	test_cmp_bin j.tgz j3.tar.gz
+
+
+ok 70 - infer tgz from .tar.gz filename
+expecting success of 5000.71 'extract tgz file': 
+	gzip -d -c <j.tgz >j.tar &&
+	test_cmp_bin b.tar j.tar
+
+
+ok 71 - extract tgz file
+expecting success of 5000.72 'remote tar.gz is allowed by default': 
+	git archive --remote=. --format=tar.gz HEAD >remote.tar.gz &&
+	test_cmp_bin j.tgz remote.tar.gz
+
+
+ok 72 - remote tar.gz is allowed by default
+expecting success of 5000.73 'remote tar.gz can be disabled': 
+	git config tar.tar.gz.remote false &&
+	test_must_fail git archive --remote=. --format=tar.gz HEAD \
+		>remote.tar.gz
+
+
+ok 73 - remote tar.gz can be disabled
+expecting success of 5000.74 'git archive --format=tgz (external gzip)': 
+	test_config tar.tgz.command "gzip -cn" &&
+	git archive --format=tgz HEAD >external_gzip.tgz
+
+
+ok 74 - git archive --format=tgz (external gzip)
+expecting success of 5000.75 'git archive --format=tar.gz (external gzip)': 
+	test_config tar.tar.gz.command "gzip -cn" &&
+	git archive --format=tar.gz HEAD >external_gzip.tar.gz &&
+	test_cmp_bin external_gzip.tgz external_gzip.tar.gz
+
+
+ok 75 - git archive --format=tar.gz (external gzip)
+expecting success of 5000.76 'extract tgz file (external gzip)': 
+	gzip -d -c <external_gzip.tgz >external_gzip.tar &&
+	test_cmp_bin b.tar external_gzip.tar
+
+
+ok 76 - extract tgz file (external gzip)
+expecting success of 5000.77 'archive and :(glob)': 
+	git archive -v HEAD -- ":(glob)**/sh" >/dev/null 2>actual &&
+	cat >expect <<-\EOF &&
+	a/
+	a/bin/
+	a/bin/sh
+	EOF
+	test_cmp expect actual
+
+
+ok 77 - archive and :(glob)
+expecting success of 5000.78 'catch non-matching pathspec': 
+	test_must_fail git archive -v HEAD -- "*.abc" >/dev/null
+
+fatal: pathspec '*.abc' did not match any files
+
+ok 78 - catch non-matching pathspec
+expecting success of 5000.79 'reject paths outside the current directory': 
+	test_must_fail git -C a/bin archive HEAD .. >/dev/null 2>err &&
+	grep "outside the current directory" err
+
+fatal: pathspec is outside the current directory
+
+ok 79 - reject paths outside the current directory
+expecting success of 5000.80 'allow pathspecs that resolve to the current directory': 
+	git -C a/bin archive -v HEAD ../bin >/dev/null 2>actual &&
+	cat >expect <<-\EOF &&
+	sh
+	EOF
+	test_cmp expect actual
+
+
+ok 80 - allow pathspecs that resolve to the current directory
+expecting success of 5000.81 'attr pathspec in bare repo': 
+	test_expect_code 0 git --git-dir=bare.git archive -v HEAD \
+		":(attr:files_named_a)" >/dev/null 2>actual &&
+	cat >expect <<-\EOF &&
+	a/
+	a/a
+	EOF
+	test_cmp expect actual
+
+
+ok 81 - attr pathspec in bare repo
+checking prerequisite: LONG_IS_64BIT
+
+mkdir -p "$TRASH_DIRECTORY/prereq-test-dir-LONG_IS_64BIT" &&
+(
+	cd "$TRASH_DIRECTORY/prereq-test-dir-LONG_IS_64BIT" &&
+	test 8 -le "$(build_option sizeof-long)"
+
+)
+prerequisite LONG_IS_64BIT ok
+expecting success of 5000.82 'set up repository with huge blob': 
+	obj=$(test_oid obj) &&
+	path=$(test_oid_to_path $obj) &&
+	mkdir -p .git/objects/$(dirname $path) &&
+	cp "$TEST_DIRECTORY"/t5000/huge-object .git/objects/$path &&
+	rm -f .git/index &&
+	git update-index --add --cacheinfo 100644,$obj,huge &&
+	git commit -m huge
+
+[master 93fe142] huge
+ Author: A U Thor <author@example.com>
+git: invalid object: corrupt loose object '3c666f798798601571f5cec0adb57ce4aba8546875e7693177e0535f34d2c49b'
+not ok 82 - set up repository with huge blob
+#	
+#		obj=$(test_oid obj) &&
+#		path=$(test_oid_to_path $obj) &&
+#		mkdir -p .git/objects/$(dirname $path) &&
+#		cp "$TEST_DIRECTORY"/t5000/huge-object .git/objects/$path &&
+#		rm -f .git/index &&
+#		git update-index --add --cacheinfo 100644,$obj,huge &&
+#		git commit -m huge
+#	
+
+expecting success of 5000.83 'generate tar with huge size': 
+	{
+		{ ret=0 && git archive HEAD || ret=$?; } &&
+		echo "$ret" >exit-code
+	} | test_copy_bytes 4096 >huge.tar &&
+	echo 141 >expect &&
+	test_cmp expect exit-code
+
+git: invalid object: corrupt loose object '3c666f798798601571f5cec0adb57ce4aba8546875e7693177e0535f34d2c49b'
+--- expect	2026-11-10 04:40:42.568777692 +0000
++++ exit-code	2026-11-10 04:40:42.568777692 +0000
+@@ -1 +1 @@
+-141
++1
+not ok 83 - generate tar with huge size
+#	
+#		{
+#			{ ret=0 && git archive HEAD || ret=$?; } &&
+#			echo "$ret" >exit-code
+#		} | test_copy_bytes 4096 >huge.tar &&
+#		echo 141 >expect &&
+#		test_cmp expect exit-code
+#	
+
+checking prerequisite: TAR_HUGE
+
+mkdir -p "$TRASH_DIRECTORY/prereq-test-dir-TAR_HUGE" &&
+(
+	cd "$TRASH_DIRECTORY/prereq-test-dir-TAR_HUGE" &&
+	echo "68719476737 4147" >expect &&
+	tar_info "$TEST_DIRECTORY"/t5000/huge-and-future.tar >actual &&
+	test_cmp expect actual
+
+)
+tar: rmtlseek not stopped at a record boundary
+tar: Error is not recoverable: exiting now
+prerequisite TAR_HUGE ok
+expecting success of 5000.84 'system tar can read our huge size': 
+	echo 68719476737 >expect &&
+	tar_info huge.tar | cut -d" " -f1 >actual &&
+	test_cmp expect actual
+
+--- expect	2026-11-10 04:40:42.578877463 +0000
++++ actual	2026-11-10 04:40:42.578877463 +0000
+@@ -1 +0,0 @@
+-68719476737
+not ok 84 - system tar can read our huge size
+#	
+#		echo 68719476737 >expect &&
+#		tar_info huge.tar | cut -d" " -f1 >actual &&
+#		test_cmp expect actual
+#	
+
+checking prerequisite: TIME_IS_64BIT
+
+mkdir -p "$TRASH_DIRECTORY/prereq-test-dir-TIME_IS_64BIT" &&
+(
+	cd "$TRASH_DIRECTORY/prereq-test-dir-TIME_IS_64BIT" &&test-tool date is64bit
+)
+prerequisite TIME_IS_64BIT ok
+expecting success of 5000.85 'set up repository with far-future (2^34 - 1) commit': 
+	rm -f .git/index &&
+	echo foo >file &&
+	git add file &&
+	GIT_COMMITTER_DATE="@17179869183 +0000" \
+		git commit -m "tempori parendum"
+
+[master bdc6eda] tempori parendum
+ Author: A U Thor <author@example.com>
+git: invalid object: corrupt loose object '3c666f798798601571f5cec0adb57ce4aba8546875e7693177e0535f34d2c49b'
+not ok 85 - set up repository with far-future (2^34 - 1) commit
+#	
+#		rm -f .git/index &&
+#		echo foo >file &&
+#		git add file &&
+#		GIT_COMMITTER_DATE="@17179869183 +0000" \
+#			git commit -m "tempori parendum"
+#	
+
+expecting success of 5000.86 'generate tar with far-future mtime': 
+	git archive HEAD >future.tar
+
+
+ok 86 - generate tar with far-future mtime
+checking prerequisite: TIME_T_IS_64BIT
+
+mkdir -p "$TRASH_DIRECTORY/prereq-test-dir-TIME_T_IS_64BIT" &&
+(
+	cd "$TRASH_DIRECTORY/prereq-test-dir-TIME_T_IS_64BIT" &&test-tool date time_t-is64bit
+)
+prerequisite TIME_T_IS_64BIT ok
+expecting success of 5000.87 'system tar can read our future mtime': 
+	echo 2514 >expect &&
+	tar_info future.tar | cut -d" " -f2 >actual &&
+	test_cmp expect actual
+
+
+ok 87 - system tar can read our future mtime
+expecting success of 5000.88 'set up repository with far-far-future (2^36 + 1) commit': 
+	rm -f .git/index &&
+	echo content >file &&
+	git add file &&
+	GIT_TEST_COMMIT_GRAPH=0 GIT_COMMITTER_DATE="@68719476737 +0000" \
+		git commit -m "tempori parendum"
+
+[master 7c9db6e] tempori parendum
+ Author: A U Thor <author@example.com>
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+ok 88 - set up repository with far-far-future (2^36 + 1) commit
+expecting success of 5000.89 'generate tar with far-far-future mtime': 
+	git archive HEAD >future.tar
+
+
+ok 89 - generate tar with far-far-future mtime
+expecting success of 5000.90 'system tar can read our future mtime': 
+	echo 4147 >expect &&
+	tar_info future.tar | cut -d" " -f2 >actual &&
+	test_cmp expect actual
+
+
+ok 90 - system tar can read our future mtime
+# failed 4 among 90 test(s)
+1..90

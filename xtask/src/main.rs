@@ -199,7 +199,7 @@ fn audit() -> Result<()> {
         let class = match ext {
             "rs" if name.starts_with("vendor/sley/") => "rust/compatibility-fixtures",
             "rs" => "rust",
-            "md" | "log" | "txt" | "csv" | "tsv" => "prose/evidence",
+            "md" | "log" | "txt" | "csv" | "tsv" | "tap" => "prose/evidence",
             "toml" | "lock" | "json" | "yaml" | "yml" | "upstream" => "declarative/data",
             "" | "1" => {
                 if ![

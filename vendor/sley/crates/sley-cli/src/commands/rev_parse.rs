@@ -20,6 +20,7 @@ struct RevParseRepository<'a> {
     replace_objects: bool,
     objects: OnceLock<FileObjectDatabase>,
     refs: OnceLock<FileRefStore>,
+    output_refs: OnceLock<HashMap<String, RefTarget>>,
 }
 
 impl<'a> RevParseRepository<'a> {
@@ -30,6 +31,7 @@ impl<'a> RevParseRepository<'a> {
             replace_objects,
             objects: OnceLock::new(),
             refs: OnceLock::new(),
+            output_refs: OnceLock::new(),
         }
     }
 
@@ -52,6 +54,23 @@ impl<'a> RevParseRepository<'a> {
     fn refs(&self) -> &FileRefStore {
         self.refs
             .get_or_init(|| FileRefStore::new(self.git_dir, self.format))
+    }
+
+    fn output_refs(&self) -> Result<&HashMap<String, RefTarget>> {
+        if let Some(refs) = self.output_refs.get() {
+            return Ok(refs);
+        }
+        let refs = self
+            .refs()
+            .list_all_refs()?
+            .into_iter()
+            .map(|reference| (reference.name, reference.target))
+            .collect();
+        let _ = self.output_refs.set(refs);
+        Ok(self
+            .output_refs
+            .get()
+            .expect("rev-parse output refs should be initialized"))
     }
 }
 
@@ -81,7 +100,11 @@ pub(crate) fn cmd_rev_parse(
     // extensions) before rev-parse processes any argument; a bare `rev-parse`
     // in a malformed repository must still die (t0001 #60/#62/#64).
     let format = verify_repository_format(cli_session, &git_dir)?;
-    let repo_config = read_repo_config(&git_dir).ok();
+    let repo_config = commands::remote::read_effective_repo_config(&git_dir, &cwd).ok();
+    let warn_ambiguous_refs = repo_config
+        .as_ref()
+        .and_then(|config| config.get_bool("core", None, "warnAmbiguousRefs"))
+        .unwrap_or(true);
     let repository = RevParseRepository::new(&git_dir, format, cli_session.replace_objects());
     if args.is_empty() {
         validate_bare_rev_parse_setup(cli_session, &setup)?;
@@ -93,6 +116,7 @@ pub(crate) fn cmd_rev_parse(
     let mut verified_revs = 0usize;
     let mut quiet = false;
     let mut abbrev_ref = false;
+    let mut abbrev_ref_strict = warn_ambiguous_refs;
     let mut symbolic = false;
     let mut symbolic_full_name = false;
     let mut revs_only = false;
@@ -109,7 +133,7 @@ pub(crate) fn cmd_rev_parse(
     let mut verified_output: Option<String> = None;
     let dashdash = args.iter().position(|arg| arg == "--");
     // Pseudo-ref options (`--all`, `--glob=`, `--branches[=]`, `--exclude=`, …)
-    // resolve refs and print their OIDs interleaved with positional args, the
+    // resolve refs and render them interleaved with positional args, the
     // same way git's `handle_revision_pseudo_opt` feeds `add_pending_object`.
     // Lazily built (and config loaded) only when the first such option appears.
     let mut pseudo: Option<sley_rev::PseudoRefResolver> = None;
@@ -131,7 +155,38 @@ pub(crate) fn cmd_rev_parse(
             if let Some(matched) = resolver.feed(arg)? {
                 for matched_ref in matched {
                     let oid = matched_ref.oid.to_hex();
-                    if let Some(len) = short {
+                    let name = rev_parse_selector_name(arg, &matched_ref.name);
+                    if symbolic_full_name || abbrev_ref {
+                        let refs = repository.output_refs()?;
+                        if let Some(name) = rev_parse_selector_full_name(
+                            &repository,
+                            refs,
+                            name,
+                            warn_ambiguous_refs,
+                        ) {
+                            if abbrev_ref {
+                                println!(
+                                    "{}",
+                                    sley_ref_filter::shorten_unambiguous_ref(
+                                        &name,
+                                        abbrev_ref_strict,
+                                        |candidate| {
+                                            rev_parse_resolved_output_ref(
+                                                &repository,
+                                                refs,
+                                                candidate,
+                                            )
+                                            .is_some()
+                                        },
+                                    )
+                                );
+                            } else {
+                                println!("{name}");
+                            }
+                        }
+                    } else if symbolic {
+                        println!("{name}");
+                    } else if let Some(len) = short {
                         println!("{}", &oid[..len.min(oid.len())]);
                     } else {
                         println!("{oid}");
@@ -288,9 +343,22 @@ pub(crate) fn cmd_rev_parse(
             "--verify" => verify = true,
             "--quiet" | "-q" => quiet = true,
             "--revs-only" => revs_only = true,
-            "--abbrev-ref" | "--abbrev-ref=strict" | "--abbrev-ref=loose" => abbrev_ref = true,
-            "--symbolic" => symbolic = true,
-            "--symbolic-full-name" => symbolic_full_name = true,
+            "--abbrev-ref" | "--abbrev-ref=strict" | "--abbrev-ref=loose" => {
+                abbrev_ref = true;
+                abbrev_ref_strict = match arg.as_str() {
+                    "--abbrev-ref=strict" => true,
+                    "--abbrev-ref=loose" => false,
+                    _ => warn_ambiguous_refs,
+                };
+            }
+            "--symbolic" => {
+                symbolic = true;
+                symbolic_full_name = false;
+            }
+            "--symbolic-full-name" => {
+                symbolic = false;
+                symbolic_full_name = true;
+            }
             "--bisect" => rev_parse_bisect(&repository, symbolic_full_name)?,
             value if value.starts_with('-') && !end_of_options => {
                 if let Some(value) = value.strip_prefix("--short=") {
@@ -1921,6 +1989,88 @@ fn rev_parse_abbrev_ref(repository: &RevParseRepository<'_>, rev: &str) -> Resul
         return Ok(rev.into());
     }
     Err(GitError::not_found(format!("revision {rev}")))
+}
+
+fn rev_parse_selector_name<'a>(selector: &str, full_name: &'a str) -> &'a str {
+    let option = selector.split_once('=').map_or(selector, |(name, _)| name);
+    let prefix = match option {
+        "--branches" => "refs/heads/",
+        "--tags" => "refs/tags/",
+        "--remotes" => "refs/remotes/",
+        _ => return full_name,
+    };
+    full_name.strip_prefix(prefix).unwrap_or(full_name)
+}
+
+fn rev_parse_selector_full_name(
+    repository: &RevParseRepository<'_>,
+    refs: &HashMap<String, RefTarget>,
+    name: &str,
+    warn_ambiguous: bool,
+) -> Option<String> {
+    let mut resolved = None;
+    let mut ambiguous = false;
+    for candidate in [
+        name.to_owned(),
+        format!("refs/{name}"),
+        format!("refs/tags/{name}"),
+        format!("refs/heads/{name}"),
+        format!("refs/remotes/{name}"),
+        format!("refs/remotes/{name}/HEAD"),
+    ] {
+        if let Some(current) = rev_parse_resolved_output_ref(repository, refs, &candidate) {
+            if resolved.is_some() {
+                ambiguous = true;
+            } else {
+                resolved = Some(current);
+            }
+        } else if candidate != "HEAD"
+            && matches!(
+                rev_parse_output_ref(repository, refs, &candidate),
+                Some(RefTarget::Symbolic(_))
+            )
+        {
+            eprintln!("warning: ignoring dangling symref {candidate}");
+        }
+        if !warn_ambiguous && resolved.is_some() {
+            break;
+        }
+    }
+    if ambiguous {
+        eprintln!("error: refname '{name}' is ambiguous");
+        None
+    } else {
+        resolved
+    }
+}
+
+fn rev_parse_resolved_output_ref(
+    repository: &RevParseRepository<'_>,
+    refs: &HashMap<String, RefTarget>,
+    name: &str,
+) -> Option<String> {
+    let mut current = name.to_owned();
+    for _ in 0..sley_core::MAX_SYMREF_DEPTH {
+        match rev_parse_output_ref(repository, refs, &current)? {
+            RefTarget::Symbolic(target) => current = target,
+            RefTarget::Direct(_) => return Some(current),
+        }
+    }
+    None
+}
+
+fn rev_parse_output_ref(
+    repository: &RevParseRepository<'_>,
+    refs: &HashMap<String, RefTarget>,
+    name: &str,
+) -> Option<RefTarget> {
+    refs.get(name).cloned().or_else(|| {
+        // Root and working-state refs are valid DWIM candidates even when the
+        // normal ref inventory omits them. Resolve those through the backend.
+        (!name.starts_with("refs/"))
+            .then(|| repository.refs().read_ref(name).ok().flatten())
+            .flatten()
+    })
 }
 
 /// Render a positional rev-parse line, prefixing `^` for an excluded (`^rev`)

@@ -29,12 +29,20 @@ required objects. They also preserve raw filename bytes during staging and add
 a native `upload-archive` service. See the [import and qualification record](Documentation/gitr/sley-integration.md)
 for exact checks, limitations, compiler routes, and source hashes.
 
-The upstream README reports an exact conformance floor of **557 of 891 Git
-2.55.0 test scripts**. That is upstream evidence, not Gitr's measured result.
-It leaves at least 334 scripts without demonstrated exact parity. We do not
-turn the donor's passing assertion count into a claim of complete Git coverage.
-The entire upstream conformance suite, network authentication, platform matrix,
-and full performance certification remain required work.
+The [coverage continuation](Documentation/gitr/git-coverage-continuation.md)
+adds native remote archive requests over SSH and Git transport, checks explicit
+service failures, and fixes symbolic reference-selector output. It records
+command-level qualification and the remaining archive, object-format, transport,
+and platform gaps.
+
+The upstream README reports an exact conformance floor of **557 of 891 selected
+Git 2.55.0 test scripts**. That is upstream evidence, not Gitr's measured result.
+The pinned Git source contains **1,046 numbered test scripts**. Sley's manifest
+excludes 155 from its 891-script selection, so even passing that entire selection
+would not establish full Git coverage. We do not turn a passing assertion count
+into a claim of complete command semantics. The full upstream conformance suite,
+network authentication, platform matrix, and performance certification remain
+required work.
 
 ## Build and run
 

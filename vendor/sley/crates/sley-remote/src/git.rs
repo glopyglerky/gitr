@@ -545,8 +545,17 @@ fn connect_git_service(
         .as_deref()
         .ok_or_else(|| GitError::InvalidFormat("git:// remote is missing a host".into()))?;
     let port = remote.port.unwrap_or(GIT_DAEMON_PORT);
-    let mut stream = crate::git_proxy::connect_git_transport(config, host, port)?;
-    let protocol = protocol.or_else(|| configured_git_protocol_v1(config));
+    let mut stream = crate::git_proxy::connect_git_transport(
+        config,
+        host,
+        port,
+        service == GitService::UploadArchive,
+    )?;
+    let protocol = if service == GitService::UploadArchive {
+        None
+    } else {
+        protocol.or_else(|| configured_git_protocol_v1(config))
+    };
     let request = ServiceRequest {
         service,
         path: remote.path.clone(),
@@ -555,9 +564,41 @@ fn connect_git_service(
         protocol,
         extra_parameters: Vec::new(),
     };
-    write_service_request(&mut stream, &request)?;
-    stream.flush()?;
+    let result = write_service_request(&mut stream, &request)
+        .and_then(|()| stream.flush().map_err(GitError::from));
+    if let Err(error) = result {
+        if service == GitService::UploadArchive {
+            stream.abort();
+        }
+        return Err(error);
+    }
     Ok(stream)
+}
+
+pub(crate) fn archive_via_git<W: Write + ?Sized>(
+    remote: &RemoteUrl,
+    request: &sley_protocol::UploadArchiveRequest,
+    config: &GitConfig,
+    writer: &mut W,
+    progress: &mut dyn ProgressSink,
+) -> Result<u64> {
+    let mut stream = connect_git_service(remote, GitService::UploadArchive, None, Some(config))?;
+    let result = (|| {
+        sley_protocol::write_upload_archive_request(&mut stream, request)?;
+        stream.flush()?;
+        sley_protocol::copy_upload_archive_response(&mut stream, writer, |message| {
+            progress.diagnostic(&String::from_utf8_lossy(message));
+        })
+    })();
+    let copied = match result {
+        Ok(copied) => copied,
+        Err(error) => {
+            stream.abort();
+            return Err(error);
+        }
+    };
+    stream.finish_archive()?;
+    Ok(copied)
 }
 
 fn configured_git_protocol_v1(config: Option<&GitConfig>) -> Option<ProtocolVersion> {

@@ -1,0 +1,70 @@
+command=['/workspace/scratch/161a1b7c00ce/tooling/lustr/target/release/lustr', '--engine', 'rustc', 'test', '--locked', '--all-features', '--all-targets', '--no-fail-fast']
+target=/workspace/scratch/161a1b7c00ce/tooling/gitr-target
+tmpdir=/tmp/gitr-coverage-root-v2kad2a_
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+   Compiling sley-rev v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-rev)
+   Compiling sley-submodule v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-submodule)
+   Compiling sley-worktree v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-worktree)
+   Compiling sley-fsck v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-fsck)
+   Compiling sley-ref-filter v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-ref-filter)
+   Compiling sley-hooks v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-hooks)
+   Compiling sley-remote v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-remote)
+   Compiling sley-pretty v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-pretty)
+   Compiling sley-gc v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-gc)
+   Compiling sley-sequencer v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-sequencer)
+   Compiling sley-archive v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-archive)
+   Compiling sley-notes v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-notes)
+   Compiling sley-testkit v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-testkit)
+   Compiling sley v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley)
+   Compiling sley-cli v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-cli)
+   Compiling gitr v0.2.0 (/workspace/scratch/717c1db38a84/gitr)
+    Finished `test` profile [unoptimized] target(s) in 30.01s
+     Running unittests src/lib.rs (/workspace/scratch/161a1b7c00ce/tooling/gitr-target/debug/deps/gitr-c01dc3923bc3e8c2)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/git.rs (/workspace/scratch/161a1b7c00ce/tooling/gitr-target/debug/deps/git-9a5f81adef38c6e2)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (/workspace/scratch/161a1b7c00ce/tooling/gitr-target/debug/deps/gitr-34121649b6edd7d5)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/scalar.rs (/workspace/scratch/161a1b7c00ce/tooling/gitr-target/debug/deps/scalar-8c7c605f13afcf02)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/git_workflows.rs (/workspace/scratch/161a1b7c00ce/tooling/gitr-target/debug/deps/git_workflows-e9ba91ea4dc9b477)
+
+running 4 tests
+test native_clone_fetch_push_and_reference_compare_and_swap ... ok
+test native_frontend_preserves_non_utf8_arguments ... ok
+test native_merge_conflict_abort_preserves_git_state ... ok
+test native_history_merge_rebase_stash_and_worktree ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.80s
+
+     Running tests/grep_patterns.rs (/workspace/scratch/161a1b7c00ce/tooling/gitr-target/debug/deps/grep_patterns-dfdfc386af22f377)
+
+running 1 test
+test binary_pattern_file_and_stdin_preserve_nul_and_unicode_bytes ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running unittests examples/verify_import.rs (/workspace/scratch/161a1b7c00ce/tooling/gitr-target/debug/examples/verify_import-2f4e07cfb8ba1731)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

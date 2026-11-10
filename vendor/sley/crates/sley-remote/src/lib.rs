@@ -35,6 +35,8 @@ mod limits;
 pub use limits::transport_limits_from_config;
 
 mod admin;
+mod archive;
+pub use archive::{RemoteArchiveRequest, archive_remote};
 mod install;
 pub use admin::{
     AddRemoteOptions, AddRemoteOutcome, RemoteAdminError, RemoteHeadMutation, RemoteHeadPlan,

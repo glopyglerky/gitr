@@ -12,7 +12,187 @@ struct ArchiveExtraFile {
 }
 
 pub(crate) fn cmd_archive(cli_session: &crate::session::CliSession, args: &[String]) -> Result<()> {
+    if let Some(options) = ArchiveClientOptions::parse(args)? {
+        return archive_from_remote(cli_session, options);
+    }
     archive_with_writer(cli_session, args, None, None)
+}
+
+/// Client-only options must never be sent to an upload-archive service. Keep
+/// every other argument in its original order, including the `--` separator.
+struct ArchiveClientOptions {
+    remote: String,
+    service: Option<String>,
+    output: Option<String>,
+    arguments: Vec<String>,
+    explicit_format: bool,
+}
+
+impl ArchiveClientOptions {
+    fn parse(args: &[String]) -> Result<Option<Self>> {
+        let mut remote = None;
+        let mut service = None;
+        let mut output = None;
+        let mut arguments = Vec::new();
+        let mut explicit_format = false;
+        let mut extra_files = false;
+        let mut positional = false;
+        let mut iter = args.iter();
+        while let Some(arg) = iter.next() {
+            if positional {
+                arguments.push(arg.clone());
+                continue;
+            }
+            match arg.as_str() {
+                "--" | "--end-of-options" => {
+                    positional = true;
+                    arguments.push(arg.clone());
+                }
+                "--remote" | "--exec" | "--output" | "-o" => {
+                    let value = iter.next().ok_or_else(|| {
+                        GitError::Command(format!("archive {arg} requires a value"))
+                    })?;
+                    match arg.as_str() {
+                        "--remote" => remote = Some(value.clone()),
+                        "--exec" => service = Some(value.clone()),
+                        _ => output = Some(value.clone()),
+                    }
+                }
+                value if value.starts_with("--remote=") => {
+                    remote = Some(value[9..].to_owned());
+                }
+                value if value.starts_with("--exec=") => {
+                    service = Some(value[7..].to_owned());
+                }
+                value if value.starts_with("--output=") => {
+                    output = Some(value[9..].to_owned());
+                }
+                value if value.starts_with("-o") && value.len() > 2 => {
+                    output = Some(value[2..].to_owned());
+                }
+                "--format" | "--prefix" | "--mtime" | "--add-file" | "--add-virtual-file" => {
+                    explicit_format |= arg == "--format";
+                    extra_files |= matches!(arg.as_str(), "--add-file" | "--add-virtual-file");
+                    arguments.push(arg.clone());
+                    arguments.push(
+                        iter.next()
+                            .ok_or_else(|| {
+                                GitError::Command(format!("archive {arg} requires a value"))
+                            })?
+                            .clone(),
+                    );
+                }
+                value => {
+                    explicit_format |= value.starts_with("--format=");
+                    extra_files |= value.starts_with("--add-file=")
+                        || value.starts_with("--add-virtual-file=");
+                    arguments.push(arg.clone());
+                }
+            }
+        }
+        let Some(remote) = remote else {
+            return Ok(None);
+        };
+        if extra_files {
+            return Err(GitError::Command(
+                "options '--add-file' and '--remote' cannot be used together".into(),
+            ));
+        }
+        Ok(Some(Self {
+            remote,
+            service,
+            output,
+            arguments,
+            explicit_format,
+        }))
+    }
+}
+
+fn archive_client_config(cli_session: &crate::session::CliSession) -> Result<GitConfig> {
+    match cli_session.git_dir() {
+        Ok(git_dir) => {
+            crate::commands::remote::read_effective_repo_config(&git_dir, cli_session.cwd())
+        }
+        Err(error)
+            if matches!(
+                error.not_found_kind(),
+                Some(sley::NotFoundKind::Repository { .. })
+            ) =>
+        {
+            let context = sley_config::ConfigIncludeContext::new(None, None);
+            let mut config = sley_config::load_pre_dispatch_config(None, &context)?;
+            sley_config::append_injected_config_sections_with_includes(
+                &mut config,
+                &injected_config_parameters()?,
+                &context,
+                cli_session.cwd(),
+            )?;
+            Ok(config)
+        }
+        Err(error) => Err(error),
+    }
+}
+
+fn archive_from_remote(
+    cli_session: &crate::session::CliSession,
+    mut options: ArchiveClientOptions,
+) -> Result<()> {
+    let config = archive_client_config(cli_session)?;
+    let url = sley_remote::fetch_url(&config, &options.remote);
+    let remote = sley_transport::parse_remote_url(&url)?;
+    sley_remote::check_transport_allowed(
+        sley_remote::transport_scheme_for_remote(&remote),
+        Some(&config),
+        &cli_session.remote_policy.transport,
+    )
+    .map_err(|error| GitError::Command(error.to_string()))?;
+    if !options.explicit_format
+        && let Some(format) = options
+            .output
+            .as_deref()
+            // The client names the format; the server applies its own remote
+            // format policy. Client tar.<format>.remote is not permission to
+            // request that format from a different repository.
+            .and_then(|name| archive_format_from_filename_with_config(name, &config, false))
+    {
+        options.arguments.insert(0, format!("--format={format}"));
+    }
+    let local = matches!(
+        remote.transport,
+        sley_transport::RemoteTransport::Local | sley_transport::RemoteTransport::File
+    );
+    if local && options.service.is_none() {
+        let path = crate::discovery::resolve_cli_path(cli_session.cwd(), &remote.path);
+        let git_dir = crate::session::cli_remote_git_dir_from(&path)?;
+        return with_archive_writer(options.output, None, |writer| {
+            archive_with_writer(
+                cli_session,
+                &options.arguments,
+                Some(&git_dir),
+                Some(writer),
+            )
+        });
+    }
+    struct ArchiveProgress;
+    impl sley_remote::ProgressSink for ArchiveProgress {
+        fn diagnostic(&mut self, message: &str) {
+            eprint!("{message}");
+        }
+    }
+    with_archive_writer(options.output, None, |writer| {
+        sley_remote::archive_remote(
+            sley_remote::RemoteArchiveRequest {
+                remote: &remote,
+                arguments: &options.arguments,
+                config: &config,
+                policy: &cli_session.remote_policy,
+                service_command: options.service.as_deref(),
+            },
+            writer,
+            &mut ArchiveProgress,
+        )?;
+        Ok(())
+    })
 }
 
 /// Serve Git's upload-archive protocol using the same native archive engine as

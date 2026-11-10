@@ -1,0 +1,84 @@
+ok 1 - setup
+ok 2 - toplevel: --is-bare-repository
+ok 3 - toplevel: --is-inside-git-dir
+ok 4 - toplevel: --is-inside-work-tree
+ok 5 - toplevel: --show-prefix
+ok 6 - toplevel: --git-dir
+ok 7 - toplevel: --absolute-git-dir
+ok 8 - .git/: --is-bare-repository
+ok 9 - .git/: --is-inside-git-dir
+ok 10 - .git/: --is-inside-work-tree
+ok 11 - .git/: --show-prefix
+ok 12 - .git/: --git-dir
+ok 13 - .git/: --absolute-git-dir
+ok 14 - .git/objects/: --is-bare-repository
+ok 15 - .git/objects/: --is-inside-git-dir
+ok 16 - .git/objects/: --is-inside-work-tree
+ok 17 - .git/objects/: --show-prefix
+ok 18 - .git/objects/: --git-dir
+ok 19 - .git/objects/: --absolute-git-dir
+ok 20 - subdirectory: --is-bare-repository
+ok 21 - subdirectory: --is-inside-git-dir
+ok 22 - subdirectory: --is-inside-work-tree
+ok 23 - subdirectory: --show-prefix
+ok 24 - subdirectory: --git-dir
+ok 25 - subdirectory: --absolute-git-dir
+ok 26 - core.bare = true: --is-bare-repository
+ok 27 - core.bare = true: --is-inside-git-dir
+ok 28 - core.bare = true: --is-inside-work-tree
+ok 29 - core.bare undefined: --is-bare-repository
+ok 30 - core.bare undefined: --is-inside-git-dir
+ok 31 - core.bare undefined: --is-inside-work-tree
+ok 32 - GIT_DIR=../.git, core.bare = false: --is-bare-repository
+ok 33 - GIT_DIR=../.git, core.bare = false: --is-inside-git-dir
+ok 34 - GIT_DIR=../.git, core.bare = false: --is-inside-work-tree
+ok 35 - GIT_DIR=../.git, core.bare = false: --show-prefix
+ok 36 - GIT_DIR=../.git, core.bare = false: --git-dir
+ok 37 - GIT_DIR=../.git, core.bare = false: --absolute-git-dir
+ok 38 - GIT_DIR=../.git, core.bare = true: --is-bare-repository
+ok 39 - GIT_DIR=../.git, core.bare = true: --is-inside-git-dir
+ok 40 - GIT_DIR=../.git, core.bare = true: --is-inside-work-tree
+ok 41 - GIT_DIR=../.git, core.bare = true: --show-prefix
+ok 42 - GIT_DIR=../.git, core.bare undefined: --is-bare-repository
+ok 43 - GIT_DIR=../.git, core.bare undefined: --is-inside-git-dir
+ok 44 - GIT_DIR=../.git, core.bare undefined: --is-inside-work-tree
+ok 45 - GIT_DIR=../.git, core.bare undefined: --show-prefix
+ok 46 - GIT_DIR=../repo.git, core.bare = false: --is-bare-repository
+ok 47 - GIT_DIR=../repo.git, core.bare = false: --is-inside-git-dir
+ok 48 - GIT_DIR=../repo.git, core.bare = false: --is-inside-work-tree
+ok 49 - GIT_DIR=../repo.git, core.bare = false: --show-prefix
+ok 50 - GIT_DIR=../repo.git, core.bare = false: --git-dir
+ok 51 - GIT_DIR=../repo.git, core.bare = false: --absolute-git-dir
+ok 52 - GIT_DIR=../repo.git, core.bare = true: --is-bare-repository
+ok 53 - GIT_DIR=../repo.git, core.bare = true: --is-inside-git-dir
+ok 54 - GIT_DIR=../repo.git, core.bare = true: --is-inside-work-tree
+ok 55 - GIT_DIR=../repo.git, core.bare = true: --show-prefix
+ok 56 - GIT_DIR=../repo.git, core.bare undefined: --is-bare-repository
+ok 57 - GIT_DIR=../repo.git, core.bare undefined: --is-inside-git-dir
+ok 58 - GIT_DIR=../repo.git, core.bare undefined: --is-inside-work-tree
+ok 59 - GIT_DIR=../repo.git, core.bare undefined: --show-prefix
+ok 60 - rev-parse --path-format=absolute
+ok 61 - rev-parse --path-format=relative
+ok 62 - --path-format=relative does not affect --absolute-git-dir
+ok 63 - --path-format can change in the middle of the command line
+ok 64 - --path-format does not segfault without an argument
+ok 65 - git-common-dir from worktree root
+ok 66 - git-common-dir inside sub-dir
+ok 67 - git-path from worktree root
+ok 68 - git-path inside sub-dir
+ok 69 - rev-parse --is-shallow-repository in shallow repo
+ok 70 - rev-parse --is-shallow-repository in non-shallow repo
+ok 71 - rev-parse --show-object-format in repo
+ok 72 - rev-parse --show-object-format in repo with compat mode
+ok 73 - rev-parse --show-ref-format
+ok 74 - rev-parse --show-ref-format with invalid storage
+ok 75 - --show-toplevel from subdir of working tree
+ok 76 - --show-toplevel from inside .git
+ok 77 - showing the superproject correctly
+ok 78 - rev-parse --since= unsqueezed ordering
+ok 79 - rev-parse --bisect includes bad, excludes good
+ok 80 - rev-parse --bisect works with alternate terms
+ok 81 - --short= truncates to the actual hash length
+ok 82 - :/ and HEAD^{/} favor more recent matching commits
+# passed all 82 test(s)
+1..82

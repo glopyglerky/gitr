@@ -666,6 +666,45 @@ pub fn read_upload_archive_response(reader: &mut impl Read) -> Result<UploadArch
     parse_upload_archive_response(&frames)
 }
 
+/// Stream a remote archive into `writer`, retaining at most one sideband frame.
+///
+/// The ACK flush belongs to the status section; only the second flush completes
+/// the archive. A truncated stream or channel-3 fatal is always an error, even
+/// after some bytes have reached the destination. Progress never enters the
+/// archive's byte stream.
+pub fn copy_upload_archive_response<W: Write + ?Sized>(
+    reader: &mut impl Read,
+    writer: &mut W,
+    on_progress: impl FnMut(&[u8]),
+) -> Result<u64> {
+    let Some(PktLineFrame::Data(status)) = read_pkt_line_frame(reader)? else {
+        return Err(GitError::InvalidFormat(
+            "upload-archive response must start with a status packet".into(),
+        ));
+    };
+    let status = parse_protocol_v2_line_text("upload-archive response status", &status)?;
+    if let Some(message) = status.strip_prefix("ERR ") {
+        return Err(GitError::Command(message.to_string()));
+    }
+    if !matches!(read_pkt_line_frame(reader)?, Some(PktLineFrame::Flush)) {
+        return Err(GitError::InvalidFormat(
+            "upload-archive status must be followed by flush".into(),
+        ));
+    }
+    if let Some(message) = status.strip_prefix("NACK ") {
+        return Err(GitError::Command(format!("upload-archive NACK: {message}")));
+    }
+    if status != "ACK" {
+        return Err(GitError::InvalidFormat(
+            "unsupported upload-archive response status".into(),
+        ));
+    }
+    let mut archive = StreamingSidebandReader::new(reader, on_progress);
+    let copied = io::copy(&mut archive, writer)?;
+    writer.flush()?;
+    Ok(copied)
+}
+
 pub fn write_upload_archive_response(
     writer: &mut impl Write,
     response: &UploadArchiveResponse,

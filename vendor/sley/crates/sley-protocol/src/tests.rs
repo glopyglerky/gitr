@@ -1670,6 +1670,85 @@ fn upload_archive_response_rejects_malformed_streams() {
 }
 
 #[test]
+fn upload_archive_streaming_copy_preserves_bytes_and_separates_progress() {
+    let mut response = b"0008ACK\n0000".to_vec();
+    let expected = vec![0xa5; 180_000];
+    for chunk in expected.chunks(60_000) {
+        write_sideband_payload(&mut response, SideBandChannel::Data, chunk).unwrap();
+        write_sideband_payload(&mut response, SideBandChannel::Progress, b"progress\n").unwrap();
+    }
+    response.extend_from_slice(b"0000");
+    let mut actual = Vec::new();
+    let mut progress = Vec::new();
+    assert_eq!(
+        copy_upload_archive_response(&mut response.as_slice(), &mut actual, |line| {
+            progress.push(line.to_vec());
+        })
+        .unwrap(),
+        expected.len() as u64,
+    );
+    assert_eq!(actual, expected);
+    assert_eq!(progress, vec![b"progress\n".to_vec(); 3]);
+}
+
+#[test]
+fn upload_archive_streaming_copy_rejects_failed_and_truncated_peers() {
+    let mut fatal_after_data = b"0008ACK\n0000".to_vec();
+    write_sideband_payload(&mut fatal_after_data, SideBandChannel::Data, b"partial").unwrap();
+    write_sideband_payload(
+        &mut fatal_after_data,
+        SideBandChannel::Fatal,
+        b"server failed",
+    )
+    .unwrap();
+    let mut truncated = b"0008ACK\n0000".to_vec();
+    write_sideband_payload(&mut truncated, SideBandChannel::Data, b"partial").unwrap();
+    let mut nack = Vec::new();
+    write_pkt_line_payload(&mut nack, b"NACK denied\n").unwrap();
+    nack.extend_from_slice(b"0000");
+    let mut err = Vec::new();
+    write_pkt_line_payload(&mut err, b"ERR no such repository\n").unwrap();
+    for response in [
+        Vec::new(),
+        b"0008ACK\n0009\x01data0000".to_vec(),
+        b"0008ACK\n0000".to_vec(),
+        b"0008ACK\n00000006\x04x0000".to_vec(),
+        b"0008ACK\n0000001".to_vec(),
+        nack,
+        err,
+        fatal_after_data,
+        truncated,
+    ] {
+        let result =
+            copy_upload_archive_response(&mut response.as_slice(), &mut Vec::new(), |_| {});
+        assert!(result.is_err(), "accepted malformed response {response:?}");
+    }
+}
+
+#[test]
+fn upload_archive_streaming_copy_reports_destination_failure() {
+    struct BrokenDestination;
+    impl std::io::Write for BrokenDestination {
+        fn write(&mut self, _: &[u8]) -> std::io::Result<usize> {
+            Err(std::io::Error::new(
+                std::io::ErrorKind::BrokenPipe,
+                "closed destination",
+            ))
+        }
+        fn flush(&mut self) -> std::io::Result<()> {
+            Ok(())
+        }
+    }
+    let mut response = b"0008ACK\n0000".to_vec();
+    write_sideband_payload(&mut response, SideBandChannel::Data, b"archive").unwrap();
+    response.extend_from_slice(b"0000");
+    assert!(
+        copy_upload_archive_response(&mut response.as_slice(), &mut BrokenDestination, |_| {})
+            .is_err()
+    );
+}
+
+#[test]
 fn capabilities_parse_and_encode_tokens() {
     let capabilities =
         parse_capabilities(b"multi_ack thin-pack agent=git/2.54.0 symref=HEAD:refs/heads/main\n")

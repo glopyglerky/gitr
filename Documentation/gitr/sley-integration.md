@@ -136,6 +136,11 @@ results, not a Gitr run. Assertion count does not measure completeness, and at
 least 334 scripts lack demonstrated exact parity. Some older donor parity docs
 are stale, so executable evidence and explicit source findings take precedence.
 
+The 891-script denominator is a curated selection. The pinned Git 2.55.0 tree
+contains 1,046 numbered test scripts; Sley's `upstream-manifest.tsv` excludes
+155. Those exclusions remain part of Gitr's full-coverage goal, not satisfied
+or waived requirements.
+
 Remaining work includes the excluded filter-branch and shell-i18n contracts,
 dumb HTTP fetch, full clone/fetch/push transport and credential qualification,
 raw-byte handling beyond tested staging/grep paths, all upstream conformance
