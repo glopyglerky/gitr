@@ -1,202 +1,117 @@
 # Rit
 
-Rit assembles an upstream Rust implementation of Git and uses the omdb fork
-for explicitly invoked snapshot metadata. Active development is on
-[`master`](https://github.com/glopyglerky/rit/tree/master). The project was renamed
-from Gitr to Rit; see the [rename record](Documentation/rit/rename.md) for the
-current executable and CI names. Historical reports and archived source remain
-under `Documentation/gitr` with the names used when they were recorded.
+Rit is a Git-compatible implementation being ported to Rust. It assembles
+upstream Rust code, keeps connected upstream Git available for remaining
+compatibility gaps, and replaces that implementation incrementally through
+Lustr. Active development is on [`master`](https://github.com/glopyglerky/rit/tree/master).
 
-**The default executable now uses the Sley engine and Git-compatible frontend.
-Full Git parity is not complete or certified.**
+The native engine is [Sley](https://github.com/HeddleCo/sley), pinned at
+[`a71654f50de24b3c750f0df5f1829db7342491f6`](https://github.com/HeddleCo/sley/tree/a71654f50de24b3c750f0df5f1829db7342491f6).
+Its engine crates, Git frontend, and Rust tests live under `vendor/sley`.
+The connected Git source is pinned at
+[`e9019fcafe0040228b8631c30f97ae1adb61bcdc`](https://github.com/git/git/tree/e9019fcafe0040228b8631c30f97ae1adb61bcdc)
+under `compat/git`.
 
-The import pins [HeddleCo/sley](https://github.com/HeddleCo/sley) at
-[`a71654f50de24b3c750f0df5f1829db7342491f6`](https://github.com/HeddleCo/sley/tree/a71654f50de24b3c750f0df5f1829db7342491f6),
-workspace version 0.13.0. Its coherent engine crates, command implementation,
-and Rust tests are kept under `vendor/sley`. Rit calls that implementation in
-process. It does not silently delegate unsupported commands to installed C Git.
-
-## What this integration establishes
-
-The local qualification exercises the actual `rit` binary with Git absent from
-its `PATH`. It covers initialization, staging, commits, branches, merge, rebase,
-stash, worktrees, local clone/fetch/push/pull, and checked reference updates in
-SHA-1 and SHA-256 repositories. It also checks merge-conflict abort and raw Unix
-filename staging. A separately invoked Git 2.55.0 checks repository integrity,
-refs, index entries, and worktree state. These fixtures establish the operations
-they exercise, not every flag or error case of those commands.
-
-Local patches reject stale reftable transactions under the publication lock,
-release ref locks on failure, and prevent full repack from pruning around missing
-required objects. They also preserve raw filename bytes during staging and add
-a native `upload-archive` service. See the [import and qualification record](Documentation/gitr/sley-integration.md)
-for exact checks, limitations, compiler routes, and source hashes.
-
-The [coverage continuation](Documentation/gitr/git-coverage-continuation.md)
-adds native remote archive requests over SSH and Git transport, checks explicit
-service failures, and fixes symbolic reference-selector output. It records
-command-level qualification and the remaining archive, object-format, transport,
-and platform gaps.
-
-The [history and commit coverage record](Documentation/gitr/history-and-commit-coverage.md)
-adds oversized-file commit summaries, threshold validation, and corrected parent
-lists for path-limited revision history. It retains results from ten upstream
-scripts in both object formats, including the remaining failures and skips.
-
-The [sparse history coverage record](Documentation/rit/sparse-history-coverage.md)
-adds explicit starting-tip preservation and sparse path-limited history in `log`
-and `rev-list`. The selected upstream graph script now passes 10 of 12 cases in
-both object formats; decoration and boundary-order differences remain recorded.
-
-The [ancestry-path coverage record](Documentation/rit/ancestry-path-coverage.md)
-adds explicit ancestry anchors, correct criss-cross selection, and export-mark
-connectivity. The selected ancestry script now passes all 18 cases in both
-object formats. The report retains the neighboring script results, independent
-reviews, and remaining option-combination gaps.
-
-The upstream README reports an exact conformance floor of **557 of 891 selected
-Git 2.55.0 test scripts**. That is upstream evidence, not Rit's measured result.
-The pinned Git source contains **1,046 numbered test scripts**. Sley's manifest
-excludes 155 from its 891-script selection, so even passing that entire selection
-would not establish full Git coverage. We do not turn a passing assertion count
-into a claim of complete command semantics. The full upstream conformance suite,
-network authentication, platform matrix, and performance certification remain
-required work.
+**Complete native Rust Git parity is unfinished.** The default route currently
+uses the verified upstream Git compatibility executable. `RIT_BACKEND=native`
+selects Sley for native development and qualification. The backend is selected
+before execution; a failed native command is never retried with Git.
 
 ## Build and run
 
 Use the pinned [Lustr coordinator](https://github.com/glopyglerky/lustr) with
-Rust 1.99.1 or a matching produced BlueFe bundle. The current native Lust subset
-does not compile this complete dependency graph.
+Rust 1.99.1 or the produced BlueFe bundle recorded in `lustr-toolchain.json`.
+The current native Lust subset does not compile the complete dependency graph.
 
 ```sh
 lustr build --locked
-lustr test --locked --all-features --all-targets
+RIT_BACKEND=native lustr test --locked --all-features --lib --test git_workflows --test grep_patterns
+
+RIT_BACKEND=native target/debug/rit -C /path/to/repository status --porcelain=v1
+RIT_BACKEND=native target/debug/rit -C /path/to/repository log --oneline -n 10
+```
+
+The same entrypoint builds as `rit` and `git`, with a `scalar` companion. Keep
+the generated `git` executable separate from an installed Git while native
+qualification remains incomplete.
+
+To build the connected Git installation, initialize its pinned source and run
+the dependency-free build coordinator with the pinned Rust compiler:
+
+```sh
+git submodule update --init compat/git
+rustup run 1.99.1 rustc --edition=2024 ci/build_git_compat.rs -o /tmp/rit-build-git
+/tmp/rit-build-git --prefix "$PWD/.rit-ci/git-compat"
 
 target/debug/rit -C /path/to/repository status --porcelain=v1
-target/debug/rit -C /path/to/repository log --oneline -n 10
-target/debug/rit clone /path/to/source /path/to/clone
+RIT_GIT_COMPAT="$PWD/.rit-ci/git-compat/bin/git" RIT_BACKEND=native lustr test --locked --all-features --all-targets
 ```
 
-The same entrypoint builds as `rit` and `git`, with a `scalar` companion.
-No command above replaces the Git installed on your computer. Keep the generated
-`git` binary separate while qualification is incomplete.
+This build needs upstream Git's C build tools and HTTP, TLS, compression, and
+PCRE2 development libraries. The coordinator verifies the source revision and
+records the installation's source identity. The launcher accepts only an
+installation with the matching receipt. For a custom installation, set
+`RIT_GIT_COMPAT` to its absolute `bin/git` path. An installed Rit looks for its
+companion at `../libexec/rit-git/bin/git`; a source build also checks
+`.rit-ci/git-compat/bin/git`.
 
-`RIT_REFERENCE_GIT` selects an absolute reference Git path for root tests.
-`RIT_TEST_BIN` selects the actual Rit executable for selected donor regression
-tests. The legacy `GITR_REFERENCE_GIT` and `GITR_TEST_BIN` settings are accepted
-when the corresponding `RIT_` setting is absent. Selected donor conformance
-tests require `SLEY_TEST_GIT` to point to Git 2.55.x.
-The native qualification workflow builds the exact Git 2.55.0 oracle outside
-tracked source and uses the pinned produced BlueFe bundle through Lustr.
-Local Lustr/rustc checks and hosted BlueFe checks are recorded separately.
+| Selection | Behavior |
+| --- | --- |
+| `RIT_BACKEND=native` | Execute the Rust Sley engine |
+| `RIT_BACKEND=compat` | Execute the verified connected Git installation |
+| `RIT_BACKEND=auto` or unset | Use compatibility execution until native command semantics are admitted |
 
-## Read a committed source snapshot
+There is no automatic PATH lookup for a substitute Git. A missing or invalid
+compatibility installation fails before the requested operation starts.
 
-The explicit Rit extension reads a committed tree directly from the existing
-Git object store, without materializing a checkout:
+## Native coverage and replacement work
 
-```sh
-rit --rit-snapshot inspect --repo /path/to/repository --revision HEAD
-rit --rit-snapshot list --repo /path/to/repository --revision HEAD --path src
-rit --rit-snapshot read --repo /path/to/repository --revision HEAD --path src/main.rs
-```
+Native workflow tests exercise initialization, staging, commits, branches,
+merges, rebases, stashes, worktrees, local clone/fetch/push/pull, and checked ref
+updates in SHA-1 and SHA-256 repositories. They also cover selected conflict,
+raw-filename, history, and archive cases. These fixtures establish their tested
+operations, not every flag or error case of the commands.
 
-Use the commit ID returned by `inspect` for later CLI calls that must keep the
-same revision. The public `rit::snapshot::Snapshot` Rust API resolves once and
-keeps that identity across reads. Metadata commands return JSON; `read` returns
-verified raw blob bytes. `--path-hex` preserves arbitrary Git path bytes.
+Sley's reported conformance results and Rit's qualification results must remain
+separate. The full upstream Git test suite, authenticated transport, platform
+matrix, and performance qualification remain required work.
 
-This implements the source reader described in the
-[snapshot implementation record](Documentation/rit/snapshot-reader.md).
-It is a local read interface, with no retention lease, writable overlay, or mounted
-filesystem. Symlinks return target bytes, checkout filters
-are not applied, and unavailable objects fail. See the record for size limits
-and the four ambient storage variables that must be unset.
+Replace each compatibility path only when the native implementation preserves
+its command-line contract and repository effects. Keep exact upstream source
+identities, failing cases, source notices, and Lustr compiler-route evidence.
+Do not turn source import size or a passing smoke test into a parity claim.
 
-## Save snapshot identities in omdb
-
-The active metadata catalog uses the pinned
-[`glopyglerky/omdb` fork](https://github.com/glopyglerky/omdb/tree/4c7c6c35d61372d0cd538ef3824a2f47eed2c4d5)
-with ordinary std features. Initialize it explicitly in a repository:
-
-```sh
-rit --rit-db init --repo /path/to/repository
-rit --rit-db put --repo /path/to/repository --name build-source --revision HEAD --expect-generation 0 --request-id build-source-1
-rit --rit-db get --repo /path/to/repository --name build-source
-rit --rit-snapshot read --repo /path/to/repository --saved build-source --path src/main.rs
-```
-
-Updates and deletions require the last returned generation. Each mutation
-commits its retry receipt atomically with the record; repeating the same request
-returns its original result. Use the original full commit ID when retrying a
-put after a branch moves. Linked worktrees share the catalog in the common Git
-directory. Ordinary Git commands do not create or open it.
-
-Saved identities do not retain objects against Git pruning. The catalog stores
-metadata; source payloads remain in standard Git objects and packs. See the
-[catalog implementation and qualification](Documentation/rit/omdb-catalog.md)
-for the schema, concurrency, recovery, platform limits, and remaining work.
-
-## Delivery order
-
-1. Establish native Git behavior and interoperability against a pinned oracle.
-2. Close the remaining conformance differences, including remote and platform
-   qualification. Unsupported behavior stays explicit.
-3. Extend the omdb metadata integration behind stable Git contracts and measure
-   any speed changes. The bounded snapshot catalog is active already.
-
-The [storage architecture assessment](Documentation/rit/storage-architecture-review.md)
-reviews redb, Fjall, SlateDB, immutable payload storage, and lazy CI snapshots.
-It defines the measurements and durability requirements for broader integration.
-The snapshot catalog now consumes the owner's omdb fork of redb.
-
-The [omdb/redb fact check](Documentation/rit/omdb-redb-factcheck.md) records the
-owner's redb fork, verified backend and no_std APIs, and the remaining durability
-and worker-integration requirements.
-
-The former redb catalog, object-store, LFS, Wasm action, and forge prototypes,
-including their tests and manifests, are preserved under
-[`Documentation/gitr/archive/database-first`](Documentation/gitr/archive/database-first).
-The old Grit and Rbit donors remain available for selective reuse. They are
-outside the new executable's dependency graph. No existing repository database
-is opened, converted, or deleted by this source migration. The old `db`,
-`assets`, `lfs`, `actions`, and `doctor` extensions are not active commands in
-this Git-first frontend. The new `--rit-db` catalog is a separate integration.
+`RIT_REFERENCE_GIT` selects an absolute reference Git for root tests.
+`RIT_TEST_BIN` selects Rit for donor regression tests. Legacy `GITR_` equivalents
+remain accepted when the corresponding `RIT_` setting is absent. Selected donor
+conformance tests require `SLEY_TEST_GIT` to point to Git 2.55.x. Native CI selects
+`RIT_BACKEND=native` so its results cannot be supplied by compatibility execution.
 
 ## Source map
 
 | Path | Purpose |
 | --- | --- |
-| `src/lib.rs`, `src/main.rs`, `src/bin` | Thin Rit, Git, and Scalar entrypoints |
-| `src/catalog.rs`, `src/catalog_cli.rs` | Active omdb snapshot metadata and explicit CLI |
-| `vendor/sley/crates` | Imported Git engine, frontend, and Rust tests |
-| `vendor/sley/NOTICE.md`, `Documentation/gitr/sley-import.json` | Upstream identity, file origins, exclusions, and local patches |
-| `tests/git_workflows.rs` | Product workflows with no Git executable on candidate PATH |
-| `examples/verify_import.rs` | Verify the complete imported file inventory and hashes |
-| `ci/qualify_native.rs`, `xtask` | Rust build, test, provenance, and policy coordinators |
-| `Documentation/gitr/archive/database-first` | Deferred prototype with its original source and tests |
+| `src/lib.rs`, `src/main.rs`, `src/bin` | Rit, Git, and Scalar entrypoints |
+| `src/compat.rs` | Backend selection and verified Git process execution |
+| `vendor/sley/crates` | Imported Rust Git engine, frontend, and tests |
+| `compat/git` | Pinned upstream Git source connection |
+| `ci/build_git_compat.rs` | Verify and build the connected compatibility installation |
+| `Documentation/gitr/sley-import.json` | Imported file identities, hashes, exclusions, and adaptations |
+| `tests/git_workflows.rs` | Native product workflows with Git absent from the candidate PATH |
+| `examples/verify_import.rs` | Verify the complete imported Sley inventory |
+| `ci/qualify_native.rs`, `xtask` | Compiler qualification, source composition, and inventory checks |
 
-The inherited C Git production tree remains in Git history. It is not restored
-as the product implementation or bundled as a fallback.
+## Licensing
 
-## Licensing and non-Rust boundaries
+Rit-controlled original code is MIT OR Apache-2.0. Sley retains Apache-2.0.
+Connected and inherited Git material retains its applicable upstream licenses,
+including the terms in `COPYING`. Preserve donor notices and corresponding
+source when distributing compatibility components. The project license does
+not override a donor's terms.
 
-Rit-controlled code is available under MIT OR Apache-2.0. Sley declares
-Apache-2.0; the pinned omdb library declares MIT OR Apache-2.0, with its
-[upstream license texts retained](Documentation/rit/omdb-notices).
-Historical Grit's GPL-2.0-only CLI is retained as source but is no
-longer linked into the default executable. Donor licenses are not rewritten.
-See [LICENSE](LICENSE) and the [license map](Documentation/gitr/licensing.md).
-
-The Git engine is Rust. Some compatibility behavior still requires shell:
-small installed helper adapters, user-requested hooks and filters, and
-generated conformance fixtures. The imported shell `filter-branch` engine and
-`git-sh-i18n` library were excluded after source-origin review found substantial
-overlap with Git scripts whose notices were absent. `filter-branch` currently
-fails explicitly before modifying a repository; the shell i18n library is not
-materialized. These exceptions are documented in the
-[source contract](Documentation/gitr/rust-only-source.md). TLS dependencies
-also include native cryptographic code, and some dependencies contain unsafe
-Rust. This is not a claim that the complete artifact is exclusively Rust or
-memory safe.
+The Rust engine retains small shell compatibility adapters and generated
+fixtures, and dependencies include native cryptographic code and unsafe Rust.
+Compatibility mode executes upstream Git. This is not an exclusively Rust or
+wholly memory-safe distribution. See [LICENSE](LICENSE), the
+[license map](Documentation/gitr/licensing.md), and
+[Sley's notice](vendor/sley/NOTICE.md).

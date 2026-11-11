@@ -1,9 +1,0 @@
-bluefe=7005dc02c9fb6674380eade443022bbc04215276
-lustr=6339fbb104d6adda4be7e6be7dc637a6a9e5586b
-engine=rustc
-artifact_run=42734454475
-archive_sha256=d6707ed830edd5dfc288d2d85ebe40cee93953f939fe3d4eae2de5af62a0456a
-manifest_sha256=c64b2a9007bb9c0269bd32c59719ec21bdd7d9d239c859f73f39f6e98872af91
-bundle=/home/runner/work/gitr/gitr/.gitr-ci/native-produced-bluefe
-application_commit=9a4495b10fd19c833179a26d58c64f997426e19a
-artifact_id=13726088006

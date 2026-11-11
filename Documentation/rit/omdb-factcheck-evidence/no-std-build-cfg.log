@@ -1,4 +1,0 @@
-Generated build-script output: target/debug/build/redb-15f0b3e0636bddfc/output
-cargo:rustc-check-cfg=cfg(fuzzing)
-cargo:rustc-check-cfg=cfg(redb_no_std)
-cargo:rustc-cfg=redb_no_std

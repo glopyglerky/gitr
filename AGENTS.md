@@ -1,112 +1,96 @@
 # Rit development contract
 
-## Current priority and canonical branch
+## Product and canonical branch
 
-Rit is Matt Mayhugh's Git-compatible Rust implementation. Active work belongs
-on the default branch, `master`; commit tested, reviewable changes there when
-safe. The owner's current instruction is full Git behavior first, assembled
-from reusable upstream Rust source, then database and performance improvements.
-The existing implementation and layout are replaceable. Scope each ChatGPT.com
-turn to a concrete, finishable change, with evidence and a commit.
+Rit is a Git-compatible implementation being ported to Rust. This public
+repository contains the Git port, upstream source, compatibility support,
+compiler integration, and the documentation and tests needed to develop them.
+Keep unrelated products and integration plans outside this repository.
 
-The active engine is the pinned Sley import. Preserve its coherent crate layout,
-Git-compatible CLI implementation, and useful tests. The CLI currently contains
-real command behavior; do not discard it as presentation-only code. Rit's
-entrypoints must execute the engine, not merely inventory it.
+Active work belongs on the default branch, `master`. Commit tested, reviewable
+changes there when safe. Scope each turn to a concrete change with evidence.
+The intended result is complete Git behavior implemented in Rust, assembled
+from reusable upstream projects and completed incrementally with Lustr.
+Full native Git parity is an acceptance goal, not the current status.
 
-Full Git parity is an acceptance goal, not the current status. A command name,
-large source import, passing smoke test, or upstream assertion count does not
-prove complete command semantics. Never silently fall back to C Git and call
-that native Rust execution. Keep a reproducible pinned reference oracle outside
-the tracked product source. Do not reimport the C Git implementation to fill gaps.
+## Native and compatibility execution
 
-## Database, forge, and preserved work
+The native engine is the pinned Sley import. Preserve its coherent crate layout,
+Git-compatible command implementations, and useful tests. Rit's entrypoints
+must execute the engine rather than merely inventory it.
 
-The owner selected the `glopyglerky/omdb` fork for Rit's database. Its pinned
-`redb` package is consumed under the `omdb` alias with ordinary std features.
-The active integration is the explicitly invoked, repository-scoped snapshot
-catalog. It must preserve checked generations, deletion tombstones, and atomic
-idempotency receipts. This bounded integration is authorized while full Git
-parity remains unfinished. Git objects and packs retain the Sley implementation;
-catalog records alone do not establish retention against Git pruning. Explicit
-create-only pins under `refs/rit/retained/` protect a checked catalog generation
-from later ordinary GC, but are never released automatically. Do not claim
-concurrent-GC safety, physical power-loss durability, or cross-store atomicity.
+Connected upstream Git source at `compat/git` covers behavior while the Rust
+port remains incomplete. Keep its exact revision, source notices, build inputs,
+and runtime selection recorded. The compatibility executable runs as a separate
+process. It must never be described as Rust execution.
 
-The reviewed registry redb 4.5.0 pin remains preserved in
-`Documentation/gitr/archive/database-first`. That archived source, manifest,
-lockfile, and tests retain the old catalog, object-store, Git LFS, chunking,
-Wasm actions, and forge work. Those prototypes remain inactive. Do not delete,
-migrate, or automatically open their databases. Further integration must preserve
-exact Git identities, durability, compare-and-swap, idempotency, worker fencing,
-atomic receipts and artifact publication, bounded-memory payloads, and
-independently verifiable exports.
+Choose the backend before invoking any command. Never retry a failed native
+command with another engine because it may already have changed the repository.
+Do not search PATH for an arbitrary fallback executable. Reject recursive
+routing and unqualified compatibility installations.
 
-Do not activate SurrealDB, SurrealKV, or SurrealDS. Keep Rit independently
-installable without mandatory Omnidia services. Search indexes are rebuildable
-and revision-addressed; embeddings never identify Git objects or decide merges.
-Retain the eventual self-contained Git, forge, CI/CD, Wasm action, and stateless
-API/MCP goals. They follow compatibility work; they do not justify an ever-growing
-research catalog instead of a working Git implementation. Multi-host HA needs
-real replication and consensus; sharing a writable redb file is not HA.
+`RIT_BACKEND=native` explicitly exercises the native Sley implementation.
+The default compatibility route remains in place until command and option
+semantics have evidence sufficient to admit native routing. Retain connected
+Git implementations until their Rust replacements work through the real CLI,
+with matching output, exit status, repository effects, and relevant platforms.
+Removing source or passing a small smoke test does not establish parity.
 
-## Source, licensing, and upstream reuse
+## Upstream source and licensing
 
 Import coherent upstream modules and their tests instead of rewriting code that
-already works. Record the exact commit, every imported path and original blob,
-current SHA-256, exclusions, local patches, dependency locks, license declarations,
-and qualification. Keep donor updates reviewable. Preserve every donor notice;
-modifying imported code does not relicense it.
+already works. Record exact commits, imported paths, original blobs, current
+hashes, exclusions, local patches, dependency locks, and license declarations.
+Keep donor updates reviewable and preserve every donor notice.
 
-New independently authored Rit code uses MIT OR Apache-2.0. Sley remains
-Apache-2.0. Historical Grit's GPL-2.0-only CLI must remain outside this executable's
-dependency graph. The root license file describes the mixed source repository;
-no permissive label overrides inherited Git/Grit material. Do not copy private
-or proprietary source into this public repository without explicit authorization.
+New independently authored Rit code uses MIT OR Apache-2.0. Sley retains
+Apache-2.0. Connected and inherited Git material retains its applicable Git
+licenses. Do not combine separately licensed implementations by relabeling
+source, removing notices, or importing incompatible code into one executable.
+A separate compatibility process does not waive distribution obligations.
 
-The current functionality-first integration supersedes the former blanket
-removal rule for foreign compatibility assets. Production Git algorithms should
-be Rust. Retain explicitly inventoried small native-dispatch shell adapters,
-caller-supplied Git hooks/filters, and generated donor test fixtures where needed
-for the Git contract. The copied shell filter-branch engine and git-sh-i18n
-library are excluded pending a resolved source-origin/license composition or
-qualified native replacements. Do not restore those fragments under the donor's
-blanket Apache label. Do not rename files or
-embed foreign code to conceal its language. Document these exceptions and native
-transitive dependencies; do not claim an exclusively Rust or wholly memory-safe
-artifact. Standalone upstream development scripts and the C Git oracle remain
-external. See `Documentation/gitr/rust-only-source.md`.
+The native production algorithms should be Rust. Keep explicitly inventoried
+helper adapters, caller-configured hooks and filters, generated donor fixtures,
+and the connected Git implementation when required for compatibility. Do not
+rename or embed foreign programs to conceal their language. Do not claim the
+complete artifact is exclusively Rust or wholly memory safe.
 
 ## Git correctness
 
-Git object bytes/IDs, refs, index/worktree behavior, configuration, CLI output,
-exit codes, and wire protocols are compatibility contracts. Writable refs require
+Git object bytes and IDs, refs, indexes, worktrees, configuration, CLI output,
+exit status, and wire protocols are compatibility contracts. Ref writers need
 checked expected-old-value publication under the appropriate lock. Reject stale
 writers and preserve data on partial failure. Do not acknowledge references to
-incomplete objects or silently replace missing content with empty data.
+incomplete objects or replace missing content with empty data.
 
 Test malformed objects, stale writes, concurrent publication, missing descendants,
-interrupted I/O, and authentication boundaries where touched. Preserve raw Unix
-filename bytes; never claim global byte-path parity from a staging-only fix.
-Keep credentials out of logs and command arguments, and do not forward endpoint
-authorization across origins. Git-compatible configured hooks, filters, aliases,
-and tools must remain explicit and auditable rather than triggering a blanket
-ban on otherwise unrelated commands.
+interrupted I/O, and authentication boundaries when a change touches them.
+Preserve raw Unix filename bytes. Never infer general byte-path parity from one
+staging fixture. Keep credentials out of logs and command arguments. Do not
+forward endpoint authorization across origins.
 
-## Build and qualification
+## Lustr and qualification
 
-Use pinned Lustr. Its ordinary rustc route can validate local development; record
-that compiler/version honestly. Produced BlueFe qualification uses the exact
-bundle in `lustr-toolchain.json` and remains a separate CI gate. Native Lust does
-not compile arbitrary Rust dependencies; do not claim it does or fall back
-silently after a failed compiler route.
+Use the pinned Lustr coordinator. Its ordinary rustc route can validate local
+development; record the actual compiler and version. Produced BlueFe
+qualification uses `lustr-toolchain.json` and remains a separate CI gate.
+Native Lust does not compile arbitrary Rust dependencies. Do not silently
+change compiler routes after a failure.
 
-Run root workflows, changed engine tests, import verification, and source/storage
-policy checks. Record executed tests separately from configured or queued CI.
-The selected Sley library/CLI subset is not the full upstream Git suite. Preserve
-failing or excluded cases in the evidence. Performance claims need reproducible
-equal-work measurements, and platform support needs execution on that platform.
+Measure native Rust execution independently with `RIT_BACKEND=native`.
+Compatibility tests must select and verify the connected Git installation.
+Run the changed engine tests, source-import verification, and composition checks.
+Record executed tests separately from configured or queued CI. The selected
+Sley library and CLI tests are not the complete upstream Git suite. Retain
+failing and excluded cases in the evidence. Performance claims need reproducible
+equal-work measurements; platform support needs execution on that platform.
 
-Run the Rust policy and inventory commands through Lustr:
-`run --manifest-path xtask/Cargo.toml --locked -- policy` and `audit`.
-The inventory's extension labels do not prove the absence of embedded programs.
+Run the composition and inventory commands through Lustr:
+
+```sh
+lustr run --manifest-path xtask/Cargo.toml --locked -- policy
+lustr run --manifest-path xtask/Cargo.toml --locked -- audit
+```
+
+The inventory classifies tracked files and the exact Git source connection.
+Its labels do not prove the absence of native dependencies or embedded programs.

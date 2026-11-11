@@ -41,6 +41,8 @@ jobs:
       CARGO_PROFILE_TEST_DEBUG: "0"
       CARGO_INCREMENTAL: "0"
       RUST_TEST_THREADS: "2"
+      RIT_BACKEND: native
+      RIT_GIT_COMPAT: ${{ github.workspace }}/.rit-ci/git-compat/bin/git
       RIT_REFERENCE_GIT: ${{ github.workspace }}/.rit-ci/reference-git/bin/git
       SLEY_TEST_GIT: ${{ github.workspace }}/.rit-ci/reference-git/bin/git
     steps:
@@ -58,7 +60,7 @@ jobs:
         # Keep HTTP and PCRE2 enabled in the reference used for qualification.
         run: |
           sudo apt-get update
-          sudo apt-get install --yes --no-install-recommends build-essential libcurl4-openssl-dev libexpat1-dev libpcre2-dev libssl-dev zlib1g-dev
+          sudo apt-get install --yes --no-install-recommends build-essential libcurl4-openssl-dev libexpat1-dev libpcre2-dev libssl-dev zlib1g-dev gettext tcl tk
       # Stock Rust compiles only these two dependency-free orchestration files.
       - name: Prepare orchestration compiler
         run: rustup toolchain install 1.99.1 --profile minimal
@@ -72,6 +74,10 @@ jobs:
         run: '"${{ runner.temp }}/rit-qualify-native-tests"'
       - name: Build and verify the external Git 2.55.0 test oracle
         run: '"${{ runner.temp }}/rit-qualify-native" build-oracle'
+      - name: Compile connected Git build coordinator
+        run: rustup run 1.99.1 rustc --edition=2024 ci/build_git_compat.rs -o "${{ runner.temp }}/rit-build-git-compat"
+      - name: Build and verify connected Git compatibility installation
+        run: '"${{ runner.temp }}/rit-build-git-compat" --source "${{ github.workspace }}/.rit-ci/reference-git-source" --prefix "${{ github.workspace }}/.rit-ci/git-compat"'
       - name: Download the pinned produced compiler bundle
         # Official actions/download-artifact v4.3.0, pinned to its release commit.
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
@@ -100,7 +106,7 @@ jobs:
       - name: Verify imported source provenance through Lustr and BlueFe
         if: ${{ !cancelled() && steps.build_root.outcome == 'success' }}
         run: '"${{ runner.temp }}/rit-qualify-native" verify-import'
-      - name: Check Git composition, omdb and archived redb pins through Lustr and BlueFe
+      - name: Check the native Git dependency composition through Lustr and BlueFe
         if: ${{ !cancelled() && steps.build_root.outcome == 'success' }}
         run: '"${{ runner.temp }}/rit-qualify-native" policy'
       - name: Audit repository source through Lustr and BlueFe

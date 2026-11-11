@@ -1,5 +1,0 @@
-program="tar"
-arguments=["--extract", "--gzip", "--no-same-owner", "--no-same-permissions", "--no-overwrite-dir", "--file", "/home/runner/work/gitr/gitr/.gitr-ci/native-compiler-download/gitr-produced-bluefe.tar.gz", "--directory", "/home/runner/work/gitr/gitr/.gitr-ci/native-produced-bluefe"]
-
-exit=exit status: 0
-elapsed_seconds=9.565

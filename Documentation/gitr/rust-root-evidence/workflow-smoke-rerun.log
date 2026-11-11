@@ -1,3 +1,0 @@
-{"format": "sha1", "workflow_rbit_redb_rust_wasm": "passed", "matrix_tasks": 3, "dependency_gates": "CLI and HTTP", "concurrent_processes": 4, "old_worker_refusal": false, "dirty_worktree": "excluded", "failure_and_cancel": "fenced", "export_counts": {"object": 7, "job": 9, "workflow": 3, "workflow_owner": 9}}
-{"format": "sha256", "workflow_rbit_redb_rust_wasm": "passed", "matrix_tasks": 3, "dependency_gates": "CLI and HTTP", "concurrent_processes": 4, "old_worker_refusal": false, "dirty_worktree": "excluded", "failure_and_cancel": "fenced", "export_counts": {"object": 7, "job": 9, "workflow": 3, "workflow_owner": 9}}
-GITR_WORKFLOW_SMOKE=passed

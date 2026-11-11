@@ -11,18 +11,15 @@ default-run = "rit"
 
 [workspace]
 # The pinned external Git oracle has its own standalone Rust support crate.
-exclude = ["vendor/sley", "vendor/grit", "vendor/rbit-workflow", "xtask", "crates/action-example", "crates/test-support", "Documentation/gitr/archive", ".rit-ci/reference-git-source", ".gitr-ci/reference-git-source"]
+exclude = ["vendor/sley", "xtask", "compat/git", ".rit-ci/reference-git-source", ".gitr-ci/reference-git-source"]
 
 [features]
 default = []
 parity-tools = ["sley-cli/testkit"]
 
 [dependencies]
-omdb = { package = "redb", version = "=4.5.0", git = "https://github.com/glopyglerky/omdb", rev = "4c7c6c35d61372d0cd538ef3824a2f47eed2c4d5" }
 sley-cli = { path = "vendor/sley/crates/sley-cli" }
 sley = { path = "vendor/sley/crates/sley", default-features = false }
-sley-fsck = { path = "vendor/sley/crates/sley-fsck" }
-serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 
 [dev-dependencies]

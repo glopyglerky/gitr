@@ -1,14 +1,10 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-//! Git-compatible entrypoints over the imported native Rust engine.
-//! Git commands use the native engine. Explicit Rit options expose immutable
-//! source reads and the repository's omdb metadata catalog.
+//! Git-compatible entrypoints over imported Rust source and pinned upstream Git.
+//! Backend selection happens before execution. Native errors are never retried.
 
 use std::{ffi::OsString, path::Path, process::ExitCode};
 
-pub mod catalog;
-mod catalog_cli;
-pub mod snapshot;
-mod snapshot_cli;
+mod compat;
 
 /// Run the standard Git interface, including installed `git-*` helper names.
 pub fn main() -> ExitCode {
@@ -19,25 +15,24 @@ pub fn main() -> ExitCode {
         .and_then(|name| name.to_str())
         .unwrap_or("rit");
     let raw_args: Vec<OsString> = invocation.collect();
-    // An explicit Rit-only option keeps Git command names, aliases, and helper
-    // dispatch unchanged. Preserve OsString until the snapshot path is decoded.
-    if basename == "rit" && raw_args.first().is_some_and(|arg| arg == "--rit-db") {
-        return match catalog_cli::run(&raw_args[1..]) {
-            Ok(()) => ExitCode::SUCCESS,
-            Err(error) => {
-                eprintln!("rit db: {error}");
-                ExitCode::from(error.exit_code())
-            }
-        };
+    match compat::backend(std::env::var_os("RIT_BACKEND").as_deref()) {
+        Ok(compat::Backend::Compat) => {
+            return match compat::run(basename, &raw_args) {
+                Ok(status) => status,
+                Err(error) => {
+                    eprintln!("rit compatibility: {error}");
+                    ExitCode::from(128)
+                }
+            };
+        }
+        Ok(compat::Backend::Native) => {}
+        Err(error) => {
+            eprintln!("rit: {error}");
+            return ExitCode::from(128);
+        }
     }
-    if basename == "rit" && raw_args.first().is_some_and(|arg| arg == "--rit-snapshot") {
-        return match snapshot_cli::run(&raw_args[1..]) {
-            Ok(()) => ExitCode::SUCCESS,
-            Err(error) => {
-                eprintln!("rit snapshot: {error}");
-                ExitCode::from(128)
-            }
-        };
+    if std::env::var_os("RIT_TRACE_BACKEND").is_some_and(|value| value == "1") {
+        eprintln!("rit backend: native");
     }
     let mut args: Vec<String> = raw_args
         .into_iter()

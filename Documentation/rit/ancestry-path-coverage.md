@@ -1,5 +1,9 @@
 # Ancestry-path selection and export connectivity
 
+This is historical native-engine evidence. Current native reproductions must
+set `RIT_BACKEND=native`; compatibility execution is not native coverage.
+
+
 Recorded November 10, 2026. This change continues from
 [`b40277b3c7cea2a607640df70d1fb9de28340a25`](https://github.com/glopyglerky/rit/commit/b40277b3c7cea2a607640df70d1fb9de28340a25).
 The pinned upstream ancestry-path script now passes all 18 cases in both SHA-1
@@ -180,8 +184,7 @@ explicit acceptance does not establish every combination's parity.
 
 Full-suite conformance, archive streaming, native filter-branch, broader
 transport/authentication and filename qualification, and Windows/macOS
-execution remain open. Database and forge integration still follow native Git
-compatibility.
+execution remain open.
 
 ## Evidence and reproduction
 
@@ -197,6 +200,7 @@ Set `RIT_REFERENCE_GIT` and `SLEY_TEST_GIT` to an absolute pinned Git executable
 Use `RIT_TEST_BIN` to select the built root Rit executable:
 
 ```sh
+export RIT_BACKEND=native
 lustr --engine rustc test --locked --all-features --all-targets --no-fail-fast
 RIT_TEST_BIN=/absolute/path/to/rit lustr --engine rustc test \
   --manifest-path vendor/sley/Cargo.toml --locked -p sley-cli \

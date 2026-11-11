@@ -1,0 +1,35 @@
+name: Rit Git source composition
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  composition:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      CARGO_BUILD_JOBS: "2"
+      CARGO_TARGET_DIR: ${{ github.workspace }}/.rit-ci/composition-target
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: glopyglerky/lustr
+          ref: 6339fbb104d6adda4be7e6be7dc637a6a9e5586b
+          path: .ci-lustr
+          persist-credentials: false
+      - name: Prepare orchestration compiler
+        run: rustup toolchain install 1.99.1 --profile minimal
+      - name: Bootstrap pinned Lustr
+        run: rustup run 1.99.1 cargo build --manifest-path .ci-lustr/crates/lustr/Cargo.toml --locked --bin lustr
+      - name: Test source composition guard
+        run: rustup run 1.99.1 "${{ env.CARGO_TARGET_DIR }}/debug/lustr" --engine rustc test --manifest-path xtask/Cargo.toml --locked
+      - name: Verify Git source composition
+        run: rustup run 1.99.1 "${{ env.CARGO_TARGET_DIR }}/debug/lustr" --engine rustc run --manifest-path xtask/Cargo.toml --locked -- policy
+      - name: Inventory tracked source
+        run: rustup run 1.99.1 "${{ env.CARGO_TARGET_DIR }}/debug/lustr" --engine rustc run --manifest-path xtask/Cargo.toml --locked -- audit

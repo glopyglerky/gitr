@@ -1,56 +1,46 @@
 Rit licensing
 =============
 
-Effective 2026-11-10, the repository owner offers the copyright-controlled
-Rit contributions identified in Documentation/gitr/license-scope.json under
-either of the following licenses, at the recipient's option:
+The repository owner offers copyright-controlled, independently authored Rit
+contributions under either of these licenses, at the recipient's option:
 
   * MIT, in LICENSE-MIT
   * Apache License, Version 2.0, in LICENSE-APACHE
 
 SPDX expression for that contribution grant: MIT OR Apache-2.0.
 
-This is an additional license grant for the owner's contributions. It does
-not withdraw licenses already granted. The source-origin record identifies
-the reviewed files and historical paths. It does not claim ownership of
-third-party material within a file or grant rights the owner does not hold.
-Any such material remains subject to its original license and notices.
+This grant does not withdraw licenses already granted. It does not claim
+ownership of third-party material or grant rights the owner does not hold.
+Copied, translated, imported, or otherwise derived third-party material keeps
+its original terms, even when a file also contains original Rit contributions.
 
 Third-party and inherited material
 ----------------------------------
 
-Third-party code, modifications of third-party code, imported documentation,
-fixtures, notices and archived material retain their applicable upstream
-terms. In particular:
+  * vendor/sley retains Apache-2.0, including local adaptations.
+  * Connected upstream Git at compat/git retains its own source notices and
+    COPYING. Git's COPYING selects GPL version 2 unless otherwise stated.
+  * Inherited Git documentation, fixtures and notices retain their Git terms.
+  * External dependencies retain their own grants and required notices.
 
-  * Inherited Git material retains COPYING and any file-specific notices.
-    COPYING expressly selects GPL version 2 unless otherwise stated.
-  * vendor/sley retains Apache-2.0, including its local adaptations.
-  * vendor/grit/grit-git retains GPL-2.0-only, including its local adaptations.
-  * vendor/grit/grit-lib and vendor/grit/grit-test-support retain MIT.
-  * vendor/rbit-workflow retains MIT OR Apache-2.0 and both license texts.
-  * Archived material and external dependencies retain their own grants.
+No root license or package metadata overrides those terms. The project
+contribution grant excludes vendor/, compat/git, inherited Git material and
+third-party dependency code except where an explicit grant already applies.
+Future imports must retain their actual licenses and source provenance.
 
-No root license, source-origin classification or package metadata overrides
-those terms. The project contribution grant excludes vendor/, inherited Git
-material, and Documentation/gitr/archive/ unless an explicit record states
-otherwise. Future imports must retain their actual licenses and provenance.
+Native and compatibility executables
+------------------------------------
 
-Current combined executable
----------------------------
+The native Rit executable links the Apache-2.0 Sley Rust engine and frontend.
+Rit-controlled entrypoint contributions remain MIT OR Apache-2.0. Preserve
+Sley's Apache-2.0 notice and all applicable dependency notices when distributing
+that executable.
 
-The active root package links Sley's Apache-2.0 Rust engine and frontend,
-and the omdb fork's MIT OR Apache-2.0 redb library for snapshot metadata.
-The pinned database identity and retained upstream notices are recorded in
-Documentation/rit/omdb-dependency.json and Documentation/rit/omdb-notices/.
-Historical grit-git and the deferred database/forge prototype are outside its
-dependency graph. Their GPL-2.0-only terms still apply to their retained source;
-this source migration does not relicense those files.
-
-Rit-controlled entrypoint contributions remain MIT OR Apache-2.0. Distribution
-of the active executable must retain Sley's Apache-2.0 terms and all applicable
-dependency notices. The whole source repository is not uniformly permissive:
-inherited Git, historical Grit and archived material retain their existing terms.
+The connected Git compatibility executable is built and executed separately.
+Its source and distribution remain subject to Git's applicable license terms.
+Separate process execution does not remove obligations to retain notices or
+supply corresponding source when those terms require it. The complete source
+repository and compatibility distribution are not uniformly permissive.
 
 See Documentation/gitr/licensing.md and vendor/sley/NOTICE.md. Keep LICENSE,
 LICENSE-MIT, LICENSE-APACHE, COPYING and applicable donor notices with source

@@ -1,5 +1,9 @@
 # Git coverage continuation
 
+This is historical native-engine evidence. Current native reproductions must
+set `RIT_BACKEND=native`; compatibility execution is not native coverage.
+
+
 Recorded November 9, 2026, America/Denver. This change continues from
 [`4d23776e19faaf161db66feb1768e64233a4620b`](https://github.com/glopyglerky/gitr/commit/4d23776e19faaf161db66feb1768e64233a4620b).
 It completes two bounded command changes and repairs the hosted qualification
@@ -156,6 +160,7 @@ qualification. `GITR_REFERENCE_GIT` and `SLEY_TEST_GIT` point to the absolute
 external Git 2.55.0 executable.
 
 ```sh
+export RIT_BACKEND=native
 lustr --engine rustc test --locked --all-features --all-targets --no-fail-fast
 GITR_TEST_BIN=/absolute/path/to/gitr lustr --engine rustc test \
   --manifest-path vendor/sley/Cargo.toml --locked -p sley-cli \
@@ -185,7 +190,7 @@ existing SSH/Git connections, URL resolution, transport policy, and packet
 codecs. Independently authored additions and adaptations are identified in
 [`sley-import.json`](sley-import.json), with current hashes and original donor
 identities preserved. No excluded shell engine or C Git implementation was
-reintroduced. The redb, LFS, actions, and forge archive remains inactive.
+reintroduced by that change.
 
 The archive cleanup code uses Rustix's safe process API. `sley-remote` now names
 the existing locked Rustix 1.1.5 dependency directly on Unix with its `process`

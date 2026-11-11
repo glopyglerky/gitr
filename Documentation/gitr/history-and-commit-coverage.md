@@ -1,5 +1,9 @@
 # History and commit coverage
 
+This is historical native-engine evidence. Current native reproductions must
+set `RIT_BACKEND=native`; compatibility execution is not native coverage.
+
+
 Recorded November 10, 2026 UTC. This work continues from
 [`f4b1367a704bcc12ae4dc784a862526a07f9fcfa`](https://github.com/glopyglerky/gitr/commit/f4b1367a704bcc12ae4dc784a862526a07f9fcfa).
 That baseline completed the full
@@ -144,6 +148,7 @@ Use the pinned Lustr coordinator, with `SLEY_TEST_GIT` and `GITR_REFERENCE_GIT`
 set to the absolute external Git 2.55.0 executable:
 
 ```sh
+export RIT_BACKEND=native
 lustr --engine rustc test --locked --all-features --all-targets --no-fail-fast
 GITR_TEST_BIN=/absolute/path/to/gitr lustr --engine rustc test \
   --manifest-path vendor/sley/Cargo.toml --locked -p sley-cli \

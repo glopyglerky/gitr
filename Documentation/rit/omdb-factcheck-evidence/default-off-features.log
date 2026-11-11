@@ -1,7 +1,0 @@
-command=['/workspace/scratch/161a1b7c00ce/tooling/rustup/toolchains/1.99.1-x86_64-unknown-linux-gnu/bin/cargo', 'tree', '--offline', '--locked', '-e', 'features', '--prefix', 'none', '-f', '{p} features=[{f}]', '--no-default-features']
-omdb-api-probe v0.0.0 (/workspace/scratch/717c1db38a84/omdb-api-probe) features=[]
-redb v4.5.0 (/workspace/scratch/717c1db38a84/omdb-source) features=[]
-libc feature "default"
-libc v0.2.189 features=[default,std]
-libc feature "std"
-libc v0.2.189 features=[default,std]

@@ -357,7 +357,8 @@ fn application(context: &Context, phase: &str) -> Result<()> {
         .env("CARGO_INCREMENTAL", "0")
         .env("RUST_TEST_THREADS", "2")
         .env("CARGO_TERM_COLOR", "never")
-        .env("RUST_BACKTRACE", "1");
+        .env("RUST_BACKTRACE", "1")
+        .env("RIT_BACKEND", "native");
     command.env("TMPDIR", temporary);
     for key in ["RUSTC_WRAPPER", "RUSTC_WORKSPACE_WRAPPER", "CARGO_BUILD_RUSTC_WRAPPER",
         "CARGO_BUILD_RUSTC_WORKSPACE_WRAPPER", "CARGO_ENCODED_RUSTDOCFLAGS",

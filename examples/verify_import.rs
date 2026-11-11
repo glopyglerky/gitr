@@ -123,26 +123,6 @@ fn main() -> Result<()> {
         )
         .into());
     }
-    let lock = fs::read_to_string(root.join("Cargo.lock"))?;
-    if lock.contains("name = \"grit-git\"") {
-        return Err("historical GPL-only engine is linked into the active lock".into());
-    }
-    // Cargo emits canonical package blocks. Permit only the reviewed omdb
-    // fork, not a registry redb or a second database revision. xtask's TOML
-    // policy separately checks the manifest alias, features and archived pin.
-    let databases: Vec<_> = lock
-        .split("[[package]]")
-        .filter(|package| package.lines().any(|line| line.trim() == "name = \"redb\""))
-        .collect();
-    let source = "source = \"git+https://github.com/glopyglerky/omdb?rev=4c7c6c35d61372d0cd538ef3824a2f47eed2c4d5#4c7c6c35d61372d0cd538ef3824a2f47eed2c4d5\"";
-    if databases.len() != 1
-        || !databases[0]
-            .lines()
-            .any(|line| line.trim() == "version = \"4.5.0\"")
-        || !databases[0].lines().any(|line| line.trim() == source)
-    {
-        return Err("active database must be the exact reviewed omdb fork revision".into());
-    }
     println!(
         "Sley source verified: {} files, {patched} adapted, {added} added; exact donor revision and complete installed inventory",
         expected.len()

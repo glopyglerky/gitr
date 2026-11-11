@@ -1,1 +1,0 @@
-{"rust_wasm_git_snapshot_smoke": "passed", "module_sha256": "3240cf766ce8345e3e5cc84bba2289e634e1c3dbd1f08d4032130bf7e2480d49", "commit_oid": "b4cd1b8f8d4a78a27f4fec015272be1be7cbc920", "artifact": {"bytes": 13, "lines": 1, "trailing_whitespace": false}, "failed_policy_exit": 1, "receipt_retry": "identical", "dirty_worktree": "excluded"}

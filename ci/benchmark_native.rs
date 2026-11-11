@@ -116,6 +116,7 @@ fn command(executable: &Path, directory: &Path) -> Command {
     let mut command = Command::new(executable);
     command.current_dir(directory).env_clear()
         .env("PATH", "")
+        .env("RIT_BACKEND", "native")
         .env("LC_ALL", "C")
         .env("LANG", "C")
         .env("TZ", "UTC")
@@ -216,7 +217,7 @@ fn fixture(context: &Context) -> Result<(PathBuf, PathBuf)> {
     }
     file.sync_all()?;
     fs::write(context.output.join("fixture.json"), format!(
-        "{{\"format_version\":1,\"tracked_files\":{FILES},\"modified_tracked_files\":20,\"untracked_files\":10,\"commits\":{COMMITS},\"history_shape\":\"linear commits sharing one tree\",\"head\":{},\"tree\":{},\"blob_bytes\":{BLOB_BYTES},\"blob_generator\":\"xorshift64 shifts 13,7,17; little-endian u64 output\",\"blob_seed\":\"{SEED:016x}\",\"redb_objects\":false,\"storage\":\"Git loose objects, no redb database\",\"tracked_mtime_epoch\":1700000000}}\n",
+        "{{\"format_version\":1,\"tracked_files\":{FILES},\"modified_tracked_files\":20,\"untracked_files\":10,\"commits\":{COMMITS},\"history_shape\":\"linear commits sharing one tree\",\"head\":{},\"tree\":{},\"blob_bytes\":{BLOB_BYTES},\"blob_generator\":\"xorshift64 shifts 13,7,17; little-endian u64 output\",\"blob_seed\":\"{SEED:016x}\",\"storage\":\"Git loose objects\",\"tracked_mtime_epoch\":1700000000}}\n",
         json(&parent), json(&tree),
     ))?;
     fs::copy(repository.join(".git/config"), context.output.join("fixture-config.txt"))?;
@@ -253,7 +254,7 @@ fn capture_metadata(context: &Context) -> Result<()> {
         }
     }
     let metadata = format!(
-        "{{\"format_version\":2,\"application_commit\":{},\"github_run\":{},\"rit\":{},\"reference_git\":{},\"compiler_bundle\":{},\"os\":{},\"architecture\":{},\"available_parallelism\":{},\"profile\":{{\"name\":\"release\",\"opt_level\":3,\"lto\":false,\"codegen_units\":16,\"debug\":0,\"all_features\":true,\"note\":\"CI measurement overrides; repository default release LTO remains thin\"}},\"environment\":{{\"cleared\":true,\"PATH\":\"\",\"LC_ALL\":\"C\",\"LANG\":\"C\",\"TZ\":\"UTC\",\"GIT_CONFIG_NOSYSTEM\":\"1\",\"GIT_CONFIG_GLOBAL\":\"/dev/null\",\"GIT_TERMINAL_PROMPT\":\"0\",\"GIT_OPTIONAL_LOCKS\":\"0\",\"GIT_PAGER\":\"\",\"PAGER\":\"\"}},\"timing\":\"Instant wall time including process startup and captured stdout/stderr; comparison and artifact writes excluded\",\"cache_policy\":\"No cache drops. Verification runs precede one warmup per executable, then seven alternating measurement rounds. Shared fixture and OS page cache are warm.\",\"redb_measured\":false,\"peak_rss_measured\":false,\"limitations\":\"Selected SHA-1 read workloads on a shared hosted Linux runner; no universal speed or memory claim; reference Git uses its packaged build configuration.\"}}\n",
+        "{{\"format_version\":2,\"application_commit\":{},\"github_run\":{},\"rit\":{},\"reference_git\":{},\"compiler_bundle\":{},\"os\":{},\"architecture\":{},\"available_parallelism\":{},\"profile\":{{\"name\":\"release\",\"opt_level\":3,\"lto\":false,\"codegen_units\":16,\"debug\":0,\"all_features\":true,\"note\":\"CI measurement overrides; repository default release LTO remains thin\"}},\"environment\":{{\"cleared\":true,\"PATH\":\"\",\"RIT_BACKEND\":\"native\",\"LC_ALL\":\"C\",\"LANG\":\"C\",\"TZ\":\"UTC\",\"GIT_CONFIG_NOSYSTEM\":\"1\",\"GIT_CONFIG_GLOBAL\":\"/dev/null\",\"GIT_TERMINAL_PROMPT\":\"0\",\"GIT_OPTIONAL_LOCKS\":\"0\",\"GIT_PAGER\":\"\",\"PAGER\":\"\"}},\"timing\":\"Instant wall time including process startup and captured stdout/stderr; comparison and artifact writes excluded\",\"cache_policy\":\"No cache drops. Verification runs precede one warmup per executable, then seven alternating measurement rounds. Shared fixture and OS page cache are warm.\",\"peak_rss_measured\":false,\"limitations\":\"Selected SHA-1 read workloads on a shared hosted Linux runner; no universal speed or memory claim; reference Git uses its packaged build configuration.\"}}\n",
         json(&env::var("GITHUB_SHA").unwrap_or_else(|_| "unknown".into())),
         json(&env::var("GITHUB_RUN_ID").unwrap_or_else(|_| "local".into())),
         json(text_path(&context.rit)?), json(text_path(&context.git)?),
@@ -380,7 +381,7 @@ fn execute(context: &Context) -> Result<()> {
         markdown.push_str(&format!("| {} | {git_ms:.3} | {rit_ms:.3} | {ratio:.3} |\n", summary.workload));
         records.push(format!("{{\"workload\":{},\"git_median_ms\":{git_ms:.6},\"rit_median_ms\":{rit_ms:.6},\"rit_over_git\":{ratio:.6}}}", json(summary.workload)));
     }
-    markdown.push_str("\nA ratio above 1 means Rit was slower. Each executable had one warmup and seven measured invocations per workload; order alternated. Verification and warmups populated the shared OS page cache. Timings include process startup and output capture. The fixture has 1,000 tracked files, 20 modified files, 10 untracked files, and 200 linear commits sharing one tree. These are SHA-1 reads from ordinary Git loose objects. Redb performance and peak memory were not measured. Hosted runner contention and the packaged Git build can affect these results.\n");
+    markdown.push_str("\nA ratio above 1 means Rit was slower. Each executable had one warmup and seven measured invocations per workload; order alternated. Verification and warmups populated the shared OS page cache. Timings include process startup and output capture. The fixture has 1,000 tracked files, 20 modified files, 10 untracked files, and 200 linear commits sharing one tree. These are SHA-1 reads from ordinary Git loose objects. Peak memory was not measured. Hosted runner contention and the packaged Git build can affect these results.\n");
     fs::write(context.output.join("summary.md"), &markdown)?;
     fs::write(context.output.join("results.json"), format!(
         "{{\"format_version\":2,\"complete\":true,\"warmups_per_engine\":1,\"samples_per_engine\":{SAMPLES},\"ratio_definition\":\"rit_median / git_median; greater than one means slower\",\"summaries\":[{}]}}\n", records.join(",\n")))?;

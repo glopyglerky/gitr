@@ -48,6 +48,8 @@ impl Repo {
         let mut command = Command::new(program);
         command
             .current_dir(directory)
+            .env("RIT_BACKEND", "native")
+            .env_remove("RIT_TRACE_BACKEND")
             .env("PATH", &self.empty_path)
             .env("HOME", self.temp.path())
             .env("XDG_CONFIG_HOME", self.temp.path().join("xdg"))

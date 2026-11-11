@@ -1,8 +1,0 @@
-command=['/workspace/scratch/161a1b7c00ce/tooling/lustr/target/release/lustr', '--engine', 'rustc', 'run', '--example', 'verify_import', '--locked']
-target=/workspace/scratch/161a1b7c00ce/tooling/gitr-target
-tmpdir=/tmp/rit-rename-root-2qe62hc9
-   Compiling sley-cli v0.13.0 (/workspace/scratch/717c1db38a84/gitr/vendor/sley/crates/sley-cli)
-   Compiling rit v0.2.0 (/workspace/scratch/717c1db38a84/gitr)
-    Finished `dev` profile [unoptimized] target(s) in 22.33s
-     Running `/workspace/scratch/161a1b7c00ce/tooling/gitr-target/debug/examples/verify_import`
-Sley source verified: 678 files, 32 adapted, 9 added; exact donor revision and complete installed inventory

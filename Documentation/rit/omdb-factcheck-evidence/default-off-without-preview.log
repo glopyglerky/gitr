@@ -1,7 +1,0 @@
-command=['/workspace/scratch/161a1b7c00ce/tooling/lustr/target/release/lustr', '--engine', 'rustc', 'run', '--offline', '--locked', '--bin', 'omdb-api-probe', '--no-default-features', '--profile', 'unwind-probe']
-   Compiling redb v4.5.0 (/workspace/scratch/717c1db38a84/omdb-source)
-   Compiling libc v0.2.189
-   Compiling omdb-api-probe v0.0.0 (/workspace/scratch/717c1db38a84/omdb-api-probe)
-    Finished `unwind-probe` profile [unoptimized] target(s) in 4.14s
-     Running `target/unwind-probe/omdb-api-probe`
-PASS: built-in memory backend, WouldBlock while writer held, success after release, committed bytes, and reader snapshot isolation

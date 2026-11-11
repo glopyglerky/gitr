@@ -1,7 +1,0 @@
-command=['/workspace/scratch/161a1b7c00ce/tooling/lustr/target/release/lustr', '--engine', 'rustc', 'run', '--manifest-path', 'xtask/Cargo.toml', '--locked', '--', 'policy']
-target=/workspace/scratch/161a1b7c00ce/tooling/xtask-target
-tmpdir=/tmp/rit-rename-policy-6_z1iq7h
-   Compiling rit-xtask v0.1.0 (/workspace/scratch/717c1db38a84/gitr/xtask)
-    Finished `dev` profile [unoptimized] target(s) in 0.30s
-     Running `/workspace/scratch/161a1b7c00ce/tooling/xtask-target/debug/rit-xtask policy`
-storage policy: Sley Git engine; redb 4.5.0 preserved for later integration; no active Surreal dependencies or grit-git linkage

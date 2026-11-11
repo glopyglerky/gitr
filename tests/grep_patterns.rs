@@ -11,6 +11,7 @@ fn run(program: &Path, cwd: &Path, args: &[&str], input: Option<&[u8]>) -> Outpu
     let mut command = Command::new(program);
     command
         .env_clear()
+        .env("RIT_BACKEND", "native")
         .env("PATH", cwd.join("empty-path"))
         .env("HOME", cwd)
         .env("GIT_CONFIG_NOSYSTEM", "1")

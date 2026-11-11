@@ -1,9 +1,0 @@
-This repository contains code under multiple licenses:
-
-- The `grit-lib` library (/grit-lib) is licensed under the MIT License.
-- The `grit-git` binary crate (/grit-git) is licensed under GPLv2. As a port of the
-  Git porcelain it incorporates text and behavior derived from the Git project,
-  which is licensed under GPLv2.
-- Files under /git and /tests are copied from the Git project and are licensed
-  under GPLv2. They are included for testing and compatibility verification only
-  and are not part of the MIT-licensed library.

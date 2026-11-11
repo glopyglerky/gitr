@@ -1,5 +1,9 @@
 # Sparse path history and explicit starting tips
 
+This is historical native-engine evidence. Current native reproductions must
+set `RIT_BACKEND=native`; compatibility execution is not native coverage.
+
+
 Recorded November 10, 2026. This work continues from
 [`87649428b17762d3c33b90f543bc733fe19aaa96`](https://github.com/glopyglerky/rit/commit/87649428b17762d3c33b90f543bc733fe19aaa96),
 the completed Rit rename. Its separate
@@ -149,6 +153,7 @@ Set `RIT_REFERENCE_GIT` and `SLEY_TEST_GIT` to the absolute pinned reference Git
 Use `RIT_TEST_BIN` to select an absolute path to the built root executable:
 
 ```sh
+export RIT_BACKEND=native
 lustr --engine rustc test --locked --all-features --all-targets --no-fail-fast
 RIT_TEST_BIN=/absolute/path/to/rit lustr --engine rustc test \
   --manifest-path vendor/sley/Cargo.toml --locked -p sley-cli \

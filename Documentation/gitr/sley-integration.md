@@ -1,11 +1,15 @@
 # Sley integration and executed qualification
 
+This is historical native-engine evidence. Current native reproductions must
+set `RIT_BACKEND=native`; compatibility execution is not native coverage.
+
+
 Recorded November 9, 2026, America/Denver. Baseline Gitr commit:
 [`fe8e48a59e07c630b59f4a38c2c406b13f58c28b`](https://github.com/glopyglerky/gitr/commit/fe8e48a59e07c630b59f4a38c2c406b13f58c28b).
 
 ## Completed scope
 
-The default Gitr executable now calls the imported Sley implementation in
+At the recorded baseline, the Gitr executable calls the imported Sley implementation in
 process. The same Rust entrypoint builds as `gitr` and `git`; `scalar` has its
 corresponding entrypoint. This completes an upstream import and working product
 connection, not full Git compatibility.
@@ -15,14 +19,6 @@ Donor: [HeddleCo/sley](https://github.com/HeddleCo/sley), exact revision
 workspace version 0.13.0, 36 crates. The pinned source is preserved in its
 upstream crate layout with original hashes, adaptations, exclusions, and notices
 in [sley-import.json](sley-import.json) and [the donor notice](../../vendor/sley/NOTICE.md).
-
-The active dependency closure no longer links historical Grit's GPL-only CLI
-or the database prototype. Exactly 37 former source/manifest/test/helper files
-are preserved byte-for-byte under `archive/database-first`; its
-[provenance record](archive/database-first/provenance.json) identifies their
-original blobs. No user database was opened, migrated, or deleted. The old
-`db`, `assets`, `lfs`, `actions`, and `doctor` extensions are inactive. Redb 4.5.0
-remains the selected future database, with its lock retained in the archive.
 
 ## Recovered fixes that are included
 

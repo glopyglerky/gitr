@@ -1,0 +1,3 @@
+repository=https://github.com/git/git
+revision=e9019fcafe0040228b8631c30f97ae1adb61bcdc
+version=2.55.0
