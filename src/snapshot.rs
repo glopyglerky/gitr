@@ -21,6 +21,9 @@ use sley::{
     ReferenceTarget, Repository, ResourceLimitKind, Result, TagObject, TreeObject,
 };
 
+mod search;
+pub use search::{SearchLimits, SearchMatch, SearchReport};
+
 /// Default maximum uncompressed blob size accepted by a snapshot read.
 pub const DEFAULT_MAX_BLOB_BYTES: u64 = 8 * 1024 * 1024;
 /// Hard maximum uncompressed blob size accepted by this API.
@@ -170,6 +173,10 @@ impl Snapshot {
     }
 
     fn read_tree(&self, oid: ObjectId) -> Result<Vec<SnapshotEntry>> {
+        self.read_tree_with_size(oid).map(|(entries, _)| entries)
+    }
+
+    fn read_tree_with_size(&self, oid: ObjectId) -> Result<(Vec<SnapshotEntry>, u64)> {
         let object = read_verified(
             &self.repository,
             oid,
@@ -226,7 +233,8 @@ impl Snapshot {
                 "snapshot tree {oid} uses a noncanonical entry encoding"
             )));
         }
-        Ok(tree
+        let bytes = object.encoded().body.len() as u64;
+        let entries = tree
             .entries
             .into_iter()
             .map(|entry| SnapshotEntry {
@@ -234,7 +242,8 @@ impl Snapshot {
                 mode: entry.mode,
                 oid: entry.oid,
             })
-            .collect())
+            .collect();
+        Ok((entries, bytes))
     }
 }
 

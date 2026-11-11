@@ -14,6 +14,9 @@ use std::{
 use rit::snapshot::Snapshot;
 use serde_json::{Value, json};
 
+#[path = "snapshots/search.rs"]
+mod search;
+
 struct Fixture {
     temp: tempfile::TempDir,
     repo: PathBuf,
