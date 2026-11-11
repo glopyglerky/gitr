@@ -100,6 +100,7 @@ Git object store, without materializing a checkout:
 rit --rit-snapshot inspect --repo /path/to/repository --revision HEAD
 rit --rit-snapshot list --repo /path/to/repository --revision HEAD --path src
 rit --rit-snapshot read --repo /path/to/repository --revision HEAD --path src/main.rs
+rit --rit-snapshot search --repo /path/to/repository --revision HEAD --path src --query TODO
 ```
 
 Use the commit ID returned by `inspect` for later CLI calls that must keep the
@@ -113,6 +114,11 @@ It is a local read interface, with no retention lease, writable overlay, or moun
 filesystem. Symlinks return target bytes, checkout filters
 are not applied, and unavailable objects fail. See the record for size limits
 and the four ambient storage variables that must be unset.
+
+The [bounded literal search](Documentation/rit/snapshot-search.md) API searches
+the same verified source tree or a saved catalog snapshot. Results retain exact
+commit, blob, raw path and byte locations. Missing objects and exceeded limits
+fail without a partial result; symlinks and submodules are not searched.
 
 ## Save snapshot identities in omdb
 

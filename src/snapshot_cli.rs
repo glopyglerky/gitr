@@ -11,10 +11,10 @@ use serde_json::{Value, json};
 use sley::{GitError, Result};
 
 use crate::catalog::SnapshotCatalog;
-use crate::snapshot::{DEFAULT_MAX_BLOB_BYTES, MAX_BLOB_BYTES, Snapshot, SnapshotEntry};
+use crate::snapshot::{DEFAULT_MAX_BLOB_BYTES, MAX_BLOB_BYTES, SearchLimits, Snapshot, SnapshotEntry};
 
 const HELP: &str = "\
-usage: rit --rit-snapshot <inspect|list|stat|read> [options]
+usage: rit --rit-snapshot <inspect|list|stat|read|search> [options]
 
   --repo PATH         Repository to open, default: .
   --revision REV      Commit ID, HEAD, ref name, or annotated tag, default: HEAD
@@ -22,12 +22,21 @@ usage: rit --rit-snapshot <inspect|list|stat|read> [options]
   --path PATH         Exact repository-relative path; required for read
   --path-hex HEX      Path bytes encoded as hexadecimal, instead of --path
   --max-bytes N       Read limit, default: 8388608; maximum: 67108864
+  --query TEXT        Case-sensitive literal search query, required for search
+  --max-total-bytes N Search blob budget, default: 33554432; maximum: 268435456
+  --max-entries N     Search entries including root, default: 10000; max: 100000
+  --max-matches N     Search occurrences, default: 1000; maximum: 10000
   --help              Show this help
 
 inspect reports the resolved commit and root tree as JSON.
 list reports one directory as JSON, without reading file payloads.
 stat reports one entry as JSON. Empty paths select the root directory.
 read writes the verified raw blob bytes, including symlink target bytes.
+search returns exact JSON byte locations in regular files, including binary
+content. Empty paths select the whole tree. Query length is 1..4096 bytes with
+no newline. Symlinks and submodules are counted but not searched or followed.
+Missing/corrupt objects or exceeded limits fail without partial results.
+Search traversal accepts at most 64 MiB tree bytes and 8 MiB result path bytes.
 
 Revision expressions such as HEAD~1 are not accepted. Resolve them to a full
 commit ID first. Paths are not normalized and symlinks are not followed.
@@ -47,6 +56,7 @@ enum Action {
     List,
     Stat,
     Read,
+    Search,
 }
 
 struct Options {
@@ -56,6 +66,8 @@ struct Options {
     saved: Option<String>,
     path: Vec<u8>,
     max_bytes: u64,
+    query: Option<Vec<u8>>,
+    search_limits: SearchLimits,
 }
 
 fn usage(message: impl Into<String>) -> GitError {
@@ -123,14 +135,19 @@ fn parse(args: &[OsString]) -> Result<Option<Options>> {
         "list" => Action::List,
         "stat" => Action::Stat,
         "read" => Action::Read,
+        "search" => Action::Search,
         "--help" | "-h" if args.len() == 1 => return Ok(None),
-        _ => return Err(usage("expected inspect, list, stat, or read")),
+        _ => return Err(usage("expected inspect, list, stat, read, or search")),
     };
     let mut repository = None;
     let mut revision = None;
     let mut saved = None;
     let mut path = None;
     let mut max_bytes = None;
+    let mut query = None;
+    let mut max_total_bytes = None;
+    let mut max_entries = None;
+    let mut max_matches = None;
     let mut remaining = args[1..].iter();
     while let Some(option) = remaining.next() {
         let option = utf8(option, "option name")?;
@@ -140,6 +157,7 @@ fn parse(args: &[OsString]) -> Result<Option<Options>> {
         if !matches!(
             option,
             "--repo" | "--revision" | "--saved" | "--path" | "--path-hex" | "--max-bytes"
+                | "--query" | "--max-total-bytes" | "--max-entries" | "--max-matches"
         ) {
             return Err(usage(format!("unknown snapshot option {option:?}")));
         }
@@ -159,20 +177,32 @@ fn parse(args: &[OsString]) -> Result<Option<Options>> {
             "--saved" => set_once(&mut saved, utf8(value, option)?.to_owned(), option)?,
             "--path" => set_once(&mut path, path_bytes(value)?, "--path/--path-hex")?,
             "--path-hex" => set_once(&mut path, from_hex(value)?, "--path/--path-hex")?,
-            "--max-bytes" => {
+            "--query" => set_once(&mut query, utf8(value, option)?.as_bytes().to_vec(), option)?,
+            "--max-bytes" | "--max-total-bytes" | "--max-entries" | "--max-matches" => {
                 let text = utf8(value, option)?;
                 if text.is_empty() || !text.bytes().all(|byte| byte.is_ascii_digit()) {
-                    return Err(usage("--max-bytes must be an unsigned decimal integer"));
+                    return Err(usage(format!("{option} must be an unsigned decimal integer")));
                 }
                 let number = text
                     .parse::<u64>()
-                    .map_err(|_| usage("--max-bytes is too large"))?;
-                if number > MAX_BLOB_BYTES {
-                    return Err(usage(format!(
-                        "--max-bytes must not exceed {MAX_BLOB_BYTES}"
-                    )));
+                    .map_err(|_| usage(format!("{option} is too large")))?;
+                let maximum = match option {
+                    "--max-bytes" => MAX_BLOB_BYTES,
+                    "--max-total-bytes" => SearchLimits::MAX_TOTAL_BYTES,
+                    "--max-entries" => SearchLimits::MAX_ENTRIES as u64,
+                    _ => SearchLimits::MAX_MATCHES as u64,
+                };
+                if number > maximum
+                    || (number == 0 && matches!(option, "--max-entries" | "--max-matches"))
+                {
+                    return Err(usage(format!("{option} is outside its supported range")));
                 }
-                set_once(&mut max_bytes, number, option)?;
+                match option {
+                    "--max-bytes" => set_once(&mut max_bytes, number, option)?,
+                    "--max-total-bytes" => set_once(&mut max_total_bytes, number, option)?,
+                    "--max-entries" => set_once(&mut max_entries, number as usize, option)?,
+                    _ => set_once(&mut max_matches, number as usize, option)?,
+                }
             }
             _ => unreachable!(),
         }
@@ -183,12 +213,26 @@ fn parse(args: &[OsString]) -> Result<Option<Options>> {
     if action == Action::Inspect && path.is_some() {
         return Err(usage("inspect does not accept --path or --path-hex"));
     }
-    if action != Action::Read && max_bytes.is_some() {
-        return Err(usage("--max-bytes applies only to read"));
+    if !matches!(action, Action::Read | Action::Search) && max_bytes.is_some() {
+        return Err(usage("--max-bytes applies only to read or search"));
+    }
+    if action != Action::Search
+        && (query.is_some() || max_total_bytes.is_some() || max_entries.is_some() || max_matches.is_some())
+    {
+        return Err(usage("search options apply only to search"));
+    }
+    if action == Action::Search && query.is_none() {
+        return Err(usage("search requires --query"));
+    }
+    if query.as_ref().is_some_and(|bytes| {
+        bytes.is_empty() || bytes.len() > SearchLimits::MAX_QUERY_BYTES || bytes.contains(&b'\n')
+    }) {
+        return Err(usage("--query must contain 1..4096 bytes and no newline"));
     }
     if action == Action::Read && path.as_ref().is_none_or(Vec::is_empty) {
         return Err(usage("read requires a nonempty --path or --path-hex"));
     }
+    let defaults = SearchLimits::default();
     Ok(Some(Options {
         action,
         repository: repository.unwrap_or_else(|| PathBuf::from(".")),
@@ -196,6 +240,13 @@ fn parse(args: &[OsString]) -> Result<Option<Options>> {
         saved,
         path: path.unwrap_or_default(),
         max_bytes: max_bytes.unwrap_or(DEFAULT_MAX_BLOB_BYTES),
+        query,
+        search_limits: SearchLimits {
+            max_blob_bytes: max_bytes.unwrap_or(DEFAULT_MAX_BLOB_BYTES),
+            max_total_bytes: max_total_bytes.unwrap_or(defaults.max_total_bytes),
+            max_entries: max_entries.unwrap_or(defaults.max_entries),
+            max_matches: max_matches.unwrap_or(defaults.max_matches),
+        },
     }))
 }
 
@@ -281,6 +332,36 @@ pub(crate) fn run(args: &[OsString]) -> Result<()> {
             let blob = snapshot.read(&options.path, options.max_bytes)?;
             output.write_all(blob.bytes())?;
             Ok(())
+        }
+        Action::Search => {
+            let query = options.query.as_deref().expect("search parse requires a query");
+            let report = snapshot.search(&options.path, query, options.search_limits)?;
+            write_json(
+                &mut output,
+                &json!({
+                    "snapshot": identity(&snapshot),
+                    "path": raw_name(&options.path),
+                    "query": raw_name(query),
+                    "complete": true,
+                    "scope": "regular-file-bytes",
+                    "matches": report.matches.iter().map(|found| json!({
+                        "path": raw_name(&found.path),
+                        "blob_oid": found.blob_id.to_string(),
+                        "byte_offset": found.byte_offset,
+                        "byte_length": query.len(),
+                        "line": found.line,
+                        "byte_column": found.byte_column,
+                    })).collect::<Vec<_>>(),
+                    "scanned": {
+                        "entries": report.entries,
+                        "files": report.files,
+                        "blob_bytes": report.blob_bytes,
+                        "tree_bytes": report.tree_bytes,
+                        "skipped_symlinks": report.skipped_symlinks,
+                        "skipped_gitlinks": report.skipped_gitlinks,
+                    },
+                }),
+            )
         }
     }
 }
